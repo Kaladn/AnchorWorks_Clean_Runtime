@@ -1,0 +1,15 @@
+[
+  {
+    "binary": "1001000011100001011111110110010001010100",
+    "hex": "0x90E17F6454",
+    "font_symbol": "CHAR_1001000011",
+    "tone_signature": "TONE_13080",
+    "status": "ASSIGNED",
+    "word": "ṣṇa",
+    "display": "ṣṇa",
+    "symbol": "0x90E17F6454",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 25
+  }
+]

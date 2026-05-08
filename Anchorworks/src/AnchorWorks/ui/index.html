@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anchor Works</title>
+  <link rel="icon" href="/assets/icon-256.png">
+  <link rel="stylesheet" href="/assets/core.css">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Standalone Lexicon Workspace</div>
+        <h1>Anchor Works</h1>
+        <p>AnchorWorks lexicon workspace for browsing anchors, inspecting context, reviewing unmatched words, and assigning spare slots without digging through the raw files.</p>
+      </div>
+      <div class="hero-badge">
+        <div class="hero-badge-label">Data Root</div>
+        <div class="hero-badge-value" id="data-root">Loading...</div>
+      </div>
+    </section>
+
+    <div id="status-banner" class="status-banner"></div>
+
+    <nav class="tab-nav" aria-label="Workspace tabs">
+      <button id="tab-lexicon" class="tab-btn active" type="button">Lexicon Workspace</button>
+      <button id="tab-intake" class="tab-btn" type="button">Document Intake</button>
+      <button id="tab-chat" class="tab-btn" type="button">Chat + Memory</button>
+      <button id="tab-tree-brain" class="tab-btn" type="button">Tree-Brain Controls</button>
+      <button id="tab-tracer" class="tab-btn" type="button">Tracer</button>
+    </nav>
+
+    <section id="lexicon-tab" class="tab-panel active">
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-label">Indexed</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-note">Canonical and structural entries</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">Canonical</div>
+        <div class="stat-value" id="stat-canonical">0</div>
+        <div class="stat-note">Assigned live word entries</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">Spare Slots</div>
+        <div class="stat-value" id="stat-spare">0</div>
+        <div class="stat-note">Available addresses ready to assign</div>
+      </article>
+      <article class="stat-card stat-card-wide">
+        <div class="stat-label" id="result-meta-title">Current View</div>
+        <div class="stat-note" id="result-meta">Start with Search, Random, Top Words, or a letter.</div>
+      </article>
+    </section>
+
+    <section class="workspace-grid">
+      <section class="card command-card">
+        <div class="section-head">
+          <div>
+            <h2>Find And Browse</h2>
+            <p>Search by word or jump straight into a pack and letter.</p>
+          </div>
+        </div>
+        <div class="search-row">
+          <div class="toolbar-fill">
+            <input id="search-input" class="form-control search-input" type="text" placeholder="Search by word, display, binary, hex, tone, or status...">
+          </div>
+          <button class="action-btn primary" id="search-btn">Search</button>
+          <button class="action-btn" id="reset-btn">Reset</button>
+        </div>
+        <div class="helper-text">Search looks across word, display, address, binary, tone signature, and status.</div>
+        <div class="pack-pills">
+          <button class="pill active" data-pack="all">All Packs</button>
+          <button class="pill" data-pack="canonical">Canonical</button>
+          <button class="pill" data-pack="spare">Spare</button>
+        </div>
+        <div class="shortcut-row">
+          <button class="action-btn cool" id="random-btn">Random Sample</button>
+          <button class="action-btn primary" id="top-btn">Top Words</button>
+          <button class="action-btn" id="recent-btn">Recently Mapped</button>
+          <button class="action-btn" id="files-btn">Partition Files</button>
+          <button class="action-btn" id="observed-maps-btn">Observed Maps</button>
+        </div>
+        <div class="alpha-head">
+          <h3>Browse By Letter</h3>
+          <p>Use this after choosing a pack.</p>
+        </div>
+        <div class="alpha-strip" id="alpha-strip"></div>
+      </section>
+
+      <section class="card workflow-card">
+        <div class="section-head">
+          <div>
+            <h2>Review Queues</h2>
+            <p>These are the live decision queues for lexicon maintenance.</p>
+          </div>
+        </div>
+        <div class="queue-grid">
+          <article class="queue-card">
+            <div class="queue-top">
+              <div>
+                <div class="queue-label">Unmatched</div>
+                <div class="queue-note">Words waiting for accept or deny</div>
+              </div>
+              <div class="queue-count" id="queue-unmatched">0</div>
+            </div>
+            <button class="action-btn warn queue-action" id="unmatched-btn">Open Unmatched</button>
+          </article>
+          <article class="queue-card">
+            <div class="queue-top">
+              <div>
+                <div class="queue-label">Pending Review</div>
+                <div class="queue-note">Accepted words waiting for slot assignment</div>
+              </div>
+              <div class="queue-count" id="queue-pending">0</div>
+            </div>
+            <button class="action-btn primary queue-action" id="pending-btn">Open Pending</button>
+          </article>
+          <article class="queue-card">
+            <div class="queue-top">
+              <div>
+                <div class="queue-label">Ignore List</div>
+                <div class="queue-note">Hidden words that can still be restored</div>
+              </div>
+              <div class="queue-count" id="queue-ignored">0</div>
+            </div>
+            <button class="action-btn queue-action" id="ignored-btn">Open Ignore List</button>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section class="card">
+      <div class="section-head section-head-spread">
+        <div>
+          <h2>Letter Distribution</h2>
+          <p>Canonical entries by leading letter.</p>
+        </div>
+      </div>
+      <div id="distribution-chart" class="chart"></div>
+    </section>
+
+    <section class="card admin-card">
+      <div class="section-head">
+        <div>
+          <h2>Import And Maintenance</h2>
+          <p>Import verified word files here. Destructive actions are separated on purpose.</p>
+        </div>
+      </div>
+      <div class="admin-grid">
+        <article class="admin-panel">
+          <div class="admin-label">Mapping build</div>
+          <input id="mapping-path" class="form-control" type="text" placeholder="C:\\path\\to\\document.txt">
+          <div class="helper-text">Reads one file, extracts observed anchors, compares them to the lexicon, and saves the observed map.</div>
+          <button class="action-btn primary" id="mapping-btn">Run Mapping / Anchor Build / Parse</button>
+        </article>
+        <article class="admin-panel">
+          <div class="admin-label">Import directory</div>
+          <input id="import-path" class="form-control" type="text" placeholder="C:\\path\\to\\verified files">
+          <div class="helper-text">Directory containing verified_A.json through verified_Z.json.</div>
+          <button class="action-btn good" id="import-btn">Import Word List</button>
+        </article>
+        <article class="admin-panel admin-panel-danger">
+          <div class="admin-label">Destructive actions</div>
+          <div class="helper-text">Only use these if you intend to rewrite canonical assignments.</div>
+          <div class="danger-actions">
+            <button class="action-btn hot" id="clear-btn">Clear Canonical</button>
+            <button class="action-btn warn" id="return-btn">Return To Pool</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="card results-card">
+      <div class="section-head section-head-spread">
+        <div>
+          <h2 id="results-title">Results</h2>
+          <p id="results-subtitle">Choose a browsing mode to load entries.</p>
+        </div>
+      </div>
+      <div id="results" class="results-grid">
+        <div class="empty-state">
+          <div style="font-size:24px; margin-bottom:10px;">LEXICON</div>
+          <div>Loading lexicon...</div>
+        </div>
+      </div>
+      <div id="pager" class="pager" style="margin-top:12px;"></div>
+    </section>
+
+    <section id="detail-card" class="card detail-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px;">
+        <h2 id="detail-title" style="margin:0;">Word Detail</h2>
+        <button class="action-btn" id="detail-close">Close</button>
+      </div>
+      <div id="detail-body"></div>
+    </section>
+    </section>
+
+    <section id="document-intake-tab" class="tab-panel">
+      <section class="card intake-card">
+        <div class="section-head section-head-spread">
+          <div>
+            <h2>Document Intake</h2>
+            <p>Read, extract, compare, and review lexicon coverage before any mapping or counting.</p>
+          </div>
+          <div class="intake-actions">
+            <input id="intake-file-input" class="visually-hidden" type="file">
+            <button class="action-btn primary" id="intake-add-btn" type="button">Add Document</button>
+            <button class="action-btn good" id="intake-map-btn" type="button" disabled>Run Mapping + Counts</button>
+          </div>
+        </div>
+
+        <div class="intake-file-strip">
+          <div>
+            <div class="intake-file-name" id="intake-file-name">No document selected</div>
+            <div class="entry-meta" id="intake-file-meta">Select a document to begin intake.</div>
+          </div>
+          <div class="entry-tag" id="intake-ready-tag">idle</div>
+        </div>
+
+        <div class="intake-progress">
+          <div class="intake-progress-head">
+            <div class="spinner" id="intake-spinner"></div>
+            <span id="intake-step-label">Waiting for document</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="intake-progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="archive-import-box">
+          <div>
+            <div class="admin-label">AnchorWorks Chat + Memory Archive</div>
+            <div class="helper-text">Point this at an old AnchorWorks root or its data folder. It prepares chats, citations, notes, summaries, lessons, reasoning, side chats, maps, and chat packs for review.</div>
+          </div>
+          <div class="archive-import-row">
+            <input id="chat-archive-path" class="form-control" type="text" placeholder="C:\\path\\to\\old\\AnchorWorks or C:\\path\\to\\data">
+            <button class="action-btn cool" id="chat-archive-btn" type="button">Prepare Chat Archive</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-grid intake-summary-grid">
+        <article class="stat-card">
+          <div class="stat-label">Document</div>
+          <div class="stat-note" id="intake-doc-name">-</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">File Type</div>
+          <div class="stat-note" id="intake-doc-type">-</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Paragraphs</div>
+          <div class="stat-value" id="intake-paragraph-count">0</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Total Observations</div>
+          <div class="stat-value" id="intake-total-count">0</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Unique Anchors</div>
+          <div class="stat-value" id="intake-unique-count">0</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Known Anchors</div>
+          <div class="stat-value" id="intake-known-count">0</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Missing Anchors</div>
+          <div class="stat-value" id="intake-missing-count">0</div>
+        </article>
+        <article class="stat-card stat-card-wide">
+          <div class="stat-label">Real Lexicon Path</div>
+          <div class="stat-note" id="intake-lexicon-path">-</div>
+        </article>
+      </section>
+
+      <section class="intake-review-grid">
+        <article class="card intake-panel">
+          <div class="section-head">
+            <div>
+              <h2>Prepared Document Preview</h2>
+              <p id="intake-raw-meta">No document loaded.</p>
+            </div>
+          </div>
+          <pre id="intake-raw-preview" class="raw-preview"></pre>
+        </article>
+
+        <article class="card intake-panel">
+          <div class="section-head">
+            <div>
+              <h2>Unique Anchor List</h2>
+              <p id="intake-unique-meta">0 anchors</p>
+            </div>
+          </div>
+          <input id="intake-unique-filter" class="form-control" type="search" placeholder="Filter unique anchors">
+          <div id="intake-unique-list" class="anchor-list"></div>
+        </article>
+
+        <article class="card intake-panel">
+          <div class="section-head section-head-spread">
+            <div>
+              <h2>Missing Anchors Review</h2>
+              <p id="intake-missing-meta">0 anchors</p>
+            </div>
+            <div class="intake-review-tools">
+              <button class="action-btn" id="intake-select-visible-btn" type="button" disabled>Select Visible</button>
+              <button class="action-btn primary" id="intake-approve-selected-btn" type="button" disabled>Approve Selected</button>
+              <button class="action-btn good" id="intake-bulk-approve-btn" type="button" disabled>Bulk Approve All</button>
+            </div>
+          </div>
+          <input id="intake-missing-filter" class="form-control" type="search" placeholder="Filter missing anchors">
+          <div id="intake-missing-list" class="anchor-list review-list"></div>
+        </article>
+      </section>
+    </section>
+
+    <section id="chat-memory-tab" class="tab-panel">
+      <section class="card chat-shell-card">
+        <div class="section-head section-head-spread">
+          <div>
+            <h2>Chat + Memory Bridge</h2>
+            <p>Resident chat logs, citations, notes, side branches, memory records, and ClearSpeak over the lifetime anchor lattice.</p>
+          </div>
+          <div class="intake-actions">
+            <button class="action-btn" id="chat-refresh-btn" type="button">Refresh</button>
+            <button class="action-btn cool" id="clearspeak-status-btn" type="button">ClearSpeak Status</button>
+            <button class="action-btn warn" id="chat-preview-finalize-btn" type="button">Preview Finalize</button>
+            <button class="action-btn good" id="chat-finalize-btn" type="button">Finalize Counts</button>
+            <button class="action-btn primary" id="chat-send-btn" type="button">Send</button>
+          </div>
+        </div>
+
+        <section class="stats-grid chat-stats-grid">
+          <article class="stat-card">
+            <div class="stat-label">Chat Days</div>
+            <div class="stat-value" id="chat-stat-days">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Messages</div>
+            <div class="stat-value" id="chat-stat-messages">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Citations</div>
+            <div class="stat-value" id="chat-stat-citations">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Notes</div>
+            <div class="stat-value" id="chat-stat-notes">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">ClearSpeak Relations</div>
+            <div class="stat-value" id="chat-stat-relations">0</div>
+          </article>
+          <article class="stat-card stat-card-wide">
+            <div class="stat-label">Memory Root</div>
+            <div class="stat-note" id="chat-memory-root">-</div>
+          </article>
+        </section>
+
+        <div class="chat-workbench">
+          <article class="chat-transcript-card">
+            <div class="section-head">
+              <div>
+                <h2>Conversation</h2>
+                <p id="chat-history-meta">Today, main branch.</p>
+              </div>
+            </div>
+            <div id="chat-thread" class="chat-thread">
+              <div class="empty-panel">No chat loaded yet.</div>
+            </div>
+            <div class="chat-composer-card">
+              <textarea id="chat-input" class="form-control chat-input" placeholder="Ask the system. Documents on = docs/maps first, counts fallback. Documents off = strict counts only."></textarea>
+              <div class="chat-composer-options">
+                <label class="chat-toggle-pill" title="When enabled, main chat can read source-local documents/maps and falls back to counts if no document evidence exists.">
+                  <input id="chat-documents-toggle" type="checkbox" checked>
+                  <span>Documents On</span>
+                </label>
+                <select id="chat-mode" class="form-control chat-mode-compact">
+                  <option value="clearspeak">AnchorWorks Chat</option>
+                  <option value="memory">Memory Log</option>
+                  <option value="api">External API</option>
+                </select>
+                <input id="chat-branch" class="form-control chat-branch-compact" type="text" value="main" title="Branch">
+                <button class="mini-btn" id="chat-counts-quick-btn" type="button">Counts Only</button>
+                <button class="mini-btn" id="chat-docs-quick-btn" type="button">Docs + Counts</button>
+                <button class="action-btn primary" id="chat-send-btn-side" type="button">Send Message</button>
+              </div>
+              <input id="chat-model" class="form-control chat-model-compact" type="text" placeholder="Optional external model name for External API mode">
+            </div>
+          </article>
+
+          <aside class="chat-side-card">
+            <div class="chat-side-summary">
+              <div class="admin-label">Main Chat Contract</div>
+              <div class="helper-text">Documents on: source passages with block+line first, counts fallback if no document evidence. Documents off: strict counts-only. If no anchors resolve, the system should say so instead of pretending.</div>
+            </div>
+
+            <div class="archive-import-box chat-import-box">
+              <div class="admin-label">ClearSpeak Status</div>
+              <div class="helper-text">Read-only lattice health check. No chat rows, maps, or counts are written.</div>
+              <button class="action-btn cool chat-import-btn" id="clearspeak-status-btn-side" type="button">Check Status</button>
+              <div id="clearspeak-status-panel" class="clearspeak-status-panel">
+                <div class="empty-panel">ClearSpeak status has not been checked yet.</div>
+              </div>
+            </div>
+
+            <div class="archive-import-box chat-import-box">
+              <div class="admin-label">Direct ClearSpeak Query</div>
+              <div class="helper-text">Read-only evidence lookup. This does not save a chat row or update counts.</div>
+              <textarea id="clearspeak-query-input" class="form-control clearspeak-query-input" placeholder="Enter anchors to inspect..."></textarea>
+              <button class="action-btn cool chat-import-btn" id="clearspeak-query-btn" type="button">Run ClearSpeak Query</button>
+              <button class="action-btn chat-import-btn" id="clearspeak-remix-btn" type="button">Remix Query</button>
+              <div class="clearspeak-query-section-label">Answer Assembly</div>
+              <div id="clearspeak-query-panel" class="clearspeak-query-panel">
+                <div class="empty-panel">No direct ClearSpeak query has been run yet.</div>
+              </div>
+              <div class="clearspeak-query-section-label">Query Remix Experiment</div>
+              <div id="clearspeak-remix-panel" class="clearspeak-query-panel">
+                <div class="empty-panel">No query remix has been run yet.</div>
+              </div>
+            </div>
+
+            <div class="archive-import-box chat-import-box">
+              <div class="admin-label">Flat Symbolic Documents</div>
+              <div class="helper-text">Raw files live under <code>data\State\flat_documents\raw</code>. Anchorize swaps lexical text into backend symbols only; no maps, counts, lifetime, or lexicon writes.</div>
+              <input id="flat-doc-name" class="form-control" type="text" placeholder="Raw filename from flat_documents\\raw">
+              <button class="action-btn cool chat-import-btn" id="flat-doc-refresh-btn" type="button">Refresh Flat Docs</button>
+              <button class="action-btn chat-import-btn" id="flat-doc-anchorize-btn" type="button">Anchorize Selected</button>
+              <button class="action-btn warn chat-import-btn" id="flat-doc-anchorize-all-btn" type="button">Anchorize All Raw Docs</button>
+              <div id="flat-doc-panel" class="clearspeak-query-panel">
+                <div class="empty-panel">Flat document inventory has not been loaded yet.</div>
+              </div>
+            </div>
+
+            <div class="archive-import-box chat-import-box">
+              <div class="admin-label">End-of-Day Chat Ingest</div>
+              <div class="helper-text" id="chat-finalize-meta">Preview coverage before finalizing. Finalize maps this branch and updates user-side counts only if lexicon coverage is complete.</div>
+              <button class="action-btn warn chat-import-btn" id="chat-preview-finalize-btn-side" type="button">Preview Finalize</button>
+              <button class="action-btn good chat-import-btn" id="chat-finalize-btn-side" type="button">Finalize Counts</button>
+            </div>
+
+            <div class="archive-import-box chat-import-box">
+              <div class="admin-label">Import Old Chat Archive</div>
+              <div class="helper-text">Copies archive fragments into this app and stores a prepared review file. Mapping still happens through Document Intake.</div>
+              <input id="chat-import-path" class="form-control" type="text" placeholder="C:\\path\\to\\old\\AnchorWorks or C:\\path\\to\\data">
+              <button class="action-btn cool chat-import-btn" id="chat-import-btn" type="button">Import Archive</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </section>
+
+    <section id="tree-brain-tab" class="tab-panel">
+      <section class="card controls-hero-card">
+        <div class="section-head section-head-spread">
+          <div>
+            <h2>Tree-Brain Controls</h2>
+            <p>No buried knobs. Every tuning lever gets a cockpit switch.</p>
+          </div>
+            <div class="intake-actions">
+              <button class="action-btn" id="tree-controls-refresh-btn" type="button">Refresh</button>
+              <button class="action-btn primary" id="tree-controls-save-btn" type="button">Save Controls</button>
+              <button class="action-btn warn" id="tree-controls-reset-btn" type="button">Restore Defaults</button>
+              <button class="action-btn" id="tree-controls-export-btn" type="button">Export Config</button>
+              <button class="action-btn" id="tree-controls-import-btn" type="button">Import Config</button>
+              <button class="action-btn good" id="tree-controls-validate-btn" type="button">Validate</button>
+            </div>
+          </div>
+          <input id="tree-controls-import-file" class="visually-hidden" type="file" accept="application/json,.json">
+          <div class="helper-text">Tree proposes. Policy decides. Diagnostics prove it.</div>
+        </section>
+
+      <section class="controls-grid" id="tree-controls-grid"></section>
+
+      <section class="card">
+        <div class="section-head section-head-spread">
+          <div>
+            <h2>Symbol Policy Lists</h2>
+            <p>Editable policy categories. One item per line or comma-separated.</p>
+          </div>
+          <button class="action-btn primary" id="symbol-policy-save-btn" type="button">Save Symbol Policy</button>
+        </div>
+        <div class="symbol-policy-grid" id="symbol-policy-grid"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head section-head-spread">
+          <div>
+            <h2>Diagnostics Harness</h2>
+            <p>Run the fixed query bite gauge and inspect the latest policy behavior report.</p>
+          </div>
+          <div class="intake-actions">
+            <button class="action-btn cool" id="tree-diagnostics-run-btn" type="button">Run Diagnostics</button>
+            <button class="action-btn" id="tree-diagnostics-load-btn" type="button">View Latest Report</button>
+          </div>
+        </div>
+        <div id="tree-diagnostics-panel" class="diagnostics-panel">
+          <div class="empty-panel">No diagnostics report loaded yet.</div>
+        </div>
+      </section>
+    </section>
+
+    <section id="tracer-tab" class="tab-panel">
+      <section class="card tracer-card">
+        <div class="section-head section-head-spread">
+          <div>
+            <h2>UI Tracer</h2>
+            <p>Use the app normally. This read-only tracer records UI actions, API calls, route payloads, evidence payloads, and browser errors so the session can be handed back for inspection.</p>
+          </div>
+          <div class="intake-actions">
+            <button class="action-btn" id="tracer-refresh-btn" type="button">Refresh View</button>
+            <button class="action-btn cool" id="tracer-copy-btn" type="button">Copy JSON</button>
+            <button class="action-btn primary" id="tracer-download-btn" type="button">Download JSON</button>
+            <button class="action-btn warn" id="tracer-clear-btn" type="button">Clear Trace</button>
+          </div>
+        </div>
+        <section class="stats-grid tracer-stats-grid">
+          <article class="stat-card">
+            <div class="stat-label">Events</div>
+            <div class="stat-value" id="tracer-stat-events">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">API Calls</div>
+            <div class="stat-value" id="tracer-stat-api">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Errors</div>
+            <div class="stat-value" id="tracer-stat-errors">0</div>
+          </article>
+          <article class="stat-card stat-card-wide">
+            <div class="stat-label">Session</div>
+            <div class="stat-note" id="tracer-session-id">-</div>
+          </article>
+        </section>
+        <div class="tracer-toolbar">
+          <input id="tracer-filter" class="form-control" type="search" placeholder="Filter tracer events by type, route, path, or text...">
+          <label class="chat-toggle-pill" title="When enabled, raw API responses are kept in the export payload. Large values are clipped for UI display.">
+            <input id="tracer-capture-payloads" type="checkbox" checked>
+            <span>Capture Payloads</span>
+          </label>
+        </div>
+        <div class="helper-text">The tracer is local browser state only. It attaches no memory, promotes no truth, and writes no AnchorWorks state.</div>
+        <pre id="tracer-output" class="tracer-output"></pre>
+      </section>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

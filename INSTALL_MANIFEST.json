@@ -1,0 +1,213 @@
+﻿{
+    "created_at":  "2026-05-07T06:23:02.8210189-04:00",
+    "installer":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\install_anchorworks_full.ps1",
+    "source_root":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data",
+    "destination_root":  "D:\\AnchorWorks_Clean_Runtime",
+    "rule":  "full lexicon and spare slots included; maps, flat intake payloads, old counts, and generated runtime data excluded; empty counts files created",
+    "copied":  [
+                   {
+                       "source":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\Anchorworks",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\Anchorworks",
+                       "reason":  "app source, served UI, docs, tests, and support scripts"
+                   },
+                   {
+                       "source":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\Canonical",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\Canonical",
+                       "reason":  "full canonical lexicon included"
+                   },
+                   {
+                       "source":  "D:\\AnchorWorks_Clean_Runtime\\Canonical\\structural.json",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\Structural\\structural.json",
+                       "reason":  "runtime compatibility copy; source authority remains Canonical\\structural.json"
+                   },
+                   {
+                       "source":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\Spare_Slots",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\Spare_Slots",
+                       "reason":  "full spare slot pool included"
+                   },
+                   {
+                       "source":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\docs",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\docs",
+                       "reason":  "root documentation included"
+                   },
+                   {
+                       "source":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\launch_anchorworks.ps1",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\launch_anchorworks.ps1",
+                       "reason":  "root support file included"
+                   },
+                   {
+                       "source":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\AI-Generated Code Security Review \u0026 Hardening Strategy.md",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\AI-Generated Code Security Review \u0026 Hardening Strategy.md",
+                       "reason":  "root support file included"
+                   },
+                   {
+                       "source":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\openvino_env",
+                       "target":  "D:\\AnchorWorks_Clean_Runtime\\openvino_env",
+                       "reason":  "local Python/OpenVINO environment included"
+                   }
+               ],
+    "created":  [
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\attachments",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\chats",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\citations",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\imports",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\memory\\lessons",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\memory\\reasoning",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\notes",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\chat_memory\\summaries",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\flat_documents\\raw",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\flat_documents\\symbolic",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\ingest_staging",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\intake_uploads",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\lifetime_by_symbol",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\misspelled_reviews",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\observed_maps",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\user\\chat_counts",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\user\\ingest_staging",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\user\\rejected_or_literal_clusters",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\user\\user_counts",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\State\\user\\user_lexicon",
+                        "reason":  "empty runtime directory scaffold"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\launch_anchorworks.ps1",
+                        "reason":  "install-local launcher"
+                    },
+                    {
+                        "path":  "D:\\AnchorWorks_Clean_Runtime\\AnchorWorks_Tray.ps1",
+                        "reason":  "install-local Windows tray launcher"
+                    },
+                    {
+                        "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\AnchorWorks Tray.lnk",
+                        "reason":  "desktop shortcut to tray launcher"
+                    }
+                ],
+    "excluded":  [
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\Anchorworks\\recovered_workspace",
+                         "reason":  "recovery bundle is not runtime source"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\Anchorworks\\merge_manifests",
+                         "reason":  "merge logs are not runtime source"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\Anchorworks\\*.log",
+                         "reason":  "runtime logs excluded"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\lifetime_co_occurrence_counts.zip",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\observed_maps",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\flat_documents",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\intake_uploads",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\misspelled_reviews",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\chat_memory\\chats",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\chat_memory\\citations",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\chat_memory\\notes",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\user\\user_counts",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\State\\user\\chat_counts",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\data",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\runtime",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\ui_server_stderr.log",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     },
+                     {
+                         "path":  "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Lexical Data\\ui_server_stdout.log",
+                         "reason":  "runtime/generated payload excluded from clean install"
+                     }
+                 ]
+}

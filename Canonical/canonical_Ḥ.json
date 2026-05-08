@@ -1,0 +1,15 @@
+[
+  {
+    "binary": "0010001001001011011111001110010101001110",
+    "hex": "0x224B7CE54E",
+    "font_symbol": "CHAR_0010001001",
+    "tone_signature": "TONE_4530",
+    "status": "ASSIGNED",
+    "word": "ḥadīth",
+    "display": "ḥadīth",
+    "symbol": "0x224B7CE54E",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 39
+  }
+]

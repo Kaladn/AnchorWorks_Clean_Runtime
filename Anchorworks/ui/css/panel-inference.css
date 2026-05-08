@@ -1,0 +1,135 @@
+/* panel-inference.css
+   Inference Control Panel — ctrl-* prefixed selectors + continue context area.
+   Do NOT add shared components here — those belong in core.css.
+*/
+
+/* ── Inference Control Panel ── */
+.ctrl-presets { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+.ctrl-preset {
+    padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--accent-bg); color: var(--text-primary); cursor: pointer;
+    font-size: 13px; transition: all 0.2s;
+}
+.ctrl-preset:hover { border-color: var(--gpt-oss); }
+.ctrl-preset.active { background: var(--gpt-oss); color: var(--primary-bg); border-color: var(--gpt-oss); font-weight: 600; }
+
+.ctrl-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+@media (max-width: 900px) { .ctrl-grid { grid-template-columns: 1fr; } }
+
+.ctrl-slider-group { margin-bottom: 14px; }
+.ctrl-slider-group label {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 4px; font-size: 13px; color: var(--text-secondary);
+}
+.ctrl-slider-group label .ctrl-val {
+    font-family: 'Consolas', monospace; color: var(--success); font-size: 13px;
+}
+.ctrl-slider {
+    -webkit-appearance: none; width: 100%; height: 6px;
+    border-radius: 3px; background: var(--border); outline: none;
+}
+.ctrl-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--gpt-oss); cursor: pointer;
+}
+.ctrl-slider::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--gpt-oss); cursor: pointer; border: none;
+}
+
+.ctrl-section-toggle {
+    cursor: pointer; padding: 10px 0; font-size: 13px;
+    color: var(--text-secondary); border: none; background: none;
+    width: 100%; text-align: left; display: flex; justify-content: space-between;
+    border-top: 1px solid var(--border); margin-top: 10px;
+}
+.ctrl-section-toggle:hover { color: var(--text-primary); }
+.ctrl-section-body { display: none; padding-top: 10px; }
+.ctrl-section-body.open { display: block; }
+
+.ctrl-contract {
+    background: #0d1117; border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px; font-family: 'Consolas', monospace; font-size: 12px;
+    color: var(--success); margin-top: 8px; line-height: 1.6;
+}
+.ctrl-meta-row {
+    display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px;
+    font-family: 'Consolas', monospace; color: var(--text-secondary);
+    padding: 8px 12px; background: #0d1117; border-radius: 4px; margin-top: 4px;
+}
+.ctrl-meta-row span { white-space: nowrap; }
+
+.ctrl-end-marker {
+    display: none;
+}
+.ctrl-truncated {
+    display: none;
+}
+.ctrl-continue-btn {
+    display: none;
+}
+.ctrl-continue-btn:hover { background: #e6c200; }
+
+/* Error-aware continue context area */
+.continue-context-area {
+    display: none;
+    padding: 6px 0 0 0;
+}
+.continue-context-area.open {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+.continue-context-area textarea {
+    flex: 1;
+    min-height: 40px;
+    max-height: 120px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-family: 'Consolas', monospace;
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    resize: vertical;
+}
+.continue-context-area textarea::placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+.continue-context-area .btn-continue-send {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #b8860b;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.continue-context-area .btn-continue-send:hover {
+    background: #e6c200;
+}
+.continue-loop-warning {
+    display: none;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+.ctrl-seed-input {
+    width: 100px; padding: 4px 8px; font-size: 12px;
+    font-family: 'Consolas', monospace; background: var(--primary-bg);
+    color: var(--text-primary); border: 1px solid var(--border);
+    border-radius: 4px; text-align: center;
+}
+
+@media (max-width: 768px) {
+    .ctrl-grid { grid-template-columns: 1fr !important; }
+}

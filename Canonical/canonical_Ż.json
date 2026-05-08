@@ -1,0 +1,28 @@
+[
+  {
+    "binary": "1001111100110011011110111100001100001101",
+    "hex": "0x9F337BC30D",
+    "font_symbol": "CHAR_1001111100",
+    "tone_signature": "TONE_9041",
+    "status": "ASSIGNED",
+    "word": "żupan",
+    "display": "żupan",
+    "symbol": "0x9F337BC30D",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 46
+  },
+  {
+    "binary": "0111100110111100100000011110001100001101",
+    "hex": "0x79BC81E30D",
+    "font_symbol": "CHAR_0111100110",
+    "tone_signature": "TONE_11793",
+    "status": "ASSIGNED",
+    "word": "życia",
+    "display": "życia",
+    "symbol": "0x79BC81E30D",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 33
+  }
+]

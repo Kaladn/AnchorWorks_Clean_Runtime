@@ -1,0 +1,421 @@
+/* panel-network.css
+   Forest Network — unified file browser across all nodes.
+   Nodes are top-level directories in a single virtual filesystem.
+
+   Three zones:
+     .net-sidebar  — left: node tree + root folders (220px)
+     .net-main     — right: breadcrumb toolbar + file list
+     .net-transfers — bottom strip: transfer queue
+*/
+
+/* ── Shell ────────────────────────────────────────────────────────────────── */
+.net-shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    height: calc(100vh - 120px);
+    min-height: 400px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--primary-bg);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.net-sidebar {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    background: var(--secondary-bg);
+}
+
+.net-sidebar-header {
+    padding: 12px 14px 8px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+/* Node row */
+.net-node {
+    border-bottom: 1px solid var(--border);
+}
+
+.net-node-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s;
+}
+.net-node-header:hover  { background: var(--accent-bg); }
+.net-node-header.active { background: var(--accent-bg); }
+
+.net-node-chevron {
+    font-size: 8px;
+    color: var(--text-secondary);
+    width: 10px;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+.net-node.expanded .net-node-chevron { transform: rotate(90deg); }
+
+.net-node-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.net-node-dot.online  { background: var(--success); box-shadow: 0 0 5px rgba(0,255,136,0.47); }
+.net-node-dot.offline { background: var(--text-secondary); }
+.net-node-dot.loading { background: #ffd700; animation: net-pulse 1s ease-in-out infinite; }
+
+@keyframes net-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.35; }
+}
+
+.net-node-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.net-node-tag {
+    font-size: 9px;
+    color: var(--text-secondary);
+    background: var(--border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* Root folder list (inside expanded node) */
+.net-roots {
+    display: none;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.12);
+}
+.net-node.expanded .net-roots { display: flex; }
+
+.net-root-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px 7px 28px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.net-root-item:hover  { background: var(--accent-bg); color: var(--text-primary); }
+.net-root-item.active {
+    background: var(--accent-bg);
+    color: var(--text-primary);
+    border-left-color: var(--highlight);
+    font-weight: 600;
+}
+
+.net-root-icon { font-size: 12px; flex-shrink: 0; }
+
+.net-roots-empty {
+    padding: 8px 12px 8px 28px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* ── Main (right side) ───────────────────────────────────────────────────── */
+.net-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* Toolbar + breadcrumb */
+.net-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--secondary-bg);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    min-height: 42px;
+}
+
+.net-crumb {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.net-crumb-seg {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.net-crumb-item {
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: background 0.1s, color 0.1s;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.net-crumb-item:hover { background: var(--accent-bg); color: var(--text-primary); }
+.net-crumb-item.root-name { font-weight: 700; color: var(--text-primary); font-size: 13px; }
+.net-crumb-item.current   { color: var(--text-primary); font-weight: 600; cursor: default; }
+.net-crumb-item.current:hover { background: transparent; }
+.net-crumb-item.placeholder { opacity: 0.35; cursor: default; }
+.net-crumb-item.placeholder:hover { background: transparent; }
+
+.net-crumb-sep {
+    font-size: 10px;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    padding: 0 1px;
+}
+
+.net-toolbar-btns {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* ── File list ───────────────────────────────────────────────────────────── */
+.net-file-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.net-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    min-height: 160px;
+}
+.net-empty-icon { font-size: 36px; opacity: 0.25; }
+.net-empty-icon.spin { animation: net-pulse 1.2s ease-in-out infinite; }
+
+/* Column layout: icon | name | size | age | actions */
+.net-file-row {
+    display: grid;
+    grid-template-columns: 26px 1fr 72px 72px 68px;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+}
+.net-file-row:last-child { border-bottom: none; }
+.net-file-row:hover { background: var(--accent-bg); }
+.net-file-row.is-dir  { cursor: pointer; }
+
+.net-file-icon { font-size: 15px; text-align: center; }
+
+.net-file-name {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.net-file-row.is-dir .net-file-name { color: var(--gpt-oss); }
+
+.net-file-size {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: monospace;
+    text-align: right;
+}
+
+.net-file-age {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.net-file-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+.net-file-row:hover .net-file-actions { opacity: 1; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.net-btn {
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--accent-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s, color 0.1s;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+.net-btn:hover:not(:disabled) { background: var(--highlight); color: #000; border-color: var(--highlight); }
+.net-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.net-btn-md {
+    padding: 6px 13px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--accent-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+.net-btn-md:hover { background: var(--highlight); color: #000; border-color: var(--highlight); }
+
+/* ── Transfer queue strip ────────────────────────────────────────────────── */
+.net-transfers {
+    border-top: 1px solid var(--border);
+    background: var(--secondary-bg);
+    flex-shrink: 0;
+    max-height: 156px;
+    overflow-y: auto;
+}
+
+.net-transfers-hdr {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    cursor: default;
+    user-select: none;
+    position: sticky;
+    top: 0;
+    background: var(--secondary-bg);
+    z-index: 1;
+}
+
+.net-xfer-badge {
+    font-size: 10px;
+    background: var(--highlight);
+    color: #000;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-weight: 700;
+    display: none;
+}
+.net-xfer-badge.visible { display: inline-block; }
+
+.net-xfer-row {
+    display: grid;
+    grid-template-columns: 18px 1fr 70px 100px 60px;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    font-size: 11px;
+}
+
+.net-xfer-dir  { font-size: 14px; text-align: center; }
+.net-xfer-name {
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: monospace;
+    font-size: 11px;
+}
+.net-xfer-speed { color: var(--text-secondary); font-family: monospace; text-align: right; }
+.net-xfer-bar   {
+    position: relative;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.net-xfer-fill {
+    position: absolute;
+    left: 0; top: 0; height: 100%;
+    background: var(--highlight);
+    border-radius: 2px;
+    transition: width 0.25s;
+}
+.net-xfer-fill.done  { background: var(--success); }
+.net-xfer-fill.error { background: var(--danger); }
+.net-xfer-status { font-size: 10px; color: var(--text-secondary); white-space: nowrap; }
+.net-xfer-status.done  { color: var(--success); }
+.net-xfer-status.error { color: var(--danger); }
+
+/* ── Hash popup ──────────────────────────────────────────────────────────── */
+.net-hash-popup {
+    position: fixed;
+    z-index: 9999;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--text-primary);
+    max-width: 420px;
+    word-break: break-all;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+}
+.net-hash-popup .net-hash-file { font-weight: 700; margin-bottom: 6px; font-family: sans-serif; }
+.net-hash-popup .net-hash-val  { color: var(--gpt-oss); }
+.net-hash-popup .net-hash-size { color: var(--text-secondary); margin-top: 4px; font-size: 10px; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+    .net-shell { grid-template-columns: 1fr; }
+    .net-sidebar {
+        max-height: 180px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        flex-direction: row;
+        flex-wrap: wrap;
+        overflow-x: auto;
+    }
+    .net-node { border-bottom: none; border-right: 1px solid var(--border); }
+}

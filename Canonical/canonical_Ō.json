@@ -1,0 +1,15 @@
+[
+  {
+    "binary": "0101110001010001011111010001011011111101",
+    "hex": "0x5C517D16FD",
+    "font_symbol": "CHAR_0101110001",
+    "tone_signature": "TONE_3713",
+    "status": "ASSIGNED",
+    "word": "ōzeki",
+    "display": "ōzeki",
+    "symbol": "0x5C517D16FD",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 38
+  }
+]

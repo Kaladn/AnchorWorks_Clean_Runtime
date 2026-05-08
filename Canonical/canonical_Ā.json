@@ -1,0 +1,15 @@
+[
+  {
+    "binary": "0101100101111100100001011111111111011011",
+    "hex": "0x597C85FFDB",
+    "font_symbol": "CHAR_0101100101",
+    "tone_signature": "TONE_6015",
+    "status": "ASSIGNED",
+    "word": "āyāt",
+    "display": "āyāt",
+    "symbol": "0x597C85FFDB",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 61
+  }
+]

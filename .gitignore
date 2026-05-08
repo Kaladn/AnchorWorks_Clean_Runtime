@@ -1,0 +1,24 @@
+openvino_env/
+*.log
+Anchorworks/anchorworks-8081*.out.log
+Anchorworks/anchorworks-8081*.err.log
+
+# Reconstructed from payload_chunks/Spare_Slots/spare_slots.json.
+Spare_Slots/spare_slots.json
+
+# Runtime/generated payloads stay local unless explicitly approved.
+State/lifetime_co_occurrence_counts.zip
+State/observed_maps/**
+State/flat_documents/raw/**
+State/flat_documents/symbolic/**
+State/intake_uploads/**
+State/misspelled_reviews/**
+State/chat_memory/chats/**
+State/chat_memory/citations/**
+State/chat_memory/notes/**
+State/chat_memory/summaries/**
+State/chat_memory/imports/**
+State/chat_memory/attachments/**
+
+# Keep empty runtime directory markers.
+!**/.gitkeep

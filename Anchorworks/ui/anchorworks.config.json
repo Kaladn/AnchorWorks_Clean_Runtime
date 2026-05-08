@@ -1,0 +1,14 @@
+{
+  "lexicon_root": "./Lexical Data/Canonical",
+  "reports_root": "D:/ANCHORWORKS/data/maps",
+  "gpu": "cpu",
+  "min_len": 5,
+  "topK": 10,
+  "window": 6,
+  "server": {
+    "host": "127.0.0.1",
+    "port": 5050,
+    "ws_port": 5051
+  },
+  "log_level": "info"
+}

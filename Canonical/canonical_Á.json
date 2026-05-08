@@ -1,0 +1,15 @@
+[
+  {
+    "binary": "0100101100111001011111101000011001011011",
+    "hex": "0x4B397E865B",
+    "font_symbol": "CHAR_0100101100",
+    "tone_signature": "TONE_543",
+    "status": "ASSIGNED",
+    "word": "ádi",
+    "display": "ádi",
+    "symbol": "0x4B397E865B",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 31
+  }
+]

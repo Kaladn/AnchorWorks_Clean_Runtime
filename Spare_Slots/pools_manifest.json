@@ -1,0 +1,76 @@
+{
+  "schema_version": "spare_slot_pools@1",
+  "source": "data\\Spare_Slots\\spare_slots.json",
+  "created_utc": "2026-05-05T13:08:35.413570+00:00",
+  "max_bytes": 52428800,
+  "source_count": 4079841,
+  "pools": [
+    {
+      "filename": "pool_000001.json",
+      "count": 326737,
+      "size_bytes": 65498267
+    },
+    {
+      "filename": "pool_000002.json",
+      "count": 326740,
+      "size_bytes": 65498374
+    },
+    {
+      "filename": "pool_000003.json",
+      "count": 326739,
+      "size_bytes": 65498264
+    },
+    {
+      "filename": "pool_000004.json",
+      "count": 326742,
+      "size_bytes": 65498384
+    },
+    {
+      "filename": "pool_000005.json",
+      "count": 326739,
+      "size_bytes": 65498280
+    },
+    {
+      "filename": "pool_000006.json",
+      "count": 326737,
+      "size_bytes": 65498186
+    },
+    {
+      "filename": "pool_000007.json",
+      "count": 326736,
+      "size_bytes": 65498177
+    },
+    {
+      "filename": "pool_000008.json",
+      "count": 326740,
+      "size_bytes": 65498312
+    },
+    {
+      "filename": "pool_000009.json",
+      "count": 326739,
+      "size_bytes": 65498347
+    },
+    {
+      "filename": "pool_000010.json",
+      "count": 326738,
+      "size_bytes": 65498194
+    },
+    {
+      "filename": "pool_000011.json",
+      "count": 326739,
+      "size_bytes": 65498272
+    },
+    {
+      "filename": "pool_000012.json",
+      "count": 326738,
+      "size_bytes": 65498260
+    },
+    {
+      "filename": "pool_000013.json",
+      "count": 158977,
+      "size_bytes": 31868482
+    }
+  ],
+  "written_count": 4079841,
+  "pool_count": 13
+}

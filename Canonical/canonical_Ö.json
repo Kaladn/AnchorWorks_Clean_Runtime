@@ -1,0 +1,41 @@
+[
+  {
+    "binary": "1001111111001101011111011110100110111100",
+    "hex": "0x9FCD7DE9BC",
+    "font_symbol": "CHAR_1001111111",
+    "tone_signature": "TONE_1280",
+    "status": "ASSIGNED",
+    "word": "öffentlichen",
+    "display": "öffentlichen",
+    "symbol": "0x9FCD7DE9BC",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 34
+  },
+  {
+    "binary": "0110000011110111011101110101000111010101",
+    "hex": "0x60F77751D5",
+    "font_symbol": "CHAR_0110000011",
+    "tone_signature": "TONE_12601",
+    "status": "ASSIGNED",
+    "word": "öre",
+    "display": "öre",
+    "symbol": "0x60F77751D5",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 108
+  },
+  {
+    "binary": "1110101101111111011101111010011100111100",
+    "hex": "0xEB7F77A73C",
+    "font_symbol": "CHAR_1110101101",
+    "tone_signature": "TONE_2688",
+    "status": "ASSIGNED",
+    "word": "över",
+    "display": "över",
+    "symbol": "0xEB7F77A73C",
+    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
+    "pack": "canonical",
+    "frequency": 99
+  }
+]
