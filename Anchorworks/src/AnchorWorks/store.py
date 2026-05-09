@@ -2376,6 +2376,111 @@ class LexiconStore:
             words = [word for word in words if self.normalize_word(word).startswith(needle)]
         return {"total": len(words), "words": words}
 
+    def missing_anchor_review_queue(
+        self,
+        *,
+        limit: int = 100,
+        min_observations: int = 1,
+        letter: str | None = None,
+    ) -> dict[str, Any]:
+        known = set(self._all_known_anchors())
+        ignored = set(self._load_ignored())
+        pending = {row["word"] for row in self._load_pending()}
+        unmatched = {row["word"] for row in self._load_unmatched()}
+        letter_prefix = self.normalize_word(letter or "")[:1]
+        minimum = max(1, int(min_observations or 1))
+        rows: list[dict[str, Any]] = []
+        skipped_known = 0
+        skipped_ignored = 0
+
+        for row in self._load_missing_anchor_registry():
+            anchor = self.normalize_anchor(row.get("anchor") or "")
+            observations = int(row.get("observations", 0) or 0)
+            if not anchor or observations < minimum:
+                continue
+            if letter_prefix and not self.normalize_word(anchor).startswith(letter_prefix):
+                continue
+            if anchor in known:
+                skipped_known += 1
+                continue
+            if anchor in ignored:
+                skipped_ignored += 1
+                continue
+            if anchor in pending:
+                status = "pending"
+            elif anchor in unmatched:
+                status = "unmatched"
+            else:
+                status = "unreviewed"
+            rows.append({
+                "anchor": anchor,
+                "observations": observations,
+                "first_seen": row.get("first_seen") or "",
+                "last_seen": row.get("last_seen") or "",
+                "review_status": status,
+                "known": False,
+                "ignored": False,
+            })
+
+        rows.sort(key=lambda item: (-int(item["observations"]), item["anchor"]))
+        capped_limit = max(1, int(limit or 100))
+        return {
+            "ok": True,
+            "total_registry_anchors": len(self._load_missing_anchor_registry()),
+            "reviewable_total": len(rows),
+            "returned": min(len(rows), capped_limit),
+            "skipped_known": skipped_known,
+            "skipped_ignored": skipped_ignored,
+            "min_observations": minimum,
+            "entries": rows[:capped_limit],
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+
+    def sync_missing_anchor_review_queue(
+        self,
+        *,
+        limit: int = 1000,
+        min_observations: int = 1,
+        letter: str | None = None,
+    ) -> dict[str, Any]:
+        review = self.missing_anchor_review_queue(
+            limit=limit,
+            min_observations=min_observations,
+            letter=letter,
+        )
+        candidates = [
+            row for row in review.get("entries") or []
+            if row.get("review_status") == "unreviewed"
+        ]
+        moved: list[dict[str, Any]] = []
+        with self._lock:
+            unmatched = self._load_unmatched()
+            existing = {row["word"] for row in unmatched}
+            timestamp = _utc_now()
+            for row in candidates:
+                anchor = self.normalize_anchor(row.get("anchor") or "")
+                if not anchor or anchor in existing:
+                    continue
+                entry = {
+                    "word": anchor,
+                    "frequency": int(row.get("observations", 0) or 0),
+                    "first_seen": row.get("first_seen") or timestamp,
+                    "added_at": timestamp,
+                    "source": "missing_anchor_registry",
+                }
+                unmatched.append(entry)
+                existing.add(anchor)
+                moved.append(entry)
+            unmatched.sort(key=lambda item: (-int(item.get("frequency", 0) or 0), item["word"]))
+            self._write_unmatched(unmatched)
+        return {
+            "ok": True,
+            "moved_to_unmatched": len(moved),
+            "reviewable_total": review.get("reviewable_total", 0),
+            "entries": moved,
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+
     def pending(self) -> dict[str, Any]:
         entries = self._load_pending()
         entries.sort(key=lambda item: item.get("added_at") or "", reverse=True)

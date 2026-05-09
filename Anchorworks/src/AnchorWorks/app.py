@@ -84,6 +84,12 @@ class FlatDocumentAnchorizeBody(BaseModel):
     path: str = ""
 
 
+class MissingAnchorReviewSyncBody(BaseModel):
+    limit: int = 1000
+    min_observations: int = 1
+    letter: str = ""
+
+
 class ChatSendBody(BaseModel):
     message: str
     mode: str = "clearspeak"
@@ -526,6 +532,26 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.get("/api/lexicon/unmatched")
     def lexicon_unmatched(limit: int = 100, sort: str = "frequency", letter: str | None = None) -> dict[str, Any]:
         return store.unmatched(letter=letter, limit=limit)
+
+    @app.get("/api/lexicon/missing-anchor-review")
+    def lexicon_missing_anchor_review(
+        limit: int = 100,
+        min_observations: int = 1,
+        letter: str | None = None,
+    ) -> dict[str, Any]:
+        return store.missing_anchor_review_queue(
+            limit=limit,
+            min_observations=min_observations,
+            letter=letter,
+        )
+
+    @app.post("/api/lexicon/missing-anchor-review/sync")
+    def lexicon_missing_anchor_review_sync(body: MissingAnchorReviewSyncBody) -> dict[str, Any]:
+        return store.sync_missing_anchor_review_queue(
+            limit=body.limit,
+            min_observations=body.min_observations,
+            letter=body.letter,
+        )
 
     @app.post("/api/lexicon/approve")
     def lexicon_approve(body: WordBody) -> dict[str, Any]:

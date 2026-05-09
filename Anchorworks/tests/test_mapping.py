@@ -756,6 +756,8 @@ class MappingTests(unittest.TestCase):
                 "/api/visual-intake/files",
                 "/api/visual-intake/packet/{name}",
                 "/api/flat-documents/runtime/build",
+                "/api/lexicon/missing-anchor-review",
+                "/api/lexicon/missing-anchor-review/sync",
             }:
                 self.assertIn(expected, paths)
 
@@ -1024,6 +1026,37 @@ class MappingTests(unittest.TestCase):
             self.assertTrue(temp_payload["entries"][0]["symbol"].startswith("U"))
             self.assertEqual(len(temp_payload["entries"][0]["symbol"]), 12)
             self.assertEqual(temp_payload["entries"][0]["lifetime_eligible"], False)
+
+    def test_missing_anchor_registry_can_seed_review_queue_without_promoting_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "do", "status": "ASSIGNED"}])
+            for letter in "ABCEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(5))
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+
+            source_path = Path(temp_dir) / "sample.txt"
+            source_path.write_text("do mystery mystery.", encoding="utf-8")
+
+            store = LexiconStore(root)
+            before_lifetime = store._read_json(store.lifetime_counts_path, {})
+            result = store.build_observed_map(source_path)
+
+            review = store.missing_anchor_review_queue(limit=5)
+            self.assertEqual(review["total_registry_anchors"], 1)
+            self.assertEqual(review["entries"][0]["anchor"], "mystery")
+            self.assertEqual(review["entries"][0]["observations"], 2)
+            self.assertEqual(review["entries"][0]["review_status"], "unreviewed")
+
+            sync = store.sync_missing_anchor_review_queue(limit=5)
+            after_lifetime = store._read_json(store.lifetime_counts_path, {})
+
+            self.assertEqual(before_lifetime, after_lifetime)
+            self.assertEqual(sync["moved_to_unmatched"], 1)
+            self.assertEqual(sync["entries"][0]["word"], "mystery")
+            self.assertEqual(store.unmatched(limit=5)["entries"][0]["word"], "mystery")
+            self.assertEqual(result["count_write"]["lifetime_write_skipped"], True)
 
     def test_document_intake_preview_and_manual_approval_do_not_map_or_count(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
