@@ -26,6 +26,7 @@ class ChatSendResult:
     memory_context: dict[str, Any] | None = None
     model_api: dict[str, Any] | None = None
     citations: list[dict[str, Any]] | None = None
+    evidence: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -275,6 +276,7 @@ class ChatMemorySystem:
             memory_context=memory_context,
             model_api=model_api_payload,
             citations=citations,
+            evidence=(clearspeak_payload or {}).get("evidence") if isinstance(clearspeak_payload, dict) else None,
         )
 
     def _model_api_messages(self, *, branch: str, memory_context: dict[str, Any]) -> list[dict[str, str]]:

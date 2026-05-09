@@ -559,6 +559,68 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(passages[0]["line_end"], 3)
             self.assertIn("EMP defense requires", passages[0]["text"])
 
+    def test_flat_runtime_builds_block_occurrence_and_visual_link_indexes_from_observed_map(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, words in {
+                "E": ["emp"],
+                "D": ["defense"],
+                "R": ["requires"],
+                "S": ["shielding"],
+                "A": ["and"],
+                "G": ["grounding"],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [{"word": word, "status": "ASSIGNED"} for word in words])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            source_path = Path(temp_dir) / "emp_notes.txt"
+            source_path.write_text(
+                "title line\n\nEMP defense requires shielding and grounding.",
+                encoding="utf-8",
+            )
+
+            store = LexiconStore(root)
+            observed = store.build_observed_map(source_path)
+            observed_path = Path(observed["saved_map_path"])
+            payload = json.loads(observed_path.read_text(encoding="utf-8"))
+            payload["paragraphs"][1]["visual_refs"] = [
+                {
+                    "visual_record_id": "vis_emp_graph",
+                    "kind": "graph",
+                    "source_path": "figures/emp_graph.png",
+                    "caption_block_id": "block_2",
+                    "manifest_id": "manifest_emp_graph",
+                    "geometry_status": "known",
+                    "recognition_status": "not_run",
+                }
+            ]
+            observed_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+            result = store.build_flat_runtime_from_observed_map(observed["saved_map_name"])
+
+            self.assertTrue(Path(result["symbolic_document_path"]).exists())
+            self.assertTrue(Path(result["block_index_path"]).exists())
+            self.assertTrue(Path(result["occurrence_index_path"]).exists())
+            self.assertTrue(Path(result["visual_links_path"]).exists())
+            self.assertTrue(Path(observed["saved_map_path"]).exists())
+            self.assertEqual(result["block_count"], 2)
+            self.assertEqual(result["visual_link_count"], 1)
+            self.assertEqual(result["writes_allowed"], {"maps": False, "counts": False, "lifetime": False, "lexicon": False})
+
+            block_rows = [json.loads(line) for line in Path(result["block_index_path"]).read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(block_rows[1]["block_id"], "block_1")
+            self.assertEqual(block_rows[1]["line_start"], 3)
+            self.assertEqual(block_rows[1]["line_end"], 3)
+            self.assertEqual(block_rows[1]["visual_refs"][0]["visual_record_id"], "vis_emp_graph")
+
+            evidence = store.search_flat_document_evidence(["emp"], query_anchors=["emp"])
+            passage = evidence["source_passages"][0]
+            self.assertEqual(evidence["runtime_source"], "flat_symbolic_documents")
+            self.assertEqual(passage["block_id"], 1)
+            self.assertEqual(passage["visual_refs"][0]["visual_record_id"], "vis_emp_graph")
+
     def test_chat_documents_mode_uses_document_passages_and_line_citations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
@@ -594,6 +656,44 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(assistant["model_identity"]["evidence_mode"], "documents")
             self.assertEqual(assistant["model_identity"]["evidence_engine"], "document_answer_assembler")
             self.assertEqual(result.citations[0]["citation_type"], "source_locator")
+
+    def test_chat_documents_mode_prefers_flat_runtime_and_renders_visual_refs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, words in {
+                "E": ["emp"],
+                "D": ["defense"],
+                "R": ["requires"],
+                "S": ["shielding"],
+                "A": ["and"],
+                "G": ["grounding"],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [{"word": word, "status": "ASSIGNED"} for word in words])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            source_path = Path(temp_dir) / "emp_notes.txt"
+            source_path.write_text(
+                "title line\n\nEMP defense requires shielding and grounding.",
+                encoding="utf-8",
+            )
+
+            store = LexiconStore(root)
+            observed = store.build_observed_map(source_path)
+            observed_path = Path(observed["saved_map_path"])
+            payload = json.loads(observed_path.read_text(encoding="utf-8"))
+            payload["paragraphs"][1]["visual_refs"] = [{"visual_record_id": "vis_emp_graph", "kind": "graph"}]
+            observed_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            store.build_flat_runtime_from_observed_map(observed["saved_map_name"])
+
+            chat = ChatMemorySystem(root, ClearSpeakService(store))
+            result = chat.send("emp defense", mode="documents", branch="main")
+
+            self.assertIn("block 1, line 3", result.response)
+            self.assertIn("figure vis_emp_graph", result.response)
+            self.assertEqual(result.evidence["runtime_source"], "flat_symbolic_documents")
+            self.assertEqual(result.citations[0]["source"], "flat_symbolic_document")
 
     def test_chat_counts_mode_is_strict_counts_not_memory_stub(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -655,6 +755,7 @@ class MappingTests(unittest.TestCase):
                 "/api/lexicon/intake/edit",
                 "/api/visual-intake/files",
                 "/api/visual-intake/packet/{name}",
+                "/api/flat-documents/runtime/build",
             }:
                 self.assertIn(expected, paths)
 

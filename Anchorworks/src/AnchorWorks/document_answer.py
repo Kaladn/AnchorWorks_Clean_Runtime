@@ -28,7 +28,9 @@ class DocumentAnswerAssembler:
     def answer(self, query: str, *, limit: int = 6) -> DocumentAnswerResult:
         query_text = str(query or "").strip()
         anchors = _ordered_unique(extract_anchors(query_text))
-        evidence = self.store.search_observed_map_evidence(anchors, query_anchors=anchors, map_limit=12)
+        evidence = self.store.search_flat_document_evidence(anchors, query_anchors=anchors)
+        if not evidence.get("source_passages"):
+            evidence = self.store.search_observed_map_evidence(anchors, query_anchors=anchors, map_limit=12)
         passages = [
             row for row in evidence.get("source_passages") or []
             if isinstance(row, dict) and str(row.get("text") or "").strip()
@@ -77,8 +79,8 @@ def _passage_with_locator(row: dict[str, Any]) -> str:
     line_end = int(row.get("line_end", 0) or 0)
     if line_start > 0 and line_end > 0:
         line_label = f"line {line_start}" if line_start == line_end else f"lines {line_start}-{line_end}"
-        return f"{text} (block {block_id}, {line_label})"
-    return f"{text} (block {block_id})"
+        return f"{text} (block {block_id}, {line_label}{_visual_ref_suffix(row)})"
+    return f"{text} (block {block_id}{_visual_ref_suffix(row)})"
 
 
 def _citation_for_passage(row: dict[str, Any]) -> dict[str, Any]:
@@ -90,17 +92,33 @@ def _citation_for_passage(row: dict[str, Any]) -> dict[str, Any]:
     if line_start <= 0:
         line_part = "L?"
     return {
-        "source": "document_map",
+        "source": str(row.get("source") or "document_map"),
         "citation_type": "source_locator",
         "source_name": source_name,
         "saved_map_name": row.get("saved_map_name") or "",
+        "saved_document_name": row.get("saved_document_name") or "",
         "paragraph_id": int(row.get("paragraph_id", block_id) or 0),
         "block_id": block_id,
         "line_start": line_start,
         "line_end": line_end,
         "coord": f"{source_name}:block{block_id}:{line_part}",
         "score": float(row.get("score", 0.0) or 0.0),
+        "visual_refs": row.get("visual_refs") or [],
     }
+
+
+def _visual_ref_suffix(row: dict[str, Any]) -> str:
+    refs = [
+        ref for ref in row.get("visual_refs") or []
+        if isinstance(ref, dict) and str(ref.get("visual_record_id") or "").strip()
+    ]
+    if not refs:
+        return ""
+    first = refs[0]
+    kind = str(first.get("kind") or "").strip()
+    visual_id = str(first.get("visual_record_id") or "").strip()
+    kind_suffix = f" ({kind})" if kind and kind != "figure" else ""
+    return f", figure {visual_id}{kind_suffix}"
 
 
 def _clean_passage_sentence(text: str, max_chars: int = 280) -> str:

@@ -605,6 +605,13 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         except (FileNotFoundError, ValueError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
+    @app.post("/api/flat-documents/runtime/build")
+    def flat_documents_runtime_build(body: ResonanceBuildBody) -> dict[str, Any]:
+        try:
+            return store.build_flat_runtime_from_observed_map(body.observed_map_name)
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
     @app.post("/api/lexicon/intake/preview")
     def lexicon_intake_preview(body: IntakePreviewBody) -> dict[str, Any]:
         try:

@@ -127,11 +127,18 @@ source document
 -> prepare/clean
 -> anchorize/resolve/temp-symbolize
 -> observed source map
+-> flat symbolic runtime blocks
 -> occurrence address index
 -> source-local positional resonance index
 -> retrieval expansion
 -> occurrence-backed evidence selection
 -> renderer
+```
+
+The flat runtime RAG contract lives in:
+
+```text
+docs/ANCHORWORKS_FLAT_RUNTIME_RAG_CONTRACT.md
 ```
 
 It must not bypass current laws:
