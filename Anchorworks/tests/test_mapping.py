@@ -499,6 +499,34 @@ class MappingTests(unittest.TestCase):
             self.assertIn("stop: not (3), . (2)", result.response)
             self.assertEqual(result.citations[0]["source"], "clearspeak_lifetime_counts")
 
+    def test_clearspeak_walks_topk_without_speaking_punctuation(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "armor", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "defense", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_E.json", [{"word": "emp", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+
+            store = LexiconStore(root)
+            store._update_lifetime_relation_counts(
+                [
+                    {"anchor": "emp", "offset": "+1", "neighbor": ".", "observations": 99},
+                    {"anchor": "emp", "offset": "+2", "neighbor": "defense", "observations": 12},
+                    {"anchor": "defense", "offset": "+1", "neighbor": "armor", "observations": 8},
+                ],
+                observed_counts=Counter({"emp": 1, "defense": 1, "armor": 1, ".": 1}),
+            )
+
+            result = ClearSpeakService(store).query("emp")
+
+            self.assertIn("Count-assembled answer terms: defense, armor", result.response)
+            self.assertIn("emp: . (99), defense (12)", result.response)
+            self.assertEqual([row["anchor"] for row in result.answer_assembly["terms"][:2]], ["defense", "armor"])
+            self.assertTrue(result.answer_assembly["contract"]["topk_is_walked_not_displayed"])
+
     def test_clearspeak_status_route_is_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
