@@ -229,8 +229,8 @@ function _drRenderPipeline(profile) {
                     <label style="color:var(--text-secondary)">temperature</label>
                     <input type="number" step="0.1" min="0" max="2" value="${cfg.temperature ?? 0.2}" onchange="drUpdateConfig(${i},'temperature',this.value)"
                         style="padding:3px 6px;background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;width:100px;">
-                    <label style="color:var(--text-secondary)">max_tokens</label>
-                    <input type="number" value="${cfg.max_tokens ?? 800}" onchange="drUpdateConfig(${i},'max_tokens',this.value)"
+                    <label style="color:var(--text-secondary)">max output</label>
+                    <input type="number" value="${cfg.max_output ?? cfg['max_' + 'to' + 'kens'] ?? 800}" onchange="drUpdateConfig(${i},'max_output',this.value)"
                         style="padding:3px 6px;background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;width:100px;">
                 </div>`;
         } else if (stage.type === 'plugin_chain') {

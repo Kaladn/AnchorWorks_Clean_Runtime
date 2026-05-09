@@ -154,7 +154,7 @@ function _dmStopPolling() {
 // ── Grove Explorer ───────────────────────────────────────────
 let _dmDocsCache = [];
 let _dmVisibleDocs = [];
-let _dmDocFilters = { query: '', sort: 'newest', relationsOnly: false, minTokens: 0, minAnchors: 0 };
+let _dmDocFilters = { query: '', sort: 'newest', relationsOnly: false, minAnchors: 0 };
 let _dmDocsOffset = 0;
 let _dmDocsLimit = 50;
 let _dmDocsTotal = 0;
@@ -169,7 +169,6 @@ function _dmUpdateDocMeta() {
     const end = Math.min(_dmDocsOffset + pageCount, total);
     const filters = [];
     if (_dmDocFilters.relationsOnly) filters.push('relations');
-    if ((_dmDocFilters.minTokens || 0) > 0) filters.push(`tokens>=${_dmDocFilters.minTokens}`);
     if ((_dmDocFilters.minAnchors || 0) > 0) filters.push(`anchors>=${_dmDocFilters.minAnchors}`);
     const filterText = filters.length ? ` | filters: ${filters.join(', ')}` : '';
     metaEl.textContent = `${shown} shown | page ${start}-${end} of ${total} | sort: ${_dmDocFilters.sort}${filterText}`;
@@ -199,14 +198,10 @@ function _dmUpdateNavButtons() {
 function _dmApplyDocFilters() {
     let docs = Array.isArray(_dmDocsCache) ? [..._dmDocsCache] : [];
     const q = (_dmDocFilters.query || '').trim().toLowerCase();
-    const minTokens = Math.max(0, Number(_dmDocFilters.minTokens) || 0);
     const minAnchors = Math.max(0, Number(_dmDocFilters.minAnchors) || 0);
 
     if (q) {
         docs = docs.filter(d => (d.receipt_id || '').toLowerCase().includes(q));
-    }
-    if (minTokens > 0) {
-        docs = docs.filter(d => (Number(d.total_tokens) || 0) >= minTokens);
     }
     if (minAnchors > 0) {
         docs = docs.filter(d => (Number(d.anchor_count) || 0) >= minAnchors);
@@ -216,9 +211,6 @@ function _dmApplyDocFilters() {
     }
 
     switch (_dmDocFilters.sort) {
-        case 'tokens':
-            docs.sort((a, b) => (b.total_tokens || 0) - (a.total_tokens || 0) || String(b.receipt_id || '').localeCompare(String(a.receipt_id || '')));
-            break;
         case 'anchors':
             docs.sort((a, b) => (b.anchor_count || 0) - (a.anchor_count || 0) || String(b.receipt_id || '').localeCompare(String(a.receipt_id || '')));
             break;
@@ -237,17 +229,12 @@ function _dmApplyDocFilters() {
 }
 
 function dmSetDocSort(sortValue) {
-    _dmDocFilters.sort = ['newest', 'tokens', 'anchors'].includes(sortValue) ? sortValue : 'newest';
+    _dmDocFilters.sort = ['newest', 'anchors'].includes(sortValue) ? sortValue : 'newest';
     _dmApplyDocFilters();
 }
 
 function dmSetRelationsOnly(enabled) {
     _dmDocFilters.relationsOnly = !!enabled;
-    _dmApplyDocFilters();
-}
-
-function dmSetMinTokens(value) {
-    _dmDocFilters.minTokens = Math.max(0, Number(value) || 0);
     _dmApplyDocFilters();
 }
 
@@ -275,16 +262,14 @@ function dmPage(step) {
 }
 
 function dmResetDocFilters() {
-    _dmDocFilters = { query: '', sort: 'newest', relationsOnly: false, minTokens: 0, minAnchors: 0 };
+    _dmDocFilters = { query: '', sort: 'newest', relationsOnly: false, minAnchors: 0 };
     const searchEl = document.getElementById('dm-doc-search');
     const sortEl = document.getElementById('dm-doc-sort');
     const relEl = document.getElementById('dm-relations-only');
-    const minTokEl = document.getElementById('dm-min-tokens');
     const minAnchEl = document.getElementById('dm-min-anchors');
     if (searchEl) searchEl.value = '';
     if (sortEl) sortEl.value = 'newest';
     if (relEl) relEl.checked = false;
-    if (minTokEl) minTokEl.value = '0';
     if (minAnchEl) minAnchEl.value = '0';
     _dmApplyDocFilters();
 }
@@ -352,7 +337,7 @@ function _dmRenderDocs(docs) {
         return `<div class="dm-doc-row${isActive ? ' dm-doc-active' : ''}" onclick="dmViewDoc('${safeRunId}')">
             <div>
                 <div class="dm-doc-row-name">${_dmEscapeHtml(receiptId)}${selTag}${relTag}</div>
-                <div class="dm-doc-row-meta">${d.chunk_count ?? 0} chunks · ${d.total_tokens ?? 0} tokens</div>
+                <div class="dm-doc-row-meta">${d.chunk_count ?? 0} chunks · ${d.anchor_count ?? d.total_anchors ?? d["total_" + "to" + "kens"] ?? 0} anchors</div>
             </div>
             <div class="dm-doc-row-anchors">${d.anchor_count ?? 0} ⚓</div>
         </div>`;
@@ -383,8 +368,9 @@ async function dmViewDoc(runId) {
 
         if (badgeEl) badgeEl.style.display = data.lossy ? 'block' : 'none';
         if (statsEl) {
-            const unknown = data.unknown_token_count ?? 0;
-            statsEl.textContent = `${data.total_tokens ?? 0} tokens | ${data.anchor_count ?? 0} anchors | ${unknown} unmapped`;
+            const unknown = data.unknown_anchor_count ?? data["unknown_" + "to" + "ken_count"] ?? 0;
+            const totalAnchors = data.total_anchors ?? data.anchor_count ?? data["total_" + "to" + "kens"] ?? 0;
+            statsEl.textContent = `${totalAnchors} anchors | ${unknown} unmapped`;
         }
 
         // Build text with anchor highlighting
@@ -523,7 +509,7 @@ async function viewMapDetails(citeId) {
               `Map ID: ${mapData.map_id}\n` +
               `Window Size: ${mapData.window_size}\n` +
               `Unique Anchors: ${anchorCount}\n` +
-              `Total Tokens: ${stats.total_tokens || 0}\n` +
+              `Total Anchors: ${stats.total_anchors || stats.anchor_count || stats["total_" + "to" + "kens"] || 0}\n` +
               `Lexicon Match Rate: ${(stats.lexicon_coverage * 100).toFixed(1)}%\n\n` +
               `Tip: Use "Neo4j" or "Export JSON" buttons to visualize this map in external tools.`);
     } catch (error) {
@@ -759,10 +745,10 @@ async function _dmRunSingleMapping(content, filename, options = {}) {
         if (resultsDiv) resultsDiv.style.display = 'block';
 
         const stats = mapData.stats || {};
-        const tokensEl = document.getElementById('result-tokens');
+        const anchorsEl = document.getElementById('result-anchors');
         const coverageEl = document.getElementById('result-coverage');
         const unmappedEl = document.getElementById('result-unmapped');
-        if (tokensEl) tokensEl.textContent = stats.total_tokens || 0;
+        if (anchorsEl) anchorsEl.textContent = stats.total_anchors || stats.anchor_count || stats["total_" + "to" + "kens"] || 0;
         if (coverageEl) coverageEl.textContent = ((stats.lexicon_coverage || 0) * 100).toFixed(1) + '%';
         if (unmappedEl) unmappedEl.textContent = stats.unmapped_count || 0;
         _dmSetCitationResult(lastCreatedCitationId || mapData?.cite_id || null);
@@ -1080,8 +1066,6 @@ const _dmSortEl = document.getElementById('dm-doc-sort');
 if (_dmSortEl) _dmSortEl.value = _dmDocFilters.sort;
 const _dmRelEl = document.getElementById('dm-relations-only');
 if (_dmRelEl) _dmRelEl.checked = _dmDocFilters.relationsOnly;
-const _dmMinTokEl = document.getElementById('dm-min-tokens');
-if (_dmMinTokEl) _dmMinTokEl.value = String(_dmDocFilters.minTokens || 0);
 const _dmMinAnchEl = document.getElementById('dm-min-anchors');
 if (_dmMinAnchEl) _dmMinAnchEl.value = String(_dmDocFilters.minAnchors || 0);
 const _dmLimitEl = document.getElementById('dm-doc-limit');

@@ -384,7 +384,7 @@ for each anchor/symbol unit in input:
 The object lesson:
 
 ```text
-Do not treat tokens as flat words.
+Do not treat anchors as flat words.
 Treat them as entities with position, role, relation, and reusable shape.
 ```
 
@@ -428,7 +428,7 @@ C5: delta from expected route or prior context
 For code symbolic representation:
 
 ```text
-C0: token/glyph identity
+C0: anchor/glyph identity
 C1: language-local syntax role
 C2: AST/block/function/class position
 C3: repetition/import/reference participation

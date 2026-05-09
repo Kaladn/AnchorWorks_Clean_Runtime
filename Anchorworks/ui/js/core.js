@@ -667,10 +667,10 @@ function ollamaWarmup() {
 
 const _panelMeta = {
     "gpt-oss":         { title: "AnchorWorks — Chat",               description: "Local chat workspace with citations, block governance, and revision flow—built for deterministic debugging and controlled updates." },
-    "mapping":         { title: "AnchorWorks — DocuMap",            description: "6-1-6 document mapping to measure coverage, discover unmapped tokens, and export maps for deterministic indexing and downstream governance." },
+    "mapping":         { title: "AnchorWorks — DocuMap",            description: "6-1-6 document mapping to measure coverage, discover unmapped anchors, and export maps for deterministic indexing and downstream governance." },
     "mapping-browser": { title: "AnchorWorks — Data Lake",          description: "Browse mapped lake documents, inspect reconstructed text, and review corpus anchor statistics without leaving the browser space." },
     "mapping-build":   { title: "AnchorWorks — Mapping",            description: "Create new 6-1-6 maps and run intake workflows for deterministic document onboarding and downstream lake indexing." },
-    "lexicon":         { title: "AnchorWorks — Lexicon",            description: "Browse and inspect the lexicon—view token entries, weights, and anchors that power deterministic grounding." },
+    "lexicon":         { title: "AnchorWorks — Lexicon",            description: "Browse and inspect the lexicon, weights, and anchors that power deterministic grounding." },
     "genesis":         { title: "AnchorWorks — Genesis",            description: "Browse the AnchorWorks Genesis corpus, inspect citation blocks, and drive ingestion review from a first-class browser surface." },
     "citations":       { title: "AnchorWorks — Citations",          description: "Manage citations health, validate coordinates, and govern block-level provenance for deterministic document integrity." },
     "monitoring":      { title: "AnchorWorks — Monitoring",         description: "Real-time system telemetry, gauge charts, and per-category sensor readings for AnchorWorks infrastructure." },
@@ -1040,7 +1040,7 @@ window.AnchorWorksMobileAuth = {
         if (!bundle.node_id || !bundle.ed25519_private_key || !bundle.enrollment_token) {
             throw new Error('Invalid enrollment bundle');
         }
-        // Send enrollment token + public key to server
+        // Send enrollment credential + public key to server
         const resp = await fetch(
             (bundle.server_url || ANCHORWORKS_CONFIG.bridge) + '/api/nodes/pair/enroll',
             {

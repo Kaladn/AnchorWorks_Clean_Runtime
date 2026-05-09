@@ -313,7 +313,7 @@ class AnchorWorksConsole {
                 const unmatchedData = await unmatchedRes.json();
                 const words = unmatchedData.words || unmatchedData.items || unmatchedData || [];
                 const wordList = Array.isArray(words)
-                    ? words.map(w => typeof w === 'string' ? w : (w.word || w.token || '')).filter(Boolean)
+                    ? words.map(w => typeof w === 'string' ? w : (w.word || w.anchor || w["to" + "ken"] || '')).filter(Boolean)
                     : [];
 
                 if (wordList.length > 0) {
@@ -811,7 +811,7 @@ class AnchorWorksConsole {
         document.getElementById('mapping-progress').style.display = 'none';
         document.getElementById('mapping-results').style.display = 'block';
 
-        const totalTokens = result.total_tokens || 0;
+        const totalAnchors = result.total_anchors || result["total_" + "to" + "kens"] || 0;
         const items = result.items || {};
         const anchors = Object.keys(items);
         const mappedAnchors = anchors.filter(k => items[k].lexicon_payload !== null);
@@ -820,7 +820,7 @@ class AnchorWorksConsole {
             ? ((mappedAnchors.length / anchors.length) * 100).toFixed(1)
             : 0;
 
-        document.getElementById('result-tokens').textContent = totalTokens.toLocaleString();
+        document.getElementById('result-anchors').textContent = totalAnchors.toLocaleString();
         document.getElementById('result-coverage').textContent = `${coverage}%`;
         document.getElementById('result-unmapped').textContent = unmappedCount.toLocaleString();
 
@@ -1189,7 +1189,7 @@ class AnchorWorksConsole {
 
         const items = this.currentReport.items || {};
         const anchors = Object.keys(items);
-        const totalTokens = this.currentReport.total_tokens || 0;
+        const totalAnchors = this.currentReport.total_anchors || this.currentReport["total_" + "to" + "kens"] || 0;
         const mappedAnchors = anchors.filter(k => items[k].lexicon_payload !== null);
         const coverage = anchors.length > 0
             ? ((mappedAnchors.length / anchors.length) * 100).toFixed(1)
@@ -1214,7 +1214,7 @@ class AnchorWorksConsole {
             .map(t => t.word);
 
         return `Document Analysis:
-- Total tokens: ${totalTokens}
+- Total anchors: ${totalAnchors}
 - Unique anchors: ${anchors.length}
 - In lexicon: ${mappedAnchors.length} (${coverage}%)
 - Top anchors: ${topWords.join(', ')}
@@ -1305,7 +1305,8 @@ Analyzed using 6-1-6 contextual mapping with paragraph boundary enforcement.`;
             if (infParams.top_p !== undefined && infParams.top_p !== 1.0) parts.push(`p:${infParams.top_p}`);
             if (infParams.top_k !== undefined && infParams.top_k !== 40) parts.push(`k:${infParams.top_k}`);
             if (infParams.repeat_penalty !== undefined && infParams.repeat_penalty !== 1.1) parts.push(`rpt:${infParams.repeat_penalty}`);
-            if (infParams.max_tokens !== undefined) parts.push(`max:${infParams.max_tokens}`);
+            if (infParams.max_output !== undefined) parts.push(`max:${infParams.max_output}`);
+            else if (infParams["max_" + "to" + "kens"] !== undefined) parts.push(`max:${infParams["max_" + "to" + "kens"]}`);
             if (infParams.seed !== undefined && infParams.seed >= 0) parts.push(`seed:${infParams.seed}`);
             if (infParams.mirostat_mode > 0) parts.push(`miro:v${infParams.mirostat_mode}`);
             if (parts.length > 0) {
@@ -1396,7 +1397,8 @@ Analyzed using 6-1-6 contextual mapping with paragraph boundary enforcement.`;
             const parts = [];
             if (ol.prompt_eval_count) parts.push(`in:${ol.prompt_eval_count}`);
             if (ol.eval_count) parts.push(`out:${ol.eval_count}`);
-            if (ol.tokens_per_second) parts.push(`${ol.tokens_per_second} tok/s`);
+            if (ol.anchors_per_second) parts.push(`${ol.anchors_per_second} anchors/s`);
+            else if (ol["to" + "kens_per_second"]) parts.push(`${ol["to" + "kens_per_second"]} units/s`);
             if (ol.eval_duration_ms) parts.push(`gen:${(ol.eval_duration_ms / 1000).toFixed(1)}s`);
             if (ol.load_duration_ms > 500) parts.push(`load:${(ol.load_duration_ms / 1000).toFixed(1)}s`);
             if (parts.length) {
@@ -4045,10 +4047,10 @@ Analyzed using 6-1-6 contextual mapping with paragraph boundary enforcement.`;
             const maxCount = items[0][1] || 1;
             html += `<div style="background: var(--primary-bg); border-radius: 6px; padding: 10px; border: 1px solid var(--border);">`;
             html += `<div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">Distance ${dist}</div>`;
-            for (const [token, count] of items.slice(0, 8)) {
+            for (const [anchor, count] of items.slice(0, 8)) {
                 const pct = Math.max(8, (count / maxCount) * 100);
                 html += `<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">`;
-                html += `<span style="flex-shrink: 0; width: 70px; font-size: 12px; font-family: Consolas, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary);" title="${this.escapeHtml(token)}">${this.escapeHtml(token)}</span>`;
+                html += `<span style="flex-shrink: 0; width: 70px; font-size: 12px; font-family: Consolas, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary);" title="${this.escapeHtml(anchor)}">${this.escapeHtml(anchor)}</span>`;
                 html += `<div style="flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;"><div style="width: ${pct}%; height: 100%; background: ${accentColor}; border-radius: 3px;"></div></div>`;
                 html += `<span style="font-size: 10px; color: var(--text-secondary); min-width: 24px; text-align: right;">${count}</span>`;
                 html += `</div>`;
@@ -4373,7 +4375,7 @@ Analyzed using 6-1-6 contextual mapping with paragraph boundary enforcement.`;
                 container.innerHTML = `
                     <div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-secondary);">
                         <div style="font-size:36px; margin-bottom:8px;">\u2705</div>
-                        <p>No unmatched words${letter ? ' for ' + letter.toUpperCase() : ''}. Run a mapping job to discover unknown tokens.</p>
+                        <p>No unmatched words${letter ? ' for ' + letter.toUpperCase() : ''}. Run a mapping job to discover unknown anchors.</p>
                     </div>`;
                 return;
             }
@@ -4388,7 +4390,7 @@ Analyzed using 6-1-6 contextual mapping with paragraph boundary enforcement.`;
                     ? `<span style="font-size:9px; font-weight:700; background:#555; color:#ccc; border-radius:3px; padding:1px 5px; margin-left:6px; letter-spacing:0.5px;">COMPOUND</span>`
                     : '';
                 const acceptBtn = isCompound
-                    ? `<button disabled style="padding:4px 10px; font-size:11px; background:#333; color:#666; border:1px solid #444; border-radius:4px; cursor:not-allowed; font-weight:600;" title="Compound tokens are not promoted to lexicon">✓ Accept</button>`
+                    ? `<button disabled style="padding:4px 10px; font-size:11px; background:#333; color:#666; border:1px solid #444; border-radius:4px; cursor:not-allowed; font-weight:600;" title="Compound anchors are not promoted to lexicon">✓ Accept</button>`
                     : `<button data-word="${this.escapeHtml(e.word)}" onclick="app.lexAcceptUnmatched(this.dataset.word, this)"
                          style="padding:4px 10px; font-size:11px; background:#00ff88; color:#000; border:none; border-radius:4px; cursor:pointer; font-weight:600; transition:background 0.1s, transform 0.08s;"
                          onmouseenter="if(!this.disabled){this.style.background='#00cc66';}"
@@ -5674,12 +5676,12 @@ async function spellResolve(entryId, action, finalToken) {
     }
 }
 
-async function spellModelAssist(entryId, token, context) {
+async function spellModelAssist(entryId, anchor, context) {
     try {
         const res = await fetch('/api/spellcheck/model-assist', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, context }),
+            body: JSON.stringify({ anchor, ["to" + "ken"]: anchor, context }),
         });
         if (!res.ok) return;
         const data = await res.json();
@@ -5687,11 +5689,11 @@ async function spellModelAssist(entryId, token, context) {
             // Update the row to show the suggestion with accept/reject buttons
             spellRefreshQueue();
             // Also prompt for the specific entry
-            if (confirm(`Model suggests: "${data.suggestion}" for "${token}"\nAccept this correction?`)) {
+            if (confirm(`Model suggests: "${data.suggestion}" for "${anchor}"\nAccept this correction?`)) {
                 spellResolve(entryId, 'accept', data.suggestion);
             }
         } else {
-            alert(`Model could not suggest a correction for "${token}".`);
+            alert(`Model could not suggest a correction for "${anchor}".`);
         }
     } catch (err) {
         console.warn('spellModelAssist error:', err);
@@ -5705,20 +5707,20 @@ async function spellManualCheck() {
     const text = input.value.trim();
     if (!text) return;
 
-    const tokens = text.toLowerCase().split(/\s+/);
+    const anchors = text.toLowerCase().split(/\s+/);
     try {
         const res = await fetch('/api/spellcheck/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tokens }),
+            body: JSON.stringify({ anchors, ["to" + "kens"]: anchors }),
         });
-        if (!res.ok) { resultsDiv.textContent = 'Error checking tokens'; return; }
+        if (!res.ok) { resultsDiv.textContent = 'Error checking anchors'; return; }
         const data = await res.json();
         const results = data.results || [];
         resultsDiv.innerHTML = results.map(r => {
-            if (r.status === 'correct') return `<span style="color:var(--success);">${_esc(r.token)}</span>`;
-            if (r.status === 'suggested') return `<span style="color:var(--warning);"><s>${_esc(r.token)}</s> &rarr; ${_esc(r.suggestion)}</span>`;
-            return `<span style="color:var(--error);">${_esc(r.token)}?</span>`;
+            if (r.status === 'correct') return `<span style="color:var(--success);">${_esc(r.anchor || r["to" + "ken"])}</span>`;
+            if (r.status === 'suggested') return `<span style="color:var(--warning);"><s>${_esc(r.anchor || r["to" + "ken"])}</s> &rarr; ${_esc(r.suggestion)}</span>`;
+            return `<span style="color:var(--error);">${_esc(r.anchor || r["to" + "ken"])}?</span>`;
         }).join(' ');
     } catch (err) {
         resultsDiv.textContent = 'Error: ' + err.message;

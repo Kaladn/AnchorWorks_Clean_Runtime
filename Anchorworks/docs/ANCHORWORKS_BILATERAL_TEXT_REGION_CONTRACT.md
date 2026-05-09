@@ -205,7 +205,7 @@ visual_text:
 
 ## Count Lane Mapping
 
-Bilateral text allows counts to retain provenance instead of flattening every token into the same trust bucket.
+Bilateral text allows counts to retain provenance instead of flattening every anchor into the same trust bucket.
 
 Suggested future count lanes:
 

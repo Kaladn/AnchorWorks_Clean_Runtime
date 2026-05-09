@@ -1,4 +1,4 @@
-# 6-1-6 Complete Data Flow & Architecture
+﻿# 6-1-6 Complete Data Flow & Architecture
 
 ## 🌳 The Tree Mental Model
 
@@ -58,9 +58,9 @@ Example at position +1 (first branch):
 │    ├→ Split by paragraph (block boundaries)                   │
 │    │                                                            │
 │    ├→ For each paragraph:                                     │
-│    │    ├→ Tokenize → ["anchorworkss", "provide", "carbon", ...]  │
+│    │    ├→ Anchorize → ["anchorworkss", "provide", "carbon", ...]  │
 │    │    │                                                       │
-│    │    ├→ Walk through tokens as anchors:                    │
+│    │    ├→ Walk through anchors:                    │
 │    │    │   Position 0: 0-1-6 (0 before, 1 anchor, 6 after)  │
 │    │    │   Position 1: 1-1-6 (1 before, 1 anchor, 6 after)  │
 │    │    │   Position 2: 2-1-6 (2 before, 1 anchor, 6 after)  │
@@ -83,8 +83,8 @@ Example at position +1 (first branch):
 │      "anchorworks": {                                               │
 │        "before": {                                             │
 │          "1": [                                                 │
-│            {"token": "carbon", "count": 5, ...},              │
-│            {"token": "ecosystem", "count": 3, ...}            │
+│            {"anchor": "carbon", "count": 5, ...},              │
+│            {"anchor": "ecosystem", "count": 3, ...}            │
 │          ],                                                     │
 │          "2": [...],                                           │
 │          ...                                                    │
@@ -92,8 +92,8 @@ Example at position +1 (first branch):
 │        },                                                       │
 │        "after": {                                              │
 │          "1": [                                                 │
-│            {"token": "conservation", "count": 4, ...},        │
-│            {"token": "protect", "count": 2, ...}              │
+│            {"anchor": "conservation", "count": 4, ...},        │
+│            {"anchor": "protect", "count": 2, ...}              │
 │          ],                                                     │
 │          ...                                                    │
 │          "6": [...]                                            │
@@ -103,7 +103,7 @@ Example at position +1 (first branch):
 │        "frequency": 0  ← (unused, from lexicon metadata)      │
 │      }                                                          │
 │    },                                                           │
-│    "total_tokens": 87,                                         │
+│    "total_anchors": 87,                                         │
 │    "stats": {...}                                              │
 │  }                                                              │
 │                                                                 │
@@ -274,13 +274,13 @@ For anchor "anchorworks" with this structure:
 ```json
 {
   "before": {
-    "1": [{"token": "carbon", "count": 5}, {"token": "sustainable", "count": 3}],
-    "2": [{"token": "ecosystem", "count": 4}],
+    "1": [{"anchor": "carbon", "count": 5}, {"anchor": "sustainable", "count": 3}],
+    "2": [{"anchor": "ecosystem", "count": 4}],
     ...
   },
   "after": {
-    "1": [{"token": "conservation", "count": 4}],
-    "2": [{"token": "protect", "count": 3}],
+    "1": [{"anchor": "conservation", "count": 4}],
+    "2": [{"anchor": "protect", "count": 3}],
     ...
   }
 }
@@ -417,3 +417,4 @@ For graph visualization, I need to:
 ---
 
 **Ready to proceed with D3.js graph implementation?**
+

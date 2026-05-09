@@ -8,6 +8,7 @@ from typing import Any
 
 DEFAULT_WINDOW_RADIUS = 6
 EMOJI_ANCHOR = "__EMOJI__"
+NULL_ANCHOR = "__NULL__"
 _JOINED_APOSTROPHES = {"'", "\u2019"}
 _REGIONAL_INDICATOR_START = 0x1F1E6
 _REGIONAL_INDICATOR_END = 0x1F1FF
@@ -138,15 +139,17 @@ def _is_string_literal_surface(surface: str) -> bool:
 def _normalize_anchor_identity(anchor: str) -> str:
     if anchor == EMOJI_ANCHOR:
         return EMOJI_ANCHOR
-    return str(anchor or "").lower()
+    return str(anchor or "").replace("\u2018", "'").replace("\u2019", "'").lower()
 
 
 def build_anchor_map(
     text: str,
     window_radius: int = DEFAULT_WINDOW_RADIUS,
     resolved_anchors: Mapping[str, str] | None = None,
+    null_anchors: set[str] | None = None,
 ) -> dict[str, Any]:
     anchor_aliases = resolved_anchors or {}
+    null_anchor_set = {str(anchor or "").lower() for anchor in (null_anchors or set()) if str(anchor or "")}
     paragraphs = split_paragraphs(text)
     paragraph_rows: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
@@ -156,7 +159,10 @@ def build_anchor_map(
     for paragraph_id, paragraph in enumerate(paragraphs):
         anchor_rows = extract_anchor_rows(paragraph)
         anchors = [row["anchor"] for row in anchor_rows]
-        count_eligible = [bool(row.get("count_eligible", True)) for row in anchor_rows]
+        count_eligible = [
+            bool(row.get("count_eligible", True)) and row["anchor"] not in null_anchor_set
+            for row in anchor_rows
+        ]
         resolved_stream = [anchor_aliases.get(anchor, anchor) for anchor in anchors]
         composed_streams = [compose_anchor_stream(anchor) for anchor in anchors]
         paragraph_rows.append({

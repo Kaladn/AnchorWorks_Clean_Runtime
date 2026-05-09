@@ -221,17 +221,12 @@
                                 <select id="dm-doc-sort" class="form-control"
                                     onchange="dmSetDocSort(this.value)" title="Sort documents">
                                     <option value="newest">Newest</option>
-                                    <option value="tokens">Most Tokens</option>
                                     <option value="anchors">Most Anchors</option>
                                 </select>
                             </div>
 
                             <!-- Row 2: filters -->
                             <div class="dm-filter-row">
-                                <label>Min tokens
-                                    <input type="number" id="dm-min-tokens" class="form-control"
-                                        min="0" value="0" onchange="dmSetMinTokens(this.value)">
-                                </label>
                                 <label>Min anchors
                                     <input type="number" id="dm-min-anchors" class="form-control"
                                         min="0" value="0" onchange="dmSetMinAnchors(this.value)">
@@ -451,12 +446,12 @@
                         <h3>✅ Success</h3>
                         <div class="stats-grid">
                             <div class="stat-card">
-                                <div class="stat-value" id="result-tokens">0</div>
-                                <div class="stat-label">Total Tokens</div>
+                                <div class="stat-value" id="result-anchors">0</div>
+                                <div class="stat-label">Total Anchors</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-value" id="result-coverage">0%</div>
-                                <div class="stat-label" title="Percent of tokens assigned a lexicon anchor in this map run.">Lexicon Match Rate</div>
+                                <div class="stat-label" title="Percent of anchors assigned a lexicon entry in this map run.">Lexicon Match Rate</div>
                             </div>
                             <div class="stat-card" style="cursor:pointer;" title="Click to view unmatched words in Lexicon Browser" onclick="openLexiconUnmatchedFromMapCard();">
                                 <div class="stat-value" id="result-unmapped">0</div>
@@ -472,7 +467,7 @@
                             </button>
                         </div>
                         <div style="margin-top: 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
-                            Lexicon Match Rate: percent of tokens assigned a lexicon anchor in this map run.<br>
+                            Lexicon Match Rate: percent of anchors assigned a lexicon entry in this map run.<br>
                             Unmatched Words: vocabulary types (unique word forms) with no lexicon entry in this map run.
                         </div>
                         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
@@ -918,8 +913,8 @@
                         </div>
                         <div>
                             <div class="ctrl-slider-group">
-                                <label><span>Max Tokens</span><span class="ctrl-val" id="ctrl-maxtok-val">4096</span></label>
-                                <input type="range" class="ctrl-slider" id="ctrl-maxtok" min="128" max="16384" value="4096" step="128" data-help-id="inference.max-tokens">
+                                <label><span>Max Output</span><span class="ctrl-val" id="ctrl-maxout-val">4096</span></label>
+                                <input type="range" class="ctrl-slider" id="ctrl-maxout" min="128" max="16384" value="4096" step="128" data-help-id="inference.max-output">
                             </div>
                             <div class="ctrl-slider-group">
                                 <label><span>Repeat Penalty</span><span class="ctrl-val" id="ctrl-repeat-val">1.10</span></label>
@@ -2254,7 +2249,7 @@
                                 <p style="font-size:11px;color:var(--text-secondary);margin-bottom:14px;">⚠ Changes take effect after server restart.</p>
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                                     <div class="form-group">
-                                        <label>Chunk Size (tokens)</label>
+                                        <label>Chunk Size (anchors)</label>
                                         <input type="number" class="form-control" id="scfg-chunk-size" min="64" max="4096">
                                     </div>
                                     <div class="form-group">
@@ -2319,7 +2314,7 @@
                                         <input type="number" class="form-control" id="scfg-window" min="1" max="20">
                                     </div>
                                     <div class="form-group">
-                                        <label>Min Token Length</label>
+                                        <label>Min Anchor Length</label>
                                         <input type="number" class="form-control" id="scfg-min-len" min="0" max="20">
                                     </div>
                                     <div class="form-group">

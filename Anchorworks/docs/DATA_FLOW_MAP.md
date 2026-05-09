@@ -178,9 +178,9 @@ Write lanes:
 ```text
 Canonical/*.json                    lexicon approval/import/assignment
 Spare_Slots/*                       slot assignment or return
-State/unmatched_words.json          unresolved tokens
+State/unmatched_words.json          unresolved anchors
 State/pending_words.json            review queue
-State/ignored_words.json            ignored tokens
+State/ignored_words.json            ignored anchors
 State/intake_uploads/*              prepared intake text
 State/observed_maps/*               source-local map payloads
 State/misspelled_reviews/*          spelling/review reports

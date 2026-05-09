@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from . import __version__
 from .chat_memory_system import ChatMemorySystem
 from .clearspeak import ClearSpeakService
+from .intake_audit import audit_source_directory, rebuild_readiness_report
 from .model_api_client import ModelApiClient
 from .policy_diagnostics_report import build_settings_report, load_queries
 from .store import LexiconStore
@@ -30,6 +31,15 @@ class ImportBody(BaseModel):
 
 class MappingRunBody(BaseModel):
     file_path: str
+
+
+class IntakeAuditBody(BaseModel):
+    source_dir: str
+
+
+class RebuildReadinessBody(BaseModel):
+    source_dir: str
+    state_dir: str = ""
 
 
 class ResonanceBuildBody(BaseModel):
@@ -52,6 +62,7 @@ class IntakeApproveBody(BaseModel):
 class IntakeMapBody(BaseModel):
     source_name: str
     content: str
+    intake_edits: list[dict[str, Any]] = []
 
 
 class IntakeEditBody(BaseModel):
@@ -553,6 +564,10 @@ def create_app(data_root: Path | None = None) -> FastAPI:
             letter=body.letter,
         )
 
+    @app.post("/api/lexicon/missing-anchor-review/classify")
+    def lexicon_missing_anchor_review_classify() -> dict[str, Any]:
+        return store.classify_missing_anchor_registry()
+
     @app.post("/api/lexicon/approve")
     def lexicon_approve(body: WordBody) -> dict[str, Any]:
         try:
@@ -622,6 +637,23 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         try:
             return store.build_observed_map(Path(body.file_path))
         except (FileNotFoundError, IsADirectoryError, ValueError, AssertionError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/intake/audit")
+    def intake_audit(body: IntakeAuditBody) -> dict[str, Any]:
+        try:
+            return audit_source_directory(Path(body.source_dir))
+        except (FileNotFoundError, NotADirectoryError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/intake/rebuild-readiness")
+    def intake_rebuild_readiness(body: RebuildReadinessBody) -> dict[str, Any]:
+        try:
+            return rebuild_readiness_report(
+                source_dir=Path(body.source_dir),
+                state_dir=Path(body.state_dir) if body.state_dir else store.state_dir,
+            )
+        except (FileNotFoundError, NotADirectoryError, ValueError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
     @app.post("/api/resonance/source-local/build")
@@ -696,7 +728,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.post("/api/lexicon/intake/map")
     def lexicon_intake_map(body: IntakeMapBody) -> dict[str, Any]:
         try:
-            return store.build_intake_mapping(source_name=body.source_name, content=body.content)
+            return store.build_intake_mapping(source_name=body.source_name, content=body.content, intake_edits=body.intake_edits)
         except (FileNotFoundError, IsADirectoryError, ValueError, AssertionError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 

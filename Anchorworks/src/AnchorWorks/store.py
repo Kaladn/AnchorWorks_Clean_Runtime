@@ -12,10 +12,12 @@ from pathlib import Path
 from typing import Any
 
 from .anchorworks_chat_archive import prepare_anchorworks_chat_archive
+from .anchor_classification import classify_unknown_anchor_rows, write_classified_unknown_report, write_math_lexicon
 from .document_prep import prepare_bytes, prepare_file
 from .intake import (
     DEFAULT_WINDOW_RADIUS,
     EMOJI_ANCHOR,
+    NULL_ANCHOR,
     build_anchor_map,
     build_context_views,
     compose_anchor_stream,
@@ -34,6 +36,8 @@ _SPELL_SUGGESTION_MISSING_LIMIT = 512
 TEMP_SYMBOL_VERSION = "temp_symbol@1"
 TEMP_SYMBOL_PREFIX = "U"
 TEMP_SYMBOL_HEX_LENGTH = 11
+COMPANION_AUTHORITY_LANES = {"math_terms_or_symbols", "math_markup", "domain_notation_anchors", "structural_source_anchors"}
+NULL_SYMBOL_LANES = {"null_symbol_anchors", "source_id_artifacts"}
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -379,7 +383,11 @@ class LexiconStore:
         selected = (pack or "all").lower()
         paths: list[tuple[str, Path]] = []
         if selected in {"all", "canonical"}:
-            paths.extend(("canonical", self.canonical_dir / f"canonical_{letter}.json") for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            canonical_paths = sorted(self.canonical_dir.glob("canonical_*.json"))
+            if canonical_paths:
+                paths.extend(("canonical", path) for path in canonical_paths)
+            else:
+                paths.extend(("canonical", self.canonical_dir / f"canonical_{letter}.json") for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         if selected in {"all", "structural"} and self.structural_file.exists():
             paths.append(("structural", self.structural_file))
         if selected in {"all", "spare"}:
@@ -732,12 +740,19 @@ class LexiconStore:
         source_name: str,
         content: str,
         count_target: str = "base",
+        intake_edits: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         if _is_visual_preview_content(content):
             raise ValueError("visual intake preview is source-local evidence only; use a future visual approval route before mapping/counting")
+        null_anchors = {
+            self.normalize_anchor(str(edit.get("original_anchor") or ""))
+            for edit in (intake_edits or [])
+            if str(edit.get("action") or "").strip().lower() == "null"
+            and self.normalize_anchor(str(edit.get("original_anchor") or ""))
+        }
         staged_path = self._intake_upload_path(source_name=source_name, content=content)
         staged_path.write_text(content, encoding="utf-8")
-        return self.build_observed_map(staged_path, count_target=count_target)
+        return self.build_observed_map(staged_path, count_target=count_target, null_anchors=null_anchors)
 
     def _anchor_case_signature(self, anchor: str) -> tuple[bool, int]:
         return (anchor[:1].isupper(), sum(1 for char in anchor if char.isupper()))
@@ -1127,6 +1142,30 @@ class LexiconStore:
                 "created_at": _utc_now(),
             })
         return symbol_map, entries
+
+    def _null_occurrence_index(self, occurrences: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any]] = []
+        for occurrence in occurrences:
+            if occurrence.get("anchor") != NULL_ANCHOR:
+                continue
+            block_id = int(occurrence.get("block_id", occurrence.get("paragraph_id", 0)) or 0)
+            line_start = int(occurrence.get("line_start", 0) or 0)
+            position = int(occurrence.get("position", 0) or 0)
+            rows.append({
+                "schema_version": "anchorworks_null_index@1",
+                "block_id": block_id,
+                "line_start": line_start,
+                "line_end": int(occurrence.get("line_end", line_start) or line_start),
+                "anchor_position": position,
+                "anchor_label": f"Block {block_id} Ln {line_start} Anchor {position}",
+                "observed_anchor": occurrence.get("observed_anchor", ""),
+                "surface": occurrence.get("surface", ""),
+                "resolved_anchor": NULL_ANCHOR,
+                "count_eligible": False,
+                "memory_truth": False,
+            })
+        rows.sort(key=lambda row: (int(row["block_id"]), int(row["line_start"]), int(row["anchor_position"]), str(row["observed_anchor"])))
+        return rows
 
     def _relation_count_rows(self, counts: Counter[tuple[str, str, str]]) -> list[dict[str, Any]]:
         return [
@@ -2110,7 +2149,13 @@ class LexiconStore:
             "window_radius": DEFAULT_WINDOW_RADIUS,
         }
 
-    def build_observed_map(self, source_path: Path, *, count_target: str = "base") -> dict[str, Any]:
+    def build_observed_map(
+        self,
+        source_path: Path,
+        *,
+        count_target: str = "base",
+        null_anchors: set[str] | None = None,
+    ) -> dict[str, Any]:
         source_path = Path(source_path).expanduser().resolve()
         if not source_path.exists():
             raise FileNotFoundError(source_path)
@@ -2124,12 +2169,36 @@ class LexiconStore:
         inventory = self._extract_document_anchor_inventory(text)
         observed_counts: Counter[str] = inventory["observed_counts"]
         known_anchors = set(self._all_known_anchors())
+        null_anchor_set = {self.normalize_anchor(anchor) for anchor in (null_anchors or set()) if self.normalize_anchor(anchor)}
         unique_anchors = sorted(observed_counts)
 
         resolution_map: dict[str, str] = {anchor: anchor for anchor in unique_anchors if anchor in known_anchors}
-        missing_counts: Counter[str] = Counter({
-            anchor: count for anchor, count in observed_counts.items() if anchor not in known_anchors
+        for anchor in null_anchor_set:
+            if anchor in observed_counts:
+                resolution_map[anchor] = NULL_ANCHOR
+        raw_missing_counts: Counter[str] = Counter({
+            anchor: count for anchor, count in observed_counts.items() if anchor not in known_anchors and anchor not in null_anchor_set
         })
+        classified_missing = classify_unknown_anchor_rows(self._anchor_rows(raw_missing_counts))
+        companion_counts: Counter[str] = Counter()
+        classified_null_counts: Counter[str] = Counter()
+        missing_counts: Counter[str] = Counter()
+        for lane, rows in (classified_missing.get("lanes") or {}).items():
+            for row in rows:
+                anchor = self.normalize_anchor(str(row.get("anchor") or ""))
+                if not anchor:
+                    continue
+                observations = int(row.get("observations", 0) or 0)
+                if lane in COMPANION_AUTHORITY_LANES:
+                    companion_counts[anchor] += observations
+                    resolution_map[anchor] = anchor
+                elif lane in NULL_SYMBOL_LANES:
+                    classified_null_counts[anchor] += observations
+                    null_anchor_set.add(anchor)
+                    resolution_map[anchor] = NULL_ANCHOR
+                else:
+                    missing_counts[anchor] += observations
+
         suggestions = self._precompute_spell_suggestions(missing_counts, known_anchors)
         review_rows = self._build_misspelled_review_rows(missing_counts, known_anchors, suggestions=suggestions)
         review_index = {row["anchor"]: row for row in review_rows}
@@ -2159,6 +2228,7 @@ class LexiconStore:
             text,
             window_radius=DEFAULT_WINDOW_RADIUS,
             resolved_anchors=resolution_map,
+            null_anchors=null_anchor_set,
         )
         line_locators = self._paragraph_line_locators({
             "source_path": str(source_path),
@@ -2174,14 +2244,23 @@ class LexiconStore:
                 occurrence["block_id"] = locator["block_id"]
                 occurrence["line_start"] = locator["line_start"]
                 occurrence["line_end"] = locator["line_end"]
+        null_index = self._null_occurrence_index(mapping["occurrences"])
         resolved_counts: Counter[str] = mapping["observed_counts"]
         temp_symbols_present = bool(temp_entries)
-        if temp_symbols_present:
+        source_local_only_present = temp_symbols_present or bool(companion_counts) or bool(null_anchor_set)
+        if source_local_only_present:
+            reasons: list[str] = []
+            if temp_symbols_present:
+                reasons.append("source_local_temp_symbols_present")
+            if companion_counts:
+                reasons.append("companion_authority_anchors_present")
+            if null_anchor_set:
+                reasons.append("null_symbol_anchors_present")
             count_write = {
                 "count_target": count_target,
                 "count_paths": [],
                 "lifetime_write_skipped": True,
-                "reason": "source_local_temp_symbols_present",
+                "reason": "+".join(reasons),
             }
         elif count_target == "base":
             self._update_lifetime_relation_counts(
@@ -2212,6 +2291,7 @@ class LexiconStore:
                 "observations": count,
                 "known": anchor in known_anchors,
                 "resolved_to": resolution_map.get(anchor, anchor),
+                "null_mapped": anchor in null_anchor_set,
             }
             for anchor, count in sorted(observed_counts.items(), key=lambda item: (-item[1], item[0]))
         ]
@@ -2222,7 +2302,7 @@ class LexiconStore:
 
         temp_lexicon_path: Path | None = None
         source_local_preview_counts_path: Path | None = None
-        if temp_entries:
+        if source_local_only_present:
             temp_lexicon_path = self._temp_lexicon_path(source_path)
             self._write_json(temp_lexicon_path, {
                 "saved_at": _utc_now(),
@@ -2231,6 +2311,12 @@ class LexiconStore:
                 "temp_symbol_version": TEMP_SYMBOL_VERSION,
                 "authority": "source_local_coordinate",
                 "entries": temp_entries,
+                "companion_authority_anchors": self._anchor_rows(companion_counts),
+                "null_anchors": self._anchor_rows(Counter({
+                    anchor: observed_counts[anchor]
+                    for anchor in null_anchor_set
+                    if anchor in observed_counts
+                })),
             })
             source_local_preview_counts_path = self._source_local_preview_counts_path(source_path)
             self._write_json(source_local_preview_counts_path, {
@@ -2254,21 +2340,39 @@ class LexiconStore:
             "total_anchor_observations": int(sum(observed_counts.values())),
             "unique_anchor_count": len(observed_counts),
             "known_anchor_count": len(known_counts),
+            "companion_anchor_count": len(companion_counts),
             "missing_anchor_count": len(missing_counts),
+            "null_anchor_count": len([anchor for anchor in null_anchor_set if anchor in observed_counts]),
+            "null_occurrence_count": len(null_index),
             "known_anchor_observations": int(sum(known_counts.values())),
+            "companion_anchor_observations": int(sum(companion_counts.values())),
             "missing_anchor_observations": int(sum(missing_counts.values())),
+            "null_anchor_observations": int(sum(observed_counts.get(anchor, 0) for anchor in null_anchor_set)),
+            "raw_missing_anchor_count": len(raw_missing_counts),
+            "raw_missing_anchor_observations": int(sum(raw_missing_counts.values())),
             "paragraphs": mapping["paragraphs"],
             "paragraph_line_locators": {str(key): value for key, value in line_locators.items()},
             "occurrences": mapping["occurrences"],
+            "null_index": null_index,
             "co_occurrence_counts": mapping["co_occurrence_counts"],
             "items": mapping["items"],
             "anchor_index": mapping["anchor_index"],
             "stats": mapping["stats"],
             "known_anchors": self._anchor_rows(known_counts),
+            "companion_authority_anchors": self._anchor_rows(companion_counts),
             "missing_anchors": self._anchor_rows(missing_counts),
+            "null_anchors": self._anchor_rows(Counter({
+                anchor: observed_counts[anchor]
+                for anchor in null_anchor_set
+                if anchor in observed_counts
+            })),
             "observed_anchors": observed_rows,
             "spell_corrections": corrections,
             "lexicon_additions": additions,
+            "classified_missing_lanes": {
+                "lane_counts": classified_missing.get("lane_counts", {}),
+                "lane_observations": classified_missing.get("lane_observations", {}),
+            },
             "temp_symbol_count": len(temp_entries),
             "temp_symbols": temp_entries,
             "temp_lexicon_path": str(temp_lexicon_path) if temp_lexicon_path else "",
@@ -2297,12 +2401,24 @@ class LexiconStore:
             "total_anchor_observations": payload["total_anchor_observations"],
             "unique_anchor_count": payload["unique_anchor_count"],
             "known_anchor_count": payload["known_anchor_count"],
+            "companion_anchor_count": payload["companion_anchor_count"],
             "missing_anchor_count": payload["missing_anchor_count"],
+            "null_anchor_count": payload["null_anchor_count"],
+            "null_occurrence_count": payload["null_occurrence_count"],
             "known_anchor_observations": payload["known_anchor_observations"],
+            "companion_anchor_observations": payload["companion_anchor_observations"],
             "missing_anchor_observations": payload["missing_anchor_observations"],
+            "null_anchor_observations": payload["null_anchor_observations"],
+            "raw_missing_anchor_count": payload["raw_missing_anchor_count"],
+            "raw_missing_anchor_observations": payload["raw_missing_anchor_observations"],
             "registered_missing_anchors": len(missing_counts),
             "known_anchors_preview": payload["known_anchors"][:25],
+            "companion_authority_anchors_preview": payload["companion_authority_anchors"][:25],
             "missing_anchors_preview": payload["missing_anchors"][:25],
+            "null_anchors": payload["null_anchors"],
+            "null_anchors_preview": payload["null_anchors"][:25],
+            "null_index_preview": payload["null_index"][:25],
+            "classified_missing_lanes": payload["classified_missing_lanes"],
             "observed_anchors_preview": payload["observed_anchors"][:25],
             "occurrence_preview": payload["occurrences"][:12],
             "co_occurrence_preview": payload["co_occurrence_counts"][:12],
@@ -2480,6 +2596,12 @@ class LexiconStore:
             "entries": moved,
             "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
+
+    def classify_missing_anchor_registry(self) -> dict[str, Any]:
+        output_dir = self.state_dir / "ingest_staging" / "anchor_inventory" / "classified_unknown_lanes"
+        result = write_classified_unknown_report(self._load_missing_anchor_registry(), output_dir)
+        result["math_lexicon"] = write_math_lexicon(output_dir / "math_lexicon.json")
+        return result
 
     def pending(self) -> dict[str, Any]:
         entries = self._load_pending()

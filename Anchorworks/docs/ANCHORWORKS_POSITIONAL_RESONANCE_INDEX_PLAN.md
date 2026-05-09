@@ -167,7 +167,7 @@ Authority:
 evidence address / citation source
 ```
 
-It is allowed to support document answers because it points to source/block/line/token coordinates.
+It is allowed to support document answers because it points to source/block/line/anchor coordinates.
 
 ### 2. Positional Resonance Index
 
@@ -276,7 +276,7 @@ Small UI/debug summary.
   "block_id": 16,
   "line_start": 45,
   "line_end": 45,
-  "token_index": 123,
+  "anchor_position": 123,
   "anchor_position": 42,
   "surface": "basement",
   "anchor": "basement",

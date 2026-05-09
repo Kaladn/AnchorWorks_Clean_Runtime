@@ -11,7 +11,7 @@ from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from AnchorWorks.clearspeak import ClearSpeakService
 from AnchorWorks.document_prep import prepare_bytes
-from AnchorWorks.intake import build_anchor_map, compose_anchor_stream, extract_anchor_rows, extract_anchors
+from AnchorWorks.intake import NULL_ANCHOR, build_anchor_map, compose_anchor_stream, extract_anchor_rows, extract_anchors
 from AnchorWorks.store import LexiconStore
 
 
@@ -96,6 +96,12 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(extract_anchors("'apm 'x"), ["apm", "x"])
         self.assertNotIn("’", anchors)
 
+    def test_anchor_identity_normalizes_curly_apostrophes_to_lexicon_form(self) -> None:
+        self.assertEqual(
+            extract_anchors("Earth’s orbit and women's votes"),
+            ["earth's", "orbit", "and", "women's", "votes"],
+        )
+
     def test_build_anchor_map_respects_paragraph_boundaries(self) -> None:
         text = "do not.\n\nstop now!"
         mapping = build_anchor_map(text)
@@ -106,6 +112,16 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(mapping["paragraphs"][0]["composed_anchor_streams"], [["do"], ["not"], ["."]])
         self.assertEqual(mapping["paragraphs"][0]["composed_anchor_stream"], ["do", "not", "."])
         self.assertIsNone(mapping["occurrences"][0]["window"]["+3"])
+
+    def test_null_anchor_preserves_position_without_counts(self) -> None:
+        mapping = build_anchor_map("alpha junk beta", resolved_anchors={"junk": NULL_ANCHOR}, null_anchors={"junk"})
+
+        self.assertEqual(mapping["paragraphs"][0]["anchors"], ["alpha", "junk", "beta"])
+        null_occurrence = next(row for row in mapping["occurrences"] if row["observed_anchor"] == "junk")
+        self.assertEqual(null_occurrence["anchor"], NULL_ANCHOR)
+        self.assertFalse(null_occurrence["count_eligible"])
+        self.assertNotIn(NULL_ANCHOR, mapping["observed_counts"])
+        self.assertFalse(any(row["anchor"] == NULL_ANCHOR or row["neighbor"] == NULL_ANCHOR for row in mapping["co_occurrence_counts"]))
 
     def test_build_anchor_map_includes_grouped_616_items_and_anchor_index(self) -> None:
         mapping = build_anchor_map("do not do")
@@ -219,8 +235,52 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(json_doc.converter, "json-structure")
         self.assertIn("root.system | str | anchorworks", json_doc.prepared_text)
         self.assertEqual(xml_doc.converter, "xml-structure")
-        self.assertIn("[ELEMENT: item]", xml_doc.prepared_text)
-        self.assertIn("[ATTR: kind] metal", xml_doc.prepared_text)
+        self.assertIn("Copper", xml_doc.prepared_text)
+        self.assertNotIn("[ELEMENT: item]", xml_doc.prepared_text)
+        self.assertNotIn("[ATTR: kind]", xml_doc.prepared_text)
+
+    def test_cnxml_prep_keeps_visible_text_and_drops_markup_from_anchor_inventory(self) -> None:
+        doc = prepare_bytes(
+            b'<document xmlns:m="http://www.w3.org/1998/Math/MathML"><para id="ch01_rques01p">Review text <m:math><m:mrow><m:mi>x</m:mi></m:mrow></m:math>.</para></document>',
+            source_name="index.cnxml",
+            file_type="application/xml",
+        )
+        anchors = extract_anchors(doc.prepared_text)
+
+        self.assertEqual(doc.converter, "xml-structure")
+        self.assertIn("Review text", doc.prepared_text)
+        self.assertNotIn("mrow", anchors)
+        self.assertNotIn("rques", anchors)
+        self.assertNotIn("xmlns", anchors)
+        self.assertIn("review", anchors)
+        self.assertIn("text", anchors)
+
+    def test_xml_prep_repairs_common_mojibake_before_anchor_extraction(self) -> None:
+        doc = prepare_bytes(
+            "<document><para>Earthâ€™s orbit uses Ï€ and âˆ’ signs.</para></document>".encode("utf-8"),
+            source_name="index.cnxml",
+            file_type="application/xml",
+        )
+        anchors = extract_anchors(doc.prepared_text)
+
+        self.assertIn("Earth’s", doc.prepared_text)
+        self.assertIn("π", doc.prepared_text)
+        self.assertIn("−", doc.prepared_text)
+        self.assertIn("earth's", anchors)
+        self.assertNotIn("earthâ€™s", anchors)
+        self.assertNotIn("Ï€", anchors)
+
+    def test_xml_prep_repairs_accented_name_and_ligature_mojibake(self) -> None:
+        doc = prepare_bytes(
+            "<document><para>Ã§atalhÃ¶yÃ¼k and ï¬rst floor</para></document>".encode("utf-8"),
+            source_name="index.cnxml",
+            file_type="application/xml",
+        )
+
+        self.assertIn("çatalhöyük", doc.prepared_text)
+        self.assertIn("first floor", doc.prepared_text)
+        self.assertNotIn("Ã§atalhÃ¶yÃ¼k", doc.prepared_text)
+        self.assertNotIn("ï¬rst", doc.prepared_text)
 
     def test_document_prep_strips_visual_leaders_before_anchor_extraction(self) -> None:
         doc = prepare_bytes(
@@ -758,6 +818,7 @@ class MappingTests(unittest.TestCase):
                 "/api/flat-documents/runtime/build",
                 "/api/lexicon/missing-anchor-review",
                 "/api/lexicon/missing-anchor-review/sync",
+                "/api/lexicon/missing-anchor-review/classify",
             }:
                 self.assertIn(expected, paths)
 
@@ -1058,6 +1119,47 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(store.unmatched(limit=5)["entries"][0]["word"], "mystery")
             self.assertEqual(result["count_write"]["lifetime_write_skipped"], True)
 
+    def test_missing_anchor_registry_classification_splits_markup_from_words_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(5))
+            _write_json(root / "State" / "missing_anchor_registry.json", [
+                {"anchor": "mrow", "observations": 8},
+                {"anchor": "stretchy", "observations": 6},
+                {"anchor": "enumerated", "observations": 4},
+                {"anchor": "π", "observations": 3},
+                {"anchor": "cnxml", "observations": 2},
+                {"anchor": "ch01mod02_review_questions_problem_01", "observations": 1},
+            ])
+            before_spares = (root / "Spare_Slots" / "spare_slots.json").read_text(encoding="utf-8")
+
+            store = LexiconStore(root)
+            result = store.classify_missing_anchor_registry()
+
+            self.assertEqual(result["total_unique"], 6)
+            self.assertEqual(result["lane_counts"]["math_markup"], 2)
+            self.assertEqual(result["lane_counts"]["unknown_real_word_candidates"], 1)
+            self.assertEqual(result["lane_counts"]["math_terms_or_symbols"], 1)
+            self.assertEqual(result["lane_counts"]["structural_source_anchors"], 1)
+            self.assertEqual(result["lane_counts"]["source_id_artifacts"], 1)
+            self.assertEqual(result["writes_allowed"], {"maps": False, "counts": False, "lifetime": False, "lexicon": False})
+            self.assertEqual((root / "Spare_Slots" / "spare_slots.json").read_text(encoding="utf-8"), before_spares)
+            self.assertTrue(Path(result["summary_path"]).exists())
+
+    def test_known_anchor_index_reads_non_ascii_canonical_letter_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "anchor", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_Ç.json", [{"word": "çatalhöyük", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(1))
+
+            store = LexiconStore(root)
+
+            self.assertIn("anchor", store._all_known_anchors())
+            self.assertIn("çatalhöyük", store._all_known_anchors())
+
     def test_document_intake_preview_and_manual_approval_do_not_map_or_count(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
@@ -1099,6 +1201,55 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(after["missing_anchor_count"], 0)
             self.assertEqual(store.observed_map_files()["files"], [])
             self.assertEqual(store._read_json(store.lifetime_counts_path, {}), before_lifetime)
+
+    def test_intake_null_edits_map_strays_to_null_without_memory_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "status": "ASSIGNED"}])
+            for letter in "CDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(3))
+            _write_json(root / "Structural" / "structural.json", [])
+
+            store = LexiconStore(root)
+            result = store.build_intake_mapping(
+                source_name="sample.txt",
+                content="alpha junk beta",
+                intake_edits=[{"original_anchor": "junk", "action": "null"}],
+            )
+
+            self.assertEqual(result["missing_anchor_count"], 0)
+            self.assertEqual(result["null_anchor_count"], 1)
+            self.assertEqual(result["null_occurrence_count"], 1)
+            self.assertEqual(result["null_anchors"], [{"anchor": "junk", "observations": 1}])
+            self.assertEqual(result["null_index_preview"][0]["anchor_label"], "Block 0 Ln 1 Anchor 1")
+            self.assertEqual(result["null_index_preview"][0]["observed_anchor"], "junk")
+            self.assertFalse(result["null_index_preview"][0]["memory_truth"])
+            payload = json.loads(Path(result["saved_map_path"]).read_text(encoding="utf-8"))
+            self.assertEqual(payload["null_index"][0]["anchor_label"], "Block 0 Ln 1 Anchor 1")
+            occurrence = next(row for row in payload["occurrences"] if row["observed_anchor"] == "junk")
+            self.assertEqual(occurrence["anchor"], NULL_ANCHOR)
+            self.assertFalse(occurrence["count_eligible"])
+            self.assertFalse(any(row["anchor"] == NULL_ANCHOR or row["neighbor"] == NULL_ANCHOR for row in payload["co_occurrence_counts"]))
+
+    def test_intake_companion_lane_anchors_are_covered_without_canonical_promotion(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "status": "ASSIGNED"}])
+            for letter in "BCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(3))
+            _write_json(root / "Structural" / "structural.json", [])
+
+            store = LexiconStore(root)
+            result = store.build_intake_mapping(source_name="sample.txt", content="alpha –")
+
+            self.assertEqual(result["raw_missing_anchor_count"], 1)
+            self.assertEqual(result["missing_anchor_count"], 0)
+            self.assertEqual(result["companion_anchor_count"], 1)
+            self.assertTrue(result["count_write"]["lifetime_write_skipped"])
+            self.assertIn("companion_authority_anchors_present", result["count_write"]["reason"])
 
     def test_batch_approval_adds_500_anchors_with_one_spare_write_and_one_index_reload(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

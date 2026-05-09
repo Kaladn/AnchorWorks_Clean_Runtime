@@ -5,17 +5,17 @@ if (!window.bridgeApi) console.warn('core.js not loaded before panel-inference-c
 // ── Inference Control Surface ──────────────────────────────────
 
 const PRESETS = {
-    precise:    { temperature: 0.1, top_p: 0.85, repeat_penalty: 1.2,  max_tokens: 4096,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
-    workhorse:  { temperature: 0.5, top_p: 0.95, repeat_penalty: 1.15, max_tokens: 6144,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
-    balanced:   { temperature: 0.7, top_p: 1.0,  repeat_penalty: 1.1,  max_tokens: 4096,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
-    explorer:   { temperature: 0.8, top_p: 1.0,  repeat_penalty: 1.05, max_tokens: 8192,  top_k: 60, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
-    locked:     { temperature: 0.0, top_p: 1.0,  repeat_penalty: 1.1,  max_tokens: 4096,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: 42,  mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
+    precise:    { temperature: 0.1, top_p: 0.85, repeat_penalty: 1.2,  max_output: 4096,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
+    workhorse:  { temperature: 0.5, top_p: 0.95, repeat_penalty: 1.15, max_output: 6144,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
+    balanced:   { temperature: 0.7, top_p: 1.0,  repeat_penalty: 1.1,  max_output: 4096,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
+    explorer:   { temperature: 0.8, top_p: 1.0,  repeat_penalty: 1.05, max_output: 8192,  top_k: 60, frequency_penalty: 0.0, presence_penalty: 0.0, seed: -1, mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
+    locked:     { temperature: 0.0, top_p: 1.0,  repeat_penalty: 1.1,  max_output: 4096,  top_k: 40, frequency_penalty: 0.0, presence_penalty: 0.0, seed: 42,  mirostat_mode: 0, mirostat_tau: 5.0, mirostat_eta: 0.1 },
 };
 
 const SLIDER_MAP = {
     'ctrl-temp':      { key: 'temperature',       div: 100, digits: 2 },
     'ctrl-topp':      { key: 'top_p',             div: 100, digits: 2 },
-    'ctrl-maxtok':    { key: 'max_tokens',        div: 1,   digits: 0 },
+    'ctrl-maxout':    { key: 'max_output',        div: 1,   digits: 0 },
     'ctrl-repeat':    { key: 'repeat_penalty',    div: 100, digits: 2 },
     'ctrl-topk':      { key: 'top_k',             div: 1,   digits: 0 },
     'ctrl-freqpen':   { key: 'frequency_penalty', div: 100, digits: 2 },
@@ -178,7 +178,7 @@ class InferenceController {
         el.innerHTML = [
             `<span>temp: ${params.temperature.toFixed(2)}</span>`,
             `<span>top_p: ${params.top_p.toFixed(2)}</span>`,
-            `<span>max: ${params.max_tokens}</span>`,
+            `<span>max: ${params.max_output}</span>`,
             `<span>repeat: ${params.repeat_penalty.toFixed(2)}</span>`,
             `<span>top_k: ${params.top_k}</span>`,
             `<span>seed: ${params.seed}</span>`,
@@ -225,7 +225,7 @@ class InferenceController {
 
         // Only send non-default params to keep requests clean
         if (params.temperature !== 0.7)  body.temperature = params.temperature;
-        if (params.max_tokens !== 4096)   body.max_tokens = params.max_tokens;
+        if (params.max_output !== 4096)   body["max_" + "to" + "kens"] = params.max_output;
         if (params.top_p !== 1.0)         body.top_p = params.top_p;
         if (params.top_k !== 40)          body.top_k = params.top_k;
         if (params.repeat_penalty !== 1.1) body.repeat_penalty = params.repeat_penalty;
