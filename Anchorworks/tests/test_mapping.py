@@ -1167,6 +1167,48 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(store.observed_map_files()["files"], [])
             self.assertEqual(store._read_json(store.lifetime_counts_path, {}), before_lifetime)
 
+    def test_import_words_dir_uses_batch_assignment_and_preserves_frequencies(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [])
+            import_dir = Path(temp_dir) / "verified_import"
+            _write_json(import_dir / "verified_A.json", [
+                {"word": "alpha", "frequency": 7},
+                {"word": "atom", "observations": 5},
+            ])
+            _write_json(import_dir / "verified_B.json", ["beta"])
+
+            store = LexiconStore(root)
+            before_lifetime = store._read_json(store.lifetime_counts_path, {})
+            spare_writes = 0
+            original_write_spares = store._write_spare_entries
+
+            def counted_write_spares(entries: list[dict[str, object]]) -> None:
+                nonlocal spare_writes
+                spare_writes += 1
+                original_write_spares(entries)
+
+            store._write_spare_entries = counted_write_spares  # type: ignore[method-assign]
+
+            result = store.import_words_dir(import_dir)
+            canonical_a = json.loads((root / "Canonical" / "canonical_A.json").read_text(encoding="utf-8"))
+            canonical_b = json.loads((root / "Canonical" / "canonical_B.json").read_text(encoding="utf-8"))
+            spare_after = json.loads((root / "Spare_Slots" / "spare_slots.json").read_text(encoding="utf-8"))
+
+            self.assertEqual(result["imported"], 3)
+            self.assertEqual(result["skipped"], 0)
+            self.assertEqual(result["no_slots"], 0)
+            self.assertEqual(result["slots_available"], 7)
+            self.assertEqual(spare_writes, 1)
+            self.assertEqual(len(spare_after), 7)
+            self.assertEqual({row["word"] for row in canonical_a}, {"alpha", "atom"})
+            self.assertEqual({row["word"] for row in canonical_b}, {"beta"})
+            self.assertEqual({row["word"]: row["frequency"] for row in canonical_a}, {"alpha": 7, "atom": 5})
+            self.assertEqual(store._read_json(store.lifetime_counts_path, {}), before_lifetime)
+
     def test_shared_spare_slots_file_supports_assignment_and_return(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"

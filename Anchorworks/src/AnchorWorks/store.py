@@ -2661,50 +2661,55 @@ class LexiconStore:
 
     def import_words_dir(self, words_dir: Path) -> dict[str, Any]:
         words_dir = Path(words_dir).expanduser().resolve()
-        imported = 0
-        skipped = 0
-        no_slots = 0
-        letters: list[dict[str, Any]] = []
+        requested_by_letter: dict[str, list[str]] = {letter: [] for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+        frequencies: dict[str, int] = {}
+        seen_global: set[str] = set()
 
         for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
             path = words_dir / f"verified_{letter}.json"
-            bound = 0
-            letter_skipped = 0
-            letter_no_slots = 0
             if path.exists():
                 data = self._read_json(path, [])
-                entries: list[str] = []
+                entries: list[tuple[str, int]] = []
                 if isinstance(data, list):
                     for item in data:
                         if isinstance(item, str):
-                            entries.append(item)
+                            entries.append((item, 0))
                         elif isinstance(item, dict):
                             value = item.get("word") or item.get("display")
                             if value:
-                                entries.append(str(value))
-                seen: set[str] = set()
-                for raw_word in entries:
+                                entries.append((str(value), int(item.get("frequency", item.get("observations", 0)) or 0)))
+                seen_letter: set[str] = set()
+                for raw_word, frequency in entries:
                     word = self.normalize_anchor(raw_word)
-                    if not word or word in seen:
+                    if not word or word in seen_letter or word in seen_global:
                         continue
-                    seen.add(word)
-                    if self._find_entry(word):
-                        skipped += 1
-                        letter_skipped += 1
-                        continue
-                    try:
-                        self._assign_word(word)
-                        imported += 1
-                        bound += 1
-                    except Exception:
-                        no_slots += 1
-                        letter_no_slots += 1
-            letters.append({"letter": letter, "bound": bound, "skipped": letter_skipped, "no_slots": letter_no_slots})
+                    seen_letter.add(word)
+                    seen_global.add(word)
+                    requested_by_letter[letter].append(word)
+                    frequencies[word] = int(frequency or 0)
+
+        requested = [word for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" for word in requested_by_letter[letter]]
+        result = self.approve_intake_anchors(requested, frequencies=frequencies)
+        approved_words = {row.get("word") for row in result.get("approved", [])}
+        skipped_words = {row.get("anchor") for row in result.get("skipped", [])}
+        failed_words = {row.get("anchor") for row in result.get("failed", [])}
+        letters: list[dict[str, Any]] = []
+        for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            words = requested_by_letter[letter]
+            letters.append({
+                "letter": letter,
+                "bound": sum(1 for word in words if word in approved_words),
+                "skipped": sum(1 for word in words if word in skipped_words),
+                "no_slots": sum(1 for word in words if word in failed_words),
+            })
 
         return {
-            "imported": imported,
-            "skipped": skipped,
-            "no_slots": no_slots,
+            "imported": int(result.get("approved_count", 0) or 0),
+            "skipped": int(result.get("skipped_count", 0) or 0),
+            "no_slots": int(result.get("failed_count", 0) or 0),
             "slots_available": self._count_available_slots(),
+            "spare_pool_writes": int(result.get("spare_pool_writes", 0) or 0),
+            "lexicon_files_written": int(result.get("lexicon_files_written", 0) or 0),
+            "index_reloads": int(result.get("index_reloads", 0) or 0),
             "letters": letters,
         }
