@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, create_app
+from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from AnchorWorks.clearspeak import ClearSpeakService
@@ -527,6 +527,134 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(status["chat_messages"], 2)
             self.assertEqual(status["citations"], 1)
             self.assertTrue(history["citations_by_block"])
+
+    def test_observed_map_evidence_returns_source_passages_with_line_locators(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_E.json", [{"word": "emp", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "defense", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_R.json", [{"word": "requires", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_S.json", [{"word": "shielding", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "and", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_G.json", [{"word": "grounding", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            source_path = Path(temp_dir) / "emp_notes.txt"
+            source_path.write_text(
+                "unrelated opening.\n\nEMP defense requires shielding and grounding.\n\nunrelated closing.",
+                encoding="utf-8",
+            )
+
+            store = LexiconStore(root)
+            result = store.build_observed_map(source_path)
+            evidence = store.search_observed_map_evidence(["emp"], query_anchors=["emp"])
+            passages = evidence["source_passages"]
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(evidence["maps_with_query_symbols"], 1)
+            self.assertEqual(passages[0]["block_id"], 1)
+            self.assertEqual(passages[0]["line_start"], 3)
+            self.assertEqual(passages[0]["line_end"], 3)
+            self.assertIn("EMP defense requires", passages[0]["text"])
+
+    def test_chat_documents_mode_uses_document_passages_and_line_citations(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, words in {
+                "E": ["emp"],
+                "D": ["defense"],
+                "R": ["requires"],
+                "S": ["shielding"],
+                "A": ["and"],
+                "G": ["grounding"],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [{"word": word, "status": "ASSIGNED"} for word in words])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            source_path = Path(temp_dir) / "emp_notes.txt"
+            source_path.write_text(
+                "title line\n\nEMP defense requires shielding and grounding.",
+                encoding="utf-8",
+            )
+
+            store = LexiconStore(root)
+            store.build_observed_map(source_path)
+            chat = ChatMemorySystem(root, ClearSpeakService(store))
+            result = chat.send("emp defense", mode="documents", branch="main")
+            history = chat.history(branch="main")
+            assistant = history["messages"][-1]
+
+            self.assertEqual(result.mode, "documents")
+            self.assertIn("The source document supports", result.response)
+            self.assertIn("block 1, line 3", result.response)
+            self.assertEqual(assistant["model_identity"]["evidence_mode"], "documents")
+            self.assertEqual(assistant["model_identity"]["evidence_engine"], "document_answer_assembler")
+            self.assertEqual(result.citations[0]["citation_type"], "source_locator")
+
+    def test_chat_counts_mode_is_strict_counts_not_memory_stub(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_S.json", [{"word": "stop", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_N.json", [{"word": "not", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [])
+            store = LexiconStore(root)
+            store._update_lifetime_relation_counts(
+                [{"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 4}],
+                observed_counts=Counter({"stop": 1, "not": 1}),
+            )
+            chat = ChatMemorySystem(root, ClearSpeakService(store))
+
+            result = chat.send("stop", mode="counts", branch="main")
+            assistant = chat.history(branch="main")["messages"][-1]
+
+            self.assertEqual(result.mode, "counts")
+            self.assertIn("stop: not (4)", result.response)
+            self.assertNotIn("Chat memory received", result.response)
+            self.assertEqual(assistant["model_identity"]["evidence_mode"], "counts")
+
+    def test_intake_edit_route_rewrites_anchor_spans_and_refreshes_preview(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_S.json", [{"word": "stop", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_N.json", [{"word": "not", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            app = create_app(root)
+            route = next(route for route in app.routes if getattr(route, "path", "") == "/api/lexicon/intake/edit")
+
+            result = route.endpoint(IntakeEditBody(
+                source_name="sample.txt",
+                content="do not stop.",
+                edits=[{"original_anchor": "do", "replacement_anchor": "not", "action": "replace"}],
+            ))
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["content"], "not not stop.")
+            self.assertEqual(result["edit_count"], 1)
+            self.assertEqual(result["preview"]["missing_anchor_count"], 0)
+
+    def test_ui_advertised_chat_routes_exist(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            app = create_app(Path(temp_dir) / "Lexical Data")
+            paths = {getattr(route, "path", "") for route in app.routes}
+            for expected in {
+                "/api/clearspeak/remix",
+                "/api/clearspeak/cloud",
+                "/api/lexicon/flat-documents",
+                "/api/lexicon/flat-documents/anchorize",
+                "/api/lexicon/flat-documents/anchorize-all",
+                "/api/lexicon/intake/edit",
+            }:
+                self.assertIn(expected, paths)
 
     def test_external_api_chat_mode_logs_response_without_count_updates(self) -> None:
         class FakeModelApi:

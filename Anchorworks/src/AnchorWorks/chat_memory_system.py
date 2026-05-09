@@ -11,6 +11,7 @@ from uuid import uuid4
 
 from .anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from .clearspeak import ClearSpeakService
+from .document_answer import DocumentAnswerAssembler
 from .model_api_client import ModelApiClient
 
 
@@ -44,6 +45,7 @@ class ChatMemorySystem:
         self.imports_dir = self.root / "imports"
         self.side_chats_path = self.memory_dir / "side_chats.json"
         self.clearspeak = clearspeak
+        self.document_answer = DocumentAnswerAssembler(self.store)
         self.model_api = model_api or ModelApiClient()
 
         for path in [
@@ -155,7 +157,64 @@ class ChatMemorySystem:
         clearspeak_payload: dict[str, Any] | None = None
         model_api_payload: dict[str, Any] | None = None
         citations: list[dict[str, Any]] = []
-        if mode_name == "clearspeak":
+        if mode_name in {"counts", "count"}:
+            clearspeak_result = self.clearspeak.query(clean_message)
+            clearspeak_payload = clearspeak_result.to_dict()
+            clearspeak_payload["evidence_mode"] = "counts"
+            clearspeak_payload["engine"] = "clearspeak_counts"
+            clearspeak_payload["contract"] = {
+                "counts_mode_never_calls_documents": True,
+                "document_mode_never_pretends_to_be_counts": True,
+                "memory_writes": False,
+            }
+            response = clearspeak_payload["response"]
+            citations = clearspeak_payload.get("citations") or []
+            actor = "clearspeak"
+            engine = "clearspeak_counts"
+            provider = "anchorworks"
+            mode_name = "counts"
+        elif mode_name in {"clearspeak", "auto", "documents", "document", "maps", "mapped", "mapped_documents"}:
+            requested_documents = mode_name in {"documents", "document", "maps", "mapped", "mapped_documents"}
+            document_result = self.document_answer.answer(clean_message)
+            document_payload = document_result.to_dict()
+            if document_result.ok:
+                clearspeak_payload = document_payload
+                response = document_result.response
+                citations = document_result.citations
+                actor = "clearspeak"
+                engine = document_result.engine
+                provider = "anchorworks"
+                mode_name = "documents" if requested_documents else "clearspeak"
+            elif requested_documents:
+                clearspeak_payload = {
+                    **document_payload,
+                    "response": "Document Mode found no source-local map support for that question. Counts were not used as a substitute.",
+                    "evidence_mode": "documents",
+                    "engine": "document_answer_no_map_support",
+                    "contract": {
+                        "counts_used_as_substitute": False,
+                        "document_mode_never_pretends_to_be_counts": True,
+                        "memory_writes": False,
+                    },
+                }
+                response = clearspeak_payload["response"]
+                citations = []
+                actor = "clearspeak"
+                engine = "document_answer_no_map_support"
+                provider = "anchorworks"
+                mode_name = "documents"
+            else:
+                clearspeak_result = self.clearspeak.query(clean_message)
+                clearspeak_payload = clearspeak_result.to_dict()
+                clearspeak_payload["evidence_mode"] = "counts"
+                clearspeak_payload["engine"] = "clearspeak_counts"
+                clearspeak_payload["document_fallback_reason"] = "no_source_local_map_support"
+                response = clearspeak_payload["response"]
+                citations = clearspeak_payload.get("citations") or []
+                actor = "clearspeak"
+                engine = "clearspeak_counts"
+                provider = "anchorworks"
+        elif mode_name == "clearspeak":
             clearspeak_result = self.clearspeak.query(clean_message)
             clearspeak_payload = clearspeak_result.to_dict()
             response = clearspeak_payload["response"]
@@ -186,7 +245,12 @@ class ChatMemorySystem:
             parent=user_message.get("message_uuid"),
             actor=actor,
             seat="local",
-            model_identity={"provider": provider, "engine": engine},
+            model_identity={
+                "provider": provider,
+                "engine": engine,
+                "evidence_mode": str((clearspeak_payload or {}).get("evidence_mode") or ("counts" if "count" in engine else "")),
+                "evidence_engine": str((clearspeak_payload or {}).get("engine") or engine),
+            },
         )
 
         for citation in citations:
@@ -196,9 +260,9 @@ class ChatMemorySystem:
                 block_id="b0",
                 block_ordinal=0,
                 coord=str(citation.get("coord") or ""),
-                subject=str(citation.get("anchor") or "ClearSpeak evidence"),
+                subject=str(citation.get("anchor") or citation.get("source_name") or "ClearSpeak evidence"),
                 note=f"observations: {citation.get('observations', 0)}",
-                source="clearspeak",
+                source=str(citation.get("source") or "clearspeak"),
             )
 
         return ChatSendResult(

@@ -54,6 +54,14 @@ class IntakeMapBody(BaseModel):
     content: str
 
 
+class IntakeEditBody(BaseModel):
+    source_name: str
+    content: str
+    edits: list[dict[str, Any]]
+    file_type: str = "edited-intake-text"
+    source_path: str = ""
+
+
 class ChatArchivePrepareBody(BaseModel):
     archive_root: str
 
@@ -61,6 +69,19 @@ class ChatArchivePrepareBody(BaseModel):
 class ClearSpeakQueryBody(BaseModel):
     query: str
     limit: int = 6
+    evidence_mode: str = "auto"
+
+
+class RemixQueryBody(BaseModel):
+    query: str
+    top_k: int = 4
+    max_variants: int = 8
+    evaluate: bool = True
+
+
+class FlatDocumentAnchorizeBody(BaseModel):
+    name: str = ""
+    path: str = ""
 
 
 class ChatSendBody(BaseModel):
@@ -238,7 +259,82 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     @app.post("/api/clearspeak/query")
     def clearspeak_query(body: ClearSpeakQueryBody) -> dict[str, Any]:
-        return clearspeak.query(body.query, limit=body.limit).to_dict()
+        evidence_mode = (body.evidence_mode or "auto").strip().lower()
+        if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents", "auto"}:
+            document_result = chat_memory.document_answer.answer(body.query, limit=body.limit).to_dict()
+            if document_result.get("ok"):
+                document_result["speech"] = document_result["response"]
+                return document_result
+            if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents"}:
+                return {
+                    "query": body.query,
+                    "query_anchors": document_result.get("query_anchors") or [],
+                    "represented_anchors": [],
+                    "missing_anchors": [],
+                    "speech": "Document Mode found no source-local map support for that question. Counts were not used as a substitute.",
+                    "response": "Document Mode found no source-local map support for that question. Counts were not used as a substitute.",
+                    "evidence": [],
+                    "citations": [],
+                    "evidence_mode": "documents",
+                    "engine": "document_answer_no_map_support",
+                }
+        result = clearspeak.query(body.query, limit=body.limit).to_dict()
+        result["evidence_mode"] = "counts"
+        result["engine"] = "clearspeak_counts"
+        return result
+
+    @app.get("/api/clearspeak/cloud")
+    def clearspeak_cloud(anchor: str, k: int = 20) -> dict[str, Any]:
+        return store.context_map(anchor)
+
+    @app.post("/api/clearspeak/remix")
+    def clearspeak_remix(body: RemixQueryBody) -> dict[str, Any]:
+        query_anchors = clearspeak.query(body.query, limit=body.top_k).query_anchors
+        variants: list[dict[str, Any]] = []
+        for anchor in query_anchors:
+            retrieved = store.retrieve_from_counts(anchor, limit=max(1, body.top_k * 4))
+            for neighbor in retrieved.get("neighbors") or []:
+                selected = str(neighbor.get("anchor") or "")
+                if not selected or selected in query_anchors:
+                    continue
+                remixed = " ".join(query_anchors + [selected])
+                variants.append({
+                    "remixed_query": remixed,
+                    "score": int(neighbor.get("observations", 0) or 0),
+                    "drift": 1,
+                    "operations": [{
+                        "type": "append_count_neighbor",
+                        "seed_anchor": anchor,
+                        "selected_anchor": selected,
+                        "observations": int(neighbor.get("observations", 0) or 0),
+                    }],
+                })
+                if len(variants) >= max(1, body.max_variants):
+                    break
+            if len(variants) >= max(1, body.max_variants):
+                break
+        evaluations = []
+        if body.evaluate:
+            for variant in variants:
+                result = clearspeak.query(str(variant.get("remixed_query") or ""), limit=body.top_k).to_dict()
+                evaluations.append({
+                    "remixed_query": variant.get("remixed_query"),
+                    "engine": "clearspeak_counts",
+                    "evidence_mode": "counts",
+                    "speech": result.get("response") or "",
+                    "score": sum(int(row.get("total_neighbor_observations", 0) or 0) for row in result.get("evidence") or []),
+                })
+        winner = max(evaluations, key=lambda row: int(row.get("score", 0) or 0), default=None)
+        return {
+            "schema_version": "query_remix@1",
+            "query": body.query,
+            "content_anchors": query_anchors,
+            "variants": variants,
+            "evaluations": evaluations,
+            "winner": winner,
+            "blocked": False,
+            "contract": {"original_query_is_sacred": True, "remixes_are_read_only": True},
+        }
 
     @app.get("/api/chat/status")
     def chat_status() -> dict[str, Any]:
@@ -352,6 +448,36 @@ def create_app(data_root: Path | None = None) -> FastAPI:
             return store.load_observed_map(name)
         except (FileNotFoundError, ValueError) as exc:
             raise HTTPException(status_code=404, detail=str(exc))
+
+    @app.get("/api/lexicon/flat-documents")
+    def lexicon_flat_documents() -> dict[str, Any]:
+        return store.flat_document_files()
+
+    @app.get("/api/lexicon/flat-document/{name}")
+    def lexicon_flat_document(name: str) -> dict[str, Any]:
+        try:
+            return store.load_flat_document(name)
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+
+    @app.post("/api/lexicon/flat-documents/anchorize")
+    def lexicon_anchorize_flat_document(body: FlatDocumentAnchorizeBody) -> dict[str, Any]:
+        try:
+            return store.anchorize_flat_document(Path(body.path) if body.path else None, name=body.name)
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/lexicon/flat-documents/anchorize-all")
+    def lexicon_anchorize_all_flat_documents() -> dict[str, Any]:
+        results: list[dict[str, Any]] = []
+        errors: list[dict[str, Any]] = []
+        for row in store.flat_document_files().get("raw_files") or []:
+            name = str(row.get("name") or "")
+            try:
+                results.append(store.anchorize_flat_document(name=name))
+            except (FileNotFoundError, ValueError) as exc:
+                errors.append({"name": name, "error": str(exc)})
+        return {"ok": not errors, "anchorized_count": len(results), "error_count": len(errors), "results": results, "errors": errors}
 
     @app.get("/api/lexicon/misspelled-reviews")
     def lexicon_misspelled_reviews() -> dict[str, Any]:
@@ -507,6 +633,19 @@ def create_app(data_root: Path | None = None) -> FastAPI:
             if result.get("failed_count"):
                 raise HTTPException(status_code=400, detail=result)
             return result
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/lexicon/intake/edit")
+    def lexicon_intake_edit(body: IntakeEditBody) -> dict[str, Any]:
+        try:
+            return store.edit_intake_content(
+                source_name=body.source_name,
+                content=body.content,
+                edits=body.edits,
+                file_type=body.file_type,
+                source_path=body.source_path,
+            )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 

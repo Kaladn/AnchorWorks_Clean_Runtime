@@ -52,6 +52,24 @@ def _is_visual_preview_content(content: str) -> bool:
     return all(marker in content for marker in markers)
 
 
+def _normalize_with_source_index(text: str) -> tuple[str, list[int]]:
+    normalized_chars: list[str] = []
+    source_index: list[int] = []
+    previous_space = False
+    for index, char in enumerate(str(text or "").replace("\r\n", "\n").replace("\r", "\n")):
+        if char.isspace():
+            if previous_space:
+                continue
+            normalized_chars.append(" ")
+            source_index.append(index)
+            previous_space = True
+            continue
+        normalized_chars.append(char)
+        source_index.append(index)
+        previous_space = False
+    return "".join(normalized_chars).strip(), source_index
+
+
 class LexiconStore:
     def __init__(self, data_root: Path) -> None:
         self.root = Path(data_root).expanduser().resolve()
@@ -72,6 +90,9 @@ class LexiconStore:
         self.source_local_preview_counts_dir = self.state_dir / "source_local_preview_counts"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
+        self.flat_documents_dir = self.state_dir / "flat_documents"
+        self.flat_documents_raw_dir = self.flat_documents_dir / "raw"
+        self.flat_documents_symbolic_dir = self.flat_documents_dir / "symbolic"
         self.intake_uploads_dir = self.state_dir / "intake_uploads"
         self.lifetime_counts_path = self.state_dir / "lifetime_co_occurrence_counts.json"
         self.missing_anchor_registry_path = self.state_dir / "missing_anchor_registry.json"
@@ -104,6 +125,8 @@ class LexiconStore:
         self.source_local_preview_counts_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_occurrences_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_resonance_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_raw_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_symbolic_dir.mkdir(parents=True, exist_ok=True)
         self.intake_uploads_dir.mkdir(parents=True, exist_ok=True)
         self._ensure_state_file(self.unmatched_path, [])
         self._ensure_state_file(self.pending_path, [])
@@ -514,6 +537,57 @@ class LexiconStore:
             "missing_anchor_observations": int(sum(missing_counts.values())),
             "unique_anchors": unique_rows,
             "missing_anchors": self._anchor_rows(missing_counts),
+        }
+
+    def edit_intake_content(
+        self,
+        *,
+        source_name: str,
+        content: str,
+        edits: list[dict[str, Any]],
+        file_type: str = "edited-intake-text",
+        source_path: str = "",
+    ) -> dict[str, Any]:
+        updated = str(content or "")
+        applied: list[dict[str, Any]] = []
+        for edit in edits or []:
+            original = self.normalize_anchor(str(edit.get("original_anchor") or ""))
+            replacement = str(edit.get("replacement_anchor") or "")
+            action = str(edit.get("action") or "replace").strip().lower()
+            if not original or action not in {"replace", "delete"}:
+                continue
+            rows = [
+                row for row in extract_anchor_rows(updated)
+                if self.normalize_anchor(str(row.get("anchor") or "")) == original
+            ]
+            if not rows:
+                continue
+            next_text = updated
+            for row in sorted(rows, key=lambda item: int(item.get("start", 0) or 0), reverse=True):
+                start = int(row.get("start", 0) or 0)
+                end = int(row.get("end", start) or start)
+                next_text = next_text[:start] + ("" if action == "delete" else replacement) + next_text[end:]
+            updated = next_text
+            applied.append({
+                "original_anchor": original,
+                "replacement_anchor": replacement,
+                "action": action,
+                "occurrences": len(rows),
+            })
+        preview = self.preview_document_intake(
+            source_name=source_name,
+            content=updated,
+            file_size=len(updated.encode("utf-8")),
+            file_type=file_type,
+            source_path=source_path,
+        )
+        return {
+            "ok": True,
+            "source_name": source_name,
+            "content": updated,
+            "edits": applied,
+            "edit_count": len(applied),
+            "preview": preview,
         }
 
     def approve_intake_anchors(
@@ -1160,6 +1234,123 @@ class LexiconStore:
             "offsets": offset_rows,
         }
 
+    def search_observed_map_evidence(
+        self,
+        anchors: list[str],
+        *,
+        query_anchors: list[str] | None = None,
+        map_limit: int = 12,
+        max_map_bytes: int = 128 * 1024 * 1024,
+    ) -> dict[str, Any]:
+        query_set = {self.normalize_anchor(anchor) for anchor in anchors if self.normalize_anchor(anchor)}
+        query_anchor_set = {self.normalize_anchor(anchor) for anchor in (query_anchors or []) if self.normalize_anchor(anchor)}
+        if not query_set and query_anchor_set:
+            query_set = set(query_anchor_set)
+        source_passages: list[dict[str, Any]] = []
+        map_hits: list[dict[str, Any]] = []
+        maps_scanned = 0
+        maps_skipped: list[dict[str, Any]] = []
+        max_maps = max(1, min(int(map_limit or 12), 100))
+
+        for path in sorted(self.observed_maps_dir.glob("*.observed.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+            if maps_scanned >= max_maps:
+                break
+            stat = path.stat()
+            if stat.st_size > max_map_bytes:
+                maps_skipped.append({"saved_map_name": path.name, "reason": "map_file_too_large_for_interactive_scan", "size_bytes": int(stat.st_size)})
+                continue
+            payload = self._read_json(path, {})
+            if not isinstance(payload, dict):
+                continue
+            maps_scanned += 1
+            locators = payload.get("paragraph_line_locators")
+            if not isinstance(locators, dict):
+                locators = self._paragraph_line_locators(payload)
+            passage_rows: list[dict[str, Any]] = []
+            for paragraph in payload.get("paragraphs") or []:
+                if not isinstance(paragraph, dict):
+                    continue
+                paragraph_anchors = {self.normalize_anchor(anchor) for anchor in paragraph.get("anchors") or []}
+                paragraph_anchors.update(self.normalize_anchor(anchor) for anchor in paragraph.get("resolved_anchors") or [])
+                text = str(paragraph.get("text") or "")
+                text_anchors = {self.normalize_anchor(row["anchor"]) for row in extract_anchor_rows(text)}
+                hits = sorted((query_set | query_anchor_set) & (paragraph_anchors | text_anchors))
+                if not hits:
+                    continue
+                paragraph_id = int(paragraph.get("paragraph_id", len(passage_rows)) or 0)
+                locator = locators.get(str(paragraph_id)) or locators.get(paragraph_id) or {}
+                score = float(len(hits) * 100 + len(hits) / max(1, int(paragraph.get("anchor_count", 1) or 1)))
+                passage_rows.append({
+                    "source_name": payload.get("source_name") or "",
+                    "source_path": payload.get("source_path") or "",
+                    "saved_map_name": path.name,
+                    "paragraph_id": paragraph_id,
+                    "block_id": int(locator.get("block_id", paragraph_id) or 0),
+                    "line_start": int(locator.get("line_start", 0) or 0),
+                    "line_end": int(locator.get("line_end", 0) or 0),
+                    "score": score,
+                    "anchor_hits": hits,
+                    "anchor_count": int(paragraph.get("anchor_count", 0) or 0),
+                    "text": text.strip(),
+                })
+            if passage_rows:
+                passage_rows.sort(key=lambda row: (-float(row.get("score", 0.0) or 0.0), int(row.get("paragraph_id", 0) or 0)))
+                source_passages.extend(passage_rows[:8])
+                map_hits.append({
+                    "saved_map_name": path.name,
+                    "source_name": payload.get("source_name") or "",
+                    "source_path": payload.get("source_path") or "",
+                    "passage_count": len(passage_rows),
+                    "top_score": float(passage_rows[0].get("score", 0.0) or 0.0),
+                })
+
+        source_passages.sort(key=lambda row: (-float(row.get("score", 0.0) or 0.0), str(row.get("source_name") or ""), int(row.get("paragraph_id", 0) or 0)))
+        return {
+            "query_anchors": sorted(query_anchor_set or query_set),
+            "maps_scanned": maps_scanned,
+            "maps_with_query_symbols": len(map_hits),
+            "map_hits": map_hits,
+            "maps_skipped": maps_skipped,
+            "source_passages": source_passages[:12],
+        }
+
+    def _paragraph_line_locators(self, payload: dict[str, Any]) -> dict[int, dict[str, int]]:
+        source_path = Path(str(payload.get("source_path") or ""))
+        if not source_path.exists() or not source_path.is_file():
+            return {}
+        try:
+            source_text = source_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return {}
+        paragraphs = [row for row in payload.get("paragraphs") or [] if isinstance(row, dict)]
+        if not paragraphs:
+            return {}
+        normalized_source, source_index = _normalize_with_source_index(source_text)
+        if not normalized_source or not source_index:
+            return {}
+        locators: dict[int, dict[str, int]] = {}
+        cursor = 0
+        for paragraph in paragraphs:
+            paragraph_id = int(paragraph.get("paragraph_id", len(locators)) or 0)
+            normalized_paragraph, _ = _normalize_with_source_index(str(paragraph.get("text") or ""))
+            if not normalized_paragraph:
+                continue
+            found = normalized_source.find(normalized_paragraph, cursor)
+            if found < 0:
+                found = normalized_source.find(normalized_paragraph)
+            if found < 0:
+                continue
+            raw_start = source_index[min(found, len(source_index) - 1)]
+            raw_end_index = min(found + len(normalized_paragraph) - 1, len(source_index) - 1)
+            raw_end = source_index[raw_end_index]
+            locators[paragraph_id] = {
+                "block_id": paragraph_id,
+                "line_start": source_text.count("\n", 0, raw_start) + 1,
+                "line_end": source_text.count("\n", 0, raw_end) + 1,
+            }
+            cursor = found + len(normalized_paragraph)
+        return locators
+
     def load_observed_map(self, name: str) -> dict[str, Any]:
         path = self._resolve_observed_map_name(name)
         if not path.exists():
@@ -1194,6 +1385,73 @@ class LexiconStore:
             "temp_lexicon_path": payload.get("temp_lexicon_path") or "",
             "source_local_preview_counts_path": payload.get("source_local_preview_counts_path") or "",
         }
+
+    def flat_document_files(self) -> dict[str, Any]:
+        raw_files = []
+        for path in sorted(self.flat_documents_raw_dir.glob("*"), key=lambda item: item.name.lower()):
+            if path.is_file():
+                raw_files.append({"name": path.name, "path": str(path), "size_bytes": path.stat().st_size})
+        symbolic_files = []
+        for path in sorted(self.flat_documents_symbolic_dir.glob("*.symbolic.json"), key=lambda item: item.name.lower()):
+            payload = self._read_json(path, {})
+            symbolic_files.append({
+                "name": path.name,
+                "path": str(path),
+                "source_name": payload.get("source_name") or "",
+                "total_anchor_observations": int(payload.get("total_anchor_observations", 0) or 0),
+                "unique_anchor_count": int(payload.get("unique_anchor_count", 0) or 0),
+            })
+        return {
+            "ok": True,
+            "raw_root": str(self.flat_documents_raw_dir),
+            "symbolic_root": str(self.flat_documents_symbolic_dir),
+            "raw_files": raw_files,
+            "symbolic_files": symbolic_files,
+        }
+
+    def load_flat_document(self, name: str) -> dict[str, Any]:
+        filename = Path(name).name
+        raw_path = (self.flat_documents_raw_dir / filename).resolve()
+        symbolic_path = (self.flat_documents_symbolic_dir / filename).resolve()
+        if raw_path.parent == self.flat_documents_raw_dir.resolve() and raw_path.exists() and raw_path.is_file():
+            return {"ok": True, "name": raw_path.name, "path": str(raw_path), "content": raw_path.read_text(encoding="utf-8", errors="replace")}
+        if symbolic_path.parent == self.flat_documents_symbolic_dir.resolve() and symbolic_path.exists() and symbolic_path.is_file():
+            return {"ok": True, **self._read_json(symbolic_path, {})}
+        raise FileNotFoundError(name)
+
+    def anchorize_flat_document(self, source_path: Path | None = None, *, name: str = "") -> dict[str, Any]:
+        raw_root = self.flat_documents_raw_dir.resolve()
+        source = Path(source_path).expanduser().resolve() if source_path else (raw_root / Path(name).name).resolve()
+        if source.parent != raw_root:
+            raise ValueError("flat document source must live under the raw flat document root")
+        if not source.exists() or not source.is_file():
+            raise FileNotFoundError(source.name)
+        prepared = prepare_file(source)
+        inventory = self._extract_document_anchor_inventory(prepared.prepared_text)
+        observed_counts: Counter[str] = inventory["observed_counts"]
+        known_anchors = set(self._all_known_anchors())
+        missing = sorted(anchor for anchor in observed_counts if anchor not in known_anchors)
+        if missing:
+            raise ValueError("flat document has unresolved anchors: " + ", ".join(missing[:12]))
+        mapping = build_anchor_map(prepared.prepared_text, window_radius=DEFAULT_WINDOW_RADIUS)
+        target = self.flat_documents_symbolic_dir / f"{source.stem}.symbolic.json"
+        payload = {
+            "schema_version": "flat_symbolic_document@1",
+            "saved_at": _utc_now(),
+            "source_path": str(source),
+            "source_name": source.name,
+            "saved_document_name": target.name,
+            "paragraph_count": mapping["paragraph_count"],
+            "window_radius": mapping["window_radius"],
+            "total_anchor_observations": int(sum(mapping["observed_counts"].values())),
+            "unique_anchor_count": len(mapping["observed_counts"]),
+            "paragraphs": mapping["paragraphs"],
+            "occurrences": mapping["occurrences"],
+            "anchor_index": mapping["anchor_index"],
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+        self._write_json(target, payload)
+        return {"ok": True, "saved_document_name": target.name, "saved_document_path": str(target), **payload}
 
     def build_source_local_resonance(self, observed_map_name: str) -> dict[str, Any]:
         path = self._resolve_observed_map_name(observed_map_name)
@@ -1516,6 +1774,20 @@ class LexiconStore:
             window_radius=DEFAULT_WINDOW_RADIUS,
             resolved_anchors=resolution_map,
         )
+        line_locators = self._paragraph_line_locators({
+            "source_path": str(source_path),
+            "paragraphs": mapping["paragraphs"],
+        })
+        for paragraph in mapping["paragraphs"]:
+            locator = line_locators.get(int(paragraph.get("paragraph_id", 0) or 0))
+            if locator:
+                paragraph.update(locator)
+        for occurrence in mapping["occurrences"]:
+            locator = line_locators.get(int(occurrence.get("paragraph_id", 0) or 0))
+            if locator:
+                occurrence["block_id"] = locator["block_id"]
+                occurrence["line_start"] = locator["line_start"]
+                occurrence["line_end"] = locator["line_end"]
         resolved_counts: Counter[str] = mapping["observed_counts"]
         temp_symbols_present = bool(temp_entries)
         if temp_symbols_present:
@@ -1600,6 +1872,7 @@ class LexiconStore:
             "known_anchor_observations": int(sum(known_counts.values())),
             "missing_anchor_observations": int(sum(missing_counts.values())),
             "paragraphs": mapping["paragraphs"],
+            "paragraph_line_locators": {str(key): value for key, value in line_locators.items()},
             "occurrences": mapping["occurrences"],
             "co_occurrence_counts": mapping["co_occurrence_counts"],
             "items": mapping["items"],
