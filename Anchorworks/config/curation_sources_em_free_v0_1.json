@@ -1,0 +1,125 @@
+{
+  "schema_version": "curation_sources@0.1",
+  "name": "electromagnetics_free_public_sources_v0_1",
+  "description": "No-account, no-payment public electromagnetics and measurement sources for curation preview only.",
+  "target_anchors": [
+    "magnetic",
+    "magnetism",
+    "magnet",
+    "electromagnetic",
+    "field",
+    "fields",
+    "flux",
+    "induction",
+    "inductive",
+    "coil",
+    "coils",
+    "shielding",
+    "shield",
+    "permeability",
+    "ferromagnetic",
+    "paramagnetic",
+    "diamagnetic",
+    "emc",
+    "emi",
+    "rf",
+    "plasma",
+    "spacecraft",
+    "antenna",
+    "power",
+    "signal",
+    "measurement"
+  ],
+  "contract": {
+    "download_only": true,
+    "no_accounts": true,
+    "no_payment": true,
+    "no_gutenberg": true,
+    "no_wikipedia": true,
+    "no_lexicon_writes": true,
+    "no_lifetime_writes": true,
+    "requires_intake_gate_before_ingest": true
+  },
+  "sources": [
+    {
+      "id": "mit_6013_lecture_notes",
+      "lane": "electromagnetics_textbook",
+      "title": "MIT OCW 6.013 Electromagnetics and Applications Lecture Notes",
+      "url": "http://ocw.mit.edu/courses/6-013-electromagnetics-and-applications-spring-2009/resources/lecture-notes/",
+      "source_org": "MIT OpenCourseWare",
+      "purpose": "electromagnetic fields, waves, and applications vocabulary"
+    },
+    {
+      "id": "mit_802_teal_course_notes",
+      "lane": "electromagnetics_textbook",
+      "title": "MIT 8.02 TEAL Course Notes Index",
+      "url": "https://web.mit.edu/8.02t/www/802TEAL3D/visualizations/coursenotes/index.htm",
+      "source_org": "MIT",
+      "purpose": "undergraduate electricity and magnetism notes"
+    },
+    {
+      "id": "mit_802t_ocw_download",
+      "lane": "electromagnetics_textbook",
+      "title": "MIT OCW 8.02T Electricity and Magnetism Resources",
+      "url": "http://ocw.mit.edu/courses/8-02t-electricity-and-magnetism-spring-2005/download/",
+      "source_org": "MIT OpenCourseWare",
+      "purpose": "public resource index for electricity and magnetism material"
+    },
+    {
+      "id": "nist_si_guide_sp811",
+      "lane": "measurement_units",
+      "title": "NIST SP 811 Guide for the Use of the International System of Units",
+      "url": "https://www.nist.gov/publications/guide-use-international-system-units-si",
+      "source_org": "NIST",
+      "purpose": "measurement and unit phrasing for technical documents"
+    },
+    {
+      "id": "nist_sp250_publications",
+      "lane": "measurement_units",
+      "title": "NIST SP 250 Measurement Services Publications",
+      "url": "https://www.nist.gov/calibrations/sp-250-publications",
+      "source_org": "NIST",
+      "purpose": "calibration, measurement, RF, and instrumentation language"
+    },
+    {
+      "id": "nist_sp250_100_magnetic_resonance",
+      "lane": "measurement_units",
+      "title": "NIST SP 250-100 Magnetic Resonance Imaging Biomarker Calibration Service",
+      "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.250-100.pdf",
+      "source_org": "NIST",
+      "purpose": "magnetic field, RF power, calibration, and measurement language"
+    },
+    {
+      "id": "nist_magnetic_field_safety",
+      "lane": "electromagnetic_safety",
+      "title": "NIST Magnetic Field Safety Program",
+      "url": "https://www.nist.gov/oshe/safety-programs/magnetic-field-safety-program",
+      "source_org": "NIST",
+      "purpose": "magnetic field safety language"
+    },
+    {
+      "id": "nasa_magnetic_shielding_space_vehicles",
+      "lane": "space_em_systems",
+      "title": "NASA NTRS Shielding of Space Vehicles by Magnetic Fields",
+      "url": "https://ntrs.nasa.gov/citations/19630005279",
+      "source_org": "NASA NTRS",
+      "purpose": "spacecraft magnetic shielding and field language"
+    },
+    {
+      "id": "nasa_magnetic_shielding_pdf",
+      "lane": "space_em_systems",
+      "title": "NASA Magnetic Shielding PDF",
+      "url": "https://ntrs.nasa.gov/api/citations/19940019861/downloads/19940019861.pdf",
+      "source_org": "NASA NTRS",
+      "purpose": "magnetic shielding, spacecraft systems, and field vocabulary"
+    },
+    {
+      "id": "arxiv_intro_electromagnetism",
+      "lane": "electromagnetics_textbook",
+      "title": "arXiv Introduction to Electromagnetism",
+      "url": "http://arxiv.org/abs/2109.00606",
+      "source_org": "arXiv",
+      "purpose": "open electromagnetism educational text for curation review"
+    }
+  ]
+}

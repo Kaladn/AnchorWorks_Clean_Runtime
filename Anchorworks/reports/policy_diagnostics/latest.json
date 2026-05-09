@@ -1,0 +1,129 @@
+{
+  "tree_version": "v0.2-settings-restored",
+  "policy_version": "0.2",
+  "generated_at": "2026-05-09T09:22:57.738809+00:00",
+  "tests_baseline": "settings harness; reasoner not wired",
+  "query_count": 9,
+  "queries": [
+    {
+      "query": "what is clearspeak",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "how does anchor memory work",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "why does the tree use policy",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "what makes an answer supported",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "how does rescue help weak answers",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "what is a reasoning tree",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "how does 6-1-6 work",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "what is external support",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    },
+    {
+      "query": "what is layer 2 rescue",
+      "ranked_answer_symbols": [],
+      "evidence_rows": [],
+      "answer_level": null,
+      "confidence": 0.0,
+      "used_rescue_layer": false,
+      "policy_diagnostics": {
+        "status": "settings_loaded_only",
+        "note": "Tree-Brain settings UI is restored; document reasoner diagnostics are not wired in this runtime."
+      }
+    }
+  ],
+  "aggregate": {
+    "accepted_by_class": {
+      "answer_regulation": 8,
+      "diagnostics_harness": 2,
+      "rescue_layer": 9,
+      "scoring": 7,
+      "tree_limits": 6
+    },
+    "rejected_by_reason": {},
+    "top_accepted_symbols": [],
+    "top_rejected_symbols": []
+  }
+}

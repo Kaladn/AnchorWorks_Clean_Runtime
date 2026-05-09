@@ -1,0 +1,28 @@
+﻿{
+  "schema_version": "anchorworks_services@1",
+  "services": [
+    {
+      "id": "ui",
+      "label": "AnchorWorks UI/API",
+      "enabled": true,
+      "kind": "python_module",
+      "python": "{repo}\\app\\.venv\\Scripts\\python.exe",
+      "module": "clearbox_lexicon.cli",
+      "args": [
+        "serve",
+        "--data-root",
+        "{repo}\\data",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8081"
+      ],
+      "workdir": "{repo}\\app",
+      "port": 8081,
+      "url": "http://127.0.0.1:8081",
+      "pid_file": "{repo}\\app\\run\\ui.pid",
+      "stdout_log": "{repo}\\app\\logs\\ui.out.log",
+      "stderr_log": "{repo}\\app\\logs\\ui.err.log"
+    }
+  ]
+}

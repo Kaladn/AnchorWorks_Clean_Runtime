@@ -1,0 +1,319 @@
+{
+  "version": "0.2",
+  "sections": {
+    "tree_limits": {
+      "label": "Tree Limits",
+      "fields": {
+        "max_depth": {
+          "label": "Max depth",
+          "value": 3,
+          "default": 3,
+          "type": "number",
+          "min": 1,
+          "max": 3,
+          "help": "Maximum primary reasoning-tree depth. v0.2 is capped at 3."
+        },
+        "branch_width": {
+          "label": "Branch width",
+          "value": 6,
+          "default": 6,
+          "type": "number",
+          "min": 1,
+          "max": 64,
+          "help": "Maximum evidence neighbors sampled per expanded primary node."
+        },
+        "max_total_nodes": {
+          "label": "Max total nodes",
+          "value": 22000,
+          "default": 22000,
+          "type": "number",
+          "min": 100,
+          "max": 22000,
+          "help": "Absolute total node budget per request."
+        },
+        "soft_total_nodes": {
+          "label": "Soft total nodes",
+          "value": 20000,
+          "default": 20000,
+          "type": "number",
+          "min": 50,
+          "max": 22000,
+          "help": "Budget threshold where dynamic pruning tightens expansion."
+        },
+        "min_count_threshold": {
+          "label": "Minimum branch count",
+          "value": 1,
+          "default": 1,
+          "type": "number",
+          "min": 1,
+          "max": 1000,
+          "help": "Minimum count required for a primary branch to survive early pruning."
+        },
+        "dynamic_prune_enabled": {
+          "label": "Dynamic prune enabled",
+          "value": true,
+          "default": true,
+          "type": "boolean",
+          "help": "When enabled, soft-limit pressure raises count threshold and shrinks branch width."
+        }
+      }
+    },
+    "rescue_layer": {
+      "label": "Rescue Layer",
+      "fields": {
+        "rescue_enabled": {
+          "label": "Rescue enabled",
+          "value": true,
+          "default": true,
+          "type": "boolean",
+          "help": "Enable the flat per-seed 18-1-18 evidence map after weak primary results."
+        },
+        "rescue_radius": {
+          "label": "Rescue radius",
+          "value": 18,
+          "default": 18,
+          "type": "number",
+          "min": 1,
+          "max": 18,
+          "help": "Neighbor radius for flat rescue evidence sampling."
+        },
+        "rescue_weight": {
+          "label": "Rescue weight",
+          "value": 0.35,
+          "default": 0.35,
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "help": "Score multiplier for rescue support."
+        },
+        "rescue_branch_width": {
+          "label": "Rescue branch width",
+          "value": 18,
+          "default": 18,
+          "type": "number",
+          "min": 1,
+          "max": 64,
+          "help": "Maximum flat rescue evidence rows sampled per seed."
+        },
+        "min_eligible_leaves_trigger": {
+          "label": "Min eligible leaves trigger",
+          "value": 8,
+          "default": 8,
+          "type": "number",
+          "min": 1,
+          "max": 64,
+          "help": "Rescue activates when eligible unique leaves fall below this count."
+        },
+        "confidence_trigger": {
+          "label": "Confidence trigger",
+          "value": 0.35,
+          "default": 0.35,
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "help": "Reserved confidence threshold for rescue activation diagnostics."
+        },
+        "rejection_ratio_trigger": {
+          "label": "Rejection ratio trigger",
+          "value": 3,
+          "default": 3.0,
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 0.1,
+          "help": "Reserved rejected/accepted ratio trigger for future policy tuning."
+        },
+        "max_rescue_nodes": {
+          "label": "Max rescue nodes",
+          "value": 22000,
+          "default": 22000,
+          "type": "number",
+          "min": 0,
+          "max": 22000,
+          "help": "Maximum rescue evidence rows allowed inside remaining total node budget."
+        },
+        "require_multi_root_support": {
+          "label": "Require multi-root support",
+          "value": true,
+          "default": true,
+          "type": "boolean",
+          "help": "Require new rescue candidates to be supported by at least two query roots."
+        }
+      }
+    },
+    "answer_regulation": {
+      "label": "Answer Regulation",
+      "fields": {
+        "level_1_limit": {
+          "label": "Level 1 limit",
+          "value": 8,
+          "default": 8,
+          "type": "number",
+          "min": 1,
+          "max": 64,
+          "help": "Maximum answer anchors for weak evidence."
+        },
+        "level_2_limit": {
+          "label": "Level 2 limit",
+          "value": 16,
+          "default": 16,
+          "type": "number",
+          "min": 1,
+          "max": 64,
+          "help": "Maximum answer anchors for modest evidence."
+        },
+        "level_3_limit": {
+          "label": "Level 3 limit",
+          "value": 32,
+          "default": 32,
+          "type": "number",
+          "min": 1,
+          "max": 64,
+          "help": "Maximum answer anchors for strong evidence."
+        },
+        "level_4_limit": {
+          "label": "Level 4 limit",
+          "value": 64,
+          "default": 64,
+          "type": "number",
+          "min": 1,
+          "max": 64,
+          "help": "Maximum answer anchors for very strong evidence."
+        },
+        "level_2_evidence_threshold": {
+          "label": "Level 2 evidence threshold",
+          "value": 100,
+          "default": 100,
+          "type": "number",
+          "min": 0,
+          "max": 1000000,
+          "help": "Evidence strength required to leave level 1."
+        },
+        "level_3_evidence_threshold": {
+          "label": "Level 3 evidence threshold",
+          "value": 500,
+          "default": 500,
+          "type": "number",
+          "min": 0,
+          "max": 1000000,
+          "help": "Evidence strength required to reach level 3."
+        },
+        "level_4_evidence_threshold": {
+          "label": "Level 4 evidence threshold",
+          "value": 1500,
+          "default": 1500,
+          "type": "number",
+          "min": 0,
+          "max": 1000000,
+          "help": "Evidence strength required to reach level 4."
+        },
+        "confidence_top_share_weight": {
+          "label": "Confidence top-share weight",
+          "value": 1,
+          "default": 1.0,
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.1,
+          "help": "Reserved confidence formula weight for the top score share."
+        }
+      }
+    },
+    "scoring": {
+      "label": "Scoring",
+      "fields": {
+        "direct_support_weight": {
+          "label": "Direct support weight",
+          "value": 1.0,
+          "default": 1.0,
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.1,
+          "help": "Weight applied to direct query-root evidence support."
+        },
+        "second_order_support_weight": {
+          "label": "Second-order support weight",
+          "value": 1.5,
+          "default": 1.5,
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.1,
+          "help": "Weight applied to support gathered through internal evidence nodes."
+        },
+        "cross_consensus_weight": {
+          "label": "Cross-root consensus weight",
+          "value": 3.0,
+          "default": 3.0,
+          "type": "number",
+          "min": 0,
+          "max": 20,
+          "step": 0.1,
+          "help": "Weight applied when a candidate is supported by distinct query roots."
+        },
+        "position_strength_weight": {
+          "label": "Position strength weight",
+          "value": 1.25,
+          "default": 1.25,
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.05,
+          "help": "Weight applied to 6-1-6 proximity strength."
+        },
+        "path_strength_weight": {
+          "label": "Path strength weight",
+          "value": 1.5,
+          "default": 1.5,
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.1,
+          "help": "Weight applied to total evidence count along the winning path."
+        },
+        "rescue_support_weight": {
+          "label": "Rescue support weight",
+          "value": 1.0,
+          "default": 1.0,
+          "type": "number",
+          "min": 0,
+          "max": 10,
+          "step": 0.1,
+          "help": "Weight applied to already-weighted flat rescue support."
+        },
+        "low_context_penalty": {
+          "label": "Low-context penalty",
+          "value": 5.0,
+          "default": 5.0,
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 0.5,
+          "help": "Penalty applied to leaves with too little path context."
+        }
+      }
+    },
+    "diagnostics_harness": {
+      "label": "Diagnostics Harness",
+      "fields": {
+        "fixed_query_file": {
+          "label": "Fixed query file",
+          "value": "config/policy_diagnostic_queries.json",
+          "default": "config/policy_diagnostic_queries.json",
+          "type": "text",
+          "help": "Relative path to the fixed query harness config."
+        },
+        "latest_report_file": {
+          "label": "Latest report file",
+          "value": "reports/policy_diagnostics/latest.json",
+          "default": "reports/policy_diagnostics/latest.json",
+          "type": "text",
+          "help": "Relative path where the diagnostics harness writes latest.json."
+        }
+      }
+    }
+  }
+}

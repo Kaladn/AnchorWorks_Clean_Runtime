@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -13,7 +14,10 @@ from . import __version__
 from .chat_memory_system import ChatMemorySystem
 from .clearspeak import ClearSpeakService
 from .model_api_client import ModelApiClient
+from .policy_diagnostics_report import build_settings_report, load_queries
 from .store import LexiconStore
+from .symbol_policy import SymbolPolicy
+from .tree_brain_controls import TreeBrainControls
 
 
 class WordBody(BaseModel):
@@ -70,6 +74,14 @@ class ChatArchiveImportBody(BaseModel):
     archive_root: str
 
 
+class TreeBrainControlsBody(BaseModel):
+    controls: dict[str, Any]
+
+
+class SymbolPolicyBody(BaseModel):
+    policy: dict[str, Any]
+
+
 class ChatFinalizeBody(BaseModel):
     day: str | None = None
     branch: str = "main"
@@ -108,9 +120,11 @@ def _default_data_root() -> Path:
 
 def create_app(data_root: Path | None = None) -> FastAPI:
     package_root = Path(__file__).resolve().parent
+    app_root = package_root.parents[1]
     ui_root = package_root / "ui"
     assets_root = ui_root / "assets"
     store = LexiconStore(data_root or _default_data_root())
+    tree_brain_controls = TreeBrainControls.load(app_root / "config" / "tree_brain_controls.json")
     clearspeak = ClearSpeakService(store)
     model_api = ModelApiClient()
     chat_memory = ChatMemorySystem(store.root, clearspeak, model_api=model_api)
@@ -118,6 +132,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     app = FastAPI(title="AnchorWorks Lexicon", version=__version__, docs_url="/api/docs")
     app.state.store = store
     app.state.clearspeak = clearspeak
+    app.state.tree_brain_controls = tree_brain_controls
     app.state.model_api = model_api
     app.state.chat_memory = chat_memory
 
@@ -145,6 +160,73 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.get("/api/health")
     def health() -> dict[str, Any]:
         return {"ok": True, "version": __version__, "data_root": str(store.root)}
+
+    def _symbol_policy_path() -> Path:
+        return app_root / "config" / "symbol_policy.json"
+
+    def _read_symbol_policy() -> dict[str, Any]:
+        return store._read_json(_symbol_policy_path(), {})
+
+    @app.get("/api/tree-brain/controls")
+    def tree_brain_controls_get() -> dict[str, Any]:
+        return {
+            "ok": True,
+            "tree_brain_controls": tree_brain_controls.to_dict(),
+            "active_controls": tree_brain_controls.active_values(),
+            "symbol_policy": _read_symbol_policy(),
+        }
+
+    @app.post("/api/tree-brain/controls")
+    def tree_brain_controls_save(body: TreeBrainControlsBody) -> dict[str, Any]:
+        try:
+            saved = tree_brain_controls.update(body.controls)
+            return {"ok": True, "tree_brain_controls": saved, "active_controls": tree_brain_controls.active_values()}
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/tree-brain/controls/reset")
+    def tree_brain_controls_reset() -> dict[str, Any]:
+        saved = tree_brain_controls.reset()
+        return {"ok": True, "tree_brain_controls": saved, "active_controls": tree_brain_controls.active_values()}
+
+    @app.post("/api/tree-brain/symbol-policy")
+    def tree_brain_symbol_policy_save(body: SymbolPolicyBody) -> dict[str, Any]:
+        try:
+            SymbolPolicy(body.policy)
+            _symbol_policy_path().parent.mkdir(parents=True, exist_ok=True)
+            _symbol_policy_path().write_text(json.dumps(body.policy, ensure_ascii=False, indent=2), encoding="utf-8")
+            return {"ok": True, "symbol_policy": body.policy}
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/tree-brain/validate")
+    def tree_brain_validate() -> dict[str, Any]:
+        try:
+            TreeBrainControls(tree_brain_controls.path, tree_brain_controls.to_dict())
+            SymbolPolicy(_read_symbol_policy())
+            load_queries(app_root / "config" / "policy_diagnostic_queries.json")
+            return {"ok": True, "message": "Tree-Brain controls, symbol policy, and diagnostic query file are valid."}
+        except (OSError, TypeError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/tree-brain/diagnostics/run")
+    def tree_brain_diagnostics_run() -> dict[str, Any]:
+        queries_path = app_root / "config" / "policy_diagnostic_queries.json"
+        report_path = app_root / "reports" / "policy_diagnostics" / "latest.json"
+        try:
+            report = build_settings_report(load_queries(queries_path), tree_brain_controls.to_dict(), _read_symbol_policy())
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+            return {"ok": True, "report": report}
+        except (OSError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.get("/api/tree-brain/diagnostics/latest")
+    def tree_brain_diagnostics_latest() -> dict[str, Any]:
+        report_path = app_root / "reports" / "policy_diagnostics" / "latest.json"
+        if not report_path.exists():
+            return {"ok": True, "report": None}
+        return {"ok": True, "report": store._read_json(report_path, None)}
 
     @app.get("/api/user/storage/status")
     def user_storage_status() -> dict[str, Any]:

@@ -1,0 +1,180 @@
+﻿{
+  "schema_version": "curation_sources@0.1",
+  "contract": {
+    "no_gutenberg": true,
+    "download_only": true,
+    "no_lexicon_writes": true,
+    "no_lifetime_writes": true,
+    "requires_intake_gate_before_ingest": true
+  },
+  "sources": [
+    {
+      "id": "openstax_biology_2e_index",
+      "lane": "textbook_spine",
+      "title": "OpenStax Biology 2e Index",
+      "url": "https://openstax.org/books/biology-2e/pages/index",
+      "source_org": "OpenStax",
+      "purpose": "biology vocabulary and structured explanatory prose"
+    },
+    {
+      "id": "openstax_chemistry_2e_index",
+      "lane": "textbook_spine",
+      "title": "OpenStax Chemistry 2e Index",
+      "url": "https://openstax.org/books/chemistry-2e/pages/index",
+      "source_org": "OpenStax",
+      "purpose": "chemistry vocabulary and structured explanations"
+    },
+    {
+      "id": "openstax_astronomy_2e_index",
+      "lane": "textbook_spine",
+      "title": "OpenStax Astronomy 2e Index",
+      "url": "https://openstax.org/books/astronomy-2e/pages/index",
+      "source_org": "OpenStax",
+      "purpose": "space, physics, observation, and systems vocabulary"
+    },
+    {
+      "id": "openstax_intro_statistics_2e_index",
+      "lane": "textbook_spine",
+      "title": "OpenStax Introductory Statistics 2e Index",
+      "url": "https://openstax.org/books/introductory-statistics-2e/pages/index",
+      "source_org": "OpenStax",
+      "purpose": "probability, measurement, data, and reasoning vocabulary"
+    },
+    {
+      "id": "openstax_us_history_index",
+      "lane": "civics_history",
+      "title": "OpenStax U.S. History Index",
+      "url": "https://openstax.org/books/us-history/pages/index",
+      "source_org": "OpenStax",
+      "purpose": "historical and institutional vocabulary"
+    },
+    {
+      "id": "openstax_political_science_index",
+      "lane": "civics_history",
+      "title": "OpenStax Introduction to Political Science Index",
+      "url": "https://openstax.org/books/introduction-political-science/pages/index",
+      "source_org": "OpenStax",
+      "purpose": "government, institutions, roles, and civics vocabulary"
+    },
+    {
+      "id": "openstax_psychology_2e_index",
+      "lane": "textbook_spine",
+      "title": "OpenStax Psychology 2e Index",
+      "url": "https://openstax.org/books/psychology-2e/pages/index",
+      "source_org": "OpenStax",
+      "purpose": "behavior, cognition, health, and social vocabulary"
+    },
+    {
+      "id": "medlineplus_first_aid",
+      "lane": "health_basic",
+      "title": "MedlinePlus First Aid",
+      "url": "https://medlineplus.gov/firstaid.html",
+      "source_org": "MedlinePlus",
+      "purpose": "basic emergency response vocabulary"
+    },
+    {
+      "id": "medlineplus_high_blood_pressure",
+      "lane": "health_basic",
+      "title": "MedlinePlus High Blood Pressure",
+      "url": "https://medlineplus.gov/highbloodpressure.html",
+      "source_org": "MedlinePlus",
+      "purpose": "patient-level cardiovascular vocabulary"
+    },
+    {
+      "id": "medlineplus_diabetes",
+      "lane": "health_basic",
+      "title": "MedlinePlus Diabetes",
+      "url": "https://medlineplus.gov/diabetes.html",
+      "source_org": "MedlinePlus",
+      "purpose": "patient-level metabolic health vocabulary"
+    },
+    {
+      "id": "medlineplus_stroke",
+      "lane": "health_basic",
+      "title": "MedlinePlus Stroke",
+      "url": "https://medlineplus.gov/stroke.html",
+      "source_org": "MedlinePlus",
+      "purpose": "risk, symptom, and response vocabulary"
+    },
+    {
+      "id": "medlineplus_heart_attack",
+      "lane": "health_basic",
+      "title": "MedlinePlus Heart Attack",
+      "url": "https://medlineplus.gov/heartattack.html",
+      "source_org": "MedlinePlus",
+      "purpose": "risk, symptom, and emergency vocabulary"
+    },
+    {
+      "id": "ready_power_outages",
+      "lane": "emergency_safety",
+      "title": "Ready.gov Power Outages",
+      "url": "https://www.ready.gov/power-outages",
+      "source_org": "Ready.gov",
+      "purpose": "preparedness and infrastructure disruption vocabulary"
+    },
+    {
+      "id": "ready_emergency_kit",
+      "lane": "emergency_safety",
+      "title": "Ready.gov Build A Kit",
+      "url": "https://www.ready.gov/kit",
+      "source_org": "Ready.gov",
+      "purpose": "preparedness, supplies, and household resilience vocabulary"
+    },
+    {
+      "id": "ready_make_a_plan",
+      "lane": "emergency_safety",
+      "title": "Ready.gov Make A Plan",
+      "url": "https://www.ready.gov/plan",
+      "source_org": "Ready.gov",
+      "purpose": "preparedness planning and family communication vocabulary"
+    },
+    {
+      "id": "cdc_emergency_preparedness",
+      "lane": "emergency_safety",
+      "title": "CDC Emergency Preparedness and Response",
+      "url": "https://www.cdc.gov/emergency/index.html",
+      "source_org": "CDC",
+      "purpose": "public-health emergency vocabulary"
+    },
+    {
+      "id": "osha_safety_topics",
+      "lane": "emergency_safety",
+      "title": "OSHA Safety and Health Topics",
+      "url": "https://www.osha.gov/topics",
+      "source_org": "OSHA",
+      "purpose": "workplace hazard and control vocabulary"
+    },
+    {
+      "id": "osha_electrical",
+      "lane": "emergency_safety",
+      "title": "OSHA Electrical Safety",
+      "url": "https://www.osha.gov/electrical",
+      "source_org": "OSHA",
+      "purpose": "electrical hazard and protection vocabulary"
+    },
+    {
+      "id": "nist_cybersecurity_framework",
+      "lane": "cyber_systems",
+      "title": "NIST Cybersecurity Framework",
+      "url": "https://www.nist.gov/cyberframework",
+      "source_org": "NIST",
+      "purpose": "defensive cybersecurity framework vocabulary"
+    },
+    {
+      "id": "nist_glossary",
+      "lane": "cyber_systems",
+      "title": "NIST CSRC Glossary",
+      "url": "https://csrc.nist.gov/glossary",
+      "source_org": "NIST",
+      "purpose": "security and systems terminology"
+    },
+    {
+      "id": "owasp_top_ten",
+      "lane": "cyber_systems",
+      "title": "OWASP Top 10",
+      "url": "https://owasp.org/www-project-top-ten/",
+      "source_org": "OWASP",
+      "purpose": "defensive application security vocabulary"
+    }
+  ]
+}
