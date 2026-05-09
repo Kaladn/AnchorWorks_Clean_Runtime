@@ -653,6 +653,8 @@ class MappingTests(unittest.TestCase):
                 "/api/lexicon/flat-documents/anchorize",
                 "/api/lexicon/flat-documents/anchorize-all",
                 "/api/lexicon/intake/edit",
+                "/api/visual-intake/files",
+                "/api/visual-intake/packet/{name}",
             }:
                 self.assertIn(expected, paths)
 

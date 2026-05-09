@@ -90,6 +90,11 @@ class LexiconStore:
         self.source_local_preview_counts_dir = self.state_dir / "source_local_preview_counts"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
+        self.visual_intake_dir = self.state_dir / "visual_intake"
+        self.visual_intake_packets_dir = self.visual_intake_dir / "packets"
+        self.visual_intake_manifests_dir = self.visual_intake_dir / "manifests"
+        self.visual_intake_region_maps_dir = self.visual_intake_dir / "region_maps"
+        self.visual_intake_recognition_layers_dir = self.visual_intake_dir / "recognition_layers"
         self.flat_documents_dir = self.state_dir / "flat_documents"
         self.flat_documents_raw_dir = self.flat_documents_dir / "raw"
         self.flat_documents_symbolic_dir = self.flat_documents_dir / "symbolic"
@@ -125,6 +130,10 @@ class LexiconStore:
         self.source_local_preview_counts_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_occurrences_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_resonance_dir.mkdir(parents=True, exist_ok=True)
+        self.visual_intake_packets_dir.mkdir(parents=True, exist_ok=True)
+        self.visual_intake_manifests_dir.mkdir(parents=True, exist_ok=True)
+        self.visual_intake_region_maps_dir.mkdir(parents=True, exist_ok=True)
+        self.visual_intake_recognition_layers_dir.mkdir(parents=True, exist_ok=True)
         self.flat_documents_raw_dir.mkdir(parents=True, exist_ok=True)
         self.flat_documents_symbolic_dir.mkdir(parents=True, exist_ok=True)
         self.intake_uploads_dir.mkdir(parents=True, exist_ok=True)
@@ -889,7 +898,125 @@ class LexiconStore:
             source_path=source_path,
             file_type=file_type,
         )
-        return prepared.to_dict()
+        payload = prepared.to_dict()
+        visual_intake = self._persist_visual_intake_packet(payload)
+        if visual_intake:
+            payload.setdefault("metadata", {})["visual_intake"] = visual_intake
+        return payload
+
+    def _visual_safe_stem(self, source_name: str, visual_record_id: str) -> str:
+        original = Path(source_name or "visual").stem
+        safe_stem = "".join(
+            char if char.isalnum() or char in {"-", "_"} else "_"
+            for char in original
+        ).strip("_")
+        if not safe_stem:
+            safe_stem = "visual"
+        return f"{safe_stem}-{visual_record_id}"
+
+    def _persist_visual_intake_packet(self, prepared: dict[str, Any]) -> dict[str, Any] | None:
+        metadata = prepared.get("metadata")
+        if not isinstance(metadata, dict):
+            return None
+        visual_manifest = metadata.get("visual_manifest")
+        visual_region_map = metadata.get("visual_region_map")
+        visual_recognition_layer = metadata.get("visual_recognition_layer")
+        if not all(isinstance(item, dict) for item in (visual_manifest, visual_region_map, visual_recognition_layer)):
+            return None
+
+        source = visual_manifest.get("source") if isinstance(visual_manifest, dict) else {}
+        visual_record_id = str((source or {}).get("visual_record_id") or "").strip()
+        if not visual_record_id:
+            return None
+        region_map_id = str(visual_region_map.get("region_map_id") or visual_record_id).strip()
+        recognition_layer_id = str(visual_recognition_layer.get("recognition_layer_id") or visual_record_id).strip()
+        safe_stem = self._visual_safe_stem(str(prepared.get("source_name") or "visual"), visual_record_id)
+
+        manifest_path = self.visual_intake_manifests_dir / f"{safe_stem}.manifest.json"
+        region_map_path = self.visual_intake_region_maps_dir / f"{safe_stem}-{region_map_id}.region_map.json"
+        recognition_layer_path = self.visual_intake_recognition_layers_dir / f"{safe_stem}-{recognition_layer_id}.recognition_layer.json"
+        packet_path = self.visual_intake_packets_dir / f"{safe_stem}.visual_packet.json"
+
+        writes_allowed = {"maps": False, "counts": False, "lifetime": False, "lexicon": False}
+        packet = {
+            "schema_version": "anchorworks_visual_intake_packet@1",
+            "saved_at": _utc_now(),
+            "source_name": str(prepared.get("source_name") or ""),
+            "source_path": str(prepared.get("source_path") or ""),
+            "file_type": str(prepared.get("file_type") or ""),
+            "original_size": int(prepared.get("original_size") or 0),
+            "sha256": str(prepared.get("sha256") or ""),
+            "converter": str(prepared.get("converter") or ""),
+            "visual_record_id": visual_record_id,
+            "region_map_id": region_map_id,
+            "recognition_layer_id": recognition_layer_id,
+            "authority": "source_local_visual_evidence",
+            "approval_status": "preview_only",
+            "writes_allowed": writes_allowed,
+            "visual_manifest": visual_manifest,
+            "visual_region_map": visual_region_map,
+            "visual_recognition_layer": visual_recognition_layer,
+            "trace": {
+                "source": "lexicon_intake_prepare",
+                "write_intent": "source_local_visual_intake_packet",
+                "promotion_required": True,
+            },
+        }
+
+        self._write_json(manifest_path, visual_manifest)
+        self._write_json(region_map_path, visual_region_map)
+        self._write_json(recognition_layer_path, visual_recognition_layer)
+        self._write_json(packet_path, packet)
+
+        return {
+            "schema_version": "anchorworks_visual_intake_packet@1",
+            "visual_record_id": visual_record_id,
+            "region_map_id": region_map_id,
+            "recognition_layer_id": recognition_layer_id,
+            "packet_path": str(packet_path),
+            "manifest_path": str(manifest_path),
+            "region_map_path": str(region_map_path),
+            "recognition_layer_path": str(recognition_layer_path),
+            "authority": "source_local_visual_evidence",
+            "approval_status": "preview_only",
+            "writes_allowed": writes_allowed,
+        }
+
+    def visual_intake_files(self) -> dict[str, Any]:
+        packets: list[dict[str, Any]] = []
+        for path in sorted(self.visual_intake_packets_dir.glob("*.visual_packet.json"), key=lambda item: item.name.lower()):
+            data = self._read_json(path, {})
+            source = data.get("visual_manifest", {}).get("source", {}) if isinstance(data, dict) else {}
+            packets.append({
+                "name": path.name,
+                "path": str(path),
+                "size_bytes": path.stat().st_size,
+                "visual_record_id": str(data.get("visual_record_id") or ""),
+                "source_name": str(data.get("source_name") or ""),
+                "file_type": str(data.get("file_type") or ""),
+                "width": source.get("width"),
+                "height": source.get("height"),
+                "aspect_ratio": source.get("aspect_ratio"),
+                "approval_status": str(data.get("approval_status") or "preview_only"),
+            })
+        return {
+            "ok": True,
+            "root": str(self.visual_intake_dir),
+            "packet_count": len(packets),
+            "packets": packets,
+        }
+
+    def load_visual_intake_packet(self, name: str) -> dict[str, Any]:
+        packet_path = (self.visual_intake_packets_dir / Path(name).name).resolve()
+        if packet_path.parent != self.visual_intake_packets_dir.resolve():
+            raise ValueError("invalid visual packet name")
+        if not packet_path.exists() or not packet_path.is_file():
+            raise FileNotFoundError(packet_path)
+        data = self._read_json(packet_path, {})
+        if not isinstance(data, dict):
+            raise ValueError("invalid visual packet")
+        data["packet_path"] = str(packet_path)
+        return data
 
     def prepare_chat_archive_intake(self, archive_root: Path) -> dict[str, Any]:
         prepared = prepare_anchorworks_chat_archive(archive_root)

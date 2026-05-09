@@ -25,7 +25,7 @@ Promotion decides truth.
 
 ## Current Fit
 
-The current AnchorWorks document preparation path already recognizes image files. As of this contract, image prep emits a preview-only visual manifest in metadata and a compact prepared-text notice.
+The current AnchorWorks document preparation path already recognizes image files. As of this contract, image prep emits a preview-only visual manifest in metadata, a compact prepared-text notice, and a source-local visual intake packet on disk.
 
 Active module:
 
@@ -45,7 +45,23 @@ Active image prep hook:
 src/AnchorWorks/document_prep.py::_prepare_image
 ```
 
-This hook records native image identity and geometry only. It does not run OCR, YOLO, scene reconstruction, map writes, count writes, lifetime writes, or lexicon writes.
+This hook records native image identity and geometry, then files empty region-map and recognition-layer containers beside the manifest. It does not run OCR, YOLO, scene reconstruction, map writes, count writes, lifetime writes, or lexicon writes.
+
+Active source-local visual files:
+
+```text
+State/visual_intake/packets/*.visual_packet.json
+State/visual_intake/manifests/*.manifest.json
+State/visual_intake/region_maps/*.region_map.json
+State/visual_intake/recognition_layers/*.recognition_layer.json
+```
+
+Inventory routes:
+
+```text
+GET /api/visual-intake/files
+GET /api/visual-intake/packet/{name}
+```
 
 AnchorForge handles the current image metadata role directly. It reads image headers from bytes and does not depend on Pillow for intake geometry.
 
@@ -735,7 +751,7 @@ Visual intake preview must not:
 10. Optional map/count promotion
 ```
 
-Current implementation covers steps 1 through 5 and the backend map/count refusal gate.
+Current implementation covers steps 1 through 6 and the backend map/count refusal gate.
 
 ## Tiny Law
 

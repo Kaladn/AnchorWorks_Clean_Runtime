@@ -449,6 +449,17 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         except (FileNotFoundError, ValueError) as exc:
             raise HTTPException(status_code=404, detail=str(exc))
 
+    @app.get("/api/visual-intake/files")
+    def visual_intake_files() -> dict[str, Any]:
+        return store.visual_intake_files()
+
+    @app.get("/api/visual-intake/packet/{name}")
+    def visual_intake_packet(name: str) -> dict[str, Any]:
+        try:
+            return store.load_visual_intake_packet(name)
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+
     @app.get("/api/lexicon/flat-documents")
     def lexicon_flat_documents() -> dict[str, Any]:
         return store.flat_document_files()

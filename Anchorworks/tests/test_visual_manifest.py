@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import struct
 import tempfile
 import unittest
@@ -129,6 +130,40 @@ class VisualManifestTests(unittest.TestCase):
             self.assertEqual(preview["missing_anchors"], [])
             with self.assertRaisesRegex(ValueError, "visual intake preview"):
                 store.build_intake_mapping(source_name=prepared.source_name, content=prepared.prepared_text)
+
+    def test_store_prepare_persists_visual_intake_packet(self) -> None:
+        raw = _png_bytes(17, 9)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = LexiconStore(Path(temp_dir))
+            prepared = store.prepare_intake_document(raw, source_name="plate.png", file_type="image/png")
+
+            visual_intake = prepared["metadata"]["visual_intake"]
+            packet_path = Path(visual_intake["packet_path"])
+            manifest_path = Path(visual_intake["manifest_path"])
+            region_map_path = Path(visual_intake["region_map_path"])
+            recognition_layer_path = Path(visual_intake["recognition_layer_path"])
+
+            self.assertTrue(packet_path.exists())
+            self.assertTrue(manifest_path.exists())
+            self.assertTrue(region_map_path.exists())
+            self.assertTrue(recognition_layer_path.exists())
+
+            packet = json.loads(packet_path.read_text(encoding="utf-8"))
+            self.assertEqual(packet["schema_version"], "anchorworks_visual_intake_packet@1")
+            self.assertEqual(packet["visual_record_id"], prepared["metadata"]["visual_manifest"]["source"]["visual_record_id"])
+            self.assertEqual(packet["visual_manifest"]["source"]["width"], 17)
+            self.assertEqual(packet["visual_manifest"]["source"]["height"], 9)
+            self.assertEqual(packet["visual_region_map"]["regions"], [])
+            self.assertEqual(packet["visual_recognition_layer"]["candidates"], [])
+            self.assertEqual(
+                packet["writes_allowed"],
+                {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+            )
+
+            inventory = store.visual_intake_files()
+            self.assertEqual(inventory["packet_count"], 1)
+            self.assertEqual(inventory["packets"][0]["visual_record_id"], packet["visual_record_id"])
 
     def test_region_map_schema_creates_empty_native_coordinate_record(self) -> None:
         manifest = manifest_from_image_bytes(_png_bytes(21, 13), "figure.png")
