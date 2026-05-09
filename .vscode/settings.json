@@ -1,0 +1,30 @@
+﻿{
+  "files.exclude": {
+    "State/**": true,
+    "**/__pycache__/**": true,
+    "**/*.pyc": true,
+    "Anchorworks/*.log": true,
+    "Anchorworks/anchorworks-8081*.log": true,
+    "Anchorworks/src/anchorworks.egg-info/**": true,
+    "Spare_Slots/spare_slots.json": true
+  },
+  "search.exclude": {
+    "State/**": true,
+    "**/__pycache__/**": true,
+    "**/*.pyc": true,
+    "Anchorworks/*.log": true,
+    "Anchorworks/anchorworks-8081*.log": true,
+    "Anchorworks/src/anchorworks.egg-info/**": true,
+    "Spare_Slots/spare_slots.json": true
+  },
+  "files.watcherExclude": {
+    "**/State/**": true,
+    "**/__pycache__/**": true,
+    "**/*.pyc": true,
+    "**/Anchorworks/*.log": true,
+    "**/Anchorworks/anchorworks-8081*.log": true,
+    "**/Anchorworks/src/anchorworks.egg-info/**": true,
+    "**/Spare_Slots/spare_slots.json": true
+  },
+  "git.ignoredRepositories": []
+}
