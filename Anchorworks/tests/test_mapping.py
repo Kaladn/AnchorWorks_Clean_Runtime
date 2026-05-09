@@ -10,6 +10,7 @@ from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, c
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from AnchorWorks.clearspeak import ClearSpeakService
+from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
 from AnchorWorks.intake import NULL_ANCHOR, build_anchor_map, compose_anchor_stream, extract_anchor_rows, extract_anchors
 from AnchorWorks.store import LexiconStore
@@ -618,6 +619,45 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(passages[0]["line_start"], 3)
             self.assertEqual(passages[0]["line_end"], 3)
             self.assertIn("EMP defense requires", passages[0]["text"])
+
+    def test_document_answer_uses_topic_anchors_not_source_query_wrapper(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "about", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "does", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_O.json", [{"word": "of", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_P.json", [{"word": "powers", "status": "ASSIGNED"}])
+            _write_json(
+                root / "Canonical" / "canonical_S.json",
+                [
+                    {"word": "say", "status": "ASSIGNED"},
+                    {"word": "separation", "status": "ASSIGNED"},
+                    {"word": "source", "status": "ASSIGNED"},
+                ],
+            )
+            _write_json(root / "Canonical" / "canonical_T.json", [{"word": "the", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_W.json", [{"word": "what", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+            _write_json(root / "Structural" / "structural.json", [{"word": "?", "status": "STRUCTURAL"}])
+
+            source_path = Path(temp_dir) / "government.txt"
+            source_path.write_text(
+                "The source introduction says many ordinary things.\n\n"
+                "Separation of powers divides government authority among branches.",
+                encoding="utf-8",
+            )
+
+            store = LexiconStore(root)
+            observed = store.build_observed_map(source_path)
+            store.build_flat_runtime_from_observed_map(observed["saved_map_name"])
+
+            answer = DocumentAnswerAssembler(store).answer("What does the source say about separation of powers?")
+
+            self.assertTrue(answer.ok)
+            self.assertEqual(answer.query_anchors, ["separation", "powers"])
+            self.assertIn("Separation of powers divides", answer.response)
 
     def test_flat_runtime_builds_block_occurrence_and_visual_link_indexes_from_observed_map(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

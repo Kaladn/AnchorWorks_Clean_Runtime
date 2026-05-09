@@ -1867,12 +1867,21 @@ class LexiconStore:
                     continue
                 block_anchors = {self.normalize_anchor(anchor) for anchor in block.get("anchor_stream") or []}
                 text = str(block.get("raw_text") or "")
-                text_anchors = {self.normalize_anchor(row["anchor"]) for row in extract_anchor_rows(text)}
+                anchor_rows = extract_anchor_rows(text)
+                ordered_text_anchors = [
+                    self.normalize_anchor(row["anchor"])
+                    for row in anchor_rows
+                    if self.normalize_anchor(row["anchor"])
+                ]
+                text_anchors = set(ordered_text_anchors)
                 hits = sorted((query_set | query_anchor_set) & (block_anchors | text_anchors))
                 if not hits:
                     continue
                 anchor_count = max(1, len(block_anchors | text_anchors))
                 score = float(len(hits) * 100 + len(hits) / anchor_count)
+                proximity_span = _query_proximity_span(ordered_text_anchors, list(query_anchor_set or query_set))
+                if proximity_span is not None:
+                    score += max(0.0, 90.0 - float(proximity_span * 12))
                 block_id_text = str(block.get("block_id") or "block_0")
                 try:
                     block_number = int(block_id_text.rsplit("_", 1)[-1])
@@ -1893,7 +1902,8 @@ class LexiconStore:
                     "score": score,
                     "anchor_hits": hits,
                     "anchor_count": len(block_anchors),
-                    "text": text.strip(),
+                    "text": _query_centered_snippet(text, anchor_rows, list(query_anchor_set or query_set)) or text.strip(),
+                    "raw_block_text": text.strip(),
                     "visual_refs": block.get("visual_refs") or [],
                 })
             if block_hits:
@@ -2896,3 +2906,76 @@ class LexiconStore:
             "index_reloads": int(result.get("index_reloads", 0) or 0),
             "letters": letters,
         }
+
+
+def _query_proximity_span(text_anchors: list[str], query_anchors: list[str]) -> int | None:
+    wanted = [anchor for anchor in dict.fromkeys(query_anchors) if anchor]
+    if len(wanted) < 2:
+        return None
+    positions: dict[str, list[int]] = {anchor: [] for anchor in wanted}
+    for index, anchor in enumerate(text_anchors):
+        if anchor in positions:
+            positions[anchor].append(index)
+    if any(not values for values in positions.values()):
+        return None
+    best: int | None = None
+    for start_anchor in wanted:
+        for start in positions[start_anchor]:
+            window_positions = [start]
+            for anchor in wanted:
+                if anchor == start_anchor:
+                    continue
+                nearest = min(positions[anchor], key=lambda pos: abs(pos - start))
+                window_positions.append(nearest)
+            span = max(window_positions) - min(window_positions) + 1
+            if best is None or span < best:
+                best = span
+    return best
+
+
+def _query_centered_snippet(text: str, anchor_rows: list[dict[str, Any]], query_anchors: list[str], max_chars: int = 520) -> str:
+    wanted = [anchor for anchor in dict.fromkeys(query_anchors) if anchor]
+    if not text or not anchor_rows or not wanted:
+        return ""
+    positions: dict[str, list[int]] = {anchor: [] for anchor in wanted}
+    for index, row in enumerate(anchor_rows):
+        anchor = str(row.get("anchor") or "").strip().lower()
+        if anchor in positions:
+            positions[anchor].append(index)
+    present = [anchor for anchor in wanted if positions.get(anchor)]
+    if not present:
+        return ""
+
+    best_rows: list[int] = []
+    if len(present) == len(wanted) and len(wanted) > 1:
+        best_span: int | None = None
+        for start_anchor in wanted:
+            for start in positions[start_anchor]:
+                row_indexes = [start]
+                for anchor in wanted:
+                    if anchor == start_anchor:
+                        continue
+                    nearest = min(positions[anchor], key=lambda pos: abs(pos - start))
+                    row_indexes.append(nearest)
+                span = max(row_indexes) - min(row_indexes) + 1
+                if best_span is None or span < best_span:
+                    best_span = span
+                    best_rows = row_indexes
+    else:
+        best_rows = [positions[present[0]][0]]
+
+    if not best_rows:
+        return ""
+    start_char = min(int(anchor_rows[index].get("start", 0) or 0) for index in best_rows)
+    end_char = max(int(anchor_rows[index].get("end", 0) or 0) for index in best_rows)
+    extra = max(80, int((max_chars - max(0, end_char - start_char)) / 2))
+    left = max(0, start_char - extra)
+    right = min(len(text), end_char + extra)
+    snippet = " ".join(text[left:right].split())
+    if not snippet:
+        return ""
+    if left > 0:
+        snippet = "... " + snippet
+    if right < len(text):
+        snippet = snippet + " ..."
+    return snippet

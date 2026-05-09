@@ -28,9 +28,14 @@ class DocumentAnswerAssembler:
     def answer(self, query: str, *, limit: int = 6) -> DocumentAnswerResult:
         query_text = str(query or "").strip()
         anchors = _ordered_unique(extract_anchors(query_text))
-        evidence = self.store.search_flat_document_evidence(anchors, query_anchors=anchors)
+        focus_anchors = _document_focus_anchors(anchors)
+        evidence = self.store.search_flat_document_evidence(
+            focus_anchors,
+            query_anchors=focus_anchors,
+            max_files=4096,
+        )
         if not evidence.get("source_passages"):
-            evidence = self.store.search_observed_map_evidence(anchors, query_anchors=anchors, map_limit=12)
+            evidence = self.store.search_observed_map_evidence(focus_anchors, query_anchors=focus_anchors, map_limit=12)
         passages = [
             row for row in evidence.get("source_passages") or []
             if isinstance(row, dict) and str(row.get("text") or "").strip()
@@ -40,7 +45,7 @@ class DocumentAnswerAssembler:
         return DocumentAnswerResult(
             ok=bool(passages),
             query=query_text,
-            query_anchors=anchors,
+            query_anchors=focus_anchors,
             response=response,
             evidence=evidence,
             citations=citations,
@@ -141,6 +146,60 @@ def _ordered_unique(values: list[str]) -> list[str]:
         seen.add(clean)
         out.append(clean)
     return out
+
+
+_DOCUMENT_QUERY_STOP_ANCHORS = {
+    "",
+    ".",
+    ",",
+    "?",
+    "!",
+    ":",
+    ";",
+    "(",
+    ")",
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "ask",
+    "about",
+    "does",
+    "do",
+    "document",
+    "find",
+    "for",
+    "from",
+    "give",
+    "in",
+    "is",
+    "me",
+    "mention",
+    "mentions",
+    "of",
+    "on",
+    "passage",
+    "passages",
+    "say",
+    "says",
+    "show",
+    "source",
+    "sources",
+    "tell",
+    "the",
+    "to",
+    "what",
+    "where",
+}
+
+
+def _document_focus_anchors(anchors: list[str]) -> list[str]:
+    focused = [
+        anchor for anchor in anchors
+        if str(anchor or "").strip().casefold() not in _DOCUMENT_QUERY_STOP_ANCHORS
+    ]
+    return focused or anchors
 
 
 def _human_join(values: list[str]) -> str:
