@@ -118,6 +118,7 @@ class LexiconStore:
         self.ingest_staging_manifest_path = self.ingest_staging_dir / "manifest.json"
         self.rejected_or_literal_clusters_path = self.rejected_or_literal_clusters_dir / "clusters.json"
         self._known_anchor_index: set[str] | None = None
+        self._canonical_anchor_index: set[str] | None = None
         self._known_anchor_spell_index: dict[tuple[str, tuple[bool, int], int], list[str]] | None = None
         self._spare_entries_cache: list[dict[str, Any]] | None = None
         self._spare_entries_cache_key: tuple[tuple[str, int | None, int | None], ...] | None = None
@@ -221,6 +222,7 @@ class LexiconStore:
 
     def _invalidate_known_anchor_index(self) -> None:
         self._known_anchor_index = None
+        self._canonical_anchor_index = None
         self._known_anchor_spell_index = None
 
     def _invalidate_spare_entries_cache(self) -> None:
@@ -448,6 +450,22 @@ class LexiconStore:
 
         self._known_anchor_index = known
         return known
+
+    def _canonical_anchors(self) -> set[str]:
+        if self._canonical_anchor_index is not None:
+            return self._canonical_anchor_index
+
+        canonical: set[str] = set()
+        for _, path in self._pack_paths("canonical"):
+            for entry in self._read_entries(path):
+                word = entry.get("word")
+                if isinstance(word, str) and word:
+                    normalized = self.normalize_anchor(word)
+                    if normalized:
+                        canonical.add(normalized)
+
+        self._canonical_anchor_index = canonical
+        return canonical
 
     def _known_anchor_spell_buckets(self) -> dict[tuple[str, tuple[bool, int], int], list[str]]:
         if self._known_anchor_spell_index is not None:
@@ -1237,6 +1255,26 @@ class LexiconStore:
         combined_observed = Counter(base_observed)
         combined_observed.update(user_observed)
         return combined_counter, combined_observed
+
+    def _canonical_lifetime_relation_rows(
+        self,
+        relation_rows: list[dict[str, Any]],
+        canonical_counts: Counter[str],
+    ) -> list[dict[str, Any]]:
+        canonical_anchors = set(canonical_counts)
+        out: list[dict[str, Any]] = []
+        for row in relation_rows:
+            if not isinstance(row, dict):
+                continue
+            anchor = row.get("anchor")
+            neighbor = row.get("neighbor")
+            observations = int(row.get("observations", 0) or 0)
+            if not isinstance(anchor, str) or not isinstance(neighbor, str) or observations <= 0:
+                continue
+            if anchor not in canonical_anchors or neighbor not in canonical_anchors:
+                continue
+            out.append(dict(row))
+        return out
 
     def _update_relation_counts_file(
         self,
@@ -2246,12 +2284,15 @@ class LexiconStore:
                 occurrence["line_end"] = locator["line_end"]
         null_index = self._null_occurrence_index(mapping["occurrences"])
         resolved_counts: Counter[str] = mapping["observed_counts"]
+        known_counts: Counter[str] = Counter({
+            anchor: count for anchor, count in observed_counts.items() if anchor in known_anchors
+        })
         temp_symbols_present = bool(temp_entries)
         source_local_only_present = temp_symbols_present or bool(companion_counts) or bool(null_anchor_set)
-        if source_local_only_present:
+        canonical_lifetime_rows = self._canonical_lifetime_relation_rows(mapping["co_occurrence_counts"], known_counts)
+        if temp_symbols_present:
             reasons: list[str] = []
-            if temp_symbols_present:
-                reasons.append("source_local_temp_symbols_present")
+            reasons.append("source_local_temp_symbols_present")
             if companion_counts:
                 reasons.append("companion_authority_anchors_present")
             if null_anchor_set:
@@ -2261,25 +2302,49 @@ class LexiconStore:
                 "count_paths": [],
                 "lifetime_write_skipped": True,
                 "reason": "+".join(reasons),
+                "canonical_lifetime_rows_available": len(canonical_lifetime_rows),
             }
         elif count_target == "base":
-            self._update_lifetime_relation_counts(
-                mapping["co_occurrence_counts"],
-                observed_counts=resolved_counts,
-            )
-            count_write = {
-                "count_target": "base",
-                "count_paths": [str(self.lifetime_counts_path)],
-                "lifetime_write_skipped": False,
-            }
+            reasons: list[str] = []
+            if companion_counts:
+                reasons.append("companion_authority_anchors_present_excluded")
+            if null_anchor_set:
+                reasons.append("null_symbol_anchors_excluded")
+            if not canonical_lifetime_rows:
+                reasons.append("no_canonical_relations")
+                count_write = {
+                    "count_target": "base",
+                    "count_paths": [],
+                    "lifetime_write_skipped": True,
+                    "lifetime_relation_rows_written": 0,
+                    "lifetime_anchor_observations_available": int(sum(known_counts.values())),
+                    "reason": "+".join(reasons),
+                }
+            else:
+                self._update_lifetime_relation_counts(
+                    canonical_lifetime_rows,
+                    observed_counts=known_counts,
+                )
+                count_write = {
+                    "count_target": "base",
+                    "count_paths": [str(self.lifetime_counts_path)],
+                    "lifetime_write_skipped": False,
+                    "lifetime_relation_rows_written": len(canonical_lifetime_rows),
+                    "lifetime_anchor_observations_written": int(sum(known_counts.values())),
+                    "reason": "+".join(reasons) if reasons else "canonical_lifetime_counts_written",
+                }
         elif count_target == "user_chat":
             user_write = self._update_user_chat_relation_counts(
-                mapping["co_occurrence_counts"],
-                observed_counts=resolved_counts,
+                canonical_lifetime_rows,
+                observed_counts=known_counts,
             )
             count_write = {
                 "count_target": "user_chat",
                 "count_paths": [user_write["user_counts_path"], user_write["chat_counts_path"]],
+                "lifetime_write_skipped": False,
+                "lifetime_relation_rows_written": len(canonical_lifetime_rows),
+                "lifetime_anchor_observations_written": int(sum(known_counts.values())),
+                "reason": "canonical_lifetime_counts_written",
                 **user_write,
             }
         else:
@@ -2295,10 +2360,6 @@ class LexiconStore:
             }
             for anchor, count in sorted(observed_counts.items(), key=lambda item: (-item[1], item[0]))
         ]
-
-        known_counts: Counter[str] = Counter({
-            anchor: count for anchor, count in observed_counts.items() if anchor in known_anchors
-        })
 
         temp_lexicon_path: Path | None = None
         source_local_preview_counts_path: Path | None = None

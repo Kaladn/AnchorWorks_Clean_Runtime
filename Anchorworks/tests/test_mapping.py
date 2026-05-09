@@ -1088,6 +1088,34 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(len(temp_payload["entries"][0]["symbol"]), 12)
             self.assertEqual(temp_payload["entries"][0]["lifetime_eligible"], False)
 
+    def test_structural_companion_anchors_do_not_block_canonical_lifetime_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "do", "status": "ASSIGNED"}])
+            for letter in "ABCEFGHIJKLMOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+
+            source_path = Path(temp_dir) / "sample.txt"
+            source_path.write_text("do mrow do.", encoding="utf-8")
+
+            store = LexiconStore(root)
+            result = store.build_observed_map(source_path)
+            lifetime = store._read_json(store.lifetime_counts_path, {})
+            relation_rows = lifetime.get("co_occurrence_counts") or []
+            observed_rows = lifetime.get("anchor_observation_counts") or []
+
+            self.assertEqual(result["missing_anchor_count"], 0)
+            self.assertEqual(result["temp_symbol_count"], 0)
+            self.assertEqual(result["companion_anchor_count"], 1)
+            self.assertEqual(result["count_write"]["lifetime_write_skipped"], False)
+            self.assertIn(str(store.lifetime_counts_path), result["count_paths"])
+            self.assertTrue(relation_rows)
+            self.assertTrue(any(row["anchor"] == "do" and row["neighbor"] == "do" for row in relation_rows))
+            self.assertFalse(any(row.get("anchor") == "mrow" or row.get("neighbor") == "mrow" for row in relation_rows))
+            self.assertEqual({row["anchor"]: row["observations"] for row in observed_rows}, {".": 1, "do": 2})
+
     def test_missing_anchor_registry_can_seed_review_queue_without_promoting_counts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
