@@ -391,6 +391,10 @@
                   <input id="chat-documents-toggle" type="checkbox" checked>
                   <span>Documents On</span>
                 </label>
+                <label class="chat-toggle-pill" title="Show or hide evidence details while preserving backend evidence metadata.">
+                  <input id="chat-evidence-toggle" type="checkbox" checked>
+                  <span>Evidence On</span>
+                </label>
                 <select id="chat-mode" class="form-control chat-mode-compact">
                   <option value="clearspeak">AnchorWorks Chat</option>
                   <option value="memory">Memory Log</option>
@@ -399,6 +403,7 @@
                 <input id="chat-branch" class="form-control chat-branch-compact" type="text" value="main" title="Branch">
                 <button class="mini-btn" id="chat-counts-quick-btn" type="button">Counts Only</button>
                 <button class="mini-btn" id="chat-docs-quick-btn" type="button">Docs + Counts</button>
+                <button class="mini-btn hot" id="chat-stop-btn" type="button" disabled>Stop Response</button>
                 <button class="action-btn primary" id="chat-send-btn-side" type="button">Send Message</button>
               </div>
               <input id="chat-model" class="form-control chat-model-compact" type="text" placeholder="Optional external model name for External API mode">

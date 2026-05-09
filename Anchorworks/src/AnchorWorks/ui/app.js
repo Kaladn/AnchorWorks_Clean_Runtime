@@ -9,6 +9,8 @@ const lexApp = {
   treeBrainControls: null,
   symbolPolicy: null,
   diagnosticsReport: null,
+  chatRequestController: null,
+  activeChatWorkflow: null,
   tracer: {
     sessionId: "",
     events: [],
@@ -33,6 +35,7 @@ const lexApp = {
   async boot() {
     this.cache();
     this.bind();
+    this.renderChatEvidenceToggleLabel();
     this.renderAlphaStrip();
     await this.loadHealth();
     await this.refreshStats();
@@ -135,6 +138,8 @@ const lexApp = {
       chatHistoryMeta: document.getElementById("chat-history-meta"),
       chatMode: document.getElementById("chat-mode"),
       chatDocumentsToggle: document.getElementById("chat-documents-toggle"),
+      chatEvidenceToggle: document.getElementById("chat-evidence-toggle"),
+      chatStopBtn: document.getElementById("chat-stop-btn"),
       chatCountsQuickBtn: document.getElementById("chat-counts-quick-btn"),
       chatDocsQuickBtn: document.getElementById("chat-docs-quick-btn"),
       chatModel: document.getElementById("chat-model"),
@@ -221,6 +226,8 @@ const lexApp = {
     this.els.flatDocAnchorizeAllBtn.addEventListener("click", () => this.anchorizeAllFlatDocuments());
     this.els.chatSendBtn.addEventListener("click", () => this.sendChatMessage());
     this.els.chatSendBtnSide.addEventListener("click", () => this.sendChatMessage());
+    this.els.chatStopBtn.addEventListener("click", () => this.stopChatResponse());
+    this.els.chatEvidenceToggle.addEventListener("change", () => this.renderChatEvidenceToggleLabel());
     this.els.chatCountsQuickBtn.addEventListener("click", () => this.setChatEvidenceMode(false));
     this.els.chatDocsQuickBtn.addEventListener("click", () => this.setChatEvidenceMode(true));
     this.els.chatPreviewFinalizeBtn.addEventListener("click", () => this.previewChatFinalize());
@@ -252,6 +259,7 @@ const lexApp = {
         this.sendChatMessage();
       }
     });
+    this.els.chatThread.addEventListener("click", (event) => this.handleWorkbenchActionClick(event));
     document.getElementById("detail-close").addEventListener("click", () => {
       this.els.detailCard.classList.remove("active");
     });
@@ -675,6 +683,15 @@ const lexApp = {
     this.els.chatInput.focus();
   },
 
+  renderChatEvidenceToggleLabel() {
+    if (!this.els.chatEvidenceToggle) return;
+    const label = this.els.chatEvidenceToggle.closest("label");
+    const span = label ? label.querySelector("span") : null;
+    if (span) {
+      span.textContent = this.els.chatEvidenceToggle.checked ? "Evidence On" : "Evidence Off";
+    }
+  },
+
   selectedChatMode() {
     const mode = String((this.els.chatMode && this.els.chatMode.value) || "clearspeak").toLowerCase();
     if (mode === "clearspeak" && this.els.chatDocumentsToggle && !this.els.chatDocumentsToggle.checked) {
@@ -974,6 +991,7 @@ const lexApp = {
     const citationHtml = citations.length
       ? `<div class="chat-citation-row">${citations.map((cite) => `<span class="chat-cite-pill">${this.escape(cite.coord || cite.cite_id || "cite")}</span>`).join("")}</div>`
       : "";
+    const workbenchHtml = sender === "assistant" ? this.renderWorkbenchActions(message.workbench || {}) : "";
     return `
       <article class="chat-message ${roleClass}">
         <div class="chat-message-head">
@@ -982,8 +1000,46 @@ const lexApp = {
         </div>
         <div class="chat-message-body">${this.escape(message.content || "")}</div>
         ${citationHtml}
+        ${workbenchHtml}
       </article>
     `;
+  },
+
+  renderWorkbenchActions(workbench) {
+    const actions = Array.isArray(workbench.actions) ? workbench.actions : [];
+    if (!actions.length) return "";
+    const workflow = workbench.workflow || {};
+    const workflowId = workflow.workflow_id || "";
+    const buttons = actions.map((action) => {
+      const id = action.id || "";
+      const label = action.label || id || "Action";
+      return `<button class="mini-btn chat-workbench-action" type="button" data-workflow-id="${this.escape(workflowId)}" data-action-id="${this.escape(id)}">${this.escape(label)}</button>`;
+    }).join("");
+    return `<div class="chat-workbench-actions">${buttons}</div>`;
+  },
+
+  handleWorkbenchActionClick(event) {
+    const button = event.target && event.target.closest ? event.target.closest(".chat-workbench-action") : null;
+    if (!button) return;
+    const actionId = button.dataset.actionId || "";
+    if (actionId === "show_evidence") {
+      this.els.chatEvidenceToggle.checked = true;
+      this.renderChatEvidenceToggleLabel();
+      this.setBanner("info", "Evidence details will be shown on the next response.");
+      return;
+    }
+    if (actionId === "hide_evidence") {
+      this.els.chatEvidenceToggle.checked = false;
+      this.renderChatEvidenceToggleLabel();
+      this.setBanner("info", "Evidence details will be hidden on the next response.");
+      return;
+    }
+    if (actionId === "continue_working") {
+      this.els.chatInput.focus();
+      this.setBanner("info", "Continue working selected. Ask the next step or run the next guided action.");
+      return;
+    }
+    this.setBanner("error", `Workbench action is not wired yet: ${actionId}`);
   },
 
   async sendChatMessage() {
@@ -996,14 +1052,18 @@ const lexApp = {
     const mode = this.selectedChatMode();
     const model = this.els.chatModel.value.trim();
     const branch = (this.els.chatBranch.value || "main").trim() || "main";
+    const evidenceVisible = this.els.chatEvidenceToggle ? Boolean(this.els.chatEvidenceToggle.checked) : true;
     this.traceEvent("chat.send.requested", {
       branch,
       mode,
       model,
       documents_on: Boolean(this.els.chatDocumentsToggle && this.els.chatDocumentsToggle.checked),
+      evidence_visible: evidenceVisible,
       message,
     });
     const buttons = [this.els.chatSendBtn, this.els.chatSendBtnSide];
+    this.chatRequestController = new AbortController();
+    this.els.chatStopBtn.disabled = false;
     buttons.forEach((button) => {
       button.disabled = true;
       button.dataset.originalText = button.textContent;
@@ -1012,8 +1072,10 @@ const lexApp = {
     try {
       const data = await this.api("/api/chat/send", {
         method: "POST",
-        body: JSON.stringify({ message, mode, branch, model }),
+        signal: this.chatRequestController.signal,
+        body: JSON.stringify({ message, mode, branch, model, evidence_visible: evidenceVisible }),
       });
+      this.activeChatWorkflow = data.workflow || null;
       this.traceEvent("chat.send.completed", {
         branch,
         requested_mode: mode,
@@ -1024,12 +1086,39 @@ const lexApp = {
       await this.refreshChatMemory();
       this.setBanner("success", `${data.mode || mode} response saved to chat memory.`);
     } catch (error) {
-      this.setBanner("error", `Chat send failed: ${error.message}`);
+      if (error.name === "AbortError") {
+        this.setBanner("warn", "Chat response stopped before completion.");
+      } else {
+        this.setBanner("error", `Chat send failed: ${error.message}`);
+      }
     } finally {
+      this.chatRequestController = null;
+      this.els.chatStopBtn.disabled = true;
       buttons.forEach((button) => {
         button.disabled = false;
         button.textContent = button.dataset.originalText || "Send";
       });
+    }
+  },
+
+  async stopChatResponse() {
+    const workflow = this.activeChatWorkflow || {};
+    if (this.chatRequestController) {
+      this.chatRequestController.abort();
+    }
+    try {
+      const result = await this.api("/api/chat/stop", {
+        method: "POST",
+        body: JSON.stringify({
+          workflow_id: workflow.workflow_id || "",
+          response_id: workflow.response_id || "",
+        }),
+      });
+      this.traceEvent("chat.stop.completed", result);
+    } catch (error) {
+      this.traceEvent("chat.stop.failed", { error: error.message });
+    } finally {
+      this.els.chatStopBtn.disabled = true;
     }
   },
 

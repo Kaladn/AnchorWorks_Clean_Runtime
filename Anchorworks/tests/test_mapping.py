@@ -847,6 +847,62 @@ class MappingTests(unittest.TestCase):
             self.assertNotIn("Chat memory received", result.response)
             self.assertEqual(assistant["model_identity"]["evidence_mode"], "counts")
 
+    def test_chat_send_returns_workbench_metadata_and_actions(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_S.json", [{"word": "stop", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_N.json", [{"word": "not", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [])
+            store = LexiconStore(root)
+            store._update_lifetime_relation_counts(
+                [{"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 4}],
+                observed_counts=Counter({"stop": 1, "not": 1}),
+            )
+            app = create_app(root)
+            route = next(route for route in app.routes if getattr(route, "path", "") == "/api/chat/send")
+
+            result = route.endpoint(ChatSendBody(
+                message="stop",
+                mode="counts",
+                branch="main",
+                evidence_visible=False,
+            ))
+
+            self.assertFalse(result["evidence_visible"])
+            self.assertFalse(result["writes_performed"])
+            self.assertEqual(result["workflow"]["step_id"], "answer_rendered")
+            action_ids = {action["id"] for action in result["actions"]}
+            self.assertIn("continue_working", action_ids)
+            self.assertIn("show_evidence", action_ids)
+            self.assertNotIn("hide_evidence", action_ids)
+            assistant = result["assistant_message"]
+            self.assertFalse(assistant["model_identity"]["evidence_visible"])
+            self.assertEqual(assistant["workbench"]["workflow"]["workflow_id"], result["workflow"]["workflow_id"])
+
+    def test_chat_stop_route_marks_response_interrupted_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            app = create_app(Path(temp_dir) / "Lexical Data")
+            route = next(route for route in app.routes if getattr(route, "path", "") == "/api/chat/stop")
+
+            result = route.endpoint({"workflow_id": "chat_123", "response_id": "resp_123"})
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["status"], "interrupted")
+            self.assertFalse(result["writes_performed"])
+
+    def test_chat_ui_exposes_workbench_controls(self) -> None:
+        ui_root = Path(__file__).resolve().parents[1] / "src" / "AnchorWorks" / "ui"
+        index_html = (ui_root / "index.html").read_text(encoding="utf-8")
+        app_js = (ui_root / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn('id="chat-evidence-toggle"', index_html)
+        self.assertIn('id="chat-stop-btn"', index_html)
+        self.assertIn("renderWorkbenchActions", app_js)
+        self.assertIn("/api/chat/stop", app_js)
+
     def test_intake_edit_route_rewrites_anchor_spans_and_refreshes_preview(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
@@ -887,6 +943,7 @@ class MappingTests(unittest.TestCase):
                 "/api/lexicon/missing-anchor-review",
                 "/api/lexicon/missing-anchor-review/sync",
                 "/api/lexicon/missing-anchor-review/classify",
+                "/api/chat/stop",
             }:
                 self.assertIn(expected, paths)
 

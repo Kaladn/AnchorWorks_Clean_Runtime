@@ -106,6 +106,12 @@ class ChatSendBody(BaseModel):
     mode: str = "clearspeak"
     branch: str = "main"
     model: str = ""
+    evidence_visible: bool = True
+
+
+class ChatStopBody(BaseModel):
+    workflow_id: str = ""
+    response_id: str = ""
 
 
 class ChatArchiveImportBody(BaseModel):
@@ -364,9 +370,31 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.post("/api/chat/send")
     def chat_send(body: ChatSendBody) -> dict[str, Any]:
         try:
-            return chat_memory.send(body.message, mode=body.mode, branch=body.branch, model=body.model).to_dict()
+            return chat_memory.send(
+                body.message,
+                mode=body.mode,
+                branch=body.branch,
+                model=body.model,
+                evidence_visible=body.evidence_visible,
+            ).to_dict()
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/chat/stop")
+    def chat_stop(body: ChatStopBody | dict[str, Any]) -> dict[str, Any]:
+        if isinstance(body, dict):
+            workflow_id = str(body.get("workflow_id") or "")
+            response_id = str(body.get("response_id") or "")
+        else:
+            workflow_id = body.workflow_id
+            response_id = body.response_id
+        return {
+            "ok": True,
+            "workflow_id": workflow_id,
+            "response_id": response_id,
+            "status": "interrupted",
+            "writes_performed": False,
+        }
 
     @app.post("/api/chat/archive/import")
     def chat_archive_import(body: ChatArchiveImportBody) -> dict[str, Any]:

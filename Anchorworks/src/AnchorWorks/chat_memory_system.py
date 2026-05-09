@@ -22,6 +22,10 @@ class ChatSendResult:
     user_message: dict[str, Any]
     assistant_message: dict[str, Any]
     response: str
+    evidence_visible: bool = True
+    workflow: dict[str, Any] | None = None
+    actions: list[dict[str, Any]] | None = None
+    writes_performed: bool = False
     clearspeak: dict[str, Any] | None = None
     memory_context: dict[str, Any] | None = None
     model_api: dict[str, Any] | None = None
@@ -136,7 +140,14 @@ class ChatMemorySystem:
         result["chat_ingest_source_name"] = source_name
         return result
 
-    def send(self, message: str, mode: str = "clearspeak", branch: str = "main", model: str = "") -> ChatSendResult:
+    def send(
+        self,
+        message: str,
+        mode: str = "clearspeak",
+        branch: str = "main",
+        model: str = "",
+        evidence_visible: bool = True,
+    ) -> ChatSendResult:
         clean_message = str(message or "").strip()
         if not clean_message:
             raise ValueError("message required")
@@ -239,6 +250,15 @@ class ChatMemorySystem:
             engine = "chat_memory"
             provider = "anchorworks"
 
+        workflow = _workbench_workflow()
+        actions = _workbench_actions(evidence_visible=bool(evidence_visible))
+        workbench = {
+            "schema_version": "anchorworks_chat_workbench@1",
+            "evidence_visible": bool(evidence_visible),
+            "workflow": workflow,
+            "actions": actions,
+            "writes_performed": False,
+        }
         assistant_message = self.log_message(
             sender="assistant",
             content=response,
@@ -251,7 +271,10 @@ class ChatMemorySystem:
                 "engine": engine,
                 "evidence_mode": str((clearspeak_payload or {}).get("evidence_mode") or ("counts" if "count" in engine else "")),
                 "evidence_engine": str((clearspeak_payload or {}).get("engine") or engine),
+                "evidence_visible": bool(evidence_visible),
+                "writes_performed": False,
             },
+            workbench=workbench,
         )
 
         for citation in citations:
@@ -272,6 +295,10 @@ class ChatMemorySystem:
             user_message=user_message,
             assistant_message=assistant_message,
             response=response,
+            evidence_visible=bool(evidence_visible),
+            workflow=workflow,
+            actions=actions,
+            writes_performed=False,
             clearspeak=clearspeak_payload,
             memory_context=memory_context,
             model_api=model_api_payload,
@@ -358,6 +385,7 @@ class ChatMemorySystem:
         seat: str = "",
         kind: str = "CHAT",
         model_identity: dict[str, Any] | None = None,
+        workbench: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         day = _today()
         path = self._day_path(day)
@@ -382,6 +410,8 @@ class ChatMemorySystem:
         }
         if model_identity:
             record["model_identity"] = model_identity
+        if workbench:
+            record["workbench"] = workbench
         record["hash"] = _short_hash(record)
         record["integrity_hash"] = _full_hash(record)
         self._append_jsonl(path, record)
@@ -654,6 +684,34 @@ def _recent_days(days: int) -> list[str]:
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _workbench_workflow() -> dict[str, Any]:
+    return {
+        "workflow_id": f"chat_{uuid4().hex[:16]}",
+        "step_id": "answer_rendered",
+        "status": "awaiting_next_action",
+    }
+
+
+def _workbench_actions(*, evidence_visible: bool) -> list[dict[str, Any]]:
+    evidence_action = {
+        "id": "hide_evidence" if evidence_visible else "show_evidence",
+        "label": "Hide Evidence" if evidence_visible else "Show Evidence",
+        "kind": "toggle_evidence",
+        "payload": {"evidence_visible": not evidence_visible},
+        "requires_confirmation": False,
+    }
+    return [
+        evidence_action,
+        {
+            "id": "continue_working",
+            "label": "Continue Working",
+            "kind": "continue_workflow",
+            "payload": {},
+            "requires_confirmation": False,
+        },
+    ]
 
 
 def _safe_name(value: str) -> str:
