@@ -1,0 +1,28 @@
+[
+  {
+    "binary": "1001101001000110011101110011100001100000",
+    "hex": "0x9A46773860",
+    "font_symbol": "CHAR_1001101001",
+    "tone_signature": "TONE_2020",
+    "status": "ASSIGNED",
+    "word": "σ's",
+    "display": "σ's",
+    "symbol": "0x9A46773860",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "0001111010000000011101110011001000110111",
+    "hex": "0x1E80773237",
+    "font_symbol": "CHAR_0001111010",
+    "tone_signature": "TONE_14267",
+    "status": "ASSIGNED",
+    "word": "σresidual",
+    "display": "σresidual",
+    "symbol": "0x1E80773237",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  }
+]

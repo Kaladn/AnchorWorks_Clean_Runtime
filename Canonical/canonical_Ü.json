@@ -1,0 +1,28 @@
+[
+  {
+    "binary": "1010100101011011100010001100010110110000",
+    "hex": "0xA95B88C5B0",
+    "font_symbol": "CHAR_1010100101",
+    "tone_signature": "TONE_3284",
+    "status": "ASSIGNED",
+    "word": "über",
+    "display": "über",
+    "symbol": "0xA95B88C5B0",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "1011111010100100011101110011001111000011",
+    "hex": "0xBEA47733C3",
+    "font_symbol": "CHAR_1011111010",
+    "tone_signature": "TONE_1799",
+    "status": "ASSIGNED",
+    "word": "übergang",
+    "display": "übergang",
+    "symbol": "0xBEA47733C3",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  }
+]

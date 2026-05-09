@@ -202,6 +202,19 @@
     "symbol": "0x0C2B29D160"
   },
   {
+    "binary": "1011111110010001011111101010100111110011",
+    "hex": "0xBF917EA9F3",
+    "font_symbol": "CHAR_1011111110",
+    "tone_signature": "TONE_10999",
+    "status": "ASSIGNED",
+    "word": "qadesh",
+    "display": "qadesh",
+    "symbol": "0xBF917EA9F3",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 11
+  },
+  {
     "binary": "0000010000001001000111000011111100111010",
     "hex": "0x04091C3F3A",
     "font_symbol": "CHAR_0000010000",
@@ -224,6 +237,19 @@
     "symbol": "0x08F2F5D15B"
   },
   {
+    "binary": "1111110000011000011110011110000000100011",
+    "hex": "0xFC1879E023",
+    "font_symbol": "CHAR_1111110000",
+    "tone_signature": "TONE_19111",
+    "status": "ASSIGNED",
+    "word": "qadir",
+    "display": "qadir",
+    "symbol": "0xFC1879E023",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000010011000001100011101101001011101000",
     "hex": "0x04C18ED2E8",
     "font_symbol": "CHAR_0000010011",
@@ -235,6 +261,123 @@
     "symbol": "0x04C18ED2E8"
   },
   {
+    "binary": "0001001011110011011111101010111000111010",
+    "hex": "0x12F37EAE3A",
+    "font_symbol": "CHAR_0001001011",
+    "tone_signature": "TONE_17054",
+    "status": "ASSIGNED",
+    "word": "qadisiyya",
+    "display": "qadisiyya",
+    "symbol": "0x12F37EAE3A",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1101011111010011011111101010100010110000",
+    "hex": "0xD7D37EA8B0",
+    "font_symbol": "CHAR_1101011111",
+    "tone_signature": "TONE_2036",
+    "status": "ASSIGNED",
+    "word": "qaeda",
+    "display": "qaeda",
+    "symbol": "0xD7D37EA8B0",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 23
+  },
+  {
+    "binary": "0100011000011011100010000101101110011100",
+    "hex": "0x461B885B9C",
+    "font_symbol": "CHAR_0100011000",
+    "tone_signature": "TONE_12000",
+    "status": "ASSIGNED",
+    "word": "qaeda's",
+    "display": "qaeda's",
+    "symbol": "0x461B885B9C",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1110111011000100100000010100111001010011",
+    "hex": "0xEEC4814E53",
+    "font_symbol": "CHAR_1110111011",
+    "tone_signature": "TONE_5079",
+    "status": "ASSIGNED",
+    "word": "qalansuwa",
+    "display": "qalansuwa",
+    "symbol": "0xEEC4814E53",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0101101111100111011111101010101110000101",
+    "hex": "0x5BE77EAB85",
+    "font_symbol": "CHAR_0101101111",
+    "tone_signature": "TONE_2377",
+    "status": "ASSIGNED",
+    "word": "qanat",
+    "display": "qanat",
+    "symbol": "0x5BE77EAB85",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "0001100001100111011111101010110000011111",
+    "hex": "0x18677EAC1F",
+    "font_symbol": "CHAR_0001100001",
+    "tone_signature": "TONE_10051",
+    "status": "ASSIGNED",
+    "word": "qanats",
+    "display": "qanats",
+    "symbol": "0x18677EAC1F",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "1011010000010011011111101010111001101111",
+    "hex": "0xB4137EAE6F",
+    "font_symbol": "CHAR_1011010000",
+    "tone_signature": "TONE_2675",
+    "status": "ASSIGNED",
+    "word": "qanda",
+    "display": "qanda",
+    "symbol": "0xB4137EAE6F",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1010011001110110100000010101001010001110",
+    "hex": "0xA67681528E",
+    "font_symbol": "CHAR_1010011001",
+    "tone_signature": "TONE_18002",
+    "status": "ASSIGNED",
+    "word": "qanon",
+    "display": "qanon",
+    "symbol": "0xA67681528E",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
+    "binary": "0011100011101011011111101010110000110011",
+    "hex": "0x38EB7EAC33",
+    "font_symbol": "CHAR_0011100011",
+    "tone_signature": "TONE_16055",
+    "status": "ASSIGNED",
+    "word": "qansuh",
+    "display": "qansuh",
+    "symbol": "0x38EB7EAC33",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
     "binary": "1000001101011011011011101110011110101011",
     "hex": "0x835B6EE7AB",
     "font_symbol": "CHAR_1000001101",
@@ -244,6 +387,45 @@
     "display": "qantas",
     "symbol": "0x835B6EE7AB",
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1001000001011000100000010100111000000101",
+    "hex": "0x9058814E05",
+    "font_symbol": "CHAR_1001000001",
+    "tone_signature": "TONE_19849",
+    "status": "ASSIGNED",
+    "word": "qara",
+    "display": "qara",
+    "symbol": "0x9058814E05",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0110111001011001011111101011001000100101",
+    "hex": "0x6E597EB225",
+    "font_symbol": "CHAR_0110111001",
+    "tone_signature": "TONE_18025",
+    "status": "ASSIGNED",
+    "word": "qarqisiya",
+    "display": "qarqisiya",
+    "symbol": "0x6E597EB225",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0000110001011100100000010100110111000001",
+    "hex": "0x0C5C814DC1",
+    "font_symbol": "CHAR_0000110001",
+    "tone_signature": "TONE_5573",
+    "status": "ASSIGNED",
+    "word": "qaryat",
+    "display": "qaryat",
+    "symbol": "0x0C5C814DC1",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
     "pack": "canonical",
     "frequency": 1
   },
@@ -268,6 +450,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x04A13AC03C"
+  },
+  {
+    "binary": "1001010000110010100000010100110011111010",
+    "hex": "0x9432814CFA",
+    "font_symbol": "CHAR_1001010000",
+    "tone_signature": "TONE_14558",
+    "status": "ASSIGNED",
+    "word": "qataban",
+    "display": "qataban",
+    "symbol": "0x9432814CFA",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "1001101111111101010110011010100011011110",
@@ -360,6 +555,32 @@
     "symbol": "0x08F47F17F5"
   },
   {
+    "binary": "0101001000111000100000010101000101111110",
+    "hex": "0x523881517E",
+    "font_symbol": "CHAR_0101001000",
+    "tone_signature": "TONE_17474",
+    "status": "ASSIGNED",
+    "word": "qatif",
+    "display": "qatif",
+    "symbol": "0x523881517E",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1010001000110100100000010100110011101001",
+    "hex": "0xA234814CE9",
+    "font_symbol": "CHAR_1010001000",
+    "tone_signature": "TONE_11117",
+    "status": "ASSIGNED",
+    "word": "qatna",
+    "display": "qatna",
+    "symbol": "0xA234814CE9",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000010011111110110000100111000101111001",
     "hex": "0x04FEC27179",
     "font_symbol": "CHAR_0000010011",
@@ -369,6 +590,32 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x04FEC27179"
+  },
+  {
+    "binary": "0010100100011110100000010101000100110101",
+    "hex": "0x291E815135",
+    "font_symbol": "CHAR_0010100100",
+    "tone_signature": "TONE_10649",
+    "status": "ASSIGNED",
+    "word": "qazvin",
+    "display": "qazvin",
+    "symbol": "0x291E815135",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1110010011101010011110011110000000011101",
+    "hex": "0xE4EA79E01D",
+    "font_symbol": "CHAR_1110010011",
+    "tone_signature": "TONE_19361",
+    "status": "ASSIGNED",
+    "word": "qcc",
+    "display": "qcc",
+    "symbol": "0xE4EA79E01D",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000000000100000101001000010110100001101",
@@ -402,6 +649,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x04C23EB720"
+  },
+  {
+    "binary": "1011111011101111011111101010100010100010",
+    "hex": "0xBEEF7EA8A2",
+    "font_symbol": "CHAR_1011111011",
+    "tone_signature": "TONE_1670",
+    "status": "ASSIGNED",
+    "word": "qe",
+    "display": "qe",
+    "symbol": "0xBEEF7EA8A2",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 24
   },
   {
     "binary": "0000000010000110010110100000101001100001",
@@ -483,6 +743,45 @@
     "frequency": 1
   },
   {
+    "binary": "1011111101101001100001100001111111110011",
+    "hex": "0xBF69861FF3",
+    "font_symbol": "CHAR_1011111101",
+    "tone_signature": "TONE_11319",
+    "status": "ASSIGNED",
+    "word": "qeys",
+    "display": "qeys",
+    "symbol": "0xBF69861FF3",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1111110010000101100001100010000000001100",
+    "hex": "0xFC8586200C",
+    "font_symbol": "CHAR_1111110010",
+    "tone_signature": "TONE_18448",
+    "status": "ASSIGNED",
+    "word": "qfd",
+    "display": "qfd",
+    "symbol": "0xFC8586200C",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 5
+  },
+  {
+    "binary": "1100111000010010100000010101000100101001",
+    "hex": "0xCE12815129",
+    "font_symbol": "CHAR_1100111000",
+    "tone_signature": "TONE_7885",
+    "status": "ASSIGNED",
+    "word": "qhapaq",
+    "display": "qhapaq",
+    "symbol": "0xCE12815129",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0000000011101111000011001001100100110000",
     "hex": "0x00EF0C9930",
     "font_symbol": "CHAR_0000000011",
@@ -503,6 +802,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x04E4C43284"
+  },
+  {
+    "binary": "0100101001101000100000010101010010010101",
+    "hex": "0x4A68815495",
+    "font_symbol": "CHAR_0100101001",
+    "tone_signature": "TONE_6265",
+    "status": "ASSIGNED",
+    "word": "qian",
+    "display": "qian",
+    "symbol": "0x4A68815495",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 5
   },
   {
     "binary": "0000010000111101110111011100000101001011",
@@ -569,6 +881,45 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x08F06F4000"
+  },
+  {
+    "binary": "1011111010000110100000010101010111010101",
+    "hex": "0xBE868155D5",
+    "font_symbol": "CHAR_1011111010",
+    "tone_signature": "TONE_9401",
+    "status": "ASSIGNED",
+    "word": "qianlong",
+    "display": "qianlong",
+    "symbol": "0xBE868155D5",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 10
+  },
+  {
+    "binary": "0101111000111000011101111010010000100010",
+    "hex": "0x5E3877A422",
+    "font_symbol": "CHAR_0101111000",
+    "tone_signature": "TONE_10822",
+    "status": "ASSIGNED",
+    "word": "qianlong's",
+    "display": "qianlong's",
+    "symbol": "0x5E3877A422",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0110111101000101011111101011001101001000",
+    "hex": "0x6F457EB348",
+    "font_symbol": "CHAR_0110111101",
+    "tone_signature": "TONE_1292",
+    "status": "ASSIGNED",
+    "word": "qiao",
+    "display": "qiao",
+    "symbol": "0x6F457EB348",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000010000100010110111000010000011101001",
@@ -681,6 +1032,32 @@
     "symbol": "0x08CC0B563D"
   },
   {
+    "binary": "0111111110010001011111101010101010001111",
+    "hex": "0x7F917EAA8F",
+    "font_symbol": "CHAR_0111111110",
+    "tone_signature": "TONE_4211",
+    "status": "ASSIGNED",
+    "word": "qingdao",
+    "display": "qingdao",
+    "symbol": "0x7F917EAA8F",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 6
+  },
+  {
+    "binary": "1000001011011110100000010101001001010001",
+    "hex": "0x82DE815251",
+    "font_symbol": "CHAR_1000001011",
+    "tone_signature": "TONE_5749",
+    "status": "ASSIGNED",
+    "word": "qingming",
+    "display": "qingming",
+    "symbol": "0x82DE815251",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
     "binary": "0000010010001101001110000000011110001110",
     "hex": "0x048D38078E",
     "font_symbol": "CHAR_0000010010",
@@ -736,6 +1113,32 @@
     "symbol": "0x08FB01EA52"
   },
   {
+    "binary": "1011101001110000100000010101001110001101",
+    "hex": "0xBA7081538D",
+    "font_symbol": "CHAR_1011101001",
+    "tone_signature": "TONE_881",
+    "status": "ASSIGNED",
+    "word": "qinzong",
+    "display": "qinzong",
+    "symbol": "0xBA7081538D",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "1100111000111111100010000101101111101101",
+    "hex": "0xCE3F885BED",
+    "font_symbol": "CHAR_1100111000",
+    "tone_signature": "TONE_4113",
+    "status": "ASSIGNED",
+    "word": "qinzong's",
+    "display": "qinzong's",
+    "symbol": "0xCE3F885BED",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000000011111100111100011110011000111101",
     "hex": "0x00FCF1E63D",
     "font_symbol": "CHAR_0000000011",
@@ -745,6 +1148,58 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x00FCF1E63D"
+  },
+  {
+    "binary": "1110101100101100100000010101000100010100",
+    "hex": "0xEB2C815114",
+    "font_symbol": "CHAR_1110101100",
+    "tone_signature": "TONE_7064",
+    "status": "ASSIGNED",
+    "word": "qiuci",
+    "display": "qiuci",
+    "symbol": "0xEB2C815114",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1010101110100010100000010100110001111001",
+    "hex": "0xABA2814C79",
+    "font_symbol": "CHAR_1010101110",
+    "tone_signature": "TONE_10429",
+    "status": "ASSIGNED",
+    "word": "qizil",
+    "display": "qizil",
+    "symbol": "0xABA2814C79",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0110000101111110100000010101011001000100",
+    "hex": "0x617E815644",
+    "font_symbol": "CHAR_0110000101",
+    "tone_signature": "TONE_13256",
+    "status": "ASSIGNED",
+    "word": "qizilbash",
+    "display": "qizilbash",
+    "symbol": "0x617E815644",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 12
+  },
+  {
+    "binary": "0110000100001100011110011101111111110100",
+    "hex": "0x610C79DFF4",
+    "font_symbol": "CHAR_0110000100",
+    "tone_signature": "TONE_1592",
+    "status": "ASSIGNED",
+    "word": "qjm",
+    "display": "qjm",
+    "symbol": "0x610C79DFF4",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "1011100001100101011001010000010100001101",
@@ -758,6 +1213,58 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 2
+  },
+  {
+    "binary": "0010101111110101100001100010000001100110",
+    "hex": "0x2BF5862066",
+    "font_symbol": "CHAR_0010101111",
+    "tone_signature": "TONE_1866",
+    "status": "ASSIGNED",
+    "word": "qnd",
+    "display": "qnd",
+    "symbol": "0x2BF5862066",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0001000101111111011111101011001110100001",
+    "hex": "0x117F7EB3A1",
+    "font_symbol": "CHAR_0001000101",
+    "tone_signature": "TONE_14085",
+    "status": "ASSIGNED",
+    "word": "qnumbers",
+    "display": "qnumbers",
+    "symbol": "0x117F7EB3A1",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0100111011000001011111101010110010100001",
+    "hex": "0x4EC17EACA1",
+    "font_symbol": "CHAR_0100111011",
+    "tone_signature": "TONE_13605",
+    "status": "ASSIGNED",
+    "word": "qo",
+    "display": "qo",
+    "symbol": "0x4EC17EACA1",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "0111011000010001011111101011001111001001",
+    "hex": "0x76117EB3C9",
+    "font_symbol": "CHAR_0111011000",
+    "tone_signature": "TONE_17261",
+    "status": "ASSIGNED",
+    "word": "qom",
+    "display": "qom",
+    "symbol": "0x76117EB3C9",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "1011100111111101011011101110100001000110",
@@ -832,6 +1339,19 @@
     "frequency": 1
   },
   {
+    "binary": "1100110011100001011111101011001111101111",
+    "hex": "0xCCE17EB3EF",
+    "font_symbol": "CHAR_1100110011",
+    "tone_signature": "TONE_5683",
+    "status": "ASSIGNED",
+    "word": "qorqonaq",
+    "display": "qorqonaq",
+    "symbol": "0xCCE17EB3EF",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1110001010100010101001011100000011011010",
     "hex": "0xE2A2A5C0DA",
     "font_symbol": "CHAR_1110001010",
@@ -858,6 +1378,45 @@
     "frequency": 3
   },
   {
+    "binary": "1101011001011000011110011101111110000001",
+    "hex": "0xD65879DF81",
+    "font_symbol": "CHAR_1101011001",
+    "tone_signature": "TONE_3525",
+    "status": "ASSIGNED",
+    "word": "qso",
+    "display": "qso",
+    "symbol": "0xD65879DF81",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1110001101100110100000010100101111111000",
+    "hex": "0xE366814BF8",
+    "font_symbol": "CHAR_1110001101",
+    "tone_signature": "TONE_5916",
+    "status": "ASSIGNED",
+    "word": "qsocial",
+    "display": "qsocial",
+    "symbol": "0xE366814BF8",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0011110111011000100000010101001001010001",
+    "hex": "0x3DD8815251",
+    "font_symbol": "CHAR_0011110111",
+    "tone_signature": "TONE_19029",
+    "status": "ASSIGNED",
+    "word": "qsos",
+    "display": "qsos",
+    "symbol": "0x3DD8815251",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
     "binary": "0110110011100011011011101110100010001110",
     "hex": "0x6CE36EE88E",
     "font_symbol": "CHAR_0110110011",
@@ -871,6 +1430,19 @@
     "frequency": 1
   },
   {
+    "binary": "1111001000110111100001100010000010010101",
+    "hex": "0xF237862095",
+    "font_symbol": "CHAR_1111001000",
+    "tone_signature": "TONE_2777",
+    "status": "ASSIGNED",
+    "word": "qtd",
+    "display": "qtd",
+    "symbol": "0xF237862095",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
     "binary": "1111011100100011011011101110100010010011",
     "hex": "0xF7236EE893",
     "font_symbol": "CHAR_1111011100",
@@ -882,6 +1454,32 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 1
+  },
+  {
+    "binary": "0000100000101100011110011101111101001000",
+    "hex": "0x082C79DF48",
+    "font_symbol": "CHAR_0000100000",
+    "tone_signature": "TONE_2988",
+    "status": "ASSIGNED",
+    "word": "qts",
+    "display": "qts",
+    "symbol": "0x082C79DF48",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0001001111101110100000010101010011111010",
+    "hex": "0x13EE8154FA",
+    "font_symbol": "CHAR_0001001111",
+    "tone_signature": "TONE_12030",
+    "status": "ASSIGNED",
+    "word": "qty",
+    "display": "qty",
+    "symbol": "0x13EE8154FA",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 6
   },
   {
     "binary": "1111011010011100100110101111101010110000",
@@ -1009,6 +1607,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x0CADBD1A4F"
+  },
+  {
+    "binary": "1111110000101001100001100010000011110111",
+    "hex": "0xFC298620F7",
+    "font_symbol": "CHAR_1111110000",
+    "tone_signature": "TONE_14811",
+    "status": "ASSIGNED",
+    "word": "quackers",
+    "display": "quackers",
+    "symbol": "0xFC298620F7",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 2
   },
   {
     "binary": "0000110000010010101000100001011010110011",
@@ -1143,6 +1754,32 @@
     "symbol": "0x089866D285"
   },
   {
+    "binary": "0111001100100100100000010100101111101001",
+    "hex": "0x7324814BE9",
+    "font_symbol": "CHAR_0111001100",
+    "tone_signature": "TONE_12493",
+    "status": "ASSIGNED",
+    "word": "quadell",
+    "display": "quadell",
+    "symbol": "0x7324814BE9",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1011001010101111011111101010111011111011",
+    "hex": "0xB2AF7EAEFB",
+    "font_symbol": "CHAR_1011001010",
+    "tone_signature": "TONE_13919",
+    "status": "ASSIGNED",
+    "word": "quadfuncrev",
+    "display": "quadfuncrev",
+    "symbol": "0xB2AF7EAEFB",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0001000010010001010000001010001011010001",
     "hex": "0x109140A2D1",
     "font_symbol": "CHAR_0001000010",
@@ -1275,6 +1912,19 @@
     "symbol": "0x0CBC87A755"
   },
   {
+    "binary": "0111100011110011011111101010101001100111",
+    "hex": "0x78F37EAA67",
+    "font_symbol": "CHAR_0111100011",
+    "tone_signature": "TONE_267",
+    "status": "ASSIGNED",
+    "word": "quadrantal",
+    "display": "quadrantal",
+    "symbol": "0x78F37EAA67",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 10
+  },
+  {
     "binary": "0001000000101111101100110101010010011111",
     "hex": "0x102FB3549F",
     "font_symbol": "CHAR_0001000000",
@@ -1306,6 +1956,32 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x1408BE3659"
+  },
+  {
+    "binary": "1011100001011001011111101010111100011100",
+    "hex": "0xB8597EAF1C",
+    "font_symbol": "CHAR_1011100001",
+    "tone_signature": "TONE_17152",
+    "status": "ASSIGNED",
+    "word": "quadrantid",
+    "display": "quadrantid",
+    "symbol": "0xB8597EAF1C",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "0110110010011100100000010101000011100010",
+    "hex": "0x6C9C8150E2",
+    "font_symbol": "CHAR_0110110010",
+    "tone_signature": "TONE_8614",
+    "status": "ASSIGNED",
+    "word": "quadrantral",
+    "display": "quadrantral",
+    "symbol": "0x6C9C8150E2",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
   },
   {
     "binary": "0000110011100000000100000110010101000100",
@@ -1453,6 +2129,19 @@
     "symbol": "0x146059F274"
   },
   {
+    "binary": "1000111111011011011111101010100100000101",
+    "hex": "0x8FDB7EA905",
+    "font_symbol": "CHAR_1000111111",
+    "tone_signature": "TONE_14537",
+    "status": "ASSIGNED",
+    "word": "quadrat",
+    "display": "quadrat",
+    "symbol": "0x8FDB7EA905",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 23
+  },
+  {
     "binary": "0000110001000101100000000100000001000001",
     "hex": "0x0C45804041",
     "font_symbol": "CHAR_0000110001",
@@ -1585,6 +2274,19 @@
     "symbol": "0x106AA3E0CC"
   },
   {
+    "binary": "0110100101100011100001100010000100011000",
+    "hex": "0x6963862118",
+    "font_symbol": "CHAR_0110100101",
+    "tone_signature": "TONE_860",
+    "status": "ASSIGNED",
+    "word": "quadrats",
+    "display": "quadrats",
+    "symbol": "0x6963862118",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0000110001111010110011000001101000100100",
     "hex": "0x0C7ACC1A24",
     "font_symbol": "CHAR_0000110001",
@@ -1618,6 +2320,19 @@
     "symbol": "0x100BD7F5AD"
   },
   {
+    "binary": "1001001101001101100001100010000101100001",
+    "hex": "0x934D862161",
+    "font_symbol": "CHAR_1001001101",
+    "tone_signature": "TONE_8613",
+    "status": "ASSIGNED",
+    "word": "quadratus",
+    "display": "quadratus",
+    "symbol": "0x934D862161",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0001000001011110110000000110101000100000",
     "hex": "0x105EC06A20",
     "font_symbol": "CHAR_0001000001",
@@ -1649,6 +2364,32 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x10112C15DB"
+  },
+  {
+    "binary": "0100100100000110100000010100101111010100",
+    "hex": "0x4906814BD4",
+    "font_symbol": "CHAR_0100100100",
+    "tone_signature": "TONE_9560",
+    "status": "ASSIGNED",
+    "word": "quadreqfactor",
+    "display": "quadreqfactor",
+    "symbol": "0x4906814BD4",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0001110000000101011111101011010010101110",
+    "hex": "0x1C057EB4AE",
+    "font_symbol": "CHAR_0001110000",
+    "tone_signature": "TONE_14258",
+    "status": "ASSIGNED",
+    "word": "quadrformrat",
+    "display": "quadrformrat",
+    "symbol": "0x1C057EB4AE",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000100000011000010111101010001001000001",
@@ -1891,6 +2632,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x10058DE3B5"
+  },
+  {
+    "binary": "0101110000000101011111101011010010110001",
+    "hex": "0x5C057EB4B1",
+    "font_symbol": "CHAR_0101110000",
+    "tone_signature": "TONE_1205",
+    "status": "ASSIGNED",
+    "word": "quadrinomial",
+    "display": "quadrinomial",
+    "symbol": "0x5C057EB4B1",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000110011101100100110000111000000011111",
@@ -2542,6 +3296,19 @@
     "symbol": "0x14DBA77941"
   },
   {
+    "binary": "0110101010110010100000010100101100001100",
+    "hex": "0x6AB2814B0C",
+    "font_symbol": "CHAR_0110101010",
+    "tone_signature": "TONE_11280",
+    "status": "ASSIGNED",
+    "word": "quadruplication",
+    "display": "quadruplication",
+    "symbol": "0x6AB2814B0C",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0001000001010001001111100001101111100001",
     "hex": "0x10513E1BE1",
     "font_symbol": "CHAR_0001000001",
@@ -3164,6 +3931,19 @@
     "symbol": "0x1000032267"
   },
   {
+    "binary": "0100010110000111011111101011010100100100",
+    "hex": "0x45877EB524",
+    "font_symbol": "CHAR_0100010110",
+    "tone_signature": "TONE_11592",
+    "status": "ASSIGNED",
+    "word": "quaitons",
+    "display": "quaitons",
+    "symbol": "0x45877EB524",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1110010100110111010111000100000001011011",
     "hex": "0xE5375C405B",
     "font_symbol": "CHAR_1110010100",
@@ -3491,6 +4271,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x0CB38585EA"
+  },
+  {
+    "binary": "1101101100000010100000010100101010100101",
+    "hex": "0xDB02814AA5",
+    "font_symbol": "CHAR_1101101100",
+    "tone_signature": "TONE_5609",
+    "status": "ASSIGNED",
+    "word": "qualifukazhun",
+    "display": "qualifukazhun",
+    "symbol": "0xDB02814AA5",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000100011100100100011001111111001001111",
@@ -3842,6 +4635,19 @@
     "symbol": "0x0C7B32B8E8"
   },
   {
+    "binary": "0001000001001000100000010100101001101000",
+    "hex": "0x1048814A68",
+    "font_symbol": "CHAR_0001000001",
+    "tone_signature": "TONE_9580",
+    "status": "ASSIGNED",
+    "word": "quammen",
+    "display": "quammen",
+    "symbol": "0x1048814A68",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000100111111011011001010000010101100101",
     "hex": "0x09FB650565",
     "font_symbol": "CHAR_0000100111",
@@ -3998,6 +4804,32 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x08D334C33D"
+  },
+  {
+    "binary": "1100101000101100100000010101000010101011",
+    "hex": "0xCA2C8150AB",
+    "font_symbol": "CHAR_1100101000",
+    "tone_signature": "TONE_6191",
+    "status": "ASSIGNED",
+    "word": "quant",
+    "display": "quant",
+    "symbol": "0xCA2C8150AB",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1001100101111011100001100010000101100011",
+    "hex": "0x997B862163",
+    "font_symbol": "CHAR_1001100101",
+    "tone_signature": "TONE_4327",
+    "status": "ASSIGNED",
+    "word": "quanta",
+    "display": "quanta",
+    "symbol": "0x997B862163",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 2
   },
   {
     "binary": "0000100001111110010110011000101011111000",
@@ -4420,6 +5252,19 @@
     "symbol": "0x0C295192EF"
   },
   {
+    "binary": "1001100101001010100000010101000001100011",
+    "hex": "0x994A815063",
+    "font_symbol": "CHAR_1001100101",
+    "tone_signature": "TONE_5095",
+    "status": "ASSIGNED",
+    "word": "quantitate",
+    "display": "quantitate",
+    "symbol": "0x994A815063",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0001000011111110111010101000000101101100",
     "hex": "0x10FEEA816C",
     "font_symbol": "CHAR_0001000011",
@@ -4717,6 +5562,32 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x0CE568C1CF"
+  },
+  {
+    "binary": "0000011111110010100000010101010011110100",
+    "hex": "0x07F28154F4",
+    "font_symbol": "CHAR_0000011111",
+    "tone_signature": "TONE_13336",
+    "status": "ASSIGNED",
+    "word": "quanzhou",
+    "display": "quanzhou",
+    "symbol": "0x07F28154F4",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 6
+  },
+  {
+    "binary": "0110000000000110011110011101111000000010",
+    "hex": "0x600679DE02",
+    "font_symbol": "CHAR_0110000000",
+    "tone_signature": "TONE_10502",
+    "status": "ASSIGNED",
+    "word": "quaoar",
+    "display": "quaoar",
+    "symbol": "0x600679DE02",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 2
   },
   {
     "binary": "0000100011010110001000001100100101111000",
@@ -6098,6 +6969,19 @@
     "symbol": "0x0804E88832"
   },
   {
+    "binary": "1101110110110011011111101010111111000110",
+    "hex": "0xDDB37EAFC6",
+    "font_symbol": "CHAR_1101110110",
+    "tone_signature": "TONE_16714",
+    "status": "ASSIGNED",
+    "word": "quartus",
+    "display": "quartus",
+    "symbol": "0xDDB37EAFC6",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0000100000011010010001100010000010111001",
     "hex": "0x081A4620B9",
     "font_symbol": "CHAR_0000100000",
@@ -6738,6 +7622,19 @@
     "symbol": "0x0C3392BC95"
   },
   {
+    "binary": "1101010100010000100000010100101001100000",
+    "hex": "0xD510814A60",
+    "font_symbol": "CHAR_1101010100",
+    "tone_signature": "TONE_2788",
+    "status": "ASSIGNED",
+    "word": "quation",
+    "display": "quation",
+    "symbol": "0xD510814A60",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000110000001000101111000111000110101011",
     "hex": "0x0C08BC71AB",
     "font_symbol": "CHAR_0000110000",
@@ -6793,6 +7690,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x04690D9427"
+  },
+  {
+    "binary": "1101000100000011011111101011010110100000",
+    "hex": "0xD1037EB5A0",
+    "font_symbol": "CHAR_1101000100",
+    "tone_signature": "TONE_644",
+    "status": "ASSIGNED",
+    "word": "quattro",
+    "display": "quattro",
+    "symbol": "0xD1037EB5A0",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0001000010011011110111101000001010011100",
@@ -6995,6 +7905,19 @@
     "symbol": "0x04F83C39C1"
   },
   {
+    "binary": "1001110011101000100000010100101000101110",
+    "hex": "0x9CE8814A2E",
+    "font_symbol": "CHAR_1001110011",
+    "tone_signature": "TONE_5522",
+    "status": "ASSIGNED",
+    "word": "qubilai",
+    "display": "qubilai",
+    "symbol": "0x9CE8814A2E",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1010010100001000101000100000101111100000",
     "hex": "0xA508A20BE0",
     "font_symbol": "CHAR_1010010100",
@@ -7107,6 +8030,19 @@
     "symbol": "0x0CCA329A20"
   },
   {
+    "binary": "1010100010011010011110011101110110001100",
+    "hex": "0xA89A79DD8C",
+    "font_symbol": "CHAR_1010100010",
+    "tone_signature": "TONE_3664",
+    "status": "ASSIGNED",
+    "word": "queation",
+    "display": "queation",
+    "symbol": "0xA89A79DD8C",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1111000011111010100111011000011100101100",
     "hex": "0xF0FA9D872C",
     "font_symbol": "CHAR_1111000011",
@@ -7173,6 +8109,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x107D672018"
+  },
+  {
+    "binary": "0001111110010111011111101011011001101100",
+    "hex": "0x1F977EB66C",
+    "font_symbol": "CHAR_0001111110",
+    "tone_signature": "TONE_10128",
+    "status": "ASSIGNED",
+    "word": "quebrada",
+    "display": "quebrada",
+    "symbol": "0x1F977EB66C",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000100000000100100011100010110111110000",
@@ -7309,6 +8258,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x08F57AEC68"
+  },
+  {
+    "binary": "0101110110000111011111101011011010000000",
+    "hex": "0x5D877EB680",
+    "font_symbol": "CHAR_0101110110",
+    "tone_signature": "TONE_7044",
+    "status": "ASSIGNED",
+    "word": "queenconch",
+    "display": "queenconch",
+    "symbol": "0x5D877EB680",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000100010111010011011011011011100110110",
@@ -7535,6 +8497,19 @@
     "frequency": 1
   },
   {
+    "binary": "1100101110000100100000010101001000011101",
+    "hex": "0xCB8481521D",
+    "font_symbol": "CHAR_1100101110",
+    "tone_signature": "TONE_8865",
+    "status": "ASSIGNED",
+    "word": "queensborough",
+    "display": "queensborough",
+    "symbol": "0xCB8481521D",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
     "binary": "0101010110011101011011101110110000000111",
     "hex": "0x559D6EEC07",
     "font_symbol": "CHAR_0101010110",
@@ -7590,6 +8565,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x0C1F044FFE"
+  },
+  {
+    "binary": "1010111101110010100000010100100100100011",
+    "hex": "0xAF72814923",
+    "font_symbol": "CHAR_1010111101",
+    "tone_signature": "TONE_12391",
+    "status": "ASSIGNED",
+    "word": "queensland",
+    "display": "queensland",
+    "symbol": "0xAF72814923",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "1001010011000111010111001010101101110110",
@@ -7728,6 +8716,32 @@
     "display": "queers'",
     "symbol": "0x23349AF9F2",
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1111000110101111011111101011011011100011",
+    "hex": "0xF1AF7EB6E3",
+    "font_symbol": "CHAR_1111000110",
+    "tone_signature": "TONE_15591",
+    "status": "ASSIGNED",
+    "word": "quegiao",
+    "display": "quegiao",
+    "symbol": "0xF1AF7EB6E3",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0101011100111101011111101010111111100000",
+    "hex": "0x573D7EAFE0",
+    "font_symbol": "CHAR_0101011100",
+    "tone_signature": "TONE_7588",
+    "status": "ASSIGNED",
+    "word": "queiroz",
+    "display": "queiroz",
+    "symbol": "0x573D7EAFE0",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
     "pack": "canonical",
     "frequency": 2
   },
@@ -7973,6 +8987,32 @@
     "symbol": "0x0CA45C6086"
   },
   {
+    "binary": "0111100011101101011111101010110100010111",
+    "hex": "0x78ED7EAD17",
+    "font_symbol": "CHAR_0111100011",
+    "tone_signature": "TONE_17659",
+    "status": "ASSIGNED",
+    "word": "queloz",
+    "display": "queloz",
+    "symbol": "0x78ED7EAD17",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "1101001001010100011101111010001111111001",
+    "hex": "0xD25477A3F9",
+    "font_symbol": "CHAR_1101001001",
+    "tone_signature": "TONE_19165",
+    "status": "ASSIGNED",
+    "word": "queloz's",
+    "display": "queloz's",
+    "symbol": "0xD25477A3F9",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1000100110010000100100010001001100010111",
     "hex": "0x8990911317",
     "font_symbol": "CHAR_1000100110",
@@ -7982,6 +9022,19 @@
     "display": "quelquun",
     "symbol": "0x8990911317",
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1111010101101100100000010100100100011001",
+    "hex": "0xF56C814919",
+    "font_symbol": "CHAR_1111010101",
+    "tone_signature": "TONE_19805",
+    "status": "ASSIGNED",
+    "word": "quemoy",
+    "display": "quemoy",
+    "symbol": "0xF56C814919",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
     "pack": "canonical",
     "frequency": 1
   },
@@ -8173,6 +9226,19 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 10
+  },
+  {
+    "binary": "0011111111010011100010000101110000101001",
+    "hex": "0x3FD3885C29",
+    "font_symbol": "CHAR_0011111111",
+    "tone_signature": "TONE_8813",
+    "status": "ASSIGNED",
+    "word": "quentin's",
+    "display": "quentin's",
+    "symbol": "0x3FD3885C29",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 3
   },
   {
     "binary": "0000110011111101100011111110000000100011",
@@ -8537,6 +9603,19 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 2
+  },
+  {
+    "binary": "0001010010110111011111101011011100110110",
+    "hex": "0x14B77EB736",
+    "font_symbol": "CHAR_0001010010",
+    "tone_signature": "TONE_986",
+    "status": "ASSIGNED",
+    "word": "quesada",
+    "display": "quesada",
+    "symbol": "0x14B77EB736",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000110010101000010001011100110000011110",
@@ -9109,6 +10188,32 @@
     "symbol": "0x0C7F5F1620"
   },
   {
+    "binary": "1000100111100001011111101010110100011101",
+    "hex": "0x89E17EAD1D",
+    "font_symbol": "CHAR_1000100111",
+    "tone_signature": "TONE_15105",
+    "status": "ASSIGNED",
+    "word": "quetzalcoatl",
+    "display": "quetzalcoatl",
+    "symbol": "0x89E17EAD1D",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "1001100100010101011111101010111000001100",
+    "hex": "0x99157EAE0C",
+    "font_symbol": "CHAR_1001100100",
+    "tone_signature": "TONE_20016",
+    "status": "ASSIGNED",
+    "word": "quetzalcoatlus",
+    "display": "quetzalcoatlus",
+    "symbol": "0x99157EAE0C",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
     "binary": "0000110000010111011001001110100100010100",
     "hex": "0x0C1764E914",
     "font_symbol": "CHAR_0000110000",
@@ -9449,6 +10554,19 @@
     "symbol": "0x0CB3D38720"
   },
   {
+    "binary": "0110010010111011100001100010001011000111",
+    "hex": "0x64BB8622C7",
+    "font_symbol": "CHAR_0110010010",
+    "tone_signature": "TONE_19819",
+    "status": "ASSIGNED",
+    "word": "quickened",
+    "display": "quickened",
+    "symbol": "0x64BB8622C7",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000110001000100101110100100000110000111",
     "hex": "0x0C44BA4187",
     "font_symbol": "CHAR_0000110001",
@@ -9634,6 +10752,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x10AFD1EF63"
+  },
+  {
+    "binary": "1000000000010111011111101010101001101011",
+    "hex": "0x80177EAA6B",
+    "font_symbol": "CHAR_1000000000",
+    "tone_signature": "TONE_11119",
+    "status": "ASSIGNED",
+    "word": "quickfacts",
+    "display": "quickfacts",
+    "symbol": "0x80177EAA6B",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 9
   },
   {
     "binary": "0001001111000001011011101110111110010001",
@@ -10159,6 +11290,19 @@
     "display": "quiero",
     "symbol": "0x8C9F6EF095",
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0011110000001111011111101011011101001101",
+    "hex": "0x3C0F7EB74D",
+    "font_symbol": "CHAR_0011110000",
+    "tone_signature": "TONE_561",
+    "status": "ASSIGNED",
+    "word": "quierzy",
+    "display": "quierzy",
+    "symbol": "0x3C0F7EB74D",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
     "pack": "canonical",
     "frequency": 1
   },
@@ -10752,6 +11896,19 @@
     "symbol": "0x08E5B9AC09"
   },
   {
+    "binary": "1011101011110110100000010100100001000110",
+    "hex": "0xBAF6814846",
+    "font_symbol": "CHAR_1011101011",
+    "tone_signature": "TONE_4938",
+    "status": "ASSIGNED",
+    "word": "quigley",
+    "display": "quigley",
+    "symbol": "0xBAF6814846",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0111110001111111011011101111000100110101",
     "hex": "0x7C7F6EF135",
     "font_symbol": "CHAR_0111110001",
@@ -10842,6 +11999,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x0C069EB7E0"
+  },
+  {
+    "binary": "0010000011110111011111101011100001000100",
+    "hex": "0x20F77EB844",
+    "font_symbol": "CHAR_0010000011",
+    "tone_signature": "TONE_10632",
+    "status": "ASSIGNED",
+    "word": "quilon",
+    "display": "quilon",
+    "symbol": "0x20F77EB844",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000010010111000101100101110101011001111",
@@ -10976,6 +12146,19 @@
     "symbol": "0x0C33F6C7E1"
   },
   {
+    "binary": "1111011110000011011111101011100001001010",
+    "hex": "0xF7837EB84A",
+    "font_symbol": "CHAR_1111011110",
+    "tone_signature": "TONE_2222",
+    "status": "ASSIGNED",
+    "word": "quiltmakers",
+    "display": "quiltmakers",
+    "symbol": "0xF7837EB84A",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000100011001001001000110110101011000000",
     "hex": "0x08C9236AC0",
     "font_symbol": "CHAR_0000100011",
@@ -11062,6 +12245,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x0CADDD2378"
+  },
+  {
+    "binary": "1111010101111110011101111010001111001111",
+    "hex": "0xF57E77A3CF",
+    "font_symbol": "CHAR_1111010101",
+    "tone_signature": "TONE_17555",
+    "status": "ASSIGNED",
+    "word": "quinceañera",
+    "display": "quinceañera",
+    "symbol": "0xF57E77A3CF",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 7
   },
   {
     "binary": "0110000000111001011011101111000101001111",
@@ -11336,6 +12532,19 @@
     "symbol": "0x0C15A17DE2"
   },
   {
+    "binary": "1110101000000000100000010100111111011111",
+    "hex": "0xEA00814FDF",
+    "font_symbol": "CHAR_1110101000",
+    "tone_signature": "TONE_1955",
+    "status": "ASSIGNED",
+    "word": "quinlivan",
+    "display": "quinlivan",
+    "symbol": "0xEA00814FDF",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0101000101011000101000000001110110010101",
     "hex": "0x5158A01D95",
     "font_symbol": "CHAR_0101000101",
@@ -11347,6 +12556,71 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 6
+  },
+  {
+    "binary": "0101000000110111011111101011100001010101",
+    "hex": "0x50377EB855",
+    "font_symbol": "CHAR_0101000000",
+    "tone_signature": "TONE_15385",
+    "status": "ASSIGNED",
+    "word": "quinnipiac",
+    "display": "quinnipiac",
+    "symbol": "0x50377EB855",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0011111100110111011111101011100010011001",
+    "hex": "0x3F377EB899",
+    "font_symbol": "CHAR_0011111100",
+    "tone_signature": "TONE_11421",
+    "status": "ASSIGNED",
+    "word": "quinntheislander",
+    "display": "quinntheislander",
+    "symbol": "0x3F377EB899",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0011101111111101100001100010001011101110",
+    "hex": "0x3BFD8622EE",
+    "font_symbol": "CHAR_0011101111",
+    "tone_signature": "TONE_16978",
+    "status": "ASSIGNED",
+    "word": "quinoa",
+    "display": "quinoa",
+    "symbol": "0x3BFD8622EE",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
+    "binary": "1110000001100100100000010100011100100001",
+    "hex": "0xE064814721",
+    "font_symbol": "CHAR_1110000001",
+    "tone_signature": "TONE_8357",
+    "status": "ASSIGNED",
+    "word": "quinolone",
+    "display": "quinolone",
+    "symbol": "0xE064814721",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0001010001111001011111101011100011100110",
+    "hex": "0x14797EB8E6",
+    "font_symbol": "CHAR_0001010001",
+    "tone_signature": "TONE_14026",
+    "status": "ASSIGNED",
+    "word": "quinolones",
+    "display": "quinolones",
+    "symbol": "0x14797EB8E6",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0000100010000110111100000101000101001111",
@@ -11591,6 +12865,32 @@
     "symbol": "0x08E6C6F479"
   },
   {
+    "binary": "1010100000001111100001100010001100000010",
+    "hex": "0xA80F862302",
+    "font_symbol": "CHAR_1010100000",
+    "tone_signature": "TONE_14854",
+    "status": "ASSIGNED",
+    "word": "quinta",
+    "display": "quinta",
+    "symbol": "0xA80F862302",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 4
+  },
+  {
+    "binary": "1010100110001000011101111010001111000011",
+    "hex": "0xA98877A3C3",
+    "font_symbol": "CHAR_1010100110",
+    "tone_signature": "TONE_15207",
+    "status": "ASSIGNED",
+    "word": "quinta's",
+    "display": "quinta's",
+    "symbol": "0xA98877A3C3",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000100011111000110001101101010011011101",
     "hex": "0x08F8C6D4DD",
     "font_symbol": "CHAR_0000100011",
@@ -11635,6 +12935,32 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 2
+  },
+  {
+    "binary": "0000011111010110011110011101110001001000",
+    "hex": "0x07D679DC48",
+    "font_symbol": "CHAR_0000011111",
+    "tone_signature": "TONE_1644",
+    "status": "ASSIGNED",
+    "word": "quintanilla",
+    "display": "quintanilla",
+    "symbol": "0x07D679DC48",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1101100110001100011110011101101111000100",
+    "hex": "0xD98C79DBC4",
+    "font_symbol": "CHAR_1101100110",
+    "tone_signature": "TONE_19688",
+    "status": "ASSIGNED",
+    "word": "quintano",
+    "display": "quintano",
+    "symbol": "0xD98C79DBC4",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "1101010100001000100111011000011011010101",
@@ -11804,6 +13130,32 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 1
+  },
+  {
+    "binary": "0101111101101010100000010101011110101100",
+    "hex": "0x5F6A8157AC",
+    "font_symbol": "CHAR_0101111101",
+    "tone_signature": "TONE_14704",
+    "status": "ASSIGNED",
+    "word": "quintile",
+    "display": "quintile",
+    "symbol": "0x5F6A8157AC",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 94
+  },
+  {
+    "binary": "0000000000011111011111101010100101001110",
+    "hex": "0x001F7EA94E",
+    "font_symbol": "CHAR_0000000000",
+    "tone_signature": "TONE_14674",
+    "status": "ASSIGNED",
+    "word": "quintiles",
+    "display": "quintiles",
+    "symbol": "0x001F7EA94E",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 19
   },
   {
     "binary": "0001000010100010101100111000111010010011",
@@ -12149,6 +13501,32 @@
     "symbol": "0x0802C57966"
   },
   {
+    "binary": "1111100110011110011110011101101110011100",
+    "hex": "0xF99E79DB9C",
+    "font_symbol": "CHAR_1111100110",
+    "tone_signature": "TONE_3008",
+    "status": "ASSIGNED",
+    "word": "quipped",
+    "display": "quipped",
+    "symbol": "0xF99E79DB9C",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
+    "binary": "0001110010010011100001100010010010101110",
+    "hex": "0x1C938624AE",
+    "font_symbol": "CHAR_0001110010",
+    "tone_signature": "TONE_6354",
+    "status": "ASSIGNED",
+    "word": "quipping",
+    "display": "quipping",
+    "symbol": "0x1C938624AE",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0000010011111001111100101010000100001001",
     "hex": "0x04F9F2A109",
     "font_symbol": "CHAR_0000010011",
@@ -12257,6 +13635,32 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x08EB4936AC"
+  },
+  {
+    "binary": "0100010101100011011111101011100100100010",
+    "hex": "0x45637EB922",
+    "font_symbol": "CHAR_0100010101",
+    "tone_signature": "TONE_12838",
+    "status": "ASSIGNED",
+    "word": "quirigua",
+    "display": "quirigua",
+    "symbol": "0x45637EB922",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1101000110110111011111101010110101110001",
+    "hex": "0xD1B77EAD71",
+    "font_symbol": "CHAR_1101000110",
+    "tone_signature": "TONE_17429",
+    "status": "ASSIGNED",
+    "word": "quirin",
+    "display": "quirin",
+    "symbol": "0xD1B77EAD71",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 4
   },
   {
     "binary": "0000010001011100000100001111011110011111",
@@ -12668,6 +14072,32 @@
     "symbol": "0x088AEDBC63"
   },
   {
+    "binary": "0001111100100001011111101011100110100001",
+    "hex": "0x1F217EB9A1",
+    "font_symbol": "CHAR_0001111100",
+    "tone_signature": "TONE_19461",
+    "status": "ASSIGNED",
+    "word": "quitman",
+    "display": "quitman",
+    "symbol": "0x1F217EB9A1",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1111011000011101011111101011000001001010",
+    "hex": "0xF61D7EB04A",
+    "font_symbol": "CHAR_1111011000",
+    "tone_signature": "TONE_16846",
+    "status": "ASSIGNED",
+    "word": "quito",
+    "display": "quito",
+    "symbol": "0xF61D7EB04A",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0000010010011010100011111110101100100110",
     "hex": "0x049A8FEB26",
     "font_symbol": "CHAR_0000010010",
@@ -12883,6 +14313,19 @@
     "frequency": 1
   },
   {
+    "binary": "1010000110000000011101111010001101111000",
+    "hex": "0xA18077A378",
+    "font_symbol": "CHAR_1010000110",
+    "tone_signature": "TONE_19036",
+    "status": "ASSIGNED",
+    "word": "quitéria",
+    "display": "quitéria",
+    "symbol": "0xA18077A378",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 5
+  },
+  {
     "binary": "0000100011000101100101000011010110100001",
     "hex": "0x08C59435A1",
     "font_symbol": "CHAR_0000100011",
@@ -12947,6 +14390,19 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x086C02B3F7"
+  },
+  {
+    "binary": "0001000111000000100000010101000111001111",
+    "hex": "0x11C08151CF",
+    "font_symbol": "CHAR_0001000111",
+    "tone_signature": "TONE_4691",
+    "status": "ASSIGNED",
+    "word": "quivira",
+    "display": "quivira",
+    "symbol": "0x11C08151CF",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 3
   },
   {
     "binary": "0101000101110101010111111110001001110110",
@@ -13175,6 +14631,32 @@
     "symbol": "0x107DCF4CA0"
   },
   {
+    "binary": "1010100011011101011111101011100110100111",
+    "hex": "0xA8DD7EB9A7",
+    "font_symbol": "CHAR_1010100011",
+    "tone_signature": "TONE_15627",
+    "status": "ASSIGNED",
+    "word": "quizon",
+    "display": "quizon",
+    "symbol": "0xA8DD7EB9A7",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1010010110100111011111101011100111110011",
+    "hex": "0xA5A77EB9F3",
+    "font_symbol": "CHAR_1010010110",
+    "tone_signature": "TONE_4151",
+    "status": "ASSIGNED",
+    "word": "quizshow",
+    "display": "quizshow",
+    "symbol": "0xA5A77EB9F3",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1001001100110001011011101111001001100100",
     "hex": "0x93316EF264",
     "font_symbol": "CHAR_1001001100",
@@ -13289,6 +14771,19 @@
     "symbol": "0x10B2787432"
   },
   {
+    "binary": "0111110101010101011111101011101000010000",
+    "hex": "0x7D557EBA10",
+    "font_symbol": "CHAR_0111110101",
+    "tone_signature": "TONE_628",
+    "status": "ASSIGNED",
+    "word": "quldaqar",
+    "display": "quldaqar",
+    "symbol": "0x7D557EBA10",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0011010101011010101000000001110110000010",
     "hex": "0x355AA01D82",
     "font_symbol": "CHAR_0011010101",
@@ -13359,6 +14854,19 @@
     "mapped_at": "2026-05-02T19:24:04.239454+00:00",
     "pack": "canonical",
     "frequency": 1
+  },
+  {
+    "binary": "1100111010010100100000010100111110001011",
+    "hex": "0xCE94814F8B",
+    "font_symbol": "CHAR_1100111010",
+    "tone_signature": "TONE_5551",
+    "status": "ASSIGNED",
+    "word": "quoidbach",
+    "display": "quoidbach",
+    "symbol": "0xCE94814F8B",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
   },
   {
     "binary": "0000010001000101000001101110100000000001",
@@ -13827,6 +15335,19 @@
     "frequency": 1
   },
   {
+    "binary": "0100010111111101011111101011101000011000",
+    "hex": "0x45FD7EBA18",
+    "font_symbol": "CHAR_0100010111",
+    "tone_signature": "TONE_4348",
+    "status": "ASSIGNED",
+    "word": "quoth",
+    "display": "quoth",
+    "symbol": "0x45FD7EBA18",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1010001010110100101000111101100100001110",
     "hex": "0xA2B4A3D90E",
     "font_symbol": "CHAR_1010001010",
@@ -13941,6 +15462,84 @@
     "symbol": "0x08878DECF4"
   },
   {
+    "binary": "1110100100001010100000010100010111000110",
+    "hex": "0xE90A8145C6",
+    "font_symbol": "CHAR_1110100100",
+    "tone_signature": "TONE_4234",
+    "status": "ASSIGNED",
+    "word": "quotofexpon",
+    "display": "quotofexpon",
+    "symbol": "0xE90A8145C6",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1100101011000100100000010100010111000101",
+    "hex": "0xCAC48145C5",
+    "font_symbol": "CHAR_1100101011",
+    "tone_signature": "TONE_233",
+    "status": "ASSIGNED",
+    "word": "qur'an",
+    "display": "qur'an",
+    "symbol": "0xCAC48145C5",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0010110001011010011110011101101101010000",
+    "hex": "0x2C5A79DB50",
+    "font_symbol": "CHAR_0010110001",
+    "tone_signature": "TONE_16564",
+    "status": "ASSIGNED",
+    "word": "quran",
+    "display": "quran",
+    "symbol": "0x2C5A79DB50",
+    "mapped_at": "2026-05-09T20:26:19.491904+00:00",
+    "pack": "canonical",
+    "frequency": 31
+  },
+  {
+    "binary": "0100000111111101100010000101110010100111",
+    "hex": "0x41FD885CA7",
+    "font_symbol": "CHAR_0100000111",
+    "tone_signature": "TONE_6603",
+    "status": "ASSIGNED",
+    "word": "quran's",
+    "display": "quran's",
+    "symbol": "0x41FD885CA7",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1000100110010001011111101011101010011101",
+    "hex": "0x89917EBA9D",
+    "font_symbol": "CHAR_1000100110",
+    "tone_signature": "TONE_1281",
+    "status": "ASSIGNED",
+    "word": "quranic",
+    "display": "quranic",
+    "symbol": "0x89917EBA9D",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0101011111001010100000010101010011000010",
+    "hex": "0x57CA8154C2",
+    "font_symbol": "CHAR_0101011111",
+    "tone_signature": "TONE_8326",
+    "status": "ASSIGNED",
+    "word": "quraysh",
+    "display": "quraysh",
+    "symbol": "0x57CA8154C2",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 6
+  },
+  {
     "binary": "0000100011111111000101001110001111110100",
     "hex": "0x08FF14E3F4",
     "font_symbol": "CHAR_0000100011",
@@ -13972,6 +15571,97 @@
     "mapped_at": "2026-02-11T21:27:12.632307+00:00",
     "pack": "canonical",
     "symbol": "0x0C4075EF13"
+  },
+  {
+    "binary": "0010101011000011011111101011101011000110",
+    "hex": "0x2AC37EBAC6",
+    "font_symbol": "CHAR_0010101011",
+    "tone_signature": "TONE_9002",
+    "status": "ASSIGNED",
+    "word": "qus",
+    "display": "qus",
+    "symbol": "0x2AC37EBAC6",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1101010011111010100000010100111100000000",
+    "hex": "0xD4FA814F00",
+    "font_symbol": "CHAR_1101010011",
+    "tone_signature": "TONE_5220",
+    "status": "ASSIGNED",
+    "word": "qutuz",
+    "display": "qutuz",
+    "symbol": "0xD4FA814F00",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "1111100011110010100000010100010100110001",
+    "hex": "0xF8F2814531",
+    "font_symbol": "CHAR_1111100011",
+    "tone_signature": "TONE_7637",
+    "status": "ASSIGNED",
+    "word": "quu",
+    "display": "quu",
+    "symbol": "0xF8F2814531",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0001001001001000100000010100010011111101",
+    "hex": "0x12488144FD",
+    "font_symbol": "CHAR_0001001001",
+    "tone_signature": "TONE_2785",
+    "status": "ASSIGNED",
+    "word": "quzatli",
+    "display": "quzatli",
+    "symbol": "0x12488144FD",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1101111001111010100000010100010011110010",
+    "hex": "0xDE7A8144F2",
+    "font_symbol": "CHAR_1101111001",
+    "tone_signature": "TONE_11958",
+    "status": "ASSIGNED",
+    "word": "quzdar",
+    "display": "quzdar",
+    "symbol": "0xDE7A8144F2",
+    "mapped_at": "2026-05-09T19:30:04.362744+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0101001111111001100010000101110010111011",
+    "hex": "0x53F9885CBB",
+    "font_symbol": "CHAR_0101001111",
+    "tone_signature": "TONE_9087",
+    "status": "ASSIGNED",
+    "word": "quṭb",
+    "display": "quṭb",
+    "symbol": "0x53F9885CBB",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0010111101000010011101111010001010110110",
+    "hex": "0x2F4277A2B6",
+    "font_symbol": "CHAR_0010111101",
+    "tone_signature": "TONE_19706",
+    "status": "ASSIGNED",
+    "word": "quảng",
+    "display": "quảng",
+    "symbol": "0x2F4277A2B6",
+    "mapped_at": "2026-05-09T20:29:20.872078+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "1110011111100100100110101111100010000010",

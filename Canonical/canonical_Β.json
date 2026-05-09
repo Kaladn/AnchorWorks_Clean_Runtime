@@ -1,0 +1,15 @@
+[
+  {
+    "binary": "0111101101000100011101110011001100001101",
+    "hex": "0x7B4477330D",
+    "font_symbol": "CHAR_0111101101",
+    "tone_signature": "TONE_20049",
+    "status": "ASSIGNED",
+    "word": "β's",
+    "display": "β's",
+    "symbol": "0x7B4477330D",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  }
+]

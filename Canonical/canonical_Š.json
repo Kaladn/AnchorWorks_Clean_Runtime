@@ -1,5 +1,18 @@
 [
   {
+    "binary": "1111100110010111100010001100110001000100",
+    "hex": "0xF99788CC44",
+    "font_symbol": "CHAR_1111100110",
+    "tone_signature": "TONE_1608",
+    "status": "ASSIGNED",
+    "word": "šahīd",
+    "display": "šahīd",
+    "symbol": "0xF99788CC44",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1110110101100011011110110111111101001100",
     "hex": "0xED637B7F4C",
     "font_symbol": "CHAR_1110110101",

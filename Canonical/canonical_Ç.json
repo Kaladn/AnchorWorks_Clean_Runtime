@@ -1,0 +1,28 @@
+[
+  {
+    "binary": "1111111000110010011101110011101011110010",
+    "hex": "0xFE32773AF2",
+    "font_symbol": "CHAR_1111111000",
+    "tone_signature": "TONE_7958",
+    "status": "ASSIGNED",
+    "word": "çatalhöyük",
+    "display": "çatalhöyük",
+    "symbol": "0xFE32773AF2",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 23
+  },
+  {
+    "binary": "1100011100110001100010001100100110100110",
+    "hex": "0xC73188C9A6",
+    "font_symbol": "CHAR_1100011100",
+    "tone_signature": "TONE_106",
+    "status": "ASSIGNED",
+    "word": "çelebi",
+    "display": "çelebi",
+    "symbol": "0xC73188C9A6",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  }
+]

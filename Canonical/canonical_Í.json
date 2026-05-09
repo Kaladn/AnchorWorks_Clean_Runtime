@@ -1,0 +1,15 @@
+[
+  {
+    "binary": "0001000100111100011101110011010001111111",
+    "hex": "0x113C77347F",
+    "font_symbol": "CHAR_0001000100",
+    "tone_signature": "TONE_9315",
+    "status": "ASSIGNED",
+    "word": "índia",
+    "display": "índia",
+    "symbol": "0x113C77347F",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  }
+]

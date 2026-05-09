@@ -1,5 +1,31 @@
 [
   {
+    "binary": "1111111111000010011101110011011001001011",
+    "hex": "0xFFC277364B",
+    "font_symbol": "CHAR_1111111111",
+    "tone_signature": "TONE_13167",
+    "status": "ASSIGNED",
+    "word": "éamon",
+    "display": "éamon",
+    "symbol": "0xFFC277364B",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1110001010111000011101110011100111111110",
+    "hex": "0xE2B87739FE",
+    "font_symbol": "CHAR_1110001010",
+    "tone_signature": "TONE_10370",
+    "status": "ASSIGNED",
+    "word": "éboulé",
+    "display": "éboulé",
+    "symbol": "0xE2B87739FE",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
     "binary": "0011001101100101011101111011011000100011",
     "hex": "0x336577B623",
     "font_symbol": "CHAR_0011001101",
@@ -63,6 +89,32 @@
     "mapped_at": "2026-05-05T10:45:55.654263+00:00",
     "pack": "canonical",
     "frequency": 94
+  },
+  {
+    "binary": "1101000011111001100010001100011001000011",
+    "hex": "0xD0F988C643",
+    "font_symbol": "CHAR_1101000011",
+    "tone_signature": "TONE_8103",
+    "status": "ASSIGNED",
+    "word": "édouard",
+    "display": "édouard",
+    "symbol": "0xD0F988C643",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 2
+  },
+  {
+    "binary": "0110001010100010011101110011010101111111",
+    "hex": "0x62A277357F",
+    "font_symbol": "CHAR_0110001010",
+    "tone_signature": "TONE_16579",
+    "status": "ASSIGNED",
+    "word": "égalité",
+    "display": "égalité",
+    "symbol": "0x62A277357F",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0011111100100111011111001110010100010110",
@@ -156,6 +208,32 @@
     "frequency": 433
   },
   {
+    "binary": "0111110000110101100010001100010111101101",
+    "hex": "0x7C3588C5ED",
+    "font_symbol": "CHAR_0111110000",
+    "tone_signature": "TONE_817",
+    "status": "ASSIGNED",
+    "word": "émile",
+    "display": "émile",
+    "symbol": "0x7C3588C5ED",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 3
+  },
+  {
+    "binary": "0010100111010101100010001100101010011010",
+    "hex": "0x29D588CA9A",
+    "font_symbol": "CHAR_0010100111",
+    "tone_signature": "TONE_11006",
+    "status": "ASSIGNED",
+    "word": "émilie",
+    "display": "émilie",
+    "symbol": "0x29D588CA9A",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "1011100110110110100001101011000010100000",
     "hex": "0xB9B686B0A0",
     "font_symbol": "CHAR_1011100110",
@@ -208,6 +286,19 @@
     "frequency": 44
   },
   {
+    "binary": "0101000101011011100010001100101011001110",
+    "hex": "0x515B88CACE",
+    "font_symbol": "CHAR_0101000101",
+    "tone_signature": "TONE_2546",
+    "status": "ASSIGNED",
+    "word": "étage",
+    "display": "étage",
+    "symbol": "0x515B88CACE",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
     "binary": "0111100111110000100001111110110111100010",
     "hex": "0x79F087EDE2",
     "font_symbol": "CHAR_0111100111",
@@ -232,6 +323,32 @@
     "mapped_at": "2026-05-05T10:45:55.654263+00:00",
     "pack": "canonical",
     "frequency": 208
+  },
+  {
+    "binary": "1101011000000101100010001100101100001001",
+    "hex": "0xD60588CB09",
+    "font_symbol": "CHAR_1101011000",
+    "tone_signature": "TONE_12397",
+    "status": "ASSIGNED",
+    "word": "états",
+    "display": "états",
+    "symbol": "0xD60588CB09",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1010000010110000011101110011010011010111",
+    "hex": "0xA0B07734D7",
+    "font_symbol": "CHAR_1010000010",
+    "tone_signature": "TONE_9787",
+    "status": "ASSIGNED",
+    "word": "étienne",
+    "display": "étienne",
+    "symbol": "0xA0B07734D7",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
   },
   {
     "binary": "0110100010001011011101111100000100100110",
@@ -271,5 +388,18 @@
     "mapped_at": "2026-05-05T10:45:55.654263+00:00",
     "pack": "canonical",
     "frequency": 37
+  },
+  {
+    "binary": "1011101100000000011101110011010010011010",
+    "hex": "0xBB0077349A",
+    "font_symbol": "CHAR_1011101100",
+    "tone_signature": "TONE_16702",
+    "status": "ASSIGNED",
+    "word": "étude",
+    "display": "étude",
+    "symbol": "0xBB0077349A",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
   }
 ]

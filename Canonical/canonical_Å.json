@@ -1,0 +1,28 @@
+[
+  {
+    "binary": "1101010101101001100010001100100100000000",
+    "hex": "0xD56988C900",
+    "font_symbol": "CHAR_1101010101",
+    "tone_signature": "TONE_6180",
+    "status": "ASSIGNED",
+    "word": "åge",
+    "display": "åge",
+    "symbol": "0xD56988C900",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "1111001110110010011101110011011010101001",
+    "hex": "0xF3B27736A9",
+    "font_symbol": "CHAR_1111001110",
+    "tone_signature": "TONE_10253",
+    "status": "ASSIGNED",
+    "word": "ångstroms",
+    "display": "ångstroms",
+    "symbol": "0xF3B27736A9",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  }
+]

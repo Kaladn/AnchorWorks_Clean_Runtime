@@ -1,0 +1,28 @@
+[
+  {
+    "binary": "0001011101110000011101110011001110011000",
+    "hex": "0x1770773398",
+    "font_symbol": "CHAR_0001011101",
+    "tone_signature": "TONE_8092",
+    "status": "ASSIGNED",
+    "word": "ʺlwaoʺ",
+    "display": "ʺlwaoʺ",
+    "symbol": "0x1770773398",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  },
+  {
+    "binary": "0000100111110000011101110011001101110100",
+    "hex": "0x09F0773374",
+    "font_symbol": "CHAR_0000100111",
+    "tone_signature": "TONE_9560",
+    "status": "ASSIGNED",
+    "word": "ʺvibin",
+    "display": "ʺvibin",
+    "symbol": "0x09F0773374",
+    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
+    "pack": "canonical",
+    "frequency": 1
+  }
+]
