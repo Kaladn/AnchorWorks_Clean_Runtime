@@ -1197,6 +1197,53 @@ body {
   word-break: break-word;
 }
 
+.visual-evidence-card {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(0, 212, 255, 0.34);
+  border-left: 4px solid var(--gpt-oss);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top right, rgba(0, 212, 255, 0.12), transparent 32%),
+    rgba(12, 28, 58, 0.72);
+}
+
+.visual-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.visual-evidence-row,
+.visual-backend-card {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  min-width: 0;
+}
+
+.visual-evidence-row span,
+.visual-backend-card span {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.visual-evidence-row strong,
+.visual-backend-card strong {
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.visual-backend-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .intake-progress {
   margin-top: 14px;
 }

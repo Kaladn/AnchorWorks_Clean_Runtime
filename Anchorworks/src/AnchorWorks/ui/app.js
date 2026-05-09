@@ -83,6 +83,9 @@ const lexApp = {
       intakeFileName: document.getElementById("intake-file-name"),
       intakeFileMeta: document.getElementById("intake-file-meta"),
       intakeReadyTag: document.getElementById("intake-ready-tag"),
+      intakeVisualCard: document.getElementById("intake-visual-card"),
+      intakeVisualGrid: document.getElementById("intake-visual-grid"),
+      intakeVisualBackends: document.getElementById("intake-visual-backends"),
       intakeSpinner: document.getElementById("intake-spinner"),
       intakeStepLabel: document.getElementById("intake-step-label"),
       intakeProgressFill: document.getElementById("intake-progress-fill"),
@@ -1196,6 +1199,7 @@ const lexApp = {
     this.intake.fileType = file.type || "";
     this.intake.rejected = new Set();
     this.intake.selected = new Set();
+    this.renderVisualEvidencePreview();
     this.els.intakeMapBtn.disabled = true;
     this.els.intakeBulkApproveBtn.disabled = true;
     this.els.intakeSelectVisibleBtn.disabled = true;
@@ -1239,6 +1243,7 @@ const lexApp = {
     this.intake.fileType = "anchorworks-chat-archive";
     this.intake.rejected = new Set();
     this.intake.selected = new Set();
+    this.renderVisualEvidencePreview();
     this.els.intakeMapBtn.disabled = true;
     this.els.intakeBulkApproveBtn.disabled = true;
     this.els.intakeSelectVisibleBtn.disabled = true;
@@ -1277,6 +1282,7 @@ const lexApp = {
     this.intake.edits = [];
     this.intake.rejected = new Set();
     this.intake.selected = new Set();
+    this.renderVisualEvidencePreview();
     const previewClipped = content.length > INTAKE_RAW_PREVIEW_CHAR_LIMIT;
     this.els.intakeRawPreview.textContent = previewClipped
       ? `${content.slice(0, INTAKE_RAW_PREVIEW_CHAR_LIMIT)}\n\n[Preview clipped for browser speed. Full prepared document remains loaded for intake.]`
@@ -1286,6 +1292,34 @@ const lexApp = {
     this.els.intakeRawMeta.textContent = `${prepared.converter || "prepared"} - ${Number(prepared.original_size || this.intake.fileSize || 0).toLocaleString()} bytes -> ${Number(content.length || 0).toLocaleString()} characters${previewNote}${prepWarnings}`;
     this.els.intakeFileName.textContent = prepared.source_name || this.intake.sourceName || "Prepared document";
     this.els.intakeFileMeta.textContent = `${this.size(prepared.original_size || this.intake.fileSize || 0)} - ${prepared.file_type || this.intake.fileType || "unknown type"} - ${prepared.source_path || this.intake.sourcePath || ""}`;
+
+    if (this.isVisualIntake()) {
+      const report = {
+        ok: true,
+        source_name: prepared.source_name || this.intake.sourceName || "visual source",
+        source_path: prepared.source_path || this.intake.sourcePath || "",
+        file_type: prepared.file_type || this.intake.fileType || "",
+        file_size: prepared.original_size || this.intake.fileSize || content.length,
+        real_lexicon_path: "visual preview only - lexicon route blocked",
+        paragraph_count: 0,
+        total_anchor_observations: 0,
+        unique_anchor_count: 0,
+        known_anchor_count: 0,
+        missing_anchor_count: 0,
+        known_anchor_observations: 0,
+        missing_anchor_observations: 0,
+        unique_anchors: [],
+        missing_anchors: [],
+        visual_preview_only: true,
+        writes_allowed: { maps: false, counts: false, lifetime: false, lexicon: false },
+        reason: "visual_intake_preview_only",
+      };
+      this.intake.report = report;
+      this.renderIntakeReport(report);
+      this.setIntakeStep("Visual evidence preview only", 100, false);
+      this.setBanner("info", "Visual source recorded as preview-only evidence. Anchor approval and map/count actions are blocked until a future visual approval route exists.");
+      return;
+    }
 
     this.setIntakeStep("Extracting anchors", 28, true);
     await this.nextFrame();
@@ -1311,6 +1345,7 @@ const lexApp = {
 
   renderIntakeReport(report) {
     const prep = this.intake.prep || {};
+    const visual = this.isVisualIntake(report);
     this.els.intakeDocName.textContent = report.source_name || this.intake.sourceName || "-";
     this.els.intakeDocType.textContent = report.file_type || prep.file_type || this.intake.fileType || "unknown";
     this.els.intakeParagraphCount.textContent = Number(report.paragraph_count || 0).toLocaleString();
@@ -1321,16 +1356,91 @@ const lexApp = {
     this.els.intakeLexiconPath.textContent = report.real_lexicon_path || "-";
     this.els.intakeUniqueMeta.textContent = `${Number(report.unique_anchor_count || 0).toLocaleString()} anchors`;
     this.els.intakeMissingMeta.textContent = `${Number(report.missing_anchor_count || 0).toLocaleString()} anchors`;
-    this.els.intakeMapBtn.disabled = this.intakeUnresolvedMissingCount(report) !== 0;
+    this.els.intakeMapBtn.disabled = visual || this.intakeUnresolvedMissingCount(report) !== 0;
     const missingAnchors = new Set((report.missing_anchors || []).map((row) => row.anchor));
     this.intake.selected = new Set([...this.intake.selected].filter((anchor) => missingAnchors.has(anchor)));
     this.intake.rejected = new Set([...this.intake.rejected].filter((anchor) => missingAnchors.has(anchor)));
     this.updateIntakeApprovalButtons();
-    if (this.intakeUnresolvedMissingCount(report) === 0) {
+    if (visual) {
+      this.els.intakeUniqueMeta.textContent = "visual preview only - anchor route blocked";
+      this.els.intakeMissingMeta.textContent = "visual preview only - approval route blocked";
+    } else if (this.intakeUnresolvedMissingCount(report) === 0) {
       this.setBanner("success", "Lexicon coverage complete. Ready to map/count.");
     }
     this.renderIntakeUniqueList();
     this.renderIntakeMissingList();
+  },
+
+  visualManifest() {
+    const prep = this.intake.prep || {};
+    const metadata = prep.metadata || {};
+    return metadata.visual_manifest || null;
+  },
+
+  visualRegionMap() {
+    const prep = this.intake.prep || {};
+    const metadata = prep.metadata || {};
+    return metadata.visual_region_map || null;
+  },
+
+  visualRecognitionLayer() {
+    const prep = this.intake.prep || {};
+    const metadata = prep.metadata || {};
+    return metadata.visual_recognition_layer || null;
+  },
+
+  isVisualIntake(report = null) {
+    const activeReport = report || this.intake.report || {};
+    return Boolean(this.visualManifest() || activeReport.visual_preview_only);
+  },
+
+  renderVisualEvidencePreview() {
+    if (!this.els.intakeVisualCard) return;
+    const manifest = this.visualManifest();
+    if (!manifest) {
+      this.els.intakeVisualCard.hidden = true;
+      if (this.els.intakeVisualGrid) this.els.intakeVisualGrid.innerHTML = "";
+      if (this.els.intakeVisualBackends) this.els.intakeVisualBackends.innerHTML = "";
+      return;
+    }
+
+    const source = manifest.source || {};
+    const writes = manifest.writes_allowed || {};
+    const regionMap = this.visualRegionMap() || {};
+    const recognition = this.visualRecognitionLayer() || {};
+    const fields = [
+      ["Record", source.visual_record_id || "-"],
+      ["SHA256", source.sha256 || "-"],
+      ["Native Size", `${source.width || "unknown"} x ${source.height || "unknown"}`],
+      ["Aspect", source.aspect_ratio || "unknown"],
+      ["Format", source.file_format || "unknown"],
+      ["Mode", source.color_mode || "unknown"],
+      ["Region Map", regionMap.region_map_id || "not attached"],
+      ["Regions", Array.isArray(regionMap.regions) ? regionMap.regions.length : 0],
+      ["Recognition", recognition.recognition_layer_id || "not attached"],
+      ["Candidates", Array.isArray(recognition.candidates) ? recognition.candidates.length : 0],
+      ["Authority", manifest.authority || "source_local_visual_evidence"],
+      ["Approval", manifest.approval_status || "preview_only"],
+      ["Write Locks", `maps=${Boolean(writes.maps)} counts=${Boolean(writes.counts)} lifetime=${Boolean(writes.lifetime)} lexicon=${Boolean(writes.lexicon)}`],
+    ];
+    this.els.intakeVisualGrid.innerHTML = fields.map(([label, value]) => `
+      <div class="visual-evidence-row">
+        <span>${this.escape(label)}</span>
+        <strong>${this.escape(String(value))}</strong>
+      </div>
+    `).join("");
+
+    const backends = manifest.backend_capabilities || [];
+    this.els.intakeVisualBackends.innerHTML = backends.length
+      ? backends.map((backend) => `
+          <div class="visual-backend-card">
+            <strong>${this.escape(backend.backend_id || "backend")}</strong>
+            <span>${this.escape(backend.backend_type || "unknown")} - ${this.escape(backend.provider || "local")} - ${this.escape(backend.coordinate_space || "native_pixels")}</span>
+            <span>resize derived: ${backend.resize_is_derived ? "yes" : "no"} / distorts source: ${backend.distorts_source ? "yes" : "no"}</span>
+          </div>
+        `).join("")
+      : `<div class="empty-panel">No backend capability has been declared yet.</div>`;
+    this.els.intakeVisualCard.hidden = false;
   },
 
   renderIntakeUniqueList() {
@@ -1393,6 +1503,14 @@ const lexApp = {
 
   updateIntakeApprovalButtons(visibleRows = null) {
     const report = this.intake.report || {};
+    if (this.isVisualIntake(report)) {
+      this.els.intakeBulkApproveBtn.disabled = true;
+      this.els.intakeSelectVisibleBtn.disabled = true;
+      this.els.intakeApproveSelectedBtn.disabled = true;
+      this.els.intakeApproveSelectedBtn.textContent = "Approve Selected";
+      this.els.intakeBulkApproveBtn.textContent = "Bulk Approve All (blocked)";
+      return;
+    }
     const missingCount = Number(report.missing_anchor_count || 0);
     const visibleCount = visibleRows ? visibleRows.length : missingCount;
     const selectedCount = this.intake.selected.size;
@@ -1424,6 +1542,10 @@ const lexApp = {
   },
 
   selectVisibleMissingAnchors() {
+    if (this.isVisualIntake()) {
+      this.setBanner("info", "Visual intake is preview-only. Anchor selection is blocked.");
+      return;
+    }
     const report = this.intake.report || {};
     const filter = this.els.intakeMissingFilter.value.trim().toLowerCase();
     const rows = (report.missing_anchors || [])
@@ -1439,11 +1561,19 @@ const lexApp = {
   },
 
   async approveMissingAnchor(anchor) {
+    if (this.isVisualIntake()) {
+      this.setBanner("info", "Visual intake is preview-only. Anchor approval is blocked.");
+      return;
+    }
     if (!anchor || !this.intake.report) return;
     await this.approveMissingAnchorBatch([anchor], `Add "${anchor}" to the real lexicon?`);
   },
 
   rejectMissingAnchor(anchor) {
+    if (this.isVisualIntake()) {
+      this.setBanner("info", "Visual intake is preview-only. NULL mapping is blocked until a visual approval route exists.");
+      return;
+    }
     if (!anchor) return;
     this.intake.rejected.add(anchor);
     this.intake.selected.delete(anchor);
@@ -1482,6 +1612,10 @@ const lexApp = {
   },
 
   async applyIntakeAnchorEdits(edits) {
+    if (this.isVisualIntake()) {
+      this.setBanner("info", "Visual intake is preview-only. Anchor edits are blocked.");
+      return;
+    }
     const prep = this.intake.prep || {};
     this.setIntakeStep("Applying intake correction", 74, true);
     try {
@@ -1511,6 +1645,10 @@ const lexApp = {
   },
 
   async approveSelectedMissingAnchors() {
+    if (this.isVisualIntake()) {
+      this.setBanner("info", "Visual intake is preview-only. Anchor approval is blocked.");
+      return;
+    }
     const anchors = [...this.intake.selected].filter((anchor) => anchor && !this.intake.rejected.has(anchor));
     if (!anchors.length) {
       this.setBanner("info", "No selected missing anchors are available for approval.");
@@ -1520,6 +1658,10 @@ const lexApp = {
   },
 
   async approveAllMissingAnchors() {
+    if (this.isVisualIntake()) {
+      this.setBanner("info", "Visual intake is preview-only. Bulk anchor approval is blocked.");
+      return;
+    }
     const report = this.intake.report;
     if (!report) return;
     const anchors = (report.missing_anchors || [])
@@ -1582,6 +1724,10 @@ const lexApp = {
   },
 
   async recheckIntakeCoverage(finalLabel) {
+    if (this.isVisualIntake()) {
+      this.setIntakeStep("Visual evidence preview only", 100, false);
+      return;
+    }
     const content = this.intake.content;
     const prep = this.intake.prep || {};
     if (!content) return;
@@ -1605,6 +1751,11 @@ const lexApp = {
     const report = this.intake.report;
     const sourceName = this.intake.sourceName || (this.intake.prep || {}).source_name || "document";
     if (!this.intake.content || !report) return;
+    if (this.isVisualIntake(report)) {
+      this.setBanner("error", "Visual intake is preview-only. Map/count is blocked until a future visual approval route exists.");
+      this.setIntakeStep("Visual map/count blocked", 100, false, true);
+      return;
+    }
     const unresolvedMissing = this.intakeUnresolvedMissingCount(report);
     if (unresolvedMissing !== 0) {
       this.setBanner("error", "Approve, edit, delete, or mark missing anchors as NULL before mapping/counting.");
@@ -1642,7 +1793,7 @@ const lexApp = {
       this.setBanner("error", `Mapping + counts failed: ${error.message}`);
     } finally {
       button.textContent = original;
-      button.disabled = this.intakeUnresolvedMissingCount() !== 0;
+      button.disabled = this.isVisualIntake() || this.intakeUnresolvedMissingCount() !== 0;
     }
   },
 

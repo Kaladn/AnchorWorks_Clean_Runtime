@@ -13,6 +13,9 @@ from typing import Any
 from xml.etree import ElementTree
 
 from .chat_bridge import bridge_chat_memory_json
+from .visual_manifest import manifest_from_image_bytes
+from .visual_recognition_layer import create_empty_recognition_layer
+from .visual_region_map import create_empty_region_map
 
 
 TEXT_EXTENSIONS = {
@@ -341,31 +344,43 @@ def _prepare_odt(raw: bytes, source_name: str) -> tuple[str, dict[str, Any]]:
 
 
 def _prepare_image(raw: bytes, source_name: str) -> tuple[str, dict[str, Any]]:
-    metadata: dict[str, Any] = {}
+    visual_manifest = manifest_from_image_bytes(raw, source_name)
+    visual_region_map = create_empty_region_map(visual_manifest)
+    visual_recognition_layer = create_empty_recognition_layer(visual_manifest, visual_region_map)
+    source = visual_manifest.source
+    metadata: dict[str, Any] = {
+        "format": source.file_format,
+        "width": source.width,
+        "height": source.height,
+        "mode": source.color_mode,
+        "visual_manifest": visual_manifest.to_dict(),
+        "visual_region_map": visual_region_map.to_dict(),
+        "visual_recognition_layer": visual_recognition_layer.to_dict(),
+        "visual_authority": visual_manifest.authority,
+        "visual_approval_status": visual_manifest.approval_status,
+    }
     warnings: list[str] = []
-    try:
-        from PIL import Image
-
-        with Image.open(io.BytesIO(raw)) as image:
-            metadata = {
-                "format": image.format,
-                "width": image.width,
-                "height": image.height,
-                "mode": image.mode,
-            }
-    except Exception as exc:  # pragma: no cover - depends on optional runtime packages
-        warnings.append(str(exc))
+    if source.width is None or source.height is None:
+        warnings.append("image geometry could not be read")
 
     lines = [
         _source_line(source_name),
         "[TYPE: image]",
         "",
         f"[IMAGE: {Path(source_name).stem}]",
+        f"Visual_Record_ID: {source.visual_record_id}",
         f"Format: {metadata.get('format', Path(source_name).suffix.lower().lstrip('.'))}",
         f"Width: {metadata.get('width', 'unknown')}",
         f"Height: {metadata.get('height', 'unknown')}",
+        f"Aspect_Ratio: {source.aspect_ratio}",
         f"Mode: {metadata.get('mode', 'unknown')}",
         f"SHA256: {hashlib.sha256(raw).hexdigest()}",
+        f"Region_Map_ID: {visual_region_map.region_map_id}",
+        f"Recognition_Layer_ID: {visual_recognition_layer.recognition_layer_id}",
+        "Authority: source_local_visual_evidence",
+        "Approval_Status: preview_only",
+        "Writes_Allowed: maps=false counts=false lifetime=false lexicon=false",
+        "Visual_Note: Native pixels are source evidence. OCR, object, and scene layers are derived later.",
         "[IMAGE_END]",
     ]
     if warnings:

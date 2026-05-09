@@ -35,6 +35,19 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _is_visual_preview_content(content: str) -> bool:
+    if not content:
+        return False
+    markers = (
+        "[TYPE: image]",
+        "Visual_Record_ID:",
+        "Authority: source_local_visual_evidence",
+        "Approval_Status: preview_only",
+        "Writes_Allowed: maps=false counts=false lifetime=false lexicon=false",
+    )
+    return all(marker in content for marker in markers)
+
+
 class LexiconStore:
     def __init__(self, data_root: Path) -> None:
         self.root = Path(data_root).expanduser().resolve()
@@ -437,6 +450,28 @@ class LexiconStore:
         file_type: str = "",
         source_path: str = "",
     ) -> dict[str, Any]:
+        if _is_visual_preview_content(content):
+            return {
+                "ok": True,
+                "source_name": source_name or "document",
+                "source_path": source_path or "",
+                "file_type": file_type or "",
+                "file_size": int(file_size or len(content.encode("utf-8"))),
+                "real_lexicon_path": str(self.root),
+                "paragraph_count": 0,
+                "total_anchor_observations": 0,
+                "unique_anchor_count": 0,
+                "known_anchor_count": 0,
+                "missing_anchor_count": 0,
+                "known_anchor_observations": 0,
+                "missing_anchor_observations": 0,
+                "unique_anchors": [],
+                "missing_anchors": [],
+                "visual_preview_only": True,
+                "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+                "reason": "visual_intake_preview_only",
+            }
+
         inventory = self._extract_document_anchor_inventory(content)
         observed_counts: Counter[str] = inventory["observed_counts"]
         known_anchors = set(self._all_known_anchors())
@@ -601,6 +636,8 @@ class LexiconStore:
         content: str,
         count_target: str = "base",
     ) -> dict[str, Any]:
+        if _is_visual_preview_content(content):
+            raise ValueError("visual intake preview is source-local evidence only; use a future visual approval route before mapping/counting")
         staged_path = self._intake_upload_path(source_name=source_name, content=content)
         staged_path.write_text(content, encoding="utf-8")
         return self.build_observed_map(staged_path, count_target=count_target)
@@ -1374,6 +1411,8 @@ class LexiconStore:
             raise IsADirectoryError(source_path)
 
         prepared = prepare_file(source_path)
+        if isinstance(prepared.metadata, dict) and prepared.metadata.get("visual_manifest"):
+            raise ValueError("visual intake preview is source-local evidence only; use a future visual approval route before mapping/counting")
         text = prepared.prepared_text
         inventory = self._extract_document_anchor_inventory(text)
         observed_counts: Counter[str] = inventory["observed_counts"]
