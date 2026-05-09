@@ -11,7 +11,14 @@ State/lifetime_co_occurrence_counts.zip
 State/observed_maps/**
 State/flat_documents/raw/**
 State/flat_documents/symbolic/**
+State/flat_documents/block_index/**
+State/flat_documents/occurrence_index/**
+State/flat_documents/visual_links/**
 State/intake_uploads/**
+State/source_local_preview_counts/**
+State/temp_lexicons/**
+State/ingest_staging/**
+State/visual_intake/**
 State/misspelled_reviews/**
 State/chat_memory/chats/**
 State/chat_memory/citations/**
@@ -19,6 +26,7 @@ State/chat_memory/notes/**
 State/chat_memory/summaries/**
 State/chat_memory/imports/**
 State/chat_memory/attachments/**
+Anchorworks/docs/CODEX_HANDOFF_STATE.json
 
 # Keep empty runtime directory markers.
 !**/.gitkeep
