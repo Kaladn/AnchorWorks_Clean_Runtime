@@ -28,6 +28,10 @@ class MappingRunBody(BaseModel):
     file_path: str
 
 
+class ResonanceBuildBody(BaseModel):
+    observed_map_name: str
+
+
 class IntakePreviewBody(BaseModel):
     source_name: str
     content: str
@@ -373,6 +377,13 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         try:
             return store.build_observed_map(Path(body.file_path))
         except (FileNotFoundError, IsADirectoryError, ValueError, AssertionError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/resonance/source-local/build")
+    def resonance_source_local_build(body: ResonanceBuildBody) -> dict[str, Any]:
+        try:
+            return store.build_source_local_resonance(body.observed_map_name)
+        except (FileNotFoundError, ValueError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
     @app.post("/api/lexicon/intake/preview")

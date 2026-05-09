@@ -22,6 +22,10 @@ from .intake import (
     extract_anchor_rows,
     split_paragraphs,
 )
+from .positional_resonance import (
+    build_source_local_resonance_index,
+    write_jsonl,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -66,6 +70,8 @@ class LexiconStore:
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_preview_counts_dir = self.state_dir / "source_local_preview_counts"
+        self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
+        self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
         self.intake_uploads_dir = self.state_dir / "intake_uploads"
         self.lifetime_counts_path = self.state_dir / "lifetime_co_occurrence_counts.json"
         self.missing_anchor_registry_path = self.state_dir / "missing_anchor_registry.json"
@@ -96,6 +102,8 @@ class LexiconStore:
         self.misspelled_reviews_dir.mkdir(parents=True, exist_ok=True)
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_preview_counts_dir.mkdir(parents=True, exist_ok=True)
+        self.source_local_occurrences_dir.mkdir(parents=True, exist_ok=True)
+        self.source_local_resonance_dir.mkdir(parents=True, exist_ok=True)
         self.intake_uploads_dir.mkdir(parents=True, exist_ok=True)
         self._ensure_state_file(self.unmatched_path, [])
         self._ensure_state_file(self.pending_path, [])
@@ -1185,6 +1193,61 @@ class LexiconStore:
             "temp_symbol_count": int(payload.get("temp_symbol_count", 0) or 0),
             "temp_lexicon_path": payload.get("temp_lexicon_path") or "",
             "source_local_preview_counts_path": payload.get("source_local_preview_counts_path") or "",
+        }
+
+    def build_source_local_resonance(self, observed_map_name: str) -> dict[str, Any]:
+        path = self._resolve_observed_map_name(observed_map_name)
+        if not path.exists():
+            raise FileNotFoundError(observed_map_name)
+        payload = self._read_json(path, {})
+        if not isinstance(payload, dict):
+            raise ValueError(f"invalid observed map: {path.name}")
+
+        index = build_source_local_resonance_index(payload)
+        source_id = index["source_id"]
+        safe_stem = index["safe_source_stem"]
+        short_source = source_id[:12]
+        occurrence_path = self.source_local_occurrences_dir / f"{safe_stem}-{short_source}.occurrences.jsonl"
+        profile_path = self.source_local_resonance_dir / f"{safe_stem}-{short_source}.positional_profiles.jsonl"
+        directional_path = self.source_local_resonance_dir / f"{safe_stem}-{short_source}.directional_resonance.jsonl"
+        cloud_path = self.source_local_resonance_dir / f"{safe_stem}-{short_source}.context_clouds.jsonl"
+        summary_path = self.source_local_resonance_dir / f"{safe_stem}-{short_source}.summary.json"
+
+        write_jsonl(occurrence_path, index["occurrences"])
+        write_jsonl(profile_path, index["positional_profiles"])
+        write_jsonl(directional_path, index["directional_resonance"])
+        write_jsonl(cloud_path, index["context_clouds"])
+
+        summary = {
+            **index["summary"],
+            "saved_at": _utc_now(),
+            "observed_map_name": path.name,
+            "observed_map_path": str(path),
+            "occurrence_path": str(occurrence_path),
+            "positional_profiles_path": str(profile_path),
+            "directional_resonance_path": str(directional_path),
+            "context_clouds_path": str(cloud_path),
+            "summary_path": str(summary_path),
+        }
+        self._write_json(summary_path, summary)
+
+        return {
+            "ok": True,
+            "source_id": source_id,
+            "source_name": summary.get("source_name") or "",
+            "source_path": summary.get("source_path") or "",
+            "observed_map_name": path.name,
+            "occurrence_path": str(occurrence_path),
+            "positional_profiles_path": str(profile_path),
+            "directional_resonance_path": str(directional_path),
+            "context_clouds_path": str(cloud_path),
+            "summary_path": str(summary_path),
+            "occurrence_records": int(summary["occurrence_records"]),
+            "positional_profile_rows": int(summary["positional_profile_rows"]),
+            "directional_resonance_rows": int(summary["directional_resonance_rows"]),
+            "context_cloud_rows": int(summary["context_cloud_rows"]),
+            "writes_allowed": summary["writes_allowed"],
+            "authority": summary["authority"],
         }
 
     def load_misspelled_review(self, name: str) -> dict[str, Any]:
