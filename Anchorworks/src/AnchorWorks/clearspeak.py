@@ -4,6 +4,12 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from .clearspeak_attention import (
+    attention_math_contract,
+    content_anchors,
+    rank_attention_candidates,
+    retrieve_from_count_index,
+)
 from .intake import extract_anchors
 
 
@@ -46,7 +52,7 @@ class ClearSpeakService:
         evidence: list[dict[str, Any]] = []
         citation_rows: list[dict[str, Any]] = []
         for anchor in represented:
-            retrieved = _retrieve_from_count_index(count_index, anchor, limit=limit)
+            retrieved = retrieve_from_count_index(count_index, anchor, limit=limit)
             if int(retrieved.get("total_neighbor_observations", 0) or 0) <= 0:
                 continue
             row = {
@@ -133,7 +139,7 @@ class ClearSpeakService:
         return {"by_anchor": {}}
 
     def _assemble_answer_terms(self, represented: list[str], *, count_index: dict[str, Any], limit: int = 6) -> dict[str, Any]:
-        seeds = _content_anchors(represented)
+        seeds = content_anchors(represented)
         if not seeds:
             return _empty_answer_assembly("no_content_seed")
         context = list(seeds)
@@ -151,6 +157,7 @@ class ClearSpeakService:
                     "terms": selected,
                     "trace": trace,
                     "stop_reason": "no_supported_candidate" if selected else "no_candidate_pool",
+                    "attention_math": attention_math_contract(),
                     "contract": _answer_assembly_contract(),
                 }
             winner = pool[0]
@@ -175,50 +182,12 @@ class ClearSpeakService:
             "terms": selected,
             "trace": trace,
             "stop_reason": "answer_limit_reached",
+            "attention_math": attention_math_contract(),
             "contract": _answer_assembly_contract(),
         }
 
     def _rank_count_candidates(self, count_index: dict[str, Any], context: list[str], *, blocked: set[str]) -> list[dict[str, Any]]:
-        candidates: dict[str, dict[str, Any]] = {}
-        for context_anchor in context[-50:]:
-            retrieved = _retrieve_from_count_index(count_index, context_anchor, limit=32)
-            offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
-            for offset, rows in offsets.items():
-                distance = _offset_distance(str(offset))
-                position_strength = 1.0 / max(distance, 1)
-                for row in rows or []:
-                    anchor = str(row.get("anchor") or "").strip()
-                    if not anchor or anchor in blocked or _blocked_answer_anchor(anchor):
-                        continue
-                    observations = int(row.get("observations", 0) or 0)
-                    if observations <= 0:
-                        continue
-                    current = candidates.setdefault(anchor, {
-                        "anchor": anchor,
-                        "selection_score": 0.0,
-                        "raw_observations": 0,
-                        "supporting_context": [],
-                        "support_offsets": [],
-                        "why_chosen": [],
-                    })
-                    current["selection_score"] += observations * position_strength
-                    current["raw_observations"] += observations
-                    if context_anchor not in current["supporting_context"]:
-                        current["supporting_context"].append(context_anchor)
-                    if str(offset) not in current["support_offsets"]:
-                        current["support_offsets"].append(str(offset))
-
-        ranked = list(candidates.values())
-        for row in ranked:
-            support_count = len(row["supporting_context"])
-            row["selection_score"] = round(float(row["selection_score"]) + (support_count * 8.0), 4)
-            row["why_chosen"] = [
-                f"raw_observations={row['raw_observations']}",
-                f"context_support={support_count}",
-                "position_weighted_topk_walk",
-            ]
-        ranked.sort(key=lambda row: (-float(row["selection_score"]), -int(row["raw_observations"]), str(row["anchor"])))
-        return ranked
+        return rank_attention_candidates(count_index, context, blocked=blocked)
 
 
 def summarize_clearspeak_evidence(result: ClearSpeakResult | dict[str, Any]) -> str:
@@ -236,89 +205,6 @@ def summarize_clearspeak_evidence(result: ClearSpeakResult | dict[str, Any]) -> 
         return "ClearSpeak evidence: none."
     pairs = ", ".join(f"{anchor}:{count}" for anchor, count in totals.most_common(8))
     return f"ClearSpeak evidence: {pairs}"
-
-
-_ANSWER_BLOCKLIST = {
-    "",
-    ".",
-    ",",
-    "?",
-    "!",
-    ":",
-    ";",
-    "(",
-    ")",
-    "[",
-    "]",
-    "{",
-    "}",
-    "a",
-    "an",
-    "and",
-    "are",
-    "as",
-    "be",
-    "but",
-    "by",
-    "can",
-    "could",
-    "did",
-    "do",
-    "does",
-    "for",
-    "from",
-    "had",
-    "has",
-    "have",
-    "how",
-    "i",
-    "in",
-    "is",
-    "it",
-    "of",
-    "on",
-    "or",
-    "our",
-    "should",
-    "source",
-    "that",
-    "the",
-    "their",
-    "this",
-    "to",
-    "was",
-    "we",
-    "what",
-    "when",
-    "where",
-    "which",
-    "who",
-    "why",
-    "with",
-    "would",
-    "you",
-}
-
-
-def _content_anchors(anchors: list[str]) -> list[str]:
-    content = [anchor for anchor in anchors if not _blocked_answer_anchor(anchor)]
-    return content or anchors
-
-
-def _blocked_answer_anchor(anchor: str) -> bool:
-    clean = str(anchor or "").strip().casefold()
-    if clean in _ANSWER_BLOCKLIST:
-        return True
-    if len(clean) == 1 and not clean.isalnum():
-        return True
-    return bool(clean) and all(char.isdigit() for char in clean)
-
-
-def _offset_distance(offset: str) -> int:
-    try:
-        return abs(int(str(offset).replace("+", "")))
-    except ValueError:
-        return 6
 
 
 def _answer_assembly_contract() -> dict[str, bool]:
@@ -340,49 +226,9 @@ def _empty_answer_assembly(reason: str) -> dict[str, Any]:
         "terms": [],
         "trace": [],
         "stop_reason": reason,
+        "attention_math": attention_math_contract(),
         "contract": _answer_assembly_contract(),
     }
-
-
-def _retrieve_from_count_index(count_index: dict[str, Any], anchor: str, limit: int = 25) -> dict[str, Any]:
-    surface = str(anchor or "").strip().lower()
-    offsets = (count_index.get("by_anchor") or {}).get(surface) or {}
-    total_by_neighbor: Counter[str] = Counter()
-    by_offset: dict[str, Counter[str]] = {}
-    for offset, counter in offsets.items():
-        if not isinstance(counter, Counter):
-            counter = Counter(counter or {})
-        for neighbor, observations in counter.items():
-            count = int(observations or 0)
-            if count <= 0:
-                continue
-            total_by_neighbor[str(neighbor)] += count
-            by_offset.setdefault(str(offset), Counter())[str(neighbor)] += count
-    neighbor_rows = [
-        {"anchor": neighbor, "observations": count}
-        for neighbor, count in sorted(total_by_neighbor.items(), key=lambda item: (-item[1], item[0]))[:limit]
-    ]
-    offset_rows = {
-        offset: [
-            {"anchor": neighbor, "observations": count}
-            for neighbor, count in sorted(counter.items(), key=lambda item: (-item[1], item[0]))[:limit]
-        ]
-        for offset, counter in sorted(by_offset.items(), key=lambda item: (_offset_sort_key(item[0]), item[0]))
-    }
-    return {
-        "anchor": surface,
-        "neighbor_count": len(total_by_neighbor),
-        "total_neighbor_observations": int(sum(total_by_neighbor.values())),
-        "neighbors": neighbor_rows,
-        "offsets": offset_rows,
-    }
-
-
-def _offset_sort_key(offset: str) -> int:
-    try:
-        return int(str(offset).replace("+", ""))
-    except ValueError:
-        return 0
 
 
 def _ordered_unique(values: list[str]) -> list[str]:

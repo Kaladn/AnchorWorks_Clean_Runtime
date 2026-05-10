@@ -9,6 +9,7 @@ from pathlib import Path
 from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
+from AnchorWorks.clearspeak_attention import rank_attention_candidates
 from AnchorWorks.clearspeak import ClearSpeakService
 from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
@@ -141,6 +142,31 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(not_item["after"]["1"], [{"anchor": "do", "word": "do", "count": 1}])
         self.assertEqual(mapping["anchor_index"][0]["anchor"], "do")
         self.assertEqual(mapping["anchor_index"][0]["count"], 4)
+
+    def test_clearspeak_attention_scores_by_position_and_context_support(self) -> None:
+        count_index = {
+            "by_anchor": {
+                "sear": {
+                    "+1": Counter({"meat": 10, "pan": 12}),
+                    "+6": Counter({"smoke": 30}),
+                },
+                "meat": {
+                    "-1": Counter({"sear": 10}),
+                    "+1": Counter({"pan": 8}),
+                },
+            }
+        }
+
+        ranked = rank_attention_candidates(count_index, ["sear", "meat"], blocked={"sear", "meat"})
+
+        self.assertEqual(ranked[0]["anchor"], "pan")
+        self.assertEqual(ranked[0]["attention_math"]["kind"], "runtime_relevance_scoring")
+        self.assertEqual(ranked[0]["attention_math"]["law"], "Counts store weight; context clouds store neighborhood; attention chooses relevance.")
+        self.assertEqual(ranked[0]["supporting_context"], ["sear", "meat"])
+        self.assertEqual(ranked[0]["support_offsets"], ["+1"])
+        self.assertGreater(ranked[0]["selection_score"], ranked[1]["selection_score"])
+        self.assertIn("observations_x_position_strength", ranked[0]["why_chosen"])
+        self.assertIn("multi_context_support_bonus", ranked[0]["why_chosen"])
 
     def test_anchor_rows_preserve_surface_and_fused_boundaries(self) -> None:
         fused_rows = extract_anchor_rows("state-of-the-art")
