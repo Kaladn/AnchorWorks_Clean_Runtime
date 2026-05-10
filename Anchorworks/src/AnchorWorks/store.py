@@ -97,7 +97,6 @@ class LexiconStore:
         self.observed_maps_dir = self.state_dir / "observed_maps"
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
-        self.source_local_preview_counts_dir = self.state_dir / "source_local_preview_counts"
         self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
         self.symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
         self.symbol_streams_dir = self.state_dir / "symbol_streams"
@@ -145,7 +144,6 @@ class LexiconStore:
         self.observed_maps_dir.mkdir(parents=True, exist_ok=True)
         self.misspelled_reviews_dir.mkdir(parents=True, exist_ok=True)
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
-        self.source_local_preview_counts_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_symbol_counts_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_streams_dir.mkdir(parents=True, exist_ok=True)
@@ -164,12 +162,9 @@ class LexiconStore:
         self._ensure_state_file(self.unmatched_path, [])
         self._ensure_state_file(self.pending_path, [])
         self._ensure_state_file(self.ignored_path, [])
-        self._ensure_state_file(self.lifetime_counts_path, {})
         self._ensure_state_file(self.missing_anchor_registry_path, [])
         self._ensure_state_file(self.custom_entries_path, {})
         self._ensure_state_file(self.user_lexicon_path, [])
-        self._ensure_state_file(self.user_counts_path, {})
-        self._ensure_state_file(self.chat_counts_path, {})
         self._ensure_state_file(self.ingest_staging_manifest_path, {"items": []})
         self._ensure_state_file(self.rejected_or_literal_clusters_path, [])
 
@@ -199,8 +194,6 @@ class LexiconStore:
         }
         files = {
             "user_lexicon": self.user_lexicon_path,
-            "user_counts": self.user_counts_path,
-            "chat_counts": self.chat_counts_path,
             "ingest_staging_manifest": self.ingest_staging_manifest_path,
             "rejected_or_literal_clusters": self.rejected_or_literal_clusters_path,
         }
@@ -222,7 +215,7 @@ class LexiconStore:
             ],
             "protected_paths": {
                 "main_lexicon": str(self.canonical_dir),
-                "base_counts": str(self.lifetime_counts_path),
+                "binary_counts": str(self.symbol_counts_binary_dir),
             },
         }
 
@@ -784,7 +777,7 @@ class LexiconStore:
         *,
         source_name: str,
         content: str,
-        count_target: str = "base",
+        count_target: str = "binary_source_local",
         intake_edits: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         if _is_visual_preview_content(content):
@@ -1150,11 +1143,6 @@ class LexiconStore:
         digest = hashlib.sha256(str(source_path).encode("utf-8")).hexdigest()[:12]
         return self.temp_lexicons_dir / f"{safe_name}-{digest}.temp_lexicon.json"
 
-    def _source_local_preview_counts_path(self, source_path: Path) -> Path:
-        safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", source_path.stem).strip("._") or "source"
-        digest = hashlib.sha256(str(source_path).encode("utf-8")).hexdigest()[:12]
-        return self.source_local_preview_counts_dir / f"{safe_name}-{digest}.preview_counts.json"
-
     def _build_temp_symbol_entries(self, source_path: Path, missing_counts: Counter[str]) -> tuple[dict[str, str], list[dict[str, Any]]]:
         source_id = hashlib.sha256(str(source_path).encode("utf-8")).hexdigest()
         used: set[str] = set()
@@ -1271,9 +1259,6 @@ class LexiconStore:
 
         return counter, observed_counts, metadata
 
-    def _load_lifetime_relation_counts(self) -> tuple[Counter[tuple[str, str, str]], Counter[str], dict[str, Any]]:
-        return self._load_relation_counts_file(self.lifetime_counts_path)
-
     def _load_combined_relation_counts(self) -> tuple[Counter[tuple[str, str, str]], Counter[str]]:
         base_counter, base_observed, _ = self._load_relation_counts_file(self.lifetime_counts_path)
         user_counter, user_observed, _ = self._load_relation_counts_file(self.user_counts_path)
@@ -1329,113 +1314,22 @@ class LexiconStore:
                 fates["other_relation"] += observations
         return dict(sorted(fates.items()))
 
-    def _update_relation_counts_file(
-        self,
-        path: Path,
-        relation_rows: list[dict[str, Any]],
-        observed_counts: Counter[str] | None = None,
-    ) -> dict[str, Any]:
-        with self._lock:
-            counter, observed_counter, metadata = self._load_relation_counts_file(path)
-
-            for row in relation_rows:
-                if not isinstance(row, dict):
-                    continue
-                anchor = row.get("anchor")
-                offset = row.get("offset")
-                neighbor = row.get("neighbor")
-                observations = int(row.get("observations", 0) or 0)
-                if not isinstance(anchor, str) or not isinstance(offset, str) or not isinstance(neighbor, str):
-                    continue
-                if observations <= 0:
-                    continue
-                counter[(anchor, offset, neighbor)] += observations
-
-            if observed_counts:
-                for anchor, observations in observed_counts.items():
-                    if not isinstance(anchor, str):
-                        continue
-                    observed_counter[anchor] += int(observations or 0)
-
-            timestamp = _utc_now()
-            first_saved_at = metadata["first_saved_at"] or timestamp
-            relation_count_rows = self._relation_count_rows(counter)
-            items, anchor_index = build_context_views(
-                relation_count_rows,
-                observed_counts=observed_counter,
-                window_radius=DEFAULT_WINDOW_RADIUS,
-            )
-            payload = {
-                "first_saved_at": first_saved_at,
-                "updated_at": timestamp,
-                "ingest_events": int(metadata["ingest_events"]) + 1,
-                "window_radius": DEFAULT_WINDOW_RADIUS,
-                "unique_relations": len(counter),
-                "total_relation_observations": int(sum(counter.values())),
-                "anchor_observation_counts": self._anchor_rows(observed_counter),
-                "co_occurrence_counts": relation_count_rows,
-                "items": items,
-                "anchor_index": anchor_index,
-            }
-            self._write_json(path, payload)
-            return payload
-
-    def _update_lifetime_relation_counts(
-        self,
-        relation_rows: list[dict[str, Any]],
-        observed_counts: Counter[str] | None = None,
-    ) -> dict[str, Any]:
-        return self._update_relation_counts_file(
-            self.lifetime_counts_path,
-            relation_rows,
-            observed_counts=observed_counts,
-        )
-
-    def _update_user_chat_relation_counts(
-        self,
-        relation_rows: list[dict[str, Any]],
-        observed_counts: Counter[str] | None = None,
-    ) -> dict[str, Any]:
-        user_payload = self._update_relation_counts_file(
-            self.user_counts_path,
-            relation_rows,
-            observed_counts=observed_counts,
-        )
-        chat_payload = self._update_relation_counts_file(
-            self.chat_counts_path,
-            relation_rows,
-            observed_counts=observed_counts,
-        )
-        return {
-            "user_counts_path": str(self.user_counts_path),
-            "chat_counts_path": str(self.chat_counts_path),
-            "user_ingest_events": int(user_payload.get("ingest_events", 0) or 0),
-            "chat_ingest_events": int(chat_payload.get("ingest_events", 0) or 0),
-            "user_total_relation_observations": int(user_payload.get("total_relation_observations", 0) or 0),
-            "chat_total_relation_observations": int(chat_payload.get("total_relation_observations", 0) or 0),
-        }
-
     def counts_status(self) -> dict[str, Any]:
-        base_counter, base_observed, base_metadata = self._load_relation_counts_file(self.lifetime_counts_path)
-        user_counter, user_observed, user_metadata = self._load_relation_counts_file(self.user_counts_path)
-        combined_counter = Counter(base_counter)
-        combined_counter.update(user_counter)
-        combined_observed = Counter(base_observed)
-        combined_observed.update(user_observed)
+        cells_root = self.symbol_counts_binary_dir / "cells"
+        cell_paths = list(cells_root.glob("*/*.cell")) if cells_root.exists() else []
+        stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
         return {
-            "counts_path": str(self.lifetime_counts_path),
-            "user_counts_path": str(self.user_counts_path),
-            "base_ingest_events": int(base_metadata.get("ingest_events", 0) or 0),
-            "user_ingest_events": int(user_metadata.get("ingest_events", 0) or 0),
-            "ingest_events": int(base_metadata.get("ingest_events", 0) or 0) + int(user_metadata.get("ingest_events", 0) or 0),
-            "base_unique_relations": len(base_counter),
-            "user_unique_relations": len(user_counter),
-            "unique_relations": len(combined_counter),
-            "base_total_relation_observations": int(sum(base_counter.values())),
-            "user_total_relation_observations": int(sum(user_counter.values())),
-            "total_relation_observations": int(sum(combined_counter.values())),
-            "anchor_count": len(combined_observed),
-            "relation_rows": len(combined_counter),
+            "runtime": "awsc_v1_1_binary_cells",
+            "binary_counts_root": str(self.symbol_counts_binary_dir),
+            "symbol_stream_path": str(stream_path),
+            "symbol_stream_exists": stream_path.exists(),
+            "cell_count": len(cell_paths),
+            "legacy_json_counts_removed": True,
+            "ingest_events": 0,
+            "unique_relations": 0,
+            "total_relation_observations": 0,
+            "anchor_count": len(cell_paths),
+            "relation_rows": 0,
         }
 
     def observed_map_files(self) -> dict[str, Any]:
@@ -1655,7 +1549,6 @@ class LexiconStore:
             "context_items_preview": list((payload.get("items") or {}).values())[:12],
             "temp_symbol_count": int(payload.get("temp_symbol_count", 0) or 0),
             "temp_lexicon_path": payload.get("temp_lexicon_path") or "",
-            "source_local_preview_counts_path": payload.get("source_local_preview_counts_path") or "",
         }
 
     def flat_document_files(self) -> dict[str, Any]:
@@ -2356,7 +2249,7 @@ class LexiconStore:
         self,
         source_path: Path,
         *,
-        count_target: str = "base",
+        count_target: str = "binary_source_local",
         null_anchors: set[str] | None = None,
     ) -> dict[str, Any]:
         source_path = Path(source_path).expanduser().resolve()
@@ -2454,66 +2347,16 @@ class LexiconStore:
         })
         temp_symbols_present = bool(temp_entries)
         source_local_only_present = temp_symbols_present or bool(companion_counts) or bool(null_anchor_set)
-        canonical_lifetime_rows = self._canonical_lifetime_relation_rows(mapping["co_occurrence_counts"], known_counts)
-        if temp_symbols_present:
-            reasons: list[str] = []
-            reasons.append("source_local_temp_symbols_present")
-            if companion_counts:
-                reasons.append("companion_authority_anchors_present")
-            if null_anchor_set:
-                reasons.append("null_symbol_anchors_present")
-            count_write = {
-                "count_target": count_target,
-                "count_paths": [],
-                "lifetime_write_skipped": True,
-                "reason": "+".join(reasons),
-                "canonical_lifetime_rows_available": len(canonical_lifetime_rows),
-            }
-        elif count_target == "base":
-            reasons: list[str] = []
-            if companion_counts:
-                reasons.append("companion_authority_anchors_present_excluded")
-            if null_anchor_set:
-                reasons.append("null_symbol_anchors_excluded")
-            if not canonical_lifetime_rows:
-                reasons.append("no_canonical_relations")
-                count_write = {
-                    "count_target": "base",
-                    "count_paths": [],
-                    "lifetime_write_skipped": True,
-                    "lifetime_relation_rows_written": 0,
-                    "lifetime_anchor_observations_available": int(sum(known_counts.values())),
-                    "reason": "+".join(reasons),
-                }
-            else:
-                self._update_lifetime_relation_counts(
-                    canonical_lifetime_rows,
-                    observed_counts=known_counts,
-                )
-                count_write = {
-                    "count_target": "base",
-                    "count_paths": [str(self.lifetime_counts_path)],
-                    "lifetime_write_skipped": False,
-                    "lifetime_relation_rows_written": len(canonical_lifetime_rows),
-                    "lifetime_anchor_observations_written": int(sum(known_counts.values())),
-                    "reason": "+".join(reasons) if reasons else "canonical_lifetime_counts_written",
-                }
-        elif count_target == "user_chat":
-            user_write = self._update_user_chat_relation_counts(
-                canonical_lifetime_rows,
-                observed_counts=known_counts,
-            )
-            count_write = {
-                "count_target": "user_chat",
-                "count_paths": [user_write["user_counts_path"], user_write["chat_counts_path"]],
-                "lifetime_write_skipped": False,
-                "lifetime_relation_rows_written": len(canonical_lifetime_rows),
-                "lifetime_anchor_observations_written": int(sum(known_counts.values())),
-                "reason": "canonical_lifetime_counts_written",
-                **user_write,
-            }
-        else:
-            raise ValueError(f"unknown count target: {count_target}")
+        if count_target not in {"binary_source_local", "user_chat_preview"}:
+            raise ValueError("legacy JSON count targets are removed on the binary spine branch")
+        count_write = {
+            "count_target": count_target,
+            "count_paths": [],
+            "lifetime_write_skipped": True,
+            "legacy_json_counts_removed": True,
+            "binary_counts_required": True,
+            "reason": "observed_map_only_binary_symbol_counts_post_step_required",
+        }
 
         observed_rows = [
             {
@@ -2527,7 +2370,6 @@ class LexiconStore:
         ]
 
         temp_lexicon_path: Path | None = None
-        source_local_preview_counts_path: Path | None = None
         if source_local_only_present:
             temp_lexicon_path = self._temp_lexicon_path(source_path)
             self._write_json(temp_lexicon_path, {
@@ -2543,18 +2385,6 @@ class LexiconStore:
                     for anchor in null_anchor_set
                     if anchor in observed_counts
                 })),
-            })
-            source_local_preview_counts_path = self._source_local_preview_counts_path(source_path)
-            self._write_json(source_local_preview_counts_path, {
-                "saved_at": _utc_now(),
-                "source_path": str(source_path),
-                "source_name": source_path.name,
-                "count_scope": "source_local_preview",
-                "temp_symbol_version": TEMP_SYMBOL_VERSION,
-                "anchor_observation_counts": self._anchor_rows(resolved_counts),
-                "co_occurrence_counts": mapping["co_occurrence_counts"],
-                "items": mapping["items"],
-                "anchor_index": mapping["anchor_index"],
             })
 
         payload = {
@@ -2602,7 +2432,6 @@ class LexiconStore:
             "temp_symbol_count": len(temp_entries),
             "temp_symbols": temp_entries,
             "temp_lexicon_path": str(temp_lexicon_path) if temp_lexicon_path else "",
-            "source_local_preview_counts_path": str(source_local_preview_counts_path) if source_local_preview_counts_path else "",
             "document_prep": {
                 key: value
                 for key, value in prepared.to_dict().items()
@@ -2656,7 +2485,6 @@ class LexiconStore:
             "count_write": count_write,
             "temp_symbol_count": len(temp_entries),
             "temp_lexicon_path": str(temp_lexicon_path) if temp_lexicon_path else "",
-            "source_local_preview_counts_path": str(source_local_preview_counts_path) if source_local_preview_counts_path else "",
             "misspelled_review_path": str(review_path),
             "misspelled_review_name": review_path.name,
             "misspelled_review_preview": review_rows[:25],

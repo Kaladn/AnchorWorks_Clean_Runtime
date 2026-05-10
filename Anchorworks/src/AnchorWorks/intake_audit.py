@@ -70,20 +70,20 @@ def rebuild_readiness_report(*, source_dir: Path, state_dir: Path) -> dict[str, 
     state = Path(state_dir).expanduser().resolve()
     observed_maps = state / "observed_maps"
     flat_symbolic = state / "flat_documents" / "symbolic"
-    preview_counts = state / "source_local_preview_counts"
+    symbol_counts = state / "source_local_symbol_counts"
     cleanup_ledger = state / "ingest_staging" / "cleanup_ledger" / "cleanup_ledger.json"
 
     raw_files = [path for path in sources.rglob("*") if path.is_file()] if sources.exists() else []
     map_files = list(observed_maps.glob("*.observed.json")) if observed_maps.exists() else []
     flat_files = list(flat_symbolic.glob("*.symbolic.json")) if flat_symbolic.exists() else []
-    preview_files = list(preview_counts.glob("*.preview_counts.json")) if preview_counts.exists() else []
+    symbol_count_files = list(symbol_counts.glob("*.symbol_counts.json")) if symbol_counts.exists() else []
 
     return {
         "ok": sources.exists() and cleanup_ledger.exists(),
         "raw_sources": {"path": str(sources), "exists": sources.exists(), "file_count": len(raw_files)},
         "observed_maps": {"path": str(observed_maps), "exists": observed_maps.exists(), "file_count": len(map_files)},
         "flat_symbolic_documents": {"path": str(flat_symbolic), "exists": flat_symbolic.exists(), "file_count": len(flat_files)},
-        "source_local_preview_counts": {"path": str(preview_counts), "exists": preview_counts.exists(), "file_count": len(preview_files)},
+        "source_local_symbol_counts": {"path": str(symbol_counts), "exists": symbol_counts.exists(), "file_count": len(symbol_count_files)},
         "cleanup_ledger": {"path": str(cleanup_ledger), "exists": cleanup_ledger.exists()},
         "rebuild_needed": len(map_files) != len(raw_files) or len(flat_files) != len(map_files),
         "manual_map_move": "manual_only",

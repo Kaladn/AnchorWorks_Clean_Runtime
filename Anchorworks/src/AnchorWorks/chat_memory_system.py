@@ -127,11 +127,11 @@ class ChatMemorySystem:
         result = self.store.build_intake_mapping(
             source_name=source_name,
             content=content,
-            count_target="user_chat",
+            count_target="user_chat_preview",
         )
         self.add_reasoning(
             event="chat_finalize",
-            summary=f"Finalized chat day {target_day} branch {branch or 'main'} into user-side anchor counts.",
+            summary=f"Prepared chat day {target_day} branch {branch or 'main'} as an observed map for binary count processing.",
             refs=[result.get("saved_map_name", "")],
         )
         result["chat_day"] = target_day

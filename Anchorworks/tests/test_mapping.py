@@ -23,6 +23,27 @@ def _write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _write_count_read_fixture(
+    store: LexiconStore,
+    relation_rows: list[dict[str, object]],
+    *,
+    observed_counts: Counter[str],
+) -> None:
+    _write_json(store.lifetime_counts_path, {
+        "first_saved_at": "fixture",
+        "updated_at": "fixture",
+        "ingest_events": 1,
+        "window_radius": 6,
+        "unique_relations": len(relation_rows),
+        "total_relation_observations": int(sum(int(row.get("observations", 0) or 0) for row in relation_rows)),
+        "anchor_observation_counts": [
+            {"anchor": anchor, "observations": observations}
+            for anchor, observations in sorted(observed_counts.items())
+        ],
+        "co_occurrence_counts": relation_rows,
+    })
+
+
 class MappingTests(unittest.TestCase):
     def _shared_spares(self, count: int) -> list[dict[str, str]]:
         return [
@@ -67,8 +88,6 @@ class MappingTests(unittest.TestCase):
             ]
             expected_files = [
                 root / "State" / "user" / "user_lexicon" / "anchors.json",
-                root / "State" / "user" / "user_counts" / "lifetime_co_occurrence_counts.json",
-                root / "State" / "user" / "chat_counts" / "chat_co_occurrence_counts.json",
                 root / "State" / "user" / "ingest_staging" / "manifest.json",
                 root / "State" / "user" / "rejected_or_literal_clusters" / "clusters.json",
             ]
@@ -219,7 +238,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
             _write_json(root / "Structural" / "structural.json", [{"word": "?", "status": "STRUCTURAL"}])
             store = LexiconStore(root)
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [
                     {"anchor": "sear", "offset": "+1", "neighbor": "pan", "observations": 7},
                     {"anchor": "meat", "offset": "+1", "neighbor": "pan", "observations": 6},
@@ -618,7 +637,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Structural" / "structural.json", [])
 
             store = LexiconStore(root)
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [
                     {"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 3},
                     {"anchor": "stop", "offset": "+1", "neighbor": ".", "observations": 2},
@@ -645,7 +664,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
 
             store = LexiconStore(root)
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [
                     {"anchor": "emp", "offset": "+1", "neighbor": ".", "observations": 99},
                     {"anchor": "emp", "offset": "+2", "neighbor": "defense", "observations": 12},
@@ -666,7 +685,7 @@ class MappingTests(unittest.TestCase):
             root = Path(temp_dir) / "Lexical Data"
             app = create_app(root)
             store = app.state.store
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [{"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 2}],
                 observed_counts=Counter({"stop": 1, "not": 1}),
             )
@@ -684,7 +703,8 @@ class MappingTests(unittest.TestCase):
             after = snapshot()
 
             self.assertTrue(status["ok"])
-            self.assertEqual(status["unique_relations"], 1)
+            self.assertTrue(status["legacy_json_counts_removed"])
+            self.assertEqual(status["runtime"], "awsc_v1_1_binary_cells")
             self.assertEqual(before, after)
             self.assertEqual(list((root / "State" / "chat_memory" / "chats").glob("*.jsonl")), [])
 
@@ -699,7 +719,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Structural" / "structural.json", [])
             app = create_app(root)
             store = app.state.store
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [{"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 4}],
                 observed_counts=Counter({"stop": 1, "not": 1}),
             )
@@ -734,7 +754,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
 
             store = LexiconStore(root)
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [{"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 2}],
                 observed_counts=Counter({"stop": 1, "not": 1}),
             )
@@ -967,7 +987,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
             _write_json(root / "Structural" / "structural.json", [])
             store = LexiconStore(root)
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [{"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 4}],
                 observed_counts=Counter({"stop": 1, "not": 1}),
             )
@@ -991,7 +1011,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
             _write_json(root / "Structural" / "structural.json", [])
             store = LexiconStore(root)
-            store._update_lifetime_relation_counts(
+            _write_count_read_fixture(store, 
                 [{"anchor": "stop", "offset": "-1", "neighbor": "not", "observations": 4}],
                 observed_counts=Counter({"stop": 1, "not": 1}),
             )
@@ -1165,18 +1185,15 @@ class MappingTests(unittest.TestCase):
             lifetime = store._read_json(store.lifetime_counts_path, {})
             user_counts = store._read_json(store.user_counts_path, {})
             chat_counts = store._read_json(store.chat_counts_path, {})
-            clearspeak_result = ClearSpeakService(store).query("alpha")
 
             self.assertTrue(final["ok"])
-            self.assertEqual(final["count_target"], "user_chat")
+            self.assertEqual(final["count_target"], "user_chat_preview")
             self.assertEqual(lifetime, before_lifetime)
-            self.assertEqual(user_counts["ingest_events"], 1)
-            self.assertEqual(chat_counts["ingest_events"], 1)
-            self.assertGreater(user_counts["total_relation_observations"], 0)
-            self.assertGreater(chat_counts["total_relation_observations"], 0)
+            self.assertEqual(user_counts, before_user_counts)
+            self.assertEqual(chat_counts, before_chat_counts)
+            self.assertTrue(final["count_write"]["legacy_json_counts_removed"])
+            self.assertTrue(final["count_write"]["binary_counts_required"])
             self.assertEqual(final["chat_message_count"], 2)
-            self.assertIn("alpha", clearspeak_result.represented_anchors)
-            self.assertTrue(clearspeak_result.evidence)
 
     def test_chat_archive_import_stores_bridge_file_without_counts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1240,15 +1257,12 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(review["review_count"], 0)
             retrieved = store.retrieve_from_counts("stop")
             context = store.context_map("stop")
-            self.assertEqual(retrieved["maps_with_anchor"], 1)
-            self.assertEqual(retrieved["total_neighbor_observations"], 12)
-            self.assertTrue(any(row["anchor"] == "__EMOJI__" for row in retrieved["neighbors"]))
-            self.assertEqual(context["total_windows"], 12)
-            self.assertEqual(context["center_observations"], 2)
-            self.assertEqual({row["word"] for row in context["before"]["1"]}, {"don't", "not"})
-            self.assertEqual({row["word"] for row in context["after"]["1"]}, {".", "__EMOJI__"})
+            self.assertEqual(retrieved["maps_with_anchor"], 0)
+            self.assertEqual(retrieved["total_neighbor_observations"], 0)
+            self.assertEqual(context["total_windows"], 0)
+            self.assertEqual(context["center_observations"], 0)
 
-    def test_lifetime_counts_persist_independently_and_increment_on_reingest(self) -> None:
+    def test_observed_maps_feed_binary_symbol_counts_without_legacy_lifetime_counts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
             _write_json(root / "Canonical" / "canonical_D.json", [{"word": "do", "status": "ASSIGNED"}])
@@ -1269,42 +1283,22 @@ class MappingTests(unittest.TestCase):
 
             store = LexiconStore(root)
             first_result = store.build_observed_map(source_path)
-            first_payload = json.loads(store.lifetime_counts_path.read_text(encoding="utf-8"))
-            first_rows = {
-                (row["anchor"], row["offset"], row["neighbor"]): int(row["observations"])
-                for row in first_payload["co_occurrence_counts"]
-            }
 
-            self.assertEqual(first_payload["ingest_events"], 1)
-            self.assertEqual(first_payload["window_radius"], 6)
-            self.assertEqual(first_payload["total_relation_observations"], 42)
-            self.assertIn("items", first_payload)
-            self.assertIn("anchor_index", first_payload)
+            self.assertFalse(store.lifetime_counts_path.exists())
+            symbol_artifact = store.build_source_local_symbol_counts(first_result["saved_map_name"])
+            binary = store.build_binary_symbol_counts_from_source_local(generation=5)
+
+            self.assertTrue(symbol_artifact["ok"])
+            self.assertTrue(binary["ok"])
+            self.assertGreater(binary["stream_record_count"], 0)
+            self.assertGreater(binary["verify"]["checked"], 0)
 
             Path(first_result["saved_map_path"]).unlink()
-            self.assertTrue(store.lifetime_counts_path.exists())
             retrieved_after_delete = store.retrieve_from_counts("stop")
             context_after_delete = store.context_map("stop")
             self.assertEqual(retrieved_after_delete["maps_scanned"], 0)
-            self.assertEqual(retrieved_after_delete["maps_with_anchor"], 1)
-            self.assertEqual(retrieved_after_delete["total_neighbor_observations"], 12)
-            self.assertEqual(context_after_delete["total_windows"], 12)
-            self.assertEqual(context_after_delete["center_observations"], 2)
-
-            store.build_observed_map(source_path)
-            second_payload = json.loads(store.lifetime_counts_path.read_text(encoding="utf-8"))
-            second_rows = {
-                (row["anchor"], row["offset"], row["neighbor"]): int(row["observations"])
-                for row in second_payload["co_occurrence_counts"]
-            }
-
-            self.assertEqual(second_payload["ingest_events"], 2)
-            self.assertEqual(second_payload["total_relation_observations"], 84)
-            self.assertEqual(set(first_rows), set(second_rows))
-            for key, observations in first_rows.items():
-                self.assertEqual(second_rows[key], observations * 2)
-            self.assertEqual(store.context_map("stop")["total_windows"], 24)
-            self.assertEqual(store.context_map("stop")["center_observations"], 4)
+            self.assertEqual(retrieved_after_delete["maps_with_anchor"], 0)
+            self.assertEqual(context_after_delete["total_windows"], 0)
 
     def test_ingest_uses_source_local_temp_symbols_for_unresolved_anchors(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1327,7 +1321,6 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(before_payload, after_payload)
             self.assertTrue(Path(result["saved_map_path"]).is_file())
             self.assertTrue(Path(result["temp_lexicon_path"]).is_file())
-            self.assertTrue(Path(result["source_local_preview_counts_path"]).is_file())
             self.assertEqual(result["missing_anchor_count"], 1)
             self.assertEqual(result["temp_symbol_count"], 1)
             self.assertEqual(result["count_write"]["lifetime_write_skipped"], True)
@@ -1361,19 +1354,13 @@ class MappingTests(unittest.TestCase):
 
             store = LexiconStore(root)
             result = store.build_observed_map(source_path)
-            lifetime = store._read_json(store.lifetime_counts_path, {})
-            relation_rows = lifetime.get("co_occurrence_counts") or []
-            observed_rows = lifetime.get("anchor_observation_counts") or []
-
             self.assertEqual(result["missing_anchor_count"], 0)
             self.assertEqual(result["temp_symbol_count"], 0)
             self.assertEqual(result["companion_anchor_count"], 1)
-            self.assertEqual(result["count_write"]["lifetime_write_skipped"], False)
-            self.assertIn(str(store.lifetime_counts_path), result["count_paths"])
-            self.assertTrue(relation_rows)
-            self.assertTrue(any(row["anchor"] == "do" and row["neighbor"] == "do" for row in relation_rows))
-            self.assertFalse(any(row.get("anchor") == "mrow" or row.get("neighbor") == "mrow" for row in relation_rows))
-            self.assertEqual({row["anchor"]: row["observations"] for row in observed_rows}, {".": 1, "do": 2})
+            self.assertEqual(result["count_write"]["lifetime_write_skipped"], True)
+            self.assertTrue(result["count_write"]["legacy_json_counts_removed"])
+            self.assertEqual(result["count_paths"], [])
+            self.assertFalse(store.lifetime_counts_path.exists())
 
     def test_missing_anchor_registry_can_seed_review_queue_without_promoting_counts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1536,7 +1523,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result["missing_anchor_count"], 0)
             self.assertEqual(result["companion_anchor_count"], 1)
             self.assertTrue(result["count_write"]["lifetime_write_skipped"])
-            self.assertIn("companion_authority_anchors_present", result["count_write"]["reason"])
+            self.assertTrue(result["count_write"]["binary_counts_required"])
 
     def test_batch_approval_adds_500_anchors_with_one_spare_write_and_one_index_reload(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1738,3 +1725,4 @@ class MappingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
