@@ -7,6 +7,7 @@ from typing import Any
 from .clearspeak_attention import (
     attention_math_contract,
     content_anchors,
+    infer_attention_frame,
     rank_attention_candidates,
     retrieve_from_count_index,
 )
@@ -142,6 +143,7 @@ class ClearSpeakService:
         seeds = content_anchors(represented)
         if not seeds:
             return _empty_answer_assembly("no_content_seed")
+        attention_frame = infer_attention_frame(represented)
         context = list(seeds)
         selected: list[dict[str, Any]] = []
         selected_anchors: set[str] = set()
@@ -149,7 +151,12 @@ class ClearSpeakService:
         blocked = set(seeds)
 
         for step in range(max(1, int(limit or 6))):
-            pool = self._rank_count_candidates(count_index, context, blocked=blocked | selected_anchors)
+            pool = self._rank_count_candidates(
+                count_index,
+                context,
+                blocked=blocked | selected_anchors,
+                attention_frame=attention_frame,
+            )
             if not pool:
                 return {
                     "schema_version": "clearspeak_dynamic_count_answer@1",
@@ -157,6 +164,7 @@ class ClearSpeakService:
                     "terms": selected,
                     "trace": trace,
                     "stop_reason": "no_supported_candidate" if selected else "no_candidate_pool",
+                    "attention_frame": attention_frame,
                     "attention_math": attention_math_contract(),
                     "contract": _answer_assembly_contract(),
                 }
@@ -182,12 +190,20 @@ class ClearSpeakService:
             "terms": selected,
             "trace": trace,
             "stop_reason": "answer_limit_reached",
+            "attention_frame": attention_frame,
             "attention_math": attention_math_contract(),
             "contract": _answer_assembly_contract(),
         }
 
-    def _rank_count_candidates(self, count_index: dict[str, Any], context: list[str], *, blocked: set[str]) -> list[dict[str, Any]]:
-        return rank_attention_candidates(count_index, context, blocked=blocked)
+    def _rank_count_candidates(
+        self,
+        count_index: dict[str, Any],
+        context: list[str],
+        *,
+        blocked: set[str],
+        attention_frame: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        return rank_attention_candidates(count_index, context, blocked=blocked, attention_frame=attention_frame)
 
 
 def summarize_clearspeak_evidence(result: ClearSpeakResult | dict[str, Any]) -> str:
@@ -226,6 +242,7 @@ def _empty_answer_assembly(reason: str) -> dict[str, Any]:
         "terms": [],
         "trace": [],
         "stop_reason": reason,
+        "attention_frame": infer_attention_frame([]),
         "attention_math": attention_math_contract(),
         "contract": _answer_assembly_contract(),
     }

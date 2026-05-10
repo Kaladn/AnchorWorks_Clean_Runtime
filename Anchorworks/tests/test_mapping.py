@@ -9,7 +9,7 @@ from pathlib import Path
 from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
-from AnchorWorks.clearspeak_attention import rank_attention_candidates
+from AnchorWorks.clearspeak_attention import infer_attention_frame, rank_attention_candidates
 from AnchorWorks.clearspeak import ClearSpeakService
 from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
@@ -167,6 +167,73 @@ class MappingTests(unittest.TestCase):
         self.assertGreater(ranked[0]["selection_score"], ranked[1]["selection_score"])
         self.assertIn("observations_x_position_strength", ranked[0]["why_chosen"])
         self.assertIn("multi_context_support_bonus", ranked[0]["why_chosen"])
+
+    def test_clearspeak_attention_classifies_method_frames_and_role_fit(self) -> None:
+        question_frame = infer_attention_frame(["how", "do", "i", "sear", "meat", "?"])
+        declaration_frame = infer_attention_frame(["this", "is", "how", "i", "sear", "meat", "."])
+        count_index = {
+            "by_anchor": {
+                "sear": {
+                    "+1": Counter({"meat": 9, "pan": 5}),
+                    "+2": Counter({"heat": 4}),
+                },
+                "meat": {
+                    "-1": Counter({"sear": 9}),
+                    "+1": Counter({"pan": 5}),
+                },
+            }
+        }
+
+        ranked = rank_attention_candidates(
+            count_index,
+            ["sear", "meat"],
+            blocked={"sear", "meat"},
+            attention_frame=question_frame,
+        )
+
+        self.assertEqual(question_frame["frame_type"], "method_question")
+        self.assertEqual(declaration_frame["frame_type"], "method_declaration")
+        self.assertEqual(question_frame["role_by_anchor"]["sear"], "action_candidate")
+        self.assertEqual(question_frame["role_by_anchor"]["meat"], "object_candidate")
+        self.assertEqual(ranked[0]["anchor"], "pan")
+        self.assertEqual(ranked[0]["frame_type"], "method_question")
+        self.assertEqual(ranked[0]["role_fit"]["matched_roles"], ["action_candidate", "object_candidate"])
+        self.assertGreater(ranked[0]["role_fit"]["score"], 0)
+        self.assertEqual(ranked[0]["answer_health"]["status"], "supported")
+
+    def test_clearspeak_answer_assembly_exposes_attention_frame(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, words in {
+                "H": ["how", "heat"],
+                "D": ["do"],
+                "I": ["i"],
+                "S": ["sear"],
+                "M": ["meat"],
+                "P": ["pan"],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [{"word": word, "status": "ASSIGNED"} for word in words])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [{"word": "?", "status": "STRUCTURAL"}])
+            store = LexiconStore(root)
+            store._update_lifetime_relation_counts(
+                [
+                    {"anchor": "sear", "offset": "+1", "neighbor": "pan", "observations": 7},
+                    {"anchor": "meat", "offset": "+1", "neighbor": "pan", "observations": 6},
+                    {"anchor": "sear", "offset": "+2", "neighbor": "heat", "observations": 5},
+                ],
+                observed_counts=Counter({"sear": 1, "meat": 1, "pan": 1, "heat": 1}),
+            )
+
+            result = ClearSpeakService(store).query("How do I sear meat?")
+
+            self.assertEqual(result.answer_assembly["attention_frame"]["frame_type"], "method_question")
+            self.assertEqual(result.answer_assembly["attention_frame"]["role_by_anchor"]["sear"], "action_candidate")
+            self.assertEqual(result.answer_assembly["attention_frame"]["role_by_anchor"]["meat"], "object_candidate")
+            self.assertEqual(result.answer_assembly["terms"][0]["anchor"], "pan")
+            self.assertEqual(result.answer_assembly["terms"][0]["role_fit"]["matched_roles"], ["action_candidate", "object_candidate"])
 
     def test_anchor_rows_preserve_surface_and_fused_boundaries(self) -> None:
         fused_rows = extract_anchor_rows("state-of-the-art")
