@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from AnchorWorks.intake import build_anchor_map
@@ -155,6 +156,52 @@ class SymbolRelationCountsTests(unittest.TestCase):
             self.assertEqual(result["relation_fates"]["canonical_to_canonical"], 2)
             self.assertEqual(result["relation_fates"]["source_local_relation"], 4)
             self.assertEqual(result["writes_allowed"]["lifetime"], False)
+
+    def test_store_reads_awsm_hot_path_when_json_observed_map_is_absent(self) -> None:
+        with TemporaryDirectory() as temp_root:
+            store = LexiconStore(temp_root)
+            store.canonical_dir.mkdir(parents=True, exist_ok=True)
+            (store.canonical_dir / "canonical_A.json").write_text(
+                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"}]',
+                encoding="utf-8",
+            )
+            source = Path(temp_root) / "sample.txt"
+            source.write_text("alpha beta alpha", encoding="utf-8")
+            map_result = store.build_observed_map(source)
+            Path(map_result["saved_map_path"]).unlink()
+
+            result = store.build_source_local_symbol_counts(map_result["saved_map_name"])
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["source_format"], "awsm")
+            self.assertEqual(result["canonical_symbol_count"], 2)
+            self.assertEqual(result["source_local_symbol_count"], 0)
+            self.assertGreater(result["unique_symbol_relations"], 0)
+            self.assertEqual(result["writes_allowed"]["lifetime"], False)
+
+    def test_store_awsm_symbol_counts_match_json_debug_fallback(self) -> None:
+        with TemporaryDirectory() as temp_root:
+            store = LexiconStore(temp_root)
+            store.canonical_dir.mkdir(parents=True, exist_ok=True)
+            (store.canonical_dir / "canonical_A.json").write_text(
+                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"}]',
+                encoding="utf-8",
+            )
+            source = Path(temp_root) / "sample.txt"
+            source.write_text("alpha beta alpha", encoding="utf-8")
+            map_result = store.build_observed_map(source)
+
+            awsm_result = store.build_source_local_symbol_counts(map_result["saved_map_name"])
+            awsm_artifact = store._read_json(Path(awsm_result["symbol_counts_path"]), {})
+            Path(map_result["symbolic_map_path"]).unlink()
+            json_result = store.build_source_local_symbol_counts(map_result["saved_map_name"])
+            json_artifact = store._read_json(Path(json_result["symbol_counts_path"]), {})
+
+            self.assertEqual(awsm_result["source_format"], "awsm")
+            self.assertEqual(json_result["source_format"], "observed_json")
+            self.assertEqual(awsm_artifact["symbol_authority"], json_artifact["symbol_authority"])
+            self.assertEqual(awsm_artifact["symbol_relation_counts"], json_artifact["symbol_relation_counts"])
+            self.assertEqual(awsm_artifact["relation_fates"], json_artifact["relation_fates"])
 
     def test_store_builds_binary_symbol_counts_from_source_local_artifacts(self) -> None:
         with TemporaryDirectory() as temp_root:

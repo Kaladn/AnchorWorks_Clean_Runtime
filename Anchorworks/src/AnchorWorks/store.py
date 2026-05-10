@@ -36,7 +36,7 @@ from .symbol_count_native import (
     verify_binary_counts,
     write_awss_from_symbol_count_artifacts,
 )
-from .symbolic_map_binary import SymbolicMapRelation, write_symbolic_map_binary
+from .symbolic_map_binary import SymbolicMapRelation, read_symbolic_map_binary, write_symbolic_map_binary
 
 
 logger = logging.getLogger(__name__)
@@ -1138,6 +1138,15 @@ class LexiconStore:
             raise FileNotFoundError(name)
         return target
 
+    def _resolve_symbolic_map_name(self, name: str) -> Path:
+        filename = Path(name).name
+        if filename.endswith(".observed.json"):
+            filename = filename[: -len(".observed.json")] + ".awsm"
+        target = (self.symbolic_maps_dir / filename).resolve()
+        if target.parent != self.symbolic_maps_dir.resolve():
+            raise FileNotFoundError(name)
+        return target
+
     def _flat_runtime_stem(self, source_name: str, source_id: str) -> str:
         safe_name = "".join(
             char if char.isalnum() or char in {"-", "_"} else "_"
@@ -1797,6 +1806,10 @@ class LexiconStore:
         }
 
     def build_source_local_symbol_counts(self, observed_map_name: str) -> dict[str, Any]:
+        symbolic_path = self._resolve_symbolic_map_name(observed_map_name)
+        if symbolic_path.exists():
+            return self._build_source_local_symbol_counts_from_awsm(symbolic_path)
+
         path = self._resolve_observed_map_name(observed_map_name)
         if not path.exists():
             raise FileNotFoundError(observed_map_name)
@@ -1827,6 +1840,13 @@ class LexiconStore:
             symbol_by_anchor=symbol_by_anchor,
             window_radius=int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
         )
+        authority_by_symbol = {
+            str(row.get("symbol") or ""): str(row.get("authority") or "")
+            for row in symbol_authority
+        }
+        for row in relation_rows:
+            row["lane"] = 4 if authority_by_symbol.get(str(row.get("neighbor_symbol_anchor") or "")) == "source_local" else 0
+            row["flags"] = 0
         source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
         canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
         relation_fates = self._symbol_relation_fates(payload.get("co_occurrence_counts") or [], authority_by_anchor)
@@ -1837,6 +1857,7 @@ class LexiconStore:
             "source_name": source_name,
             "source_path": source_path,
             "source_hash": source_hash,
+            "source_format": "observed_json",
             "observed_map_name": path.name,
             "observed_map_path": str(path),
             "window_radius": int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
@@ -1855,12 +1876,106 @@ class LexiconStore:
             "source_id": source_id,
             "source_name": source_name,
             "source_path": source_path,
+            "source_format": "observed_json",
             "observed_map_name": path.name,
             "symbol_counts_name": target.name,
             "symbol_counts_path": str(target),
             "canonical_symbol_count": canonical_symbols,
             "source_local_symbol_count": source_local_symbols,
             "relation_fates": relation_fates,
+            "unique_symbol_relations": len(relation_rows),
+            "total_symbol_relation_observations": out["total_symbol_relation_observations"],
+            "writes_allowed": out["writes_allowed"],
+        }
+
+    def _build_source_local_symbol_counts_from_awsm(self, symbolic_path: Path) -> dict[str, Any]:
+        symbolic = read_symbolic_map_binary(symbolic_path)
+        metadata = symbolic.metadata
+        symbol_authority = [row for row in metadata.get("symbol_authority") or [] if isinstance(row, dict)]
+        if not symbol_authority:
+            raise ValueError(f"symbolic map lacks symbol authority table: {symbolic_path.name}")
+
+        source_name = str(metadata.get("source_name") or "document")
+        source_path = str(metadata.get("source_path") or "")
+        source_hash = str(metadata.get("source_hash") or hashlib.sha256(source_path.encode("utf-8")).hexdigest())
+        observed_map_name = str(metadata.get("observed_map_name") or (symbolic_path.stem + ".observed.json"))
+        source_id = str(
+            metadata.get("source_id")
+            or hashlib.sha1((source_path + "\n" + source_hash + "\n" + observed_map_name).encode("utf-8")).hexdigest()
+        )
+        stem = self._flat_runtime_stem(source_name, source_id)
+        target = self.source_local_symbol_counts_dir / f"{stem}.symbol_counts.json"
+
+        authority_by_symbol = {
+            str(row.get("symbol") or ""): str(row.get("authority") or "")
+            for row in symbol_authority
+        }
+        relation_rows: list[dict[str, Any]] = []
+        relation_fates = Counter()
+        for row in symbolic.relations:
+            root_display = f"0x{row.root_symbol_id:010X}"
+            neighbor_display = f"0x{row.neighbor_symbol_id:010X}"
+            observations = int(row.count)
+            if observations <= 0:
+                continue
+            relation_rows.append({
+                "symbol_id": int(row.root_symbol_id),
+                "symbol_anchor": root_display,
+                "offset": f"+{row.offset}" if row.offset > 0 else str(row.offset),
+                "neighbor_symbol_id": int(row.neighbor_symbol_id),
+                "neighbor_symbol_anchor": neighbor_display,
+                "observations": observations,
+                "lane": int(row.lane),
+                "flags": int(row.flags),
+            })
+            root_authority = authority_by_symbol.get(root_display, "unresolved")
+            neighbor_authority = authority_by_symbol.get(neighbor_display, "unresolved")
+            if root_authority == "canonical" and neighbor_authority == "canonical":
+                relation_fates["canonical_to_canonical"] += observations
+            elif "unresolved" in {root_authority, neighbor_authority}:
+                relation_fates["unresolved_relation"] += observations
+            elif "source_local" in {root_authority, neighbor_authority}:
+                relation_fates["source_local_relation"] += observations
+            else:
+                relation_fates["other_relation"] += observations
+
+        canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
+        source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
+        out = {
+            "schema_version": "anchorworks_source_local_symbol_counts@1",
+            "saved_at": _utc_now(),
+            "source_id": source_id,
+            "source_name": source_name,
+            "source_path": source_path,
+            "source_hash": source_hash,
+            "source_format": "awsm",
+            "observed_map_name": observed_map_name,
+            "symbolic_map_name": symbolic_path.name,
+            "symbolic_map_path": str(symbolic_path),
+            "window_radius": int(metadata.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
+            "symbol_authority": symbol_authority,
+            "canonical_symbol_count": canonical_symbols,
+            "source_local_symbol_count": source_local_symbols,
+            "relation_fates": dict(sorted(relation_fates.items())),
+            "symbol_relation_counts": relation_rows,
+            "unique_symbol_relations": len(relation_rows),
+            "total_symbol_relation_observations": int(sum(row["observations"] for row in relation_rows)),
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+        self._write_json(target, out)
+        return {
+            "ok": True,
+            "source_id": source_id,
+            "source_name": source_name,
+            "source_path": source_path,
+            "source_format": "awsm",
+            "observed_map_name": observed_map_name,
+            "symbolic_map_name": symbolic_path.name,
+            "symbol_counts_name": target.name,
+            "symbol_counts_path": str(target),
+            "canonical_symbol_count": canonical_symbols,
+            "source_local_symbol_count": source_local_symbols,
+            "relation_fates": out["relation_fates"],
             "unique_symbol_relations": len(relation_rows),
             "total_symbol_relation_observations": out["total_symbol_relation_observations"],
             "writes_allowed": out["writes_allowed"],
@@ -2568,6 +2683,8 @@ class LexiconStore:
 
         map_path = self._observed_map_path(source_path)
         symbolic_map_path = self._symbolic_map_path(source_path)
+        observed_map_name = map_path.name
+        source_id = hashlib.sha1((str(source_path) + "\n" + prepared.sha256 + "\n" + observed_map_name).encode("utf-8")).hexdigest()
         write_symbolic_map_binary(
             symbolic_map_path,
             metadata={
@@ -2575,10 +2692,13 @@ class LexiconStore:
                 "source_path": str(source_path),
                 "source_name": source_path.name,
                 "source_hash": prepared.sha256,
+                "source_id": source_id,
+                "observed_map_name": observed_map_name,
                 "paragraph_count": mapping["paragraph_count"],
                 "window_radius": mapping["window_radius"],
                 "anchor_observations": int(sum(observed_counts.values())),
                 "symbol_authority_count": len(symbol_authority),
+                "symbol_authority": symbol_authority,
             },
             relations=[
                 SymbolicMapRelation(

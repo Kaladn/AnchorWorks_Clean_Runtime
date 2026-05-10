@@ -180,17 +180,33 @@ These are completed on the active branch:
 ~~AWSM CRC tests~~
 ~~AWSM mixed-format proof with text, MD, JSON, HTML~~
 ~~35-doc mixed source dual-write benchmark~~
+~~AWSM hot path for source-local symbol count artifacts~~
+~~JSON observed-map fallback retained for parity/debug only~~
 ~~Cloud Of Clouds answer contract~~
 ```
 
 Current test confirmation:
 
 ```text
-Full suite reached 121 passing tests after AWSM.
+Full suite reached 123 passing tests after AWSM hot-path source-local symbol count artifacts.
 No active runtime behavior was added for Cloud Of Clouds yet.
 ```
 
 ## Current Benchmarks
+
+Benchmarks are last measured proof, not live startup state.
+
+Current verification runner:
+
+```text
+python -m unittest discover -s tests
+```
+
+Native build path:
+
+```text
+Visual Studio bundled CMake is the supported native build path.
+```
 
 ### 35 Mixed Source Documents
 
@@ -251,6 +267,45 @@ Large structured data files can still explode the compatibility JSON observed-ma
 AWSM/AWSS/AWSC are the path out.
 ```
 
+## AWSM Hot Path Checkpoint
+
+`build_source_local_symbol_counts()` now treats AWSM as the serving path.
+
+Current flow:
+
+```text
+AWSM binary map
+-> source-local symbol count artifact
+-> AWSS stream
+-> AWSC count cells
+```
+
+Fallback flow:
+
+```text
+JSON observed map
+-> source-local symbol count artifact
+```
+
+The fallback exists for parity/debug only. It is no longer the preferred path.
+
+Verification:
+
+```text
+AWSM works even when the JSON observed map is absent.
+AWSM-derived artifacts match JSON-debug artifacts for symbol authority, relation rows, and relation fates.
+Full unittest suite: 123 tests OK.
+```
+
+Current law:
+
+```text
+AWSM serves.
+JSON witnesses.
+AWSC counts.
+Canonical governs.
+```
+
 ## Vision And Media Boundary
 
 The visual intake law remains active:
@@ -272,7 +327,11 @@ visuals enter visual evidence packets
 visual refs are linked back to document blocks later
 ```
 
+AnchorMaps is created by runtime/store initialization.
+
 ## Cloud Of Clouds Contract
+
+Cloud Of Clouds is contract-only until implemented.
 
 The answer system must not load the whole symbolic brain for every answer.
 
@@ -350,22 +409,23 @@ The GPU must not invent. It may later hold verified AnchorWorks binary structure
 Start here when returning to binaries:
 
 ```text
-1. Build source-local symbol count artifacts directly from AWSM instead of JSON observed maps.
+~~Patch this current build document with verification nuances.~~
+~~Build source-local symbol count artifacts directly from AWSM instead of JSON observed maps.~~
+~~Route source-local symbol artifact builder through AWSM by default.~~
+1. Add 100-doc AWSM parity benchmark.
 2. Add AWSM block/line locator section or sidecar.
 3. Add AWSM NULL coordinate section or sidecar.
 4. Add AWSM visual-ref pointer section or sidecar.
 5. Add binary read API for AWSM maps.
-6. Add 100-doc AWSM parity benchmark.
-7. Add 1000-doc AWSM parity benchmark.
-8. Make JSON observed-map output optional debug mode.
-9. Route source-local symbol artifact builder through AWSM by default.
-10. Route AWSS creation through AWSM-derived artifacts.
-11. Add CloudOfClouds builder from AWSC cells.
-12. Add AnswerField builder with cloud caps.
-13. Add AnswerPath walker with path-health scoring.
-14. Move native scoring into ClearSpeak behind a binary-read feature gate.
-15. Add batch-aware native scoring for many active contexts.
-16. Only after CPU-native proof: design GPU sparse symbolic field loader.
+6. Add 1000-doc AWSM parity benchmark.
+7. Make JSON observed-map output optional debug mode.
+8. Route AWSS creation through AWSM-derived artifacts.
+9. Add CloudOfClouds builder from AWSC cells.
+10. Add AnswerField builder with cloud caps.
+11. Add AnswerPath walker with path-health scoring.
+12. Move native scoring into ClearSpeak behind a binary-read feature gate.
+13. Add batch-aware native scoring for many active contexts.
+14. Only after CPU-native proof: design GPU sparse symbolic field loader.
 ```
 
 ## Ready Confirmations
@@ -376,14 +436,16 @@ Current branch state is ready to continue from the binary work:
 AWSC exists.
 AWSS exists.
 AWSM exists.
+AWSM serves source-local symbol count artifacts.
 Native C++ merge exists.
 Native C++ verify exists.
 Native C++ score exists.
 JSON count ingest writes are removed.
+JSON observed maps are parity/debug fallback for this path.
 New maps write outside runtime State.
 Batch intake exists.
 Cloud Of Clouds contract exists.
-Next build target is AWSM -> source-local symbol artifacts.
+Next build target is 100-doc AWSM parity benchmark.
 ```
 
 ## Do Not Do Yet
