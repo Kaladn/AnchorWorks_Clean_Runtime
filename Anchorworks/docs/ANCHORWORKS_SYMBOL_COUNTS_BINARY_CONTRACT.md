@@ -55,6 +55,27 @@ serve neighbors to Python
 
 No B+tree, mmap, Bloom filter, compression, WAL recovery, or C spine is required in this contract step.
 
+The native C++ spine consumes compact binary symbol streams and writes AWSC v1.1 cells.
+
+## AWSS Source Stream v1
+
+The native merge input is an AnchorWorks Symbol Stream (`.awss`). It is not JSON.
+
+Record size: 24 bytes.
+
+```text
+0   root_symbol[5]      raw 5-byte symbol
+5   neighbor_symbol[5]  raw 5-byte symbol
+10  offset_i8           observed relative position
+11  lane_u8             relation lane
+12  flags_u8            relation flags
+13  root_lane_u8        root symbol lane
+14  reserved_u16        future
+16  count_u64           observed relation count
+```
+
+The C++ merge groups by `root_symbol`, merges duplicate relation rows, applies AWSC row ordering, and writes one cell per root symbol.
+
 ## AWSC Cell Format v1.1
 
 All multi-byte values are little endian. Symbols are raw 5-byte identities and are not text.
