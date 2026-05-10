@@ -29,6 +29,11 @@ from .positional_resonance import (
     write_jsonl,
 )
 from .symbol_relation_counts import build_source_local_symbol_table, build_symbol_relation_rows
+from .symbol_count_native import (
+    merge_symbol_stream,
+    verify_binary_counts,
+    write_awss_from_symbol_count_artifacts,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -94,6 +99,8 @@ class LexiconStore:
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_preview_counts_dir = self.state_dir / "source_local_preview_counts"
         self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
+        self.symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
+        self.symbol_streams_dir = self.state_dir / "symbol_streams"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
         self.visual_intake_dir = self.state_dir / "visual_intake"
@@ -140,6 +147,8 @@ class LexiconStore:
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_preview_counts_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_symbol_counts_dir.mkdir(parents=True, exist_ok=True)
+        self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
+        self.symbol_streams_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_occurrences_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_resonance_dir.mkdir(parents=True, exist_ok=True)
         self.visual_intake_packets_dir.mkdir(parents=True, exist_ok=True)
@@ -1935,6 +1944,38 @@ class LexiconStore:
             "unique_symbol_relations": len(relation_rows),
             "total_symbol_relation_observations": out["total_symbol_relation_observations"],
             "writes_allowed": out["writes_allowed"],
+        }
+
+    def build_binary_symbol_counts_from_source_local(
+        self,
+        *,
+        limit: int | None = None,
+        generation: int = 0,
+    ) -> dict[str, Any]:
+        artifact_paths = sorted(self.source_local_symbol_counts_dir.glob("*.symbol_counts.json"))
+        if limit is not None:
+            artifact_paths = artifact_paths[: max(0, int(limit))]
+        if not artifact_paths:
+            raise FileNotFoundError("no source-local symbol count artifacts found")
+        stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
+        stream = write_awss_from_symbol_count_artifacts(artifact_paths, stream_path)
+        merge = merge_symbol_stream(
+            stream_path,
+            self.symbol_counts_binary_dir,
+            generation=int(generation),
+        )
+        verify = verify_binary_counts(self.symbol_counts_binary_dir)
+        return {
+            "ok": bool(merge.get("ok")) and bool(verify.get("ok")),
+            "schema_version": "anchorworks_binary_symbol_counts_build@1",
+            "artifact_count": len(artifact_paths),
+            "stream_path": str(stream_path),
+            "stream_record_count": int(stream.get("record_count", 0) or 0),
+            "stream_observation_count": int(stream.get("observation_count", 0) or 0),
+            "stream_size_bytes": stream_path.stat().st_size if stream_path.exists() else 0,
+            "binary_counts_root": str(self.symbol_counts_binary_dir),
+            "verify": verify,
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
 
     def search_flat_document_evidence(

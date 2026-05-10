@@ -156,6 +156,32 @@ class SymbolRelationCountsTests(unittest.TestCase):
             self.assertEqual(result["relation_fates"]["source_local_relation"], 4)
             self.assertEqual(result["writes_allowed"]["lifetime"], False)
 
+    def test_store_builds_binary_symbol_counts_from_source_local_artifacts(self) -> None:
+        with TemporaryDirectory() as temp_root:
+            store = LexiconStore(temp_root)
+            artifact = store.source_local_symbol_counts_dir / "sample.symbol_counts.json"
+            artifact.write_text(
+                """{
+  "symbol_authority": [
+    {"anchor": "alpha", "symbol": "0x0000000001", "authority": "canonical"},
+    {"anchor": "beta", "symbol": "0x0000000002", "authority": "canonical"}
+  ],
+  "symbol_relation_counts": [
+    {"symbol_anchor": "0x0000000001", "offset": "+1", "neighbor_symbol_anchor": "0x0000000002", "observations": 3},
+    {"symbol_anchor": "0x0000000001", "offset": "+1", "neighbor_symbol_anchor": "0x0000000002", "observations": 4}
+  ]
+}""",
+                encoding="utf-8",
+            )
+
+            result = store.build_binary_symbol_counts_from_source_local(generation=4)
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["artifact_count"], 1)
+            self.assertEqual(result["stream_record_count"], 2)
+            self.assertEqual(result["verify"]["checked"], 1)
+            self.assertEqual(result["writes_allowed"]["lifetime"], False)
+
 
 if __name__ == "__main__":
     unittest.main()

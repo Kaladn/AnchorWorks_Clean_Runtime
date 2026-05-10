@@ -46,6 +46,11 @@ class ResonanceBuildBody(BaseModel):
     observed_map_name: str
 
 
+class BinarySymbolCountsBuildBody(BaseModel):
+    limit: int | None = None
+    generation: int = 0
+
+
 class IntakePreviewBody(BaseModel):
     source_name: str
     content: str
@@ -696,6 +701,13 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         try:
             return store.build_flat_runtime_from_observed_map(body.observed_map_name)
         except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/symbol-counts/binary/build")
+    def symbol_counts_binary_build(body: BinarySymbolCountsBuildBody) -> dict[str, Any]:
+        try:
+            return store.build_binary_symbol_counts_from_source_local(limit=body.limit, generation=body.generation)
+        except (FileNotFoundError, ValueError, RuntimeError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
     @app.post("/api/lexicon/intake/preview")
