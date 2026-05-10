@@ -164,7 +164,12 @@ std::string symbol_to_hex(const Symbol& symbol) {
 
 Symbol symbol_from_hex(const std::string& text) {
     std::string value;
-    for (char ch : text) {
+    std::size_t start = 0;
+    if (text.size() >= 2 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
+        start = 2;
+    }
+    for (std::size_t index = start; index < text.size(); ++index) {
+        const char ch = text[index];
         if (std::isxdigit(static_cast<unsigned char>(ch))) {
             value.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(ch))));
         }

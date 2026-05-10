@@ -18,6 +18,7 @@ from AnchorWorks.symbol_count_cells import (
 from AnchorWorks.symbol_count_native import (
     inspect_cell,
     merge_symbol_stream,
+    score_binary_counts,
     verify_binary_counts,
     write_awss_from_symbol_count_artifacts,
 )
@@ -148,6 +149,76 @@ class NativeSymbolCountsTests(unittest.TestCase):
             rows = {(row.offset, row.neighbor_symbol, row.lane): row.count for row in cell.relations}
             self.assertEqual(rows[(1, symbol_to_bytes("0x0000000002"), CANONICAL_LANE)], 5)
             self.assertEqual(rows[(-1, symbol_to_bytes("0xF000000003"), SOURCE_LOCAL_TEMP_LANE)], 2)
+
+    def test_native_score_returns_weighted_top_k_from_awsc_cells(self) -> None:
+        with TemporaryDirectory() as root:
+            temp_root = Path(root)
+            stream_path = temp_root / "sample.awss"
+            output_root = temp_root / "binary_counts"
+            stream_path.write_bytes(
+                b"".join([
+                    self._stream_record("0x0000000001", "0x00000000AA", 1, CANONICAL_LANE, 0, CANONICAL_LANE, 10),
+                    self._stream_record("0x0000000002", "0x00000000AA", 1, CANONICAL_LANE, 0, CANONICAL_LANE, 5),
+                    self._stream_record("0x0000000001", "0x00000000BB", 2, CANONICAL_LANE, 0, CANONICAL_LANE, 20),
+                    self._stream_record("0x0000000002", "0x00000000CC", -1, CANONICAL_LANE, 0, CANONICAL_LANE, 7),
+                    self._stream_record("0x0000000002", "0x00000000DD", 1, SOURCE_LOCAL_TEMP_LANE, 0, CANONICAL_LANE, 99),
+                ])
+            )
+            merge_symbol_stream(stream_path, output_root, generation=13, executable=self.exe)
+
+            completed = subprocess.run(
+                [
+                    str(self.exe),
+                    "score",
+                    "--root",
+                    str(output_root),
+                    "--context",
+                    "0x0000000001,0x0000000002",
+                    "--top-k",
+                    "3",
+                    "--allowed-lanes",
+                    "0",
+                ],
+                cwd=REPO_ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            payload = json.loads(completed.stdout)
+
+            self.assertTrue(payload["ok"])
+            self.assertEqual(payload["context_count"], 2)
+            self.assertEqual([row["symbol"] for row in payload["candidates"]], ["00000000AA", "00000000BB", "00000000CC"])
+            self.assertEqual(payload["candidates"][0]["score"], 15.0)
+            self.assertEqual(payload["candidates"][0]["supporting_roots"], 2)
+            self.assertEqual(payload["candidates"][1]["score"], 10.0)
+            self.assertEqual(payload["candidates"][2]["score"], 7.0)
+
+    def test_python_wrapper_scores_binary_counts(self) -> None:
+        with TemporaryDirectory() as root:
+            temp_root = Path(root)
+            stream_path = temp_root / "sample.awss"
+            output_root = temp_root / "binary_counts"
+            stream_path.write_bytes(
+                b"".join([
+                    self._stream_record("0x0000000001", "0x00000000AA", 1, CANONICAL_LANE, 0, CANONICAL_LANE, 3),
+                    self._stream_record("0x0000000002", "0x00000000AA", 1, CANONICAL_LANE, 0, CANONICAL_LANE, 4),
+                    self._stream_record("0x0000000002", "0x00000000BB", 2, CANONICAL_LANE, 0, CANONICAL_LANE, 8),
+                ])
+            )
+            merge_symbol_stream(stream_path, output_root, generation=14, executable=self.exe)
+
+            payload = score_binary_counts(
+                output_root,
+                context_symbols=["0x0000000001", "0x0000000002"],
+                top_k=2,
+                allowed_lanes=[CANONICAL_LANE],
+                executable=self.exe,
+            )
+
+            self.assertTrue(payload["ok"])
+            self.assertEqual([row["symbol"] for row in payload["candidates"]], ["00000000AA", "00000000BB"])
+            self.assertEqual(payload["candidates"][0]["supporting_roots"], 2)
 
     @staticmethod
     def _stream_record(

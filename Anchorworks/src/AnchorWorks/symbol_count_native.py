@@ -124,6 +124,43 @@ def inspect_cell(path: str | Path, *, executable: str | Path | None = None) -> d
     return json.loads(result.stdout)
 
 
+def score_binary_counts(
+    root: str | Path,
+    *,
+    context_symbols: list[str],
+    top_k: int = 32,
+    allowed_lanes: list[int] | None = None,
+    executable: str | Path | None = None,
+) -> dict[str, Any]:
+    exe = Path(executable) if executable else native_executable_path()
+    if not exe.exists():
+        exe = build_native_symbol_counts()
+    lane_values = allowed_lanes if allowed_lanes is not None else [
+        CANONICAL_LANE,
+        MATH_COMPANION_LANE,
+        STRUCTURAL_COMPANION_LANE,
+        SOURCE_LOCAL_TEMP_LANE,
+    ]
+    result = subprocess.run(
+        [
+            str(exe),
+            "score",
+            "--root",
+            str(root),
+            "--context",
+            ",".join(context_symbols),
+            "--top-k",
+            str(top_k),
+            "--allowed-lanes",
+            ",".join(str(int(lane)) for lane in lane_values),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return json.loads(result.stdout)
+
+
 def write_awss_from_symbol_count_artifacts(
     artifact_paths: list[str | Path],
     output_path: str | Path,
