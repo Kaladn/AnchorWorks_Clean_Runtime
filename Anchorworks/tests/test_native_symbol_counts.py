@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import shutil
 import struct
 import subprocess
@@ -14,7 +15,12 @@ from AnchorWorks.symbol_count_cells import (
     read_symbol_cell,
     symbol_to_bytes,
 )
-from AnchorWorks.symbol_count_native import inspect_cell, merge_symbol_stream, verify_binary_counts
+from AnchorWorks.symbol_count_native import (
+    inspect_cell,
+    merge_symbol_stream,
+    verify_binary_counts,
+    write_awss_from_symbol_count_artifacts,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -101,6 +107,47 @@ class NativeSymbolCountsTests(unittest.TestCase):
             inspect_payload = inspect_cell(output_root / "cells" / "00" / "0000000001.cell", executable=self.exe)
             self.assertEqual(inspect_payload["symbol"], "0000000001")
             self.assertEqual(inspect_payload["relation_count"], 2)
+
+    def test_awss_can_be_written_from_source_local_symbol_artifact(self) -> None:
+        with TemporaryDirectory() as root:
+            temp_root = Path(root)
+            artifact = temp_root / "sample.symbol_counts.json"
+            stream_path = temp_root / "sample.awss"
+            output_root = temp_root / "binary_counts"
+            artifact.write_text(
+                json.dumps({
+                    "symbol_authority": [
+                        {"anchor": "a", "symbol": "0x0000000001", "authority": "canonical"},
+                        {"anchor": "b", "symbol": "0x0000000002", "authority": "canonical"},
+                        {"anchor": "c", "symbol": "0xF000000003", "authority": "source_local"},
+                    ],
+                    "symbol_relation_counts": [
+                        {
+                            "symbol_anchor": "0x0000000001",
+                            "offset": "+1",
+                            "neighbor_symbol_anchor": "0x0000000002",
+                            "observations": 5,
+                        },
+                        {
+                            "symbol_anchor": "0x0000000001",
+                            "offset": "-1",
+                            "neighbor_symbol_anchor": "0xF000000003",
+                            "observations": 2,
+                        },
+                    ],
+                }),
+                encoding="utf-8",
+            )
+
+            stream = write_awss_from_symbol_count_artifacts([artifact], stream_path)
+            self.assertEqual(stream["record_count"], 2)
+            self.assertEqual(stream_path.stat().st_size, 48)
+
+            merge_symbol_stream(stream_path, output_root, generation=12, executable=self.exe)
+            cell = read_symbol_cell(output_root / "cells" / "00" / "0000000001.cell")
+            rows = {(row.offset, row.neighbor_symbol, row.lane): row.count for row in cell.relations}
+            self.assertEqual(rows[(1, symbol_to_bytes("0x0000000002"), CANONICAL_LANE)], 5)
+            self.assertEqual(rows[(-1, symbol_to_bytes("0xF000000003"), SOURCE_LOCAL_TEMP_LANE)], 2)
 
     @staticmethod
     def _stream_record(
