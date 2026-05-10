@@ -1,11 +1,21 @@
 from __future__ import annotations
 
+import os
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from .document_prep import prepare_file
 from .intake import NULL_ANCHOR, extract_anchor_rows
+
+
+def _observed_maps_dir_for_state(state_dir: Path) -> Path:
+    configured = os.environ.get("ANCHORWORKS_MAP_ROOT")
+    if configured:
+        return Path(configured).expanduser().resolve() / "observed_maps"
+    state = Path(state_dir).expanduser().resolve()
+    data_root = state.parent if state.name.lower() == "state" else state
+    return (data_root.parent / "AnchorMaps" / "observed_maps").resolve()
 
 
 def audit_source_directory(source_dir: Path) -> dict[str, Any]:
@@ -68,7 +78,7 @@ def audit_source_directory(source_dir: Path) -> dict[str, Any]:
 def rebuild_readiness_report(*, source_dir: Path, state_dir: Path) -> dict[str, Any]:
     sources = Path(source_dir).expanduser().resolve()
     state = Path(state_dir).expanduser().resolve()
-    observed_maps = state / "observed_maps"
+    observed_maps = _observed_maps_dir_for_state(state)
     flat_symbolic = state / "flat_documents" / "symbolic"
     symbol_counts = state / "source_local_symbol_counts"
     cleanup_ledger = state / "ingest_staging" / "cleanup_ledger" / "cleanup_ledger.json"

@@ -3,9 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import random
 import re
 import threading
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -45,6 +47,13 @@ TEMP_SYMBOL_HEX_LENGTH = 11
 COMPANION_AUTHORITY_LANES = {"math_terms_or_symbols", "math_markup", "domain_notation_anchors", "structural_source_anchors"}
 NULL_SYMBOL_LANES = {"null_symbol_anchors", "source_id_artifacts"}
 
+def _anchor_maps_root_for(data_root: Path) -> Path:
+    configured = os.environ.get("ANCHORWORKS_MAP_ROOT")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return (Path(data_root).expanduser().resolve().parent / "AnchorMaps").resolve()
+
+
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -60,6 +69,13 @@ def _is_visual_preview_content(content: str) -> bool:
         "Writes_Allowed: maps=false counts=false lifetime=false lexicon=false",
     )
     return all(marker in content for marker in markers)
+
+
+def _build_observed_map_worker(args: tuple[str, str, str, list[str]]) -> dict[str, Any]:
+    data_root, source_path, count_target, null_anchor_rows = args
+    store = LexiconStore(Path(data_root))
+    null_anchors = set(null_anchor_rows) if null_anchor_rows else None
+    return store.build_observed_map(Path(source_path), count_target=count_target, null_anchors=null_anchors)
 
 
 def _normalize_with_source_index(text: str) -> tuple[str, list[int]]:
@@ -94,7 +110,8 @@ class LexiconStore:
         self.chat_counts_dir = self.user_state_dir / "chat_counts"
         self.ingest_staging_dir = self.user_state_dir / "ingest_staging"
         self.rejected_or_literal_clusters_dir = self.user_state_dir / "rejected_or_literal_clusters"
-        self.observed_maps_dir = self.state_dir / "observed_maps"
+        self.anchor_maps_root = _anchor_maps_root_for(self.root)
+        self.observed_maps_dir = self.anchor_maps_root / "observed_maps"
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
@@ -1844,12 +1861,26 @@ class LexiconStore:
         *,
         limit: int | None = None,
         generation: int = 0,
+        artifact_names: list[str] | None = None,
     ) -> dict[str, Any]:
-        artifact_paths = sorted(self.source_local_symbol_counts_dir.glob("*.symbol_counts.json"))
+        if artifact_names is None:
+            artifact_paths = sorted(self.source_local_symbol_counts_dir.glob("*.symbol_counts.json"))
+        else:
+            artifact_paths = []
+            root = self.source_local_symbol_counts_dir.resolve()
+            for name in artifact_names:
+                target = (self.source_local_symbol_counts_dir / Path(name).name).resolve()
+                if target.parent != root:
+                    raise FileNotFoundError(name)
+                artifact_paths.append(target)
+            artifact_paths = sorted(artifact_paths, key=lambda item: item.name.lower())
         if limit is not None:
             artifact_paths = artifact_paths[: max(0, int(limit))]
         if not artifact_paths:
             raise FileNotFoundError("no source-local symbol count artifacts found")
+        missing = [str(path) for path in artifact_paths if not path.exists()]
+        if missing:
+            raise FileNotFoundError(f"missing source-local symbol count artifacts: {missing[:3]}")
         stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
         stream = write_awss_from_symbol_count_artifacts(artifact_paths, stream_path)
         merge = merge_symbol_stream(
@@ -1869,6 +1900,71 @@ class LexiconStore:
             "binary_counts_root": str(self.symbol_counts_binary_dir),
             "verify": verify,
             "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+
+    def build_symbolic_intake_batch(
+        self,
+        source_paths: list[str | Path],
+        *,
+        max_workers: int | None = None,
+        generation: int = 0,
+        null_anchors: set[str] | None = None,
+    ) -> dict[str, Any]:
+        normalized_paths = [Path(path).expanduser().resolve() for path in source_paths]
+        if not normalized_paths:
+            raise ValueError("at least one source path is required")
+        for path in normalized_paths:
+            if not path.exists():
+                raise FileNotFoundError(path)
+            if not path.is_file():
+                raise IsADirectoryError(path)
+
+        groups: dict[str, list[Path]] = {}
+        for path in normalized_paths:
+            groups.setdefault(str(path.parent), []).append(path)
+
+        worker_count = max(1, min(int(max_workers or (os.cpu_count() or 1)), len(normalized_paths)))
+        worker_args = [
+            (str(self.root), str(path), "binary_source_local", sorted(null_anchors or set()))
+            for group_name in sorted(groups)
+            for path in sorted(groups[group_name], key=lambda item: item.name.lower())
+        ]
+
+        map_results: list[dict[str, Any]] = []
+        if worker_count == 1:
+            map_results = [_build_observed_map_worker(args) for args in worker_args]
+        else:
+            with ProcessPoolExecutor(max_workers=worker_count) as executor:
+                future_by_path = {executor.submit(_build_observed_map_worker, args): args[1] for args in worker_args}
+                for future in as_completed(future_by_path):
+                    map_results.append(future.result())
+            map_results.sort(key=lambda row: str(row.get("source_path") or "").lower())
+
+        symbol_artifacts = [
+            self.build_source_local_symbol_counts(str(row["saved_map_name"]))
+            for row in map_results
+        ]
+        binary = self.build_binary_symbol_counts_from_source_local(
+            generation=generation,
+            artifact_names=[str(row["symbol_counts_name"]) for row in symbol_artifacts],
+        )
+        return {
+            "ok": bool(binary.get("ok")),
+            "schema_version": "anchorworks_symbolic_intake_batch@1",
+            "source_count": len(normalized_paths),
+            "group_count": len(groups),
+            "groups": [
+                {"group": group, "source_count": len(paths)}
+                for group, paths in sorted(groups.items())
+            ],
+            "max_workers_used": worker_count,
+            "map_root": str(self.observed_maps_dir),
+            "map_count": len(map_results),
+            "maps": map_results,
+            "symbol_artifact_count": len(symbol_artifacts),
+            "symbol_artifacts": symbol_artifacts,
+            "binary": binary,
+            "writes_allowed": {"maps": True, "counts": False, "lifetime": False, "lexicon": False},
         }
 
     def search_flat_document_evidence(

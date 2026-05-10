@@ -99,6 +99,60 @@ class MappingTests(unittest.TestCase):
             self.assertTrue(all(row["exists"] for row in status["files"]))
             self.assertEqual(before, after)
 
+    def test_observed_maps_write_to_external_anchor_maps_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "status": "ASSIGNED"}])
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+            source_path = Path(temp_dir) / "sample.txt"
+            source_path.write_text("alpha.", encoding="utf-8")
+
+            store = LexiconStore(root)
+            expected = (root.parent / "AnchorMaps" / "observed_maps").resolve()
+            result = store.build_observed_map(source_path)
+            saved_path = Path(result["saved_map_path"]).resolve()
+
+            self.assertEqual(store.observed_maps_dir, expected)
+            self.assertEqual(saved_path.parent, expected)
+            self.assertTrue(saved_path.is_file())
+            self.assertFalse((store.state_dir / "observed_maps" / saved_path.name).exists())
+
+    def test_symbolic_intake_batch_groups_maps_and_builds_binary_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "hex": "0x0000000001"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "hex": "0x0000000002"}])
+            _write_json(root / "Canonical" / "canonical_G.json", [{"word": "gamma", "hex": "0x0000000003"}])
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+            group_a = Path(temp_dir) / "book_a"
+            group_b = Path(temp_dir) / "book_b"
+            group_a.mkdir()
+            group_b.mkdir()
+            sources = [
+                group_a / "chapter_1.txt",
+                group_a / "chapter_2.txt",
+                group_b / "chapter_1.txt",
+                group_b / "chapter_2.txt",
+            ]
+            for index, path in enumerate(sources):
+                path.write_text(f"alpha beta gamma. alpha {index}.", encoding="utf-8")
+
+            store = LexiconStore(root)
+            result = store.build_symbolic_intake_batch(sources, max_workers=2, generation=21)
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["source_count"], 4)
+            self.assertEqual(result["group_count"], 2)
+            self.assertEqual(result["max_workers_used"], 2)
+            self.assertEqual(result["map_count"], 4)
+            self.assertEqual(result["symbol_artifact_count"], 4)
+            self.assertTrue(result["binary"]["ok"])
+            self.assertGreater(result["binary"]["stream_record_count"], 0)
+            self.assertTrue(all(Path(row["saved_map_path"]).parent == store.observed_maps_dir for row in result["maps"]))
+            self.assertFalse(any((store.state_dir / "observed_maps").glob("*.observed.json")))
+
     def test_extract_anchors_keeps_words_punctuation_and_emoji_placeholder(self) -> None:
         text = "don't stop. do not stop " + chr(0x1F60A)
         self.assertEqual(
