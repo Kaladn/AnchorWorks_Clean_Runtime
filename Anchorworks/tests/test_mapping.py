@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -234,6 +235,46 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.answer_assembly["attention_frame"]["role_by_anchor"]["meat"], "object_candidate")
             self.assertEqual(result.answer_assembly["terms"][0]["anchor"], "pan")
             self.assertEqual(result.answer_assembly["terms"][0]["role_fit"]["matched_roles"], ["action_candidate", "object_candidate"])
+
+    def test_clearspeak_can_read_external_lifetime_by_symbol_mirror(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            mirror = Path(temp_dir) / "Historical" / "State" / "lifetime_by_symbol"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, words in {
+                "S": ["sear"],
+                "M": ["meat"],
+                "P": ["pan"],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [{"word": word, "status": "ASSIGNED"} for word in words])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [])
+            _write_json(
+                mirror / "AA" / "0xSEAR.json",
+                {
+                    "schema_version": "lifetime_symbol_counts@1",
+                    "symbol": "0xSEAR",
+                    "anchor": "sear",
+                    "total_observations": 7,
+                    "neighbors": {
+                        "+1": [{"anchor": "pan", "symbol": "0xPAN", "count": 7}],
+                    },
+                },
+            )
+            previous = os.environ.get("ANCHORWORKS_LIFETIME_BY_SYMBOL_DIR")
+            os.environ["ANCHORWORKS_LIFETIME_BY_SYMBOL_DIR"] = str(mirror)
+            try:
+                result = ClearSpeakService(LexiconStore(root)).query("sear")
+            finally:
+                if previous is None:
+                    os.environ.pop("ANCHORWORKS_LIFETIME_BY_SYMBOL_DIR", None)
+                else:
+                    os.environ["ANCHORWORKS_LIFETIME_BY_SYMBOL_DIR"] = previous
+
+            self.assertEqual(result.evidence[0]["anchor"], "sear")
+            self.assertEqual(result.evidence[0]["neighbors"][0], {"anchor": "pan", "observations": 7})
+            self.assertEqual(result.answer_assembly["terms"][0]["anchor"], "pan")
 
     def test_anchor_rows_preserve_surface_and_fused_boundaries(self) -> None:
         fused_rows = extract_anchor_rows("state-of-the-art")

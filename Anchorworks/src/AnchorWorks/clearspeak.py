@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections import Counter
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -12,6 +13,7 @@ from .clearspeak_attention import (
     retrieve_from_count_index,
 )
 from .intake import extract_anchors
+from .lifetime_symbol_mirror import load_lifetime_by_symbol_dir
 
 
 @dataclass
@@ -129,6 +131,9 @@ class ClearSpeakService:
         return "\n".join(lines)
 
     def _load_count_index(self) -> dict[str, Any]:
+        external_by_symbol_dir = os.environ.get("ANCHORWORKS_LIFETIME_BY_SYMBOL_DIR")
+        if external_by_symbol_dir:
+            return load_lifetime_by_symbol_dir(external_by_symbol_dir)
         if hasattr(self.store, "_load_combined_relation_counts"):
             counter, _observed = self.store._load_combined_relation_counts()
             by_anchor: dict[str, dict[str, Counter[str]]] = {}
