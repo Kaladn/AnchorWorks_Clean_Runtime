@@ -36,6 +36,7 @@ from .symbol_count_native import (
     verify_binary_counts,
     write_awss_from_symbol_count_artifacts,
 )
+from .symbolic_map_binary import SymbolicMapRelation, write_symbolic_map_binary
 
 
 logger = logging.getLogger(__name__)
@@ -112,6 +113,7 @@ class LexiconStore:
         self.rejected_or_literal_clusters_dir = self.user_state_dir / "rejected_or_literal_clusters"
         self.anchor_maps_root = _anchor_maps_root_for(self.root)
         self.observed_maps_dir = self.anchor_maps_root / "observed_maps"
+        self.symbolic_maps_dir = self.anchor_maps_root / "symbolic_maps"
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
@@ -159,6 +161,7 @@ class LexiconStore:
         self.ingest_staging_dir.mkdir(parents=True, exist_ok=True)
         self.rejected_or_literal_clusters_dir.mkdir(parents=True, exist_ok=True)
         self.observed_maps_dir.mkdir(parents=True, exist_ok=True)
+        self.symbolic_maps_dir.mkdir(parents=True, exist_ok=True)
         self.misspelled_reviews_dir.mkdir(parents=True, exist_ok=True)
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_symbol_counts_dir.mkdir(parents=True, exist_ok=True)
@@ -1104,6 +1107,13 @@ class LexiconStore:
         if not safe_name:
             safe_name = "observed"
         return self.observed_maps_dir / f"{safe_name}-{digest}.observed.json"
+
+    def _symbolic_map_path(self, source_path: Path) -> Path:
+        digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]
+        safe_name = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in source_path.stem).strip("_")
+        if not safe_name:
+            safe_name = "symbolic"
+        return self.symbolic_maps_dir / f"{safe_name}-{digest}.awsm"
 
     def _misspelled_review_path(self, source_path: Path) -> Path:
         digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]
@@ -2443,6 +2453,24 @@ class LexiconStore:
         })
         temp_symbols_present = bool(temp_entries)
         source_local_only_present = temp_symbols_present or bool(companion_counts) or bool(null_anchor_set)
+        symbolic_anchors: list[str] = []
+        for paragraph in mapping["paragraphs"]:
+            symbolic_anchors.extend(str(anchor) for anchor in paragraph.get("resolved_anchors", []) if str(anchor))
+        symbol_by_anchor, symbol_authority = build_source_local_symbol_table(
+            symbolic_anchors,
+            canonical_symbol_by_anchor=self._canonical_symbol_by_anchor(),
+            source_id=hashlib.sha1((str(source_path) + "\n" + prepared.sha256).encode("utf-8")).hexdigest(),
+        )
+        authority_by_symbol = {
+            str(row.get("symbol") or ""): str(row.get("authority") or "")
+            for row in symbol_authority
+            if isinstance(row, dict)
+        }
+        symbolic_relation_rows = build_symbol_relation_rows(
+            mapping["paragraphs"],
+            symbol_by_anchor=symbol_by_anchor,
+            window_radius=DEFAULT_WINDOW_RADIUS,
+        )
         if count_target not in {"binary_source_local", "user_chat_preview"}:
             raise ValueError("legacy JSON count targets are removed on the binary spine branch")
         count_write = {
@@ -2539,6 +2567,33 @@ class LexiconStore:
         }
 
         map_path = self._observed_map_path(source_path)
+        symbolic_map_path = self._symbolic_map_path(source_path)
+        write_symbolic_map_binary(
+            symbolic_map_path,
+            metadata={
+                "schema_version": "anchorworks_symbolic_map_binary_metadata@1",
+                "source_path": str(source_path),
+                "source_name": source_path.name,
+                "source_hash": prepared.sha256,
+                "paragraph_count": mapping["paragraph_count"],
+                "window_radius": mapping["window_radius"],
+                "anchor_observations": int(sum(observed_counts.values())),
+                "symbol_authority_count": len(symbol_authority),
+            },
+            relations=[
+                SymbolicMapRelation(
+                    root_symbol_id=int(row["symbol_id"]),
+                    neighbor_symbol_id=int(row["neighbor_symbol_id"]),
+                    offset=int(str(row["offset"]).replace("+", "")),
+                    lane=4 if authority_by_symbol.get(str(row["neighbor_symbol_anchor"])) == "source_local" else 0,
+                    flags=0,
+                    count=int(row["observations"]),
+                )
+                for row in symbolic_relation_rows
+            ],
+        )
+        payload["symbolic_map_path"] = str(symbolic_map_path)
+        payload["symbolic_map_relation_count"] = len(symbolic_relation_rows)
         self._write_json(map_path, payload)
 
         return {
@@ -2547,6 +2602,9 @@ class LexiconStore:
             "source_name": source_path.name,
             "saved_map_path": str(map_path),
             "saved_map_name": map_path.name,
+            "symbolic_map_path": str(symbolic_map_path),
+            "symbolic_map_name": symbolic_map_path.name,
+            "symbolic_map_relation_count": len(symbolic_relation_rows),
             "paragraph_count": payload["paragraph_count"],
             "window_radius": payload["window_radius"],
             "total_anchor_observations": payload["total_anchor_observations"],

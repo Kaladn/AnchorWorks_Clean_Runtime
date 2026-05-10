@@ -16,6 +16,7 @@ from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
 from AnchorWorks.intake import NULL_ANCHOR, build_anchor_map, compose_anchor_stream, extract_anchor_rows, extract_anchors
 from AnchorWorks.store import LexiconStore
+from AnchorWorks.symbolic_map_binary import read_symbolic_map_binary
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -152,6 +153,38 @@ class MappingTests(unittest.TestCase):
             self.assertGreater(result["binary"]["stream_record_count"], 0)
             self.assertTrue(all(Path(row["saved_map_path"]).parent == store.observed_maps_dir for row in result["maps"]))
             self.assertFalse(any((store.state_dir / "observed_maps").glob("*.observed.json")))
+
+    def test_different_document_types_write_symbolic_binary_maps(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "hex": "0x0000000001"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "hex": "0x0000000002"}])
+            _write_json(root / "Canonical" / "canonical_G.json", [{"word": "gamma", "hex": "0x0000000003"}])
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+            docs = {
+                "sample.txt": "alpha beta gamma.",
+                "sample.md": "# Alpha\n\nbeta gamma.",
+                "sample.json": {"alpha": "beta gamma"},
+                "sample.html": "<html><body><p>alpha beta gamma.</p></body></html>",
+            }
+
+            store = LexiconStore(root)
+            for name, content in docs.items():
+                path = Path(temp_dir) / name
+                if isinstance(content, str):
+                    path.write_text(content, encoding="utf-8")
+                else:
+                    path.write_text(json.dumps(content), encoding="utf-8")
+                result = store.build_observed_map(path)
+                symbolic_path = Path(result["symbolic_map_path"])
+                loaded = read_symbolic_map_binary(symbolic_path)
+
+                self.assertTrue(symbolic_path.is_file())
+                self.assertGreater(result["symbolic_map_relation_count"], 0)
+                self.assertEqual(loaded.metadata["source_name"], name)
+                self.assertEqual(loaded.relation_count, result["symbolic_map_relation_count"])
+                self.assertTrue(loaded.relations)
 
     def test_extract_anchors_keeps_words_punctuation_and_emoji_placeholder(self) -> None:
         text = "don't stop. do not stop " + chr(0x1F60A)
