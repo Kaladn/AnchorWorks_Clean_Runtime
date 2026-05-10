@@ -28,6 +28,7 @@ from .positional_resonance import (
     build_source_local_resonance_index,
     write_jsonl,
 )
+from .symbol_relation_counts import build_source_local_symbol_table, build_symbol_relation_rows
 
 
 logger = logging.getLogger(__name__)
@@ -92,6 +93,7 @@ class LexiconStore:
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_preview_counts_dir = self.state_dir / "source_local_preview_counts"
+        self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
         self.visual_intake_dir = self.state_dir / "visual_intake"
@@ -119,6 +121,7 @@ class LexiconStore:
         self.rejected_or_literal_clusters_path = self.rejected_or_literal_clusters_dir / "clusters.json"
         self._known_anchor_index: set[str] | None = None
         self._canonical_anchor_index: set[str] | None = None
+        self._canonical_symbol_index: dict[str, str] | None = None
         self._known_anchor_spell_index: dict[tuple[str, tuple[bool, int], int], list[str]] | None = None
         self._spare_entries_cache: list[dict[str, Any]] | None = None
         self._spare_entries_cache_key: tuple[tuple[str, int | None, int | None], ...] | None = None
@@ -136,6 +139,7 @@ class LexiconStore:
         self.misspelled_reviews_dir.mkdir(parents=True, exist_ok=True)
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_preview_counts_dir.mkdir(parents=True, exist_ok=True)
+        self.source_local_symbol_counts_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_occurrences_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_resonance_dir.mkdir(parents=True, exist_ok=True)
         self.visual_intake_packets_dir.mkdir(parents=True, exist_ok=True)
@@ -223,6 +227,7 @@ class LexiconStore:
     def _invalidate_known_anchor_index(self) -> None:
         self._known_anchor_index = None
         self._canonical_anchor_index = None
+        self._canonical_symbol_index = None
         self._known_anchor_spell_index = None
 
     def _invalidate_spare_entries_cache(self) -> None:
@@ -466,6 +471,19 @@ class LexiconStore:
 
         self._canonical_anchor_index = canonical
         return canonical
+
+    def _canonical_symbol_by_anchor(self) -> dict[str, str]:
+        if self._canonical_symbol_index is not None:
+            return dict(self._canonical_symbol_index)
+        out: dict[str, str] = {}
+        for _, path in self._pack_paths("canonical"):
+            for entry in self._read_entries(path):
+                anchor = self.normalize_anchor(entry.get("word", ""))
+                symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
+                if anchor and symbol:
+                    out[anchor] = symbol
+        self._canonical_symbol_index = dict(out)
+        return out
 
     def _known_anchor_spell_buckets(self) -> dict[tuple[str, tuple[bool, int], int], list[str]]:
         if self._known_anchor_spell_index is not None:
@@ -1276,6 +1294,32 @@ class LexiconStore:
             out.append(dict(row))
         return out
 
+    def _symbol_relation_fates(
+        self,
+        relation_rows: list[dict[str, Any]],
+        authority_by_anchor: dict[str, str],
+    ) -> dict[str, int]:
+        fates = Counter()
+        for row in relation_rows:
+            if not isinstance(row, dict):
+                continue
+            anchor = str(row.get("anchor") or "")
+            neighbor = str(row.get("neighbor") or "")
+            observations = int(row.get("observations", 0) or 0)
+            if observations <= 0:
+                continue
+            anchor_authority = authority_by_anchor.get(anchor, "unresolved")
+            neighbor_authority = authority_by_anchor.get(neighbor, "unresolved")
+            if anchor_authority == "canonical" and neighbor_authority == "canonical":
+                fates["canonical_to_canonical"] += observations
+            elif "unresolved" in {anchor_authority, neighbor_authority}:
+                fates["unresolved_relation"] += observations
+            elif "source_local" in {anchor_authority, neighbor_authority}:
+                fates["source_local_relation"] += observations
+            else:
+                fates["other_relation"] += observations
+        return dict(sorted(fates.items()))
+
     def _update_relation_counts_file(
         self,
         path: Path,
@@ -1821,6 +1865,76 @@ class LexiconStore:
             "occurrence_count": len(occurrence_rows),
             "visual_link_count": len(visual_link_rows),
             "writes_allowed": symbolic["writes_allowed"],
+        }
+
+    def build_source_local_symbol_counts(self, observed_map_name: str) -> dict[str, Any]:
+        path = self._resolve_observed_map_name(observed_map_name)
+        if not path.exists():
+            raise FileNotFoundError(observed_map_name)
+        payload = self._read_json(path, {})
+        if not isinstance(payload, dict):
+            raise ValueError(f"invalid observed map: {path.name}")
+
+        source_name = str(payload.get("source_name") or Path(str(payload.get("source_path") or "document")).name or "document")
+        source_path = str(payload.get("source_path") or "")
+        source_hash = str((payload.get("document_prep") or {}).get("sha256") or hashlib.sha256(source_path.encode("utf-8")).hexdigest())
+        source_id = hashlib.sha1((source_path + "\n" + source_hash + "\n" + path.name).encode("utf-8")).hexdigest()
+        stem = self._flat_runtime_stem(source_name, source_id)
+        target = self.source_local_symbol_counts_dir / f"{stem}.symbol_counts.json"
+
+        paragraphs = [row for row in payload.get("paragraphs") or [] if isinstance(row, dict)]
+        anchors: list[str] = []
+        for paragraph in paragraphs:
+            anchors.extend(str(anchor) for anchor in (paragraph.get("resolved_anchors") or paragraph.get("anchors") or []) if str(anchor))
+
+        symbol_by_anchor, symbol_authority = build_source_local_symbol_table(
+            anchors,
+            canonical_symbol_by_anchor=self._canonical_symbol_by_anchor(),
+            source_id=source_id,
+        )
+        authority_by_anchor = {str(row.get("anchor") or ""): str(row.get("authority") or "") for row in symbol_authority}
+        relation_rows = build_symbol_relation_rows(
+            paragraphs,
+            symbol_by_anchor=symbol_by_anchor,
+            window_radius=int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
+        )
+        source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
+        canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
+        relation_fates = self._symbol_relation_fates(payload.get("co_occurrence_counts") or [], authority_by_anchor)
+        out = {
+            "schema_version": "anchorworks_source_local_symbol_counts@1",
+            "saved_at": _utc_now(),
+            "source_id": source_id,
+            "source_name": source_name,
+            "source_path": source_path,
+            "source_hash": source_hash,
+            "observed_map_name": path.name,
+            "observed_map_path": str(path),
+            "window_radius": int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
+            "symbol_authority": symbol_authority,
+            "canonical_symbol_count": canonical_symbols,
+            "source_local_symbol_count": source_local_symbols,
+            "relation_fates": relation_fates,
+            "symbol_relation_counts": relation_rows,
+            "unique_symbol_relations": len(relation_rows),
+            "total_symbol_relation_observations": int(sum(row["observations"] for row in relation_rows)),
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+        self._write_json(target, out)
+        return {
+            "ok": True,
+            "source_id": source_id,
+            "source_name": source_name,
+            "source_path": source_path,
+            "observed_map_name": path.name,
+            "symbol_counts_name": target.name,
+            "symbol_counts_path": str(target),
+            "canonical_symbol_count": canonical_symbols,
+            "source_local_symbol_count": source_local_symbols,
+            "relation_fates": relation_fates,
+            "unique_symbol_relations": len(relation_rows),
+            "total_symbol_relation_observations": out["total_symbol_relation_observations"],
+            "writes_allowed": out["writes_allowed"],
         }
 
     def search_flat_document_evidence(

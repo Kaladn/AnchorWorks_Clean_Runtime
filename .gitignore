@@ -8,6 +8,7 @@ Spare_Slots/spare_slots.json
 
 # Runtime/generated payloads stay local unless explicitly approved.
 State/lifetime_co_occurrence_counts.zip
+State/lifetime_co_occurrence_counts.json
 State/observed_maps/**
 State/flat_documents/raw/**
 State/flat_documents/symbolic/**
@@ -16,6 +17,7 @@ State/flat_documents/occurrence_index/**
 State/flat_documents/visual_links/**
 State/intake_uploads/**
 State/source_local_preview_counts/**
+State/source_local_symbol_counts/**
 State/source_local_occurrences/**
 State/source_local_resonance/**
 State/temp_lexicons/**

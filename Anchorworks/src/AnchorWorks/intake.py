@@ -171,6 +171,7 @@ def build_anchor_map(
             "countable_anchor_count": sum(1 for eligible in count_eligible if eligible),
             "anchors": anchors,
             "resolved_anchors": resolved_stream,
+            "count_eligible": count_eligible,
             "composed_anchor_streams": composed_streams,
             "composed_anchor_stream": [part for stream in composed_streams for part in stream],
             "text": paragraph,
