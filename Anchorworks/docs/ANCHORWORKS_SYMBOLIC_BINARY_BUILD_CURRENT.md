@@ -182,6 +182,7 @@ These are completed on the active branch:
 ~~35-doc mixed source dual-write benchmark~~
 ~~AWSM hot path for source-local symbol count artifacts~~
 ~~JSON observed-map fallback retained for parity/debug only~~
+~~100-doc AWSM parity benchmark~~
 ~~Cloud Of Clouds answer contract~~
 ```
 
@@ -265,6 +266,44 @@ Finding:
 ```text
 Large structured data files can still explode the compatibility JSON observed-map path.
 AWSM/AWSS/AWSC are the path out.
+```
+
+### 100 Mixed Source AWSM Parity
+
+Mix:
+
+```text
+.cnxml  16
+.html   12
+.md     12
+.css    10
+.js     10
+.json   10
+.svg    10
+.xml    10
+.yml    10
+```
+
+Result:
+
+```text
+Dual-write total: 0.831s
+AWSM artifact build: 0.441s
+JSON fallback build: 0.536s
+AWSM vs JSON artifact speedup: about 1.21x
+AWSS/AWSC build from AWSM artifacts: 0.377s
+Parity mismatches: 0
+AWSS records: 7,256
+AWSS observations: 8,688
+AWSC cells verified: 348
+AWSC verify errors: 0
+```
+
+Finding:
+
+```text
+AWSM serves source-local symbol artifacts with symbol authority, relation rows, and relation fates matching JSON fallback.
+JSON remains fallback/parity/debug only.
 ```
 
 ## AWSM Hot Path Checkpoint
@@ -412,20 +451,20 @@ Start here when returning to binaries:
 ~~Patch this current build document with verification nuances.~~
 ~~Build source-local symbol count artifacts directly from AWSM instead of JSON observed maps.~~
 ~~Route source-local symbol artifact builder through AWSM by default.~~
-1. Add 100-doc AWSM parity benchmark.
-2. Add AWSM block/line locator section or sidecar.
-3. Add AWSM NULL coordinate section or sidecar.
-4. Add AWSM visual-ref pointer section or sidecar.
-5. Add binary read API for AWSM maps.
-6. Add 1000-doc AWSM parity benchmark.
-7. Make JSON observed-map output optional debug mode.
-8. Route AWSS creation through AWSM-derived artifacts.
-9. Add CloudOfClouds builder from AWSC cells.
-10. Add AnswerField builder with cloud caps.
-11. Add AnswerPath walker with path-health scoring.
-12. Move native scoring into ClearSpeak behind a binary-read feature gate.
-13. Add batch-aware native scoring for many active contexts.
-14. Only after CPU-native proof: design GPU sparse symbolic field loader.
+~~Add 100-doc AWSM parity benchmark.~~
+1. Add AWSM block/line locator section or sidecar.
+2. Add AWSM NULL coordinate section or sidecar.
+3. Add AWSM visual-ref pointer section or sidecar.
+4. Add binary read API for AWSM maps.
+5. Add 1000-doc AWSM parity benchmark.
+6. Make JSON observed-map output optional debug mode.
+7. Route AWSS creation through AWSM-derived artifacts.
+8. Add CloudOfClouds builder from AWSC cells.
+9. Add AnswerField builder with cloud caps.
+10. Add AnswerPath walker with path-health scoring.
+11. Move native scoring into ClearSpeak behind a binary-read feature gate.
+12. Add batch-aware native scoring for many active contexts.
+13. Only after CPU-native proof: design GPU sparse symbolic field loader.
 ```
 
 ## Ready Confirmations
@@ -445,7 +484,7 @@ JSON observed maps are parity/debug fallback for this path.
 New maps write outside runtime State.
 Batch intake exists.
 Cloud Of Clouds contract exists.
-Next build target is 100-doc AWSM parity benchmark.
+Next build target is AWSM locator sidecars: block/line first, then NULL coordinates, then visual refs.
 ```
 
 ## Do Not Do Yet

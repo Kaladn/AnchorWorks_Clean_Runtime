@@ -1350,6 +1350,32 @@ class LexiconStore:
                 fates["other_relation"] += observations
         return dict(sorted(fates.items()))
 
+    def _symbol_relation_fates_from_symbol_rows(
+        self,
+        relation_rows: list[dict[str, Any]],
+        authority_by_symbol: dict[str, str],
+    ) -> dict[str, int]:
+        fates = Counter()
+        for row in relation_rows:
+            if not isinstance(row, dict):
+                continue
+            root = str(row.get("symbol_anchor") or "")
+            neighbor = str(row.get("neighbor_symbol_anchor") or "")
+            observations = int(row.get("observations", 0) or 0)
+            if observations <= 0:
+                continue
+            root_authority = authority_by_symbol.get(root, "unresolved")
+            neighbor_authority = authority_by_symbol.get(neighbor, "unresolved")
+            if root_authority == "canonical" and neighbor_authority == "canonical":
+                fates["canonical_to_canonical"] += observations
+            elif "unresolved" in {root_authority, neighbor_authority}:
+                fates["unresolved_relation"] += observations
+            elif "source_local" in {root_authority, neighbor_authority}:
+                fates["source_local_relation"] += observations
+            else:
+                fates["other_relation"] += observations
+        return dict(sorted(fates.items()))
+
     def counts_status(self) -> dict[str, Any]:
         cells_root = self.symbol_counts_binary_dir / "cells"
         cell_paths = list(cells_root.glob("*/*.cell")) if cells_root.exists() else []
@@ -1834,7 +1860,6 @@ class LexiconStore:
             canonical_symbol_by_anchor=self._canonical_symbol_by_anchor(),
             source_id=source_id,
         )
-        authority_by_anchor = {str(row.get("anchor") or ""): str(row.get("authority") or "") for row in symbol_authority}
         relation_rows = build_symbol_relation_rows(
             paragraphs,
             symbol_by_anchor=symbol_by_anchor,
@@ -1849,7 +1874,7 @@ class LexiconStore:
             row["flags"] = 0
         source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
         canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
-        relation_fates = self._symbol_relation_fates(payload.get("co_occurrence_counts") or [], authority_by_anchor)
+        relation_fates = self._symbol_relation_fates_from_symbol_rows(relation_rows, authority_by_symbol)
         out = {
             "schema_version": "anchorworks_source_local_symbol_counts@1",
             "saved_at": _utc_now(),
@@ -1911,7 +1936,6 @@ class LexiconStore:
             for row in symbol_authority
         }
         relation_rows: list[dict[str, Any]] = []
-        relation_fates = Counter()
         for row in symbolic.relations:
             root_display = f"0x{row.root_symbol_id:010X}"
             neighbor_display = f"0x{row.neighbor_symbol_id:010X}"
@@ -1928,19 +1952,10 @@ class LexiconStore:
                 "lane": int(row.lane),
                 "flags": int(row.flags),
             })
-            root_authority = authority_by_symbol.get(root_display, "unresolved")
-            neighbor_authority = authority_by_symbol.get(neighbor_display, "unresolved")
-            if root_authority == "canonical" and neighbor_authority == "canonical":
-                relation_fates["canonical_to_canonical"] += observations
-            elif "unresolved" in {root_authority, neighbor_authority}:
-                relation_fates["unresolved_relation"] += observations
-            elif "source_local" in {root_authority, neighbor_authority}:
-                relation_fates["source_local_relation"] += observations
-            else:
-                relation_fates["other_relation"] += observations
 
         canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
         source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
+        relation_fates = self._symbol_relation_fates_from_symbol_rows(relation_rows, authority_by_symbol)
         out = {
             "schema_version": "anchorworks_source_local_symbol_counts@1",
             "saved_at": _utc_now(),
@@ -1956,7 +1971,7 @@ class LexiconStore:
             "symbol_authority": symbol_authority,
             "canonical_symbol_count": canonical_symbols,
             "source_local_symbol_count": source_local_symbols,
-            "relation_fates": dict(sorted(relation_fates.items())),
+            "relation_fates": relation_fates,
             "symbol_relation_counts": relation_rows,
             "unique_symbol_relations": len(relation_rows),
             "total_symbol_relation_observations": int(sum(row["observations"] for row in relation_rows)),
@@ -2479,7 +2494,11 @@ class LexiconStore:
         if source_path.is_dir():
             raise IsADirectoryError(source_path)
 
+        map_path = self._observed_map_path(source_path)
+        symbolic_map_path = self._symbolic_map_path(source_path)
+        observed_map_name = map_path.name
         prepared = prepare_file(source_path)
+        source_id = hashlib.sha1((str(source_path) + "\n" + prepared.sha256 + "\n" + observed_map_name).encode("utf-8")).hexdigest()
         if isinstance(prepared.metadata, dict) and prepared.metadata.get("visual_manifest"):
             raise ValueError("visual intake preview is source-local evidence only; use a future visual approval route before mapping/counting")
         text = prepared.prepared_text
@@ -2574,7 +2593,7 @@ class LexiconStore:
         symbol_by_anchor, symbol_authority = build_source_local_symbol_table(
             symbolic_anchors,
             canonical_symbol_by_anchor=self._canonical_symbol_by_anchor(),
-            source_id=hashlib.sha1((str(source_path) + "\n" + prepared.sha256).encode("utf-8")).hexdigest(),
+            source_id=source_id,
         )
         authority_by_symbol = {
             str(row.get("symbol") or ""): str(row.get("authority") or "")
@@ -2681,10 +2700,6 @@ class LexiconStore:
             "count_write": count_write,
         }
 
-        map_path = self._observed_map_path(source_path)
-        symbolic_map_path = self._symbolic_map_path(source_path)
-        observed_map_name = map_path.name
-        source_id = hashlib.sha1((str(source_path) + "\n" + prepared.sha256 + "\n" + observed_map_name).encode("utf-8")).hexdigest()
         write_symbolic_map_binary(
             symbolic_map_path,
             metadata={

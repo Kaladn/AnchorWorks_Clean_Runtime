@@ -166,7 +166,7 @@ class SymbolRelationCountsTests(unittest.TestCase):
                 encoding="utf-8",
             )
             source = Path(temp_root) / "sample.txt"
-            source.write_text("alpha beta alpha", encoding="utf-8")
+            source.write_text("alpha mystery beta alpha", encoding="utf-8")
             map_result = store.build_observed_map(source)
             Path(map_result["saved_map_path"]).unlink()
 
@@ -175,7 +175,7 @@ class SymbolRelationCountsTests(unittest.TestCase):
             self.assertTrue(result["ok"])
             self.assertEqual(result["source_format"], "awsm")
             self.assertEqual(result["canonical_symbol_count"], 2)
-            self.assertEqual(result["source_local_symbol_count"], 0)
+            self.assertEqual(result["source_local_symbol_count"], 1)
             self.assertGreater(result["unique_symbol_relations"], 0)
             self.assertEqual(result["writes_allowed"]["lifetime"], False)
 
@@ -188,7 +188,7 @@ class SymbolRelationCountsTests(unittest.TestCase):
                 encoding="utf-8",
             )
             source = Path(temp_root) / "sample.txt"
-            source.write_text("alpha beta alpha", encoding="utf-8")
+            source.write_text("alpha mystery beta alpha", encoding="utf-8")
             map_result = store.build_observed_map(source)
 
             awsm_result = store.build_source_local_symbol_counts(map_result["saved_map_name"])
@@ -199,6 +199,7 @@ class SymbolRelationCountsTests(unittest.TestCase):
 
             self.assertEqual(awsm_result["source_format"], "awsm")
             self.assertEqual(json_result["source_format"], "observed_json")
+            self.assertEqual(awsm_result["source_local_symbol_count"], 1)
             self.assertEqual(awsm_artifact["symbol_authority"], json_artifact["symbol_authority"])
             self.assertEqual(awsm_artifact["symbol_relation_counts"], json_artifact["symbol_relation_counts"])
             self.assertEqual(awsm_artifact["relation_fates"], json_artifact["relation_fates"])

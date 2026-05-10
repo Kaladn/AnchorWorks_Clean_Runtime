@@ -1,0 +1,28 @@
+{
+  "schema_version": "anchorworks_awsm_parity_benchmark@1",
+  "doc_count": 100,
+  "extension_mix": {
+    ".cnxml": 16,
+    ".css": 10,
+    ".html": 12,
+    ".js": 10,
+    ".json": 10,
+    ".md": 12,
+    ".svg": 10,
+    ".xml": 10,
+    ".yml": 10
+  },
+  "dual_write_seconds": 0.830835,
+  "awsm_artifact_build_seconds": 0.441093,
+  "json_fallback_build_seconds": 0.535537,
+  "awsm_vs_json_speedup": 1.2141,
+  "awss_awsc_build_seconds": 0.377345,
+  "parity_mismatch_count": 0,
+  "parity_mismatches": [],
+  "awss_records": 7256,
+  "awss_observations": 8688,
+  "awsc_cells_verified": 348,
+  "awsc_verify_errors": 0,
+  "json_role": "fallback/parity/debug only",
+  "ok": true
+}
