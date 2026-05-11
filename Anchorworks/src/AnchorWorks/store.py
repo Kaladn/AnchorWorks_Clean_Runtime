@@ -87,6 +87,18 @@ def _build_observed_map_worker(args: tuple[str, str, str, list[str]]) -> dict[st
     return store.build_observed_map(Path(source_path), count_target=count_target, null_anchors=null_anchors)
 
 
+def _ordered_unique(values: Any) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        clean = str(value or "").strip()
+        if not clean or clean in seen:
+            continue
+        seen.add(clean)
+        out.append(clean)
+    return out
+
+
 def _normalize_with_source_index(text: str) -> tuple[str, list[int]]:
     normalized_chars: list[str] = []
     source_index: list[int] = []
@@ -485,6 +497,22 @@ class LexiconStore:
 
         self._known_anchor_index = known
         return known
+
+    def recognize_query_anchors(self, text: str) -> dict[str, Any]:
+        observed = _ordered_unique(row["anchor"] for row in extract_anchor_rows(str(text or "")) if row.get("anchor"))
+        known = self._all_known_anchors()
+        represented = [anchor for anchor in observed if anchor in known]
+        missing = [anchor for anchor in observed if anchor not in known]
+        return {
+            "schema_version": "anchorworks_lexicon_recognition@1",
+            "query": str(text or ""),
+            "query_anchors": observed,
+            "represented_anchors": represented,
+            "missing_anchors": missing,
+            "recognition_layer": "lexicon",
+            "lexicon_first": True,
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
 
     def _canonical_anchors(self) -> set[str]:
         if self._canonical_anchor_index is not None:

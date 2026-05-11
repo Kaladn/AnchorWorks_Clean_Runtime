@@ -198,9 +198,16 @@ class ChatMemorySystem:
                 provider = "anchorworks"
                 mode_name = "documents" if requested_documents else "clearspeak"
             elif requested_documents:
+                represented = document_payload.get("represented_anchors") or []
+                missing = document_payload.get("missing_anchors") or []
+                shape_note = ""
+                if represented or missing:
+                    represented_text = ", ".join(represented) if represented else "none"
+                    missing_text = ", ".join(missing) if missing else "none"
+                    shape_note = f" Lexicon shape was recognized: represented anchors: {represented_text}; missing anchors: {missing_text}."
                 clearspeak_payload = {
                     **document_payload,
-                    "response": "Document Mode found no source-local map support for that question. Counts were not used as a substitute.",
+                    "response": "Document Mode found no source-local map support for that question. Counts were not used as a substitute." + shape_note,
                     "evidence_mode": "documents",
                     "engine": "document_answer_no_map_support",
                     "contract": {

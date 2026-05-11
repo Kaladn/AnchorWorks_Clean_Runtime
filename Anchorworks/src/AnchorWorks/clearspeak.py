@@ -22,6 +22,7 @@ class ClearSpeakResult:
     query_anchors: list[str]
     represented_anchors: list[str]
     missing_anchors: list[str]
+    lexicon_recognition: dict[str, Any]
     response: str
     evidence: list[dict[str, Any]]
     citations: list[dict[str, Any]]
@@ -45,11 +46,10 @@ class ClearSpeakService:
 
     def query(self, text: str, limit: int = 6) -> ClearSpeakResult:
         query_text = str(text or "").strip()
-        observed = extract_anchors(query_text)
-        unique = _ordered_unique(observed)
-        known = set(self.store._all_known_anchors())
-        represented = [anchor for anchor in unique if anchor in known]
-        missing = [anchor for anchor in unique if anchor not in known]
+        recognition = self._recognize(query_text)
+        unique = recognition["query_anchors"]
+        represented = recognition["represented_anchors"]
+        missing = recognition["missing_anchors"]
         count_index = self._load_count_index()
 
         evidence: list[dict[str, Any]] = []
@@ -80,11 +80,29 @@ class ClearSpeakService:
             query_anchors=unique,
             represented_anchors=represented,
             missing_anchors=missing,
+            lexicon_recognition=recognition,
             response=response,
             evidence=evidence,
             citations=citation_rows,
             answer_assembly=answer_assembly,
         )
+
+    def _recognize(self, query: str) -> dict[str, Any]:
+        if hasattr(self.store, "recognize_query_anchors"):
+            return self.store.recognize_query_anchors(query)
+        observed = extract_anchors(query)
+        unique = _ordered_unique(observed)
+        known = set(self.store._all_known_anchors())
+        return {
+            "schema_version": "anchorworks_lexicon_recognition@1",
+            "query": str(query or ""),
+            "query_anchors": unique,
+            "represented_anchors": [anchor for anchor in unique if anchor in known],
+            "missing_anchors": [anchor for anchor in unique if anchor not in known],
+            "recognition_layer": "lexicon",
+            "lexicon_first": True,
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
 
     def _compose_response(
         self,

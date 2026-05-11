@@ -301,9 +301,8 @@ def create_app(data_root: Path | None = None) -> FastAPI:
                 document_result["speech"] = document_result["response"]
                 return document_result
             if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents"}:
-                coverage = clearspeak.query(body.query, limit=body.limit).to_dict()
-                represented = coverage.get("represented_anchors") or []
-                missing = coverage.get("missing_anchors") or []
+                represented = document_result.get("represented_anchors") or []
+                missing = document_result.get("missing_anchors") or []
                 shape_note = ""
                 if represented or missing:
                     represented_text = ", ".join(represented) if represented else "none"
@@ -311,9 +310,10 @@ def create_app(data_root: Path | None = None) -> FastAPI:
                     shape_note = f" Lexicon shape was recognized: represented anchors: {represented_text}; missing anchors: {missing_text}."
                 return {
                     "query": body.query,
-                    "query_anchors": coverage.get("query_anchors") or document_result.get("query_anchors") or [],
+                    "query_anchors": document_result.get("query_anchors") or [],
                     "represented_anchors": represented,
                     "missing_anchors": missing,
+                    "lexicon_recognition": document_result.get("lexicon_recognition") or {},
                     "speech": "Document Mode found no source-local map support for that question. Counts were not used as a substitute." + shape_note,
                     "response": "Document Mode found no source-local map support for that question. Counts were not used as a substitute." + shape_note,
                     "evidence": [],

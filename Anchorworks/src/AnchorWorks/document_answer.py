@@ -11,6 +11,9 @@ class DocumentAnswerResult:
     ok: bool
     query: str
     query_anchors: list[str]
+    represented_anchors: list[str]
+    missing_anchors: list[str]
+    lexicon_recognition: dict[str, Any]
     response: str
     evidence: dict[str, Any]
     citations: list[dict[str, Any]]
@@ -27,8 +30,11 @@ class DocumentAnswerAssembler:
 
     def answer(self, query: str, *, limit: int = 6) -> DocumentAnswerResult:
         query_text = str(query or "").strip()
-        anchors = _ordered_unique(extract_anchors(query_text))
+        recognition = self._recognize(query_text)
+        anchors = recognition["query_anchors"]
         focus_anchors = _document_focus_anchors(anchors)
+        represented_focus = [anchor for anchor in focus_anchors if anchor in set(recognition["represented_anchors"])]
+        missing_focus = [anchor for anchor in focus_anchors if anchor in set(recognition["missing_anchors"])]
         evidence = self.store.search_flat_document_evidence(
             focus_anchors,
             query_anchors=focus_anchors,
@@ -46,10 +52,28 @@ class DocumentAnswerAssembler:
             ok=bool(passages),
             query=query_text,
             query_anchors=focus_anchors,
+            represented_anchors=represented_focus,
+            missing_anchors=missing_focus,
+            lexicon_recognition=recognition,
             response=response,
             evidence=evidence,
             citations=citations,
         )
+
+    def _recognize(self, query: str) -> dict[str, Any]:
+        if hasattr(self.store, "recognize_query_anchors"):
+            return self.store.recognize_query_anchors(query)
+        anchors = _ordered_unique(extract_anchors(query))
+        return {
+            "schema_version": "anchorworks_lexicon_recognition@1",
+            "query": str(query or ""),
+            "query_anchors": anchors,
+            "represented_anchors": anchors,
+            "missing_anchors": [],
+            "recognition_layer": "lexicon",
+            "lexicon_first": True,
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
 
 
 def render_document_passages(passages: list[dict[str, Any]]) -> str:

@@ -851,6 +851,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result["query_anchors"], ["hello"])
             self.assertEqual(result["represented_anchors"], ["hello"])
             self.assertEqual(result["missing_anchors"], [])
+            self.assertTrue(result["lexicon_recognition"]["lexicon_first"])
             self.assertIn("lexicon", result["response"].lower())
             self.assertEqual(result["evidence_mode"], "documents")
             self.assertEqual(result["engine"], "document_answer_no_map_support")
@@ -951,6 +952,10 @@ class MappingTests(unittest.TestCase):
 
             self.assertTrue(answer.ok)
             self.assertEqual(answer.query_anchors, ["separation", "powers"])
+            self.assertEqual(answer.represented_anchors, ["separation", "powers"])
+            self.assertEqual(answer.missing_anchors, [])
+            self.assertTrue(answer.lexicon_recognition["lexicon_first"])
+            self.assertIn("what", answer.lexicon_recognition["represented_anchors"])
             self.assertIn("Separation of powers divides", answer.response)
 
     def test_flat_runtime_builds_block_occurrence_and_visual_link_indexes_from_observed_map(self) -> None:
