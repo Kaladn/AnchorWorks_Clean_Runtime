@@ -11,6 +11,7 @@ from typing import Any
 MAGIC = b"AWSM"
 LOCATOR_MAGIC = b"AWSL"
 NULL_MAGIC = b"AWSN"
+VISUAL_MAGIC = b"AWSV"
 VERSION = 0x0100
 HEADER_SIZE = 64
 RELATION_ROW_SIZE = 24
@@ -125,6 +126,16 @@ def write_symbolic_map_null_sidecar(path: str | Path, rows: list[dict[str, Any]]
 def read_symbolic_map_null_sidecar(path: str | Path) -> list[dict[str, Any]]:
     rows = _read_json_sidecar(path, magic=NULL_MAGIC, label="NULL coordinate")
     return [_normalize_null_row(row) for row in rows]
+
+
+def write_symbolic_map_visual_sidecar(path: str | Path, rows: list[dict[str, Any]]) -> None:
+    normalized = [_normalize_visual_row(row) for row in rows]
+    _write_json_sidecar(path, magic=VISUAL_MAGIC, rows=normalized)
+
+
+def read_symbolic_map_visual_sidecar(path: str | Path) -> list[dict[str, Any]]:
+    rows = _read_json_sidecar(path, magic=VISUAL_MAGIC, label="visual reference")
+    return [_normalize_visual_row(row) for row in rows]
 
 
 def _write_json_sidecar(path: str | Path, *, magic: bytes, rows: list[dict[str, Any]]) -> None:
@@ -243,4 +254,28 @@ def _normalize_null_row(row: dict[str, Any]) -> dict[str, Any]:
         "resolved_anchor": str(row.get("resolved_anchor") or "__NULL__"),
         "count_eligible": bool(row.get("count_eligible", False)),
         "memory_truth": bool(row.get("memory_truth", False)),
+    }
+
+
+def _normalize_visual_row(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "block_id": str(row.get("block_id") or ""),
+        "block_ordinal": int(row.get("block_ordinal", row.get("paragraph_id", 0)) or 0),
+        "line_start": int(row.get("line_start", 0) or 0),
+        "line_end": int(row.get("line_end", row.get("line_start", 0)) or row.get("line_start", 0) or 0),
+        "visual_record_id": str(row.get("visual_record_id") or ""),
+        "kind": str(row.get("kind") or ""),
+        "source_path_ref": str(row.get("source_path_ref") or row.get("source_path") or ""),
+        "alt_text": str(row.get("alt_text") or ""),
+        "title": str(row.get("title") or ""),
+        "caption_block_id": str(row.get("caption_block_id") or ""),
+        "manifest_id": str(row.get("manifest_id") or ""),
+        "geometry_status": str(row.get("geometry_status") or "held"),
+        "recognition_status": str(row.get("recognition_status") or "not_run"),
+        "writes_allowed": row.get("writes_allowed") if isinstance(row.get("writes_allowed"), dict) else {
+            "maps": False,
+            "counts": False,
+            "lifetime": False,
+            "lexicon": False,
+        },
     }

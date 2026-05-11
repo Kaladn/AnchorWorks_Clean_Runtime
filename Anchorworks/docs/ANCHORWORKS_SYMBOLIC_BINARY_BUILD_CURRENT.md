@@ -185,13 +185,14 @@ These are completed on the active branch:
 ~~100-doc AWSM parity benchmark~~
 ~~AWSM block/line locator sidecar~~
 ~~AWSM NULL coordinate sidecar~~
+~~AWSM visual-ref pointer sidecar~~
 ~~Cloud Of Clouds answer contract~~
 ```
 
 Current test confirmation:
 
 ```text
-Full suite reached 129 passing tests after AWSM NULL coordinate sidecars.
+Full suite reached 132 passing tests after AWSM visual-ref pointer sidecars.
 No active runtime behavior was added for Cloud Of Clouds yet.
 ```
 
@@ -433,6 +434,56 @@ NULL is auditable.
 NULL is not memory truth.
 ```
 
+## AWSM Visual Reference Sidecar Checkpoint
+
+AWSM now has a visual reference pointer sidecar.
+
+Shape:
+
+```text
+AWSM relation file:      *.awsm
+AWSM locator sidecar:    *.locators.awsl
+AWSM NULL sidecar:       *.nulls.awsn
+AWSM visual sidecar:     *.visuals.awsv
+```
+
+The visual sidecar stores source-local visual pointers:
+
+```text
+block_id
+block_ordinal
+line_start
+line_end
+visual_record_id
+kind
+source_path_ref
+alt_text
+title
+caption_block_id
+manifest_id
+geometry_status
+recognition_status
+writes_allowed
+```
+
+Verification:
+
+```text
+AWSV sidecar round-trips under CRC.
+AWSV sidecar rejects corrupted payloads.
+Ingest writes AWSV beside AWSM/AWSL/AWSN.
+AWSV survives after JSON observed map deletion.
+Full unittest suite: 132 tests OK.
+```
+
+Visual law:
+
+```text
+Visual refs witness source structure.
+Visual refs do not write Canonical, counts, lifetime, or lexicon.
+Recognition remains not-run until a visual backend earns evidence.
+```
+
 ## Vision And Media Boundary
 
 The visual intake law remains active:
@@ -542,17 +593,17 @@ Start here when returning to binaries:
 ~~Add 100-doc AWSM parity benchmark.~~
 ~~Add AWSM block/line locator section or sidecar.~~
 ~~Add AWSM NULL coordinate section or sidecar.~~
-1. Add AWSM visual-ref pointer section or sidecar.
-2. Add binary read API for AWSM maps.
-3. Add 1000-doc AWSM parity benchmark.
-4. Make JSON observed-map output optional debug mode.
-5. Route AWSS creation through AWSM-derived artifacts.
-6. Add CloudOfClouds builder from AWSC cells.
-7. Add AnswerField builder with cloud caps.
-8. Add AnswerPath walker with path-health scoring.
-9. Move native scoring into ClearSpeak behind a binary-read feature gate.
-10. Add batch-aware native scoring for many active contexts.
-11. Only after CPU-native proof: design GPU sparse symbolic field loader.
+~~Add AWSM visual-ref pointer section or sidecar.~~
+1. Add binary read API for AWSM maps.
+2. Add 1000-doc AWSM parity benchmark.
+3. Make JSON observed-map output optional debug mode.
+4. Route AWSS creation through AWSM-derived artifacts.
+5. Add CloudOfClouds builder from AWSC cells.
+6. Add AnswerField builder with cloud caps.
+7. Add AnswerPath walker with path-health scoring.
+8. Move native scoring into ClearSpeak behind a binary-read feature gate.
+9. Add batch-aware native scoring for many active contexts.
+10. Only after CPU-native proof: design GPU sparse symbolic field loader.
 ```
 
 ## Ready Confirmations
@@ -566,6 +617,7 @@ AWSM exists.
 AWSM serves source-local symbol count artifacts.
 AWSM block/line locator sidecar exists.
 AWSM NULL coordinate sidecar exists.
+AWSM visual-ref pointer sidecar exists.
 Native C++ merge exists.
 Native C++ verify exists.
 Native C++ score exists.
@@ -574,7 +626,7 @@ JSON observed maps are parity/debug fallback for this path.
 New maps write outside runtime State.
 Batch intake exists.
 Cloud Of Clouds contract exists.
-Next build target is AWSM visual-ref pointer sidecar.
+Next build target is binary read API for AWSM maps and sidecars.
 ```
 
 ## Do Not Do Yet

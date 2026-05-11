@@ -41,6 +41,7 @@ from .symbolic_map_binary import (
     read_symbolic_map_binary,
     write_symbolic_map_locator_sidecar,
     write_symbolic_map_null_sidecar,
+    write_symbolic_map_visual_sidecar,
     write_symbolic_map_binary,
 )
 
@@ -1134,6 +1135,13 @@ class LexiconStore:
         if not safe_name:
             safe_name = "symbolic"
         return self.symbolic_maps_dir / f"{safe_name}-{digest}.nulls.awsn"
+
+    def _symbolic_visual_path(self, source_path: Path) -> Path:
+        digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]
+        safe_name = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in source_path.stem).strip("_")
+        if not safe_name:
+            safe_name = "symbolic"
+        return self.symbolic_maps_dir / f"{safe_name}-{digest}.visuals.awsv"
 
     def _misspelled_review_path(self, source_path: Path) -> Path:
         digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]
@@ -2518,6 +2526,7 @@ class LexiconStore:
         symbolic_map_path = self._symbolic_map_path(source_path)
         symbolic_locator_path = self._symbolic_locator_path(source_path)
         symbolic_null_path = self._symbolic_null_path(source_path)
+        symbolic_visual_path = self._symbolic_visual_path(source_path)
         observed_map_name = map_path.name
         prepared = prepare_file(source_path)
         source_id = hashlib.sha1((str(source_path) + "\n" + prepared.sha256 + "\n" + observed_map_name).encode("utf-8")).hexdigest()
@@ -2734,6 +2743,29 @@ class LexiconStore:
             for paragraph in mapping["paragraphs"]
             if isinstance(paragraph, dict)
         ]
+        visual_rows: list[dict[str, Any]] = []
+        for ref in (prepared.metadata or {}).get("visual_refs") or []:
+            if isinstance(ref, dict) and str(ref.get("source_path") or ref.get("source_path_ref") or ref.get("visual_record_id") or "").strip():
+                visual_rows.append({
+                    "block_id": "",
+                    "block_ordinal": 0,
+                    "line_start": 0,
+                    "line_end": 0,
+                    **ref,
+                })
+        for paragraph in mapping["paragraphs"]:
+            if not isinstance(paragraph, dict):
+                continue
+            paragraph_id = int(paragraph.get("paragraph_id", 0) or 0)
+            for ref in paragraph.get("visual_refs") or []:
+                if isinstance(ref, dict) and str(ref.get("visual_record_id") or ref.get("source_path") or ref.get("source_path_ref") or "").strip():
+                    visual_rows.append({
+                        "block_id": f"block_{paragraph_id}",
+                        "block_ordinal": paragraph_id,
+                        "line_start": int(paragraph.get("line_start", 0) or 0),
+                        "line_end": int(paragraph.get("line_end", paragraph.get("line_start", 0)) or paragraph.get("line_start", 0) or 0),
+                        **ref,
+                    })
 
         write_symbolic_map_binary(
             symbolic_map_path,
@@ -2764,12 +2796,15 @@ class LexiconStore:
         )
         write_symbolic_map_locator_sidecar(symbolic_locator_path, locator_rows)
         write_symbolic_map_null_sidecar(symbolic_null_path, null_index)
+        write_symbolic_map_visual_sidecar(symbolic_visual_path, visual_rows)
         payload["symbolic_map_path"] = str(symbolic_map_path)
         payload["symbolic_map_relation_count"] = len(symbolic_relation_rows)
         payload["symbolic_locator_path"] = str(symbolic_locator_path)
         payload["symbolic_locator_count"] = len(locator_rows)
         payload["symbolic_null_path"] = str(symbolic_null_path)
         payload["symbolic_null_count"] = len(null_index)
+        payload["symbolic_visual_path"] = str(symbolic_visual_path)
+        payload["symbolic_visual_count"] = len(visual_rows)
         self._write_json(map_path, payload)
 
         return {
@@ -2787,6 +2822,9 @@ class LexiconStore:
             "symbolic_null_path": str(symbolic_null_path),
             "symbolic_null_name": symbolic_null_path.name,
             "symbolic_null_count": len(null_index),
+            "symbolic_visual_path": str(symbolic_visual_path),
+            "symbolic_visual_name": symbolic_visual_path.name,
+            "symbolic_visual_count": len(visual_rows),
             "paragraph_count": payload["paragraph_count"],
             "window_radius": payload["window_radius"],
             "total_anchor_observations": payload["total_anchor_observations"],

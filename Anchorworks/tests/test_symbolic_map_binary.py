@@ -11,9 +11,11 @@ from AnchorWorks.symbolic_map_binary import (
     SymbolicMapRelation,
     read_symbolic_map_locator_sidecar,
     read_symbolic_map_null_sidecar,
+    read_symbolic_map_visual_sidecar,
     read_symbolic_map_binary,
     write_symbolic_map_locator_sidecar,
     write_symbolic_map_null_sidecar,
+    write_symbolic_map_visual_sidecar,
     write_symbolic_map_binary,
 )
 
@@ -136,6 +138,44 @@ class SymbolicMapBinaryTests(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 read_symbolic_map_null_sidecar(path)
+
+    def test_round_trip_visual_ref_sidecar(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.visuals.awsv"
+            rows = [
+                {
+                    "block_id": "block_1",
+                    "block_ordinal": 1,
+                    "line_start": 3,
+                    "line_end": 3,
+                    "visual_record_id": "vis_emp_graph",
+                    "kind": "graph",
+                    "source_path_ref": "figures/emp_graph.png",
+                    "caption_block_id": "block_2",
+                    "manifest_id": "manifest_emp_graph",
+                    "geometry_status": "known",
+                    "recognition_status": "not_run",
+                    "alt_text": "",
+                    "title": "",
+                    "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+                }
+            ]
+
+            write_symbolic_map_visual_sidecar(path, rows)
+            loaded = read_symbolic_map_visual_sidecar(path)
+
+            self.assertEqual(loaded, rows)
+
+    def test_visual_ref_sidecar_crc_rejects_corruption(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.visuals.awsv"
+            write_symbolic_map_visual_sidecar(path, [{"block_id": "block_1", "visual_record_id": "vis_emp_graph"}])
+            raw = bytearray(path.read_bytes())
+            raw[-1] ^= 0x01
+            path.write_bytes(raw)
+
+            with self.assertRaises(ValueError):
+                read_symbolic_map_visual_sidecar(path)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,12 @@ from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
 from AnchorWorks.intake import NULL_ANCHOR, build_anchor_map, compose_anchor_stream, extract_anchor_rows, extract_anchors
 from AnchorWorks.store import LexiconStore
-from AnchorWorks.symbolic_map_binary import read_symbolic_map_binary, read_symbolic_map_locator_sidecar, read_symbolic_map_null_sidecar
+from AnchorWorks.symbolic_map_binary import (
+    read_symbolic_map_binary,
+    read_symbolic_map_locator_sidecar,
+    read_symbolic_map_null_sidecar,
+    read_symbolic_map_visual_sidecar,
+)
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -1439,6 +1444,33 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(null_rows[0]["resolved_anchor"], "__NULL__")
             self.assertFalse(null_rows[0]["count_eligible"])
             self.assertFalse(null_rows[0]["memory_truth"])
+
+    def test_awsm_visual_ref_sidecar_survives_without_json_observed_map(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_F.json", [{"word": "figure", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+
+            source_path = Path(temp_dir) / "sample.html"
+            source_path.write_text(
+                "<html><body><p>Figure</p><img src=\"figures/emp_graph.png\" alt=\"EMP graph\" title=\"EMP figure\"></body></html>",
+                encoding="utf-8",
+            )
+            store = LexiconStore(root)
+
+            result = store.build_observed_map(source_path)
+            Path(result["saved_map_path"]).unlink()
+            visual_rows = read_symbolic_map_visual_sidecar(result["symbolic_visual_path"])
+
+            self.assertEqual(result["symbolic_visual_count"], 1)
+            self.assertEqual(visual_rows[0]["kind"], "image_reference")
+            self.assertEqual(visual_rows[0]["source_path_ref"], "figures/emp_graph.png")
+            self.assertEqual(visual_rows[0]["alt_text"], "EMP graph")
+            self.assertEqual(visual_rows[0]["title"], "EMP figure")
+            self.assertEqual(visual_rows[0]["recognition_status"], "not_run")
+            self.assertEqual(visual_rows[0]["writes_allowed"], {"maps": False, "counts": False, "lifetime": False, "lexicon": False})
 
     def test_ingest_uses_source_local_temp_symbols_for_unresolved_anchors(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
