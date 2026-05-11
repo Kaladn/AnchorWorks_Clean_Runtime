@@ -835,6 +835,26 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(before, after)
             self.assertEqual(list((root / "State" / "chat_memory" / "chats").glob("*.jsonl")), [])
 
+    def test_document_only_clearspeak_no_support_preserves_lexicon_shape(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_H.json", [{"word": "hello", "hex": "0x042CF24DBA", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+            _write_json(root / "Structural" / "structural.json", [])
+
+            app = create_app(root)
+            route = next(route for route in app.routes if getattr(route, "path", "") == "/api/clearspeak/query")
+            result = route.endpoint(ClearSpeakQueryBody(query="hello", limit=6, evidence_mode="documents"))
+
+            self.assertEqual(result["query_anchors"], ["hello"])
+            self.assertEqual(result["represented_anchors"], ["hello"])
+            self.assertEqual(result["missing_anchors"], [])
+            self.assertIn("lexicon", result["response"].lower())
+            self.assertEqual(result["evidence_mode"], "documents")
+            self.assertEqual(result["engine"], "document_answer_no_map_support")
+
     def test_chat_memory_system_logs_clearspeak_response_and_citation(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
