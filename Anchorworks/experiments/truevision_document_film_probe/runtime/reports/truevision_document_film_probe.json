@@ -1,0 +1,182 @@
+{
+  "schema_version": "anchorworks_truevision_document_film_probe@1",
+  "source_pdf": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\US20190091581A1.pdf",
+  "mode": "one_page_five_frames",
+  "page_count": 29,
+  "selected_page": 1,
+  "page_text_chars": 1662,
+  "page_image_count": 1,
+  "frames_requested": 5,
+  "frames_built": 5,
+  "duplicate_frame_hashes": {
+    "9f7f63cc190451cf75351bb6f3c08fb56c11328b3e35c5d8ff741f355aca75d1": 5
+  },
+  "errors": [],
+  "seconds": 0.003246,
+  "frames": [
+    {
+      "frame_index_requested": 0,
+      "frame_timestamp_ms_requested": 0,
+      "source_name": "US20190091581A1_page_0001_frame_0000.tiff",
+      "visual_record_id": "visual_6d71bc02b94de8c5",
+      "manifest_frame_index": 0,
+      "manifest_frame_timestamp_ms": null,
+      "sha256": "9f7f63cc190451cf75351bb6f3c08fb56c11328b3e35c5d8ff741f355aca75d1",
+      "byte_size": 50960,
+      "format": "TIFF",
+      "width": 2560,
+      "height": 3300,
+      "aspect_ratio": "128:165",
+      "color_mode": "1bit",
+      "region_count": 0,
+      "recognition_candidate_count": 0,
+      "source_span_count": 1,
+      "visual_text_candidate_count": 0,
+      "agreement_ratio": 0.0,
+      "issue_types": [
+        "missing_visual_text"
+      ],
+      "issue_count": 1,
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_index_requested": 1,
+      "frame_timestamp_ms_requested": 200,
+      "source_name": "US20190091581A1_page_0001_frame_0001.tiff",
+      "visual_record_id": "visual_50c7fd511968ade4",
+      "manifest_frame_index": 0,
+      "manifest_frame_timestamp_ms": null,
+      "sha256": "9f7f63cc190451cf75351bb6f3c08fb56c11328b3e35c5d8ff741f355aca75d1",
+      "byte_size": 50960,
+      "format": "TIFF",
+      "width": 2560,
+      "height": 3300,
+      "aspect_ratio": "128:165",
+      "color_mode": "1bit",
+      "region_count": 0,
+      "recognition_candidate_count": 0,
+      "source_span_count": 1,
+      "visual_text_candidate_count": 0,
+      "agreement_ratio": 0.0,
+      "issue_types": [
+        "missing_visual_text"
+      ],
+      "issue_count": 1,
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_index_requested": 2,
+      "frame_timestamp_ms_requested": 400,
+      "source_name": "US20190091581A1_page_0001_frame_0002.tiff",
+      "visual_record_id": "visual_fab4be7fa03f162f",
+      "manifest_frame_index": 0,
+      "manifest_frame_timestamp_ms": null,
+      "sha256": "9f7f63cc190451cf75351bb6f3c08fb56c11328b3e35c5d8ff741f355aca75d1",
+      "byte_size": 50960,
+      "format": "TIFF",
+      "width": 2560,
+      "height": 3300,
+      "aspect_ratio": "128:165",
+      "color_mode": "1bit",
+      "region_count": 0,
+      "recognition_candidate_count": 0,
+      "source_span_count": 1,
+      "visual_text_candidate_count": 0,
+      "agreement_ratio": 0.0,
+      "issue_types": [
+        "missing_visual_text"
+      ],
+      "issue_count": 1,
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_index_requested": 3,
+      "frame_timestamp_ms_requested": 600,
+      "source_name": "US20190091581A1_page_0001_frame_0003.tiff",
+      "visual_record_id": "visual_ec0af3725ae39e60",
+      "manifest_frame_index": 0,
+      "manifest_frame_timestamp_ms": null,
+      "sha256": "9f7f63cc190451cf75351bb6f3c08fb56c11328b3e35c5d8ff741f355aca75d1",
+      "byte_size": 50960,
+      "format": "TIFF",
+      "width": 2560,
+      "height": 3300,
+      "aspect_ratio": "128:165",
+      "color_mode": "1bit",
+      "region_count": 0,
+      "recognition_candidate_count": 0,
+      "source_span_count": 1,
+      "visual_text_candidate_count": 0,
+      "agreement_ratio": 0.0,
+      "issue_types": [
+        "missing_visual_text"
+      ],
+      "issue_count": 1,
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_index_requested": 4,
+      "frame_timestamp_ms_requested": 800,
+      "source_name": "US20190091581A1_page_0001_frame_0004.tiff",
+      "visual_record_id": "visual_09dbc3d736e2914e",
+      "manifest_frame_index": 0,
+      "manifest_frame_timestamp_ms": null,
+      "sha256": "9f7f63cc190451cf75351bb6f3c08fb56c11328b3e35c5d8ff741f355aca75d1",
+      "byte_size": 50960,
+      "format": "TIFF",
+      "width": 2560,
+      "height": 3300,
+      "aspect_ratio": "128:165",
+      "color_mode": "1bit",
+      "region_count": 0,
+      "recognition_candidate_count": 0,
+      "source_span_count": 1,
+      "visual_text_candidate_count": 0,
+      "agreement_ratio": 0.0,
+      "issue_types": [
+        "missing_visual_text"
+      ],
+      "issue_count": 1,
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    }
+  ],
+  "findings": [
+    "PDF page image can enter visual_manifest as TIFF/CCITT-derived frame bytes.",
+    "Region maps are empty because no region generator is wired for PDF page frames.",
+    "Recognition layers are empty because no OCR/recognition backend is wired.",
+    "Dual-path verification reports missing_visual_text because source text exists but visual candidates are empty.",
+    "Repeated frames have duplicate source hashes; film builder needs duplicate-frame policy.",
+    "VisualSourceRecord frame_index/timestamp are fixed defaults; manifest builder lacks frame metadata inputs."
+  ],
+  "writes_allowed": {
+    "maps": false,
+    "counts": false,
+    "lifetime": false,
+    "lexicon": false
+  }
+}

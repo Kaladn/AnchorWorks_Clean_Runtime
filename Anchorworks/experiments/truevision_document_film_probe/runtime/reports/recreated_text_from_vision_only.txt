@@ -1,0 +1,24 @@
+RECREATED FROM TRUEVISION VISUAL RECORD ONLY
+Source text layer was not used.
+OCR/recognition was not run.
+
+source_pdf: C:\Users\mydyi\Downloads\How to Read and Follow Uploaded File Content_\US20190091581A1.pdf
+mode: all_pages_one_frame_each_one_page_per_second
+page_count: 29
+frames_built: 29
+geometry_set: 2560x3300 TIFF 1bit
+unique_frame_hashes: 29
+duplicate_frame_hashes: {}
+empty_region_frames: 29
+empty_recognition_frames: 29
+
+VISION-ONLY TEXT RECONSTRUCTION:
+No page prose can be reconstructed from the current visual packet because region maps and recognition candidates are empty.
+The current visual packet can reconstruct page/frame identity, geometry, hashes, order, and timing only.
+
+FRAME INDEX:
+US20190091581A1_page_0001_frame_0000.tiff: page=1 frame=0 time_ms=0 visual_record_id=visual_6d71bc02b94de8c5 sha256=9f7f63cc190451cf75351bb6f3c08fb56c11328b3e35c5d8ff741f355aca75d1 geometry=2560x3300 format=TIFF color=1bit regions=0 recognition_candidates=0
+US20190091581A1_page_0002_frame_0000.tiff: page=2 frame=1 time_ms=1000 visual_record_id=visual_dbf03bd0380259e2 sha256=be23c3acafbe38469dce71969b2e6652702ce7e7d1a8327853e22648b013683a geometry=2560x3300 format=TIFF color=1bit regions=0 recognition_candidates=0
+US20190091581A1_page_0003_frame_0000.tiff: page=3 frame=2 time_ms=2000 visual_record_id=visual_b2d127a2c1540354 sha256=f5e87f0fa6abd2c892c70103ed7806d7e0f7b862ea1a27916cdfb65bc317d26b geometry=2560x3300 format=TIFF color=1bit regions=0 recognition_candidates=0
+US20190091581A1_page_0004_frame_0000.tiff: page=4 frame=3 time_ms=3000 visual_record_id=visual_a99043198f279706 sha256=4ecfa9a1c10c20cc1f30828d66416874492c5c06020ebdb8dabea280e5f50ce6 geometry=2560x3300 format=TIFF color=1bit regions=0 recognition_candidates=0
+US20190091581A1_page_0005_frame_0000.tiff: page=5 frame=4 time_ms=4000 visual_record_id=visual_ceba5244392e92bc sha256=240571030891ac70c278a59e027b482f90038a1a598b6a61e65e5f697afba6f0 geometry=2560x3300 format=TIFF color=1bit regions=0 recognition_candidates=0
