@@ -2,7 +2,7 @@
 
 Status: active build document.
 
-Date: 2026-05-10
+Date: 2026-05-11
 
 This file replaces the scattered working notes for the current binary-brain branch. Older notes are archived under:
 
@@ -187,14 +187,42 @@ These are completed on the active branch:
 ~~AWSM NULL coordinate sidecar~~
 ~~AWSM visual-ref pointer sidecar~~
 ~~Binary read API for AWSM maps and sidecars~~
+~~UI/API path aligned to AWSM/AWSL/AWSN/AWSV/AWSC as the runtime surface~~
+~~Default app root corrected to D:\AnchorWorks_Clean_Runtime for this repo~~
+~~Full OpenStax CNXML symbolic ingest completed from clean runtime root~~
 ~~Cloud Of Clouds answer contract~~
 ```
 
 Current test confirmation:
 
 ```text
-Full suite reached 135 passing tests after AWSM binary bundle read API.
+Full suite reached 138 passing tests after UI/root alignment.
 No active runtime behavior was added for Cloud Of Clouds yet.
+```
+
+Current runtime confirmation:
+
+```text
+data_root: D:\AnchorWorks_Clean_Runtime
+anchor_maps_root: D:\AnchorMaps
+observed JSON witness maps: 2,656
+AWSM maps: 2,656
+AWSL locator sidecars: 2,656
+AWSN NULL sidecars: 2,656
+AWSV visual sidecars: 2,656
+AWSS stream: D:\AnchorWorks_Clean_Runtime\State\symbol_streams\source_local_symbol_counts.awss
+AWSS stream size: 1,802,161,488 bytes
+AWSC cells: 147,678
+```
+
+Current UI confirmation:
+
+```text
+http://127.0.0.1:8081/
+GET / returns 200
+GET /app.js returns 200
+GET /api/health reports D:\AnchorWorks_Clean_Runtime
+GET /api/binary-substrate/status reports the live AWSM/AWSS/AWSC counts above
 ```
 
 ## Current Benchmarks
@@ -211,6 +239,39 @@ Native build path:
 
 ```text
 Visual Studio bundled CMake is the supported native build path.
+```
+
+### Full OpenStax CNXML Runtime Ingest
+
+This is a real current runtime state, not a parity benchmark.
+
+Source:
+
+```text
+D:\curated data\raw_sources\openstax\extracted
+```
+
+Result:
+
+```text
+CNXML source files: 2,656
+JSON observed maps written as witness/debug artifacts: 2,656
+AWSM maps written to D:\AnchorMaps\symbolic_maps: 2,656
+AWSL locator sidecars: 2,656
+AWSN NULL sidecars: 2,656
+AWSV visual sidecars: 2,656
+Source-local symbol artifacts: 2,656
+AWSS stream size: 1,802,161,488 bytes
+AWSC cells verified by native verify: 147,678
+Native verify errors: 0
+```
+
+Important nuance:
+
+```text
+This full ingest proves the symbolic binary path can carry the dataset.
+It is not the same as a full JSON-vs-AWSM parity benchmark.
+JSON artifacts still exist as witness/debug outputs in this run.
 ```
 
 ### 35 Mixed Source Documents
@@ -337,7 +398,8 @@ Verification:
 ```text
 AWSM works even when the JSON observed map is absent.
 AWSM-derived artifacts match JSON-debug artifacts for symbol authority, relation rows, and relation fates.
-Full unittest suite: 123 tests OK.
+Full unittest suite at that checkpoint: 123 tests OK.
+Current full suite after later binary/UI/root work: 138 tests OK.
 ```
 
 Current law:
@@ -378,7 +440,8 @@ AWSL sidecar round-trips under CRC.
 AWSL sidecar rejects corrupted payloads.
 Ingest writes AWSL beside AWSM.
 AWSL survives after JSON observed map deletion.
-Full unittest suite: 126 tests OK.
+Full unittest suite at that checkpoint: 126 tests OK.
+Current full suite after later binary/UI/root work: 138 tests OK.
 ```
 
 Locator law:
@@ -423,7 +486,8 @@ AWSN sidecar round-trips under CRC.
 AWSN sidecar rejects corrupted payloads.
 Ingest writes AWSN beside AWSM/AWSL.
 AWSN survives after JSON observed map deletion.
-Full unittest suite: 129 tests OK.
+Full unittest suite at that checkpoint: 129 tests OK.
+Current full suite after later binary/UI/root work: 138 tests OK.
 ```
 
 NULL law:
@@ -474,7 +538,8 @@ AWSV sidecar round-trips under CRC.
 AWSV sidecar rejects corrupted payloads.
 Ingest writes AWSV beside AWSM/AWSL/AWSN.
 AWSV survives after JSON observed map deletion.
-Full unittest suite: 132 tests OK.
+Full unittest suite at that checkpoint: 132 tests OK.
+Current full suite after later binary/UI/root work: 138 tests OK.
 ```
 
 Visual law:
@@ -519,7 +584,8 @@ Bundle reader loads AWSM + AWSL + AWSN + AWSV together.
 Bundle reader tolerates absent optional sidecars.
 Store API resolves old observed-map names to AWSM bundles.
 Store API works after JSON observed map deletion.
-Full unittest suite: 135 tests OK.
+Full unittest suite at that checkpoint: 135 tests OK.
+Current full suite after later binary/UI/root work: 138 tests OK.
 ```
 
 Read API law:
@@ -528,6 +594,66 @@ Read API law:
 AWSM is the serving map.
 Sidecars restore audit shape.
 JSON is not required to read the binary evidence bundle.
+```
+
+## UI And App Root Checkpoint
+
+The UI path is now aligned to the symbolic binary runtime.
+
+Primary UI/API surfaces:
+
+```text
+GET /api/lexicon/symbolic-maps
+GET /api/lexicon/symbolic-map/{name}
+GET /api/binary-substrate/status
+```
+
+The app surface now presents:
+
+```text
+Symbolic Maps
+AWSM bundle loading
+AWSL locator samples
+AWSN NULL coordinate samples
+AWSV visual reference samples
+AWSC cell status
+JSON maps as witness/debug only
+```
+
+The older observed-map route still exists:
+
+```text
+GET /api/lexicon/observed-maps
+GET /api/lexicon/observed-map/{name}
+```
+
+But those routes are compatibility/debug surfaces, not the primary UI path.
+
+Root selection:
+
+```text
+ANCHORWORKS_DATA_ROOT wins if set.
+When running from this repo, default root is D:\AnchorWorks_Clean_Runtime.
+The old OneDrive Lexical Data path is only fallback behavior.
+```
+
+UI verification:
+
+```text
+GET / returns 200
+GET /app.js returns 200
+GET /api/health reports D:\AnchorWorks_Clean_Runtime
+GET /api/binary-substrate/status reports 2,656 AWSM maps and 147,678 AWSC cells
+Full unittest suite: 138 tests OK
+```
+
+UI law:
+
+```text
+AWSM serves the UI.
+AWSL/AWSN/AWSV restore audit shape.
+AWSC reports count substrate status.
+JSON witnesses only.
 ```
 
 ## Vision And Media Boundary
@@ -641,9 +767,12 @@ Start here when returning to binaries:
 ~~Add AWSM NULL coordinate section or sidecar.~~
 ~~Add AWSM visual-ref pointer section or sidecar.~~
 ~~Add binary read API for AWSM maps.~~
-1. Add 1000-doc AWSM parity benchmark.
-2. Make JSON observed-map output optional debug mode.
-3. Route AWSS creation through AWSM-derived artifacts.
+~~Align UI/API map browser to AWSM bundle routes.~~
+~~Correct default app root to D:\AnchorWorks_Clean_Runtime.~~
+~~Run full OpenStax CNXML symbolic ingest through current binary path.~~
+1. Make JSON observed-map output optional debug mode.
+2. Add no-JSON rebuild proof: AWSM/AWSL/AWSN/AWSV + AWSS + AWSC from source with JSON disabled.
+3. Add a larger AWSM parity benchmark only if needed for regression confidence; the 100-doc parity proof already exists.
 4. Add CloudOfClouds builder from AWSC cells.
 5. Add AnswerField builder with cloud caps.
 6. Add AnswerPath walker with path-health scoring.
@@ -661,10 +790,13 @@ AWSC exists.
 AWSS exists.
 AWSM exists.
 AWSM serves source-local symbol count artifacts.
+Full OpenStax CNXML runtime ingest exists in the current data root.
 AWSM block/line locator sidecar exists.
 AWSM NULL coordinate sidecar exists.
 AWSM visual-ref pointer sidecar exists.
 AWSM binary bundle read API exists.
+UI/API binary map browser exists.
+Default app root points at D:\AnchorWorks_Clean_Runtime from this repo.
 Native C++ merge exists.
 Native C++ verify exists.
 Native C++ score exists.
@@ -673,7 +805,7 @@ JSON observed maps are parity/debug fallback for this path.
 New maps write outside runtime State.
 Batch intake exists.
 Cloud Of Clouds contract exists.
-Next build target is 1000-doc AWSM parity benchmark.
+Next build target is optional JSON observed-map output, then no-JSON rebuild proof.
 ```
 
 ## Do Not Do Yet
@@ -681,7 +813,7 @@ Next build target is 1000-doc AWSM parity benchmark.
 ```text
 Do not implement binary lexicon/meta yet.
 Do not make GPU the first implementation target.
-Do not delete JSON debug maps until AWSM carries block/line/NULL/visual refs.
+Do not delete JSON debug maps until optional debug mode and no-JSON rebuild proof both pass.
 Do not route renderer speech through evidence labels.
 Do not let one top-k choice decide alone.
 ```
