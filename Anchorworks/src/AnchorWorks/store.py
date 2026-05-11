@@ -2871,6 +2871,37 @@ class LexiconStore:
             if isinstance(paragraph, dict)
         ]
         visual_rows: list[dict[str, Any]] = []
+        document_film = (prepared.metadata or {}).get("document_film") if isinstance(prepared.metadata, dict) else None
+        if isinstance(document_film, dict):
+            for frame in document_film.get("frames") or []:
+                if not isinstance(frame, dict):
+                    continue
+                manifest = frame.get("visual_manifest") if isinstance(frame.get("visual_manifest"), dict) else {}
+                source = manifest.get("source") if isinstance(manifest.get("source"), dict) else {}
+                page_number = int(frame.get("page_number") or source.get("page_number") or 0)
+                frame_index = int(frame.get("frame_index") if frame.get("frame_index") is not None else source.get("frame_index", 0) or 0)
+                visual_rows.append({
+                    "block_id": f"page_{page_number}" if page_number else "",
+                    "block_ordinal": page_number,
+                    "line_start": page_number,
+                    "line_end": page_number,
+                    "visual_record_id": str(frame.get("visual_record_id") or source.get("visual_record_id") or ""),
+                    "kind": "pdf_page_frame",
+                    "source_path_ref": str(frame.get("source_path_ref") or ""),
+                    "page_index": int(frame.get("page_index") if frame.get("page_index") is not None else source.get("page_index", -1) or -1),
+                    "page_number": page_number,
+                    "frame_index": frame_index,
+                    "frame_timestamp_ms": int(frame.get("frame_timestamp_ms") if frame.get("frame_timestamp_ms") is not None else source.get("frame_timestamp_ms", 0) or 0),
+                    "width": source.get("width", frame.get("width")),
+                    "height": source.get("height", frame.get("height")),
+                    "aspect_ratio": str(source.get("aspect_ratio") or frame.get("aspect_ratio") or "unknown"),
+                    "file_format": str(source.get("file_format") or frame.get("file_format") or "unknown"),
+                    "color_mode": str(source.get("color_mode") or frame.get("color_mode") or "unknown"),
+                    "manifest_id": str(frame.get("visual_record_id") or source.get("visual_record_id") or ""),
+                    "geometry_status": str(frame.get("geometry_status") or "known"),
+                    "recognition_status": "not_run",
+                    "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+                })
         for ref in (prepared.metadata or {}).get("visual_refs") or []:
             if isinstance(ref, dict) and str(ref.get("source_path") or ref.get("source_path_ref") or ref.get("visual_record_id") or "").strip():
                 visual_rows.append({

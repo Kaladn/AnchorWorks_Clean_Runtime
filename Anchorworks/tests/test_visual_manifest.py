@@ -83,6 +83,24 @@ class VisualManifestTests(unittest.TestCase):
             {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         )
 
+    def test_image_manifest_preserves_document_film_frame_metadata(self) -> None:
+        raw = _png_bytes(6, 4)
+        manifest = manifest_from_image_bytes(
+            raw,
+            "page-0003.png",
+            frame_index=2,
+            frame_timestamp_ms=2000,
+            page_index=2,
+            page_number=3,
+            source_document_id="doc_abc",
+        ).to_dict()
+
+        self.assertEqual(manifest["source"]["frame_index"], 2)
+        self.assertEqual(manifest["source"]["frame_timestamp_ms"], 2000)
+        self.assertEqual(manifest["source"]["page_index"], 2)
+        self.assertEqual(manifest["source"]["page_number"], 3)
+        self.assertEqual(manifest["source"]["source_document_id"], "doc_abc")
+
     def test_compucog_backend_declares_resize_as_derived_only(self) -> None:
         backend = compucog_yolo_a_capability().to_dict()
 

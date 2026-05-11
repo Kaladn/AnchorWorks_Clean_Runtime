@@ -85,6 +85,9 @@ class VisualSourceRecord:
     file_format: str = "unknown"
     frame_index: int = 0
     frame_timestamp_ms: int | None = None
+    page_index: int | None = None
+    page_number: int | None = None
+    source_document_id: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -147,7 +150,16 @@ def compucog_yolo_a_capability() -> BackendCapability:
     )
 
 
-def source_record_from_image_bytes(raw: bytes, source_name: str) -> VisualSourceRecord:
+def source_record_from_image_bytes(
+    raw: bytes,
+    source_name: str,
+    *,
+    frame_index: int = 0,
+    frame_timestamp_ms: int | None = None,
+    page_index: int | None = None,
+    page_number: int | None = None,
+    source_document_id: str = "",
+) -> VisualSourceRecord:
     """Create an immutable visual source record without running OCR/detection."""
 
     safe_name = _safe_source_name(source_name)
@@ -170,6 +182,11 @@ def source_record_from_image_bytes(raw: bytes, source_name: str) -> VisualSource
         aspect_ratio=_aspect_ratio(width, height),
         color_mode=color_mode,
         file_format=file_format,
+        frame_index=frame_index,
+        frame_timestamp_ms=frame_timestamp_ms,
+        page_index=page_index,
+        page_number=page_number,
+        source_document_id=source_document_id,
     )
 
 
@@ -178,10 +195,23 @@ def manifest_from_image_bytes(
     source_name: str,
     *,
     backend_capabilities: list[BackendCapability] | None = None,
+    frame_index: int = 0,
+    frame_timestamp_ms: int | None = None,
+    page_index: int | None = None,
+    page_number: int | None = None,
+    source_document_id: str = "",
 ) -> VisualIntakeManifest:
     """Build a preview-only visual intake manifest for image document prep."""
 
-    source = source_record_from_image_bytes(raw, source_name)
+    source = source_record_from_image_bytes(
+        raw,
+        source_name,
+        frame_index=frame_index,
+        frame_timestamp_ms=frame_timestamp_ms,
+        page_index=page_index,
+        page_number=page_number,
+        source_document_id=source_document_id,
+    )
     return VisualIntakeManifest(
         contract_version=VISUAL_CONTRACT_VERSION,
         source=source,

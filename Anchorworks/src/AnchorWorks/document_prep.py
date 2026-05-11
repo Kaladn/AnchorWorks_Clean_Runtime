@@ -17,6 +17,7 @@ from typing import Any
 from xml.etree import ElementTree
 
 from .chat_bridge import bridge_chat_memory_json
+from .document_film import extract_pdf_document_film_from_bytes
 from .visual_manifest import manifest_from_image_bytes
 from .visual_recognition_layer import create_empty_recognition_layer
 from .visual_region_map import create_empty_region_map
@@ -368,6 +369,17 @@ def _prepare_pdf(raw: bytes, source_name: str) -> tuple[str, dict[str, Any]]:
     if scanned_pages:
         metadata["scanned_or_image_only_pages"] = scanned_pages
         metadata["warnings"] = ["PDF page text was empty; OCR is not run by this converter."]
+    try:
+        metadata["document_film"] = extract_pdf_document_film_from_bytes(
+            raw,
+            source_name=source_name,
+            source_path=source_name,
+            frame_rate=1.0,
+            duplicate_policy="all_pages_report_duplicates",
+        )
+    except ValueError as exc:
+        metadata["document_film_status"] = "not_available"
+        metadata["document_film_warning"] = str(exc)
     return "\n".join(lines), metadata
 
 

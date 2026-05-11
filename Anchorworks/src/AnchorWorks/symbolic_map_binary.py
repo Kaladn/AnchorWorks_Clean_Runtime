@@ -300,7 +300,7 @@ def _normalize_null_row(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def _normalize_visual_row(row: dict[str, Any]) -> dict[str, Any]:
-    return {
+    normalized = {
         "block_id": str(row.get("block_id") or ""),
         "block_ordinal": int(row.get("block_ordinal", row.get("paragraph_id", 0)) or 0),
         "line_start": int(row.get("line_start", 0) or 0),
@@ -321,6 +321,17 @@ def _normalize_visual_row(row: dict[str, Any]) -> dict[str, Any]:
             "lexicon": False,
         },
     }
+    optional_ints = ("page_index", "page_number", "frame_index", "frame_timestamp_ms")
+    for key in optional_ints:
+        if key in row:
+            normalized[key] = int(row.get(key) if row.get(key) is not None else (-1 if key == "page_index" else 0))
+    for key in ("width", "height"):
+        if key in row:
+            normalized[key] = row.get(key)
+    for key in ("aspect_ratio", "file_format", "color_mode"):
+        if key in row:
+            normalized[key] = str(row.get(key) or "unknown")
+    return normalized
 
 
 def _sidecar_paths_for(path: Path) -> dict[str, Path]:
