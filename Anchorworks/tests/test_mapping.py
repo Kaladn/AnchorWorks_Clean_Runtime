@@ -1148,6 +1148,10 @@ class MappingTests(unittest.TestCase):
         self.assertIn('id="chat-stop-btn"', index_html)
         self.assertIn("renderWorkbenchActions", app_js)
         self.assertIn("/api/chat/stop", app_js)
+        self.assertIn("/api/lexicon/symbolic-maps", app_js)
+        self.assertIn("/api/lexicon/symbolic-map/", app_js)
+        self.assertIn("/api/binary-substrate/status", app_js)
+        self.assertIn("Symbolic Maps", index_html)
 
     def test_intake_edit_route_rewrites_anchor_spans_and_refreshes_preview(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1185,6 +1189,9 @@ class MappingTests(unittest.TestCase):
                 "/api/lexicon/intake/edit",
                 "/api/visual-intake/files",
                 "/api/visual-intake/packet/{name}",
+                "/api/lexicon/symbolic-maps",
+                "/api/lexicon/symbolic-map/{name}",
+                "/api/binary-substrate/status",
                 "/api/flat-documents/runtime/build",
                 "/api/lexicon/missing-anchor-review",
                 "/api/lexicon/missing-anchor-review/sync",
@@ -1497,6 +1504,56 @@ class MappingTests(unittest.TestCase):
             self.assertTrue(any(row["observed_anchor"] == "junk" for row in bundle["nulls"]))
             self.assertEqual(bundle["visuals"][0]["source_path_ref"], "fig.png")
             self.assertEqual(bundle["writes_allowed"], {"maps": False, "counts": False, "lifetime": False, "lexicon": False})
+
+    def test_store_lists_symbolic_maps_as_primary_runtime_surface(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "status": "ASSIGNED"}])
+            for letter in "CDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+
+            source_path = Path(temp_dir) / "sample.html"
+            source_path.write_text("<p>alpha beta junk</p><img src=\"fig.png\" alt=\"Figure\">", encoding="utf-8")
+            store = LexiconStore(root)
+
+            result = store.build_observed_map(source_path, null_anchors={"junk"})
+            listing = store.symbolic_map_files()
+
+            self.assertEqual(listing["source_format"], "awsm_bundle")
+            self.assertEqual(listing["json_role"], "witness_debug_only")
+            self.assertEqual(listing["map_count"], 1)
+            self.assertEqual(listing["locator_sidecar_count"], 1)
+            self.assertEqual(listing["null_sidecar_count"], 1)
+            self.assertEqual(listing["visual_sidecar_count"], 1)
+            self.assertEqual(listing["files"][0]["name"], result["symbolic_map_name"])
+            self.assertEqual(listing["files"][0]["sidecars"], {"locators": True, "nulls": True, "visuals": True})
+
+    def test_app_exposes_symbolic_map_bundle_routes_for_ui(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "status": "ASSIGNED"}])
+            for letter in "CDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+
+            source_path = Path(temp_dir) / "sample.txt"
+            source_path.write_text("alpha beta", encoding="utf-8")
+            store = LexiconStore(root)
+            result = store.build_observed_map(source_path)
+
+            app = create_app(root)
+            paths = {getattr(route, "path", ""): getattr(route, "endpoint", None) for route in app.routes}
+
+            listing = paths["/api/lexicon/symbolic-maps"]()
+            bundle = paths["/api/lexicon/symbolic-map/{name}"](result["saved_map_name"])
+
+            self.assertEqual(listing["map_count"], 1)
+            self.assertEqual(listing["files"][0]["name"], result["symbolic_map_name"])
+            self.assertEqual(bundle["source_format"], "awsm_bundle")
+            self.assertEqual(bundle["symbolic_map_name"], result["symbolic_map_name"])
 
     def test_ingest_uses_source_local_temp_symbols_for_unresolved_anchors(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

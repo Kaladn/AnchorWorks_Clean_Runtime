@@ -193,7 +193,7 @@ const lexApp = {
     this.els.searchBtn.addEventListener("click", () => this.search());
     this.els.resetBtn.addEventListener("click", () => this.resetSearch());
     this.els.mappingBtn.addEventListener("click", () => this.runMappingBuild());
-    this.els.observedMapsBtn.addEventListener("click", () => this.showObservedMaps());
+    this.els.observedMapsBtn.addEventListener("click", () => this.showSymbolicMaps());
     document.getElementById("top-btn").addEventListener("click", () => this.showTop());
     document.getElementById("random-btn").addEventListener("click", () => this.showRandom());
     document.getElementById("recent-btn").addEventListener("click", () => this.showRecent());
@@ -1197,7 +1197,7 @@ const lexApp = {
       });
       await this.refreshStats();
       await this.refreshChatMemory();
-      this.setBanner("success", `Finalized chat into user-side counts. Saved observed map: ${data.saved_map_name || "chat map"}.`);
+      this.setBanner("success", `Finalized chat into user-side counts. Built symbolic map: ${data.symbolic_map_name || data.saved_map_name || "chat map"}.`);
     } catch (error) {
       this.setBanner("error", `Chat finalize failed: ${error.message}`);
     } finally {
@@ -1852,13 +1852,13 @@ const lexApp = {
     }
     const nullCount = this.intake.rejected.size;
     const nullNote = nullCount ? `\n\n${nullCount.toLocaleString()} rejected anchor(s) will be mapped to the NULL symbol: position preserved, no memory truth recorded.` : "";
-    if (!confirm(`Run mapping and lifetime counts for "${sourceName}"?${nullNote}`)) return;
+    if (!confirm(`Build source-local symbolic map for "${sourceName}"?${nullNote}`)) return;
     const button = this.els.intakeMapBtn;
     const original = button.textContent;
     button.disabled = true;
     button.textContent = "Running...";
     try {
-      this.setIntakeStep("Running mapping + counts", 92, true);
+      this.setIntakeStep("Building symbolic map", 92, true);
       const data = await this.api("/api/lexicon/intake/map", {
         method: "POST",
           body: JSON.stringify({
@@ -1876,10 +1876,10 @@ const lexApp = {
       });
       this.renderMappingReport(data);
       this.showTab("lexicon");
-      this.setBanner("success", `Mapped ${data.source_name}. Saved observed map to ${data.saved_map_name}.`);
+      this.setBanner("success", `Mapped ${data.source_name}. Built symbolic map ${data.symbolic_map_name || data.saved_map_name}.`);
     } catch (error) {
-      this.setIntakeStep("Mapping + counts failed", 100, false, true);
-      this.setBanner("error", `Mapping + counts failed: ${error.message}`);
+      this.setIntakeStep("Symbolic map build failed", 100, false, true);
+      this.setBanner("error", `Symbolic map build failed: ${error.message}`);
     } finally {
       button.textContent = original;
       button.disabled = this.isVisualIntake() || this.intakeUnresolvedMissingCount() !== 0;
@@ -1904,7 +1904,7 @@ const lexApp = {
         body: JSON.stringify({ file_path: filePath }),
       });
       this.renderMappingReport(data);
-      this.setBanner("success", `Mapped ${data.source_name}. Saved observed map to ${data.saved_map_name}.`);
+      this.setBanner("success", `Mapped ${data.source_name}. Built symbolic map ${data.symbolic_map_name || data.saved_map_name}.`);
     } catch (error) {
       this.setBanner("error", `Mapping build failed: ${error.message}`);
     } finally {
@@ -1920,8 +1920,8 @@ const lexApp = {
 
   renderMappingReport(report) {
     this.setMeta(
-      "Observed Anchor Map",
-      `${report.unique_anchor_count.toLocaleString()} unique anchors across ${report.total_anchor_observations.toLocaleString()} observations in ${report.paragraph_count.toLocaleString()} paragraphs from ${report.source_name}`
+      "Symbolic Map Build",
+      `${Number(report.unique_anchor_count || 0).toLocaleString()} unique anchors across ${Number(report.total_anchor_observations || 0).toLocaleString()} observations in ${Number(report.paragraph_count || 0).toLocaleString()} paragraphs from ${report.source_name}`
     );
     const observed = report.observed_anchors_preview || [];
     const known = report.known_anchors_preview || [];
@@ -1943,9 +1943,13 @@ const lexApp = {
           <div class="report-metric"><span class="report-metric-label">Missing anchors</span><strong>${Number(report.missing_anchor_count || 0).toLocaleString()}</strong></div>
         </div>
         <div class="entry-meta" style="margin-top:12px;">Source: ${this.escape(report.source_path || "-")}</div>
-        <div class="entry-meta">Saved map: ${this.escape(report.saved_map_path || "-")}</div>
+        <div class="entry-meta">AWSM: ${this.escape(report.symbolic_map_path || "-")}</div>
+        <div class="entry-meta">AWSL: ${this.escape(report.symbolic_locator_path || "-")}</div>
+        <div class="entry-meta">AWSN: ${this.escape(report.symbolic_null_path || "-")}</div>
+        <div class="entry-meta">AWSV: ${this.escape(report.symbolic_visual_path || "-")}</div>
+        <div class="entry-meta">JSON witness: ${this.escape(report.saved_map_path || "-")}</div>
         <div class="entry-actions">
-          <button style="background:#00d4ff;color:#041821;" onclick="lexApp.loadObservedMap(decodeURIComponent('${this.uri(report.saved_map_name || "")}'))">Reload Saved Map</button>
+          <button style="background:#00d4ff;color:#041821;" onclick="lexApp.loadSymbolicMap(decodeURIComponent('${this.uri(report.symbolic_map_name || report.saved_map_name || "")}'))">Open Binary Bundle</button>
         </div>
       </article>
       ${this.renderOccurrencePreviewCard("Observed Windows", occurrences, "First observed anchor positions and their paragraph-bound windows.")}
@@ -1985,26 +1989,45 @@ const lexApp = {
     `;
   },
 
-  async showObservedMaps() {
+  async showSymbolicMaps() {
     try {
-      const data = await this.api("/api/lexicon/observed-maps");
+      const [data, status] = await Promise.all([
+        this.api("/api/lexicon/symbolic-maps"),
+        this.api("/api/binary-substrate/status"),
+      ]);
       const files = data.files || [];
-      this.renderActionCards(files, "Observed Maps", `${files.length} saved maps under ${data.root || ""}`, (file) => `
-        <article class="entry-card" onclick="lexApp.loadObservedMap(decodeURIComponent('${this.uri(file.name || "")}'))">
+      const subtitle = `${Number(data.map_count || files.length || 0).toLocaleString()} AWSM maps, ${Number(status.awsc_cell_count || 0).toLocaleString()} AWSC cells, AWSS ${status.awss_stream_exists ? "present" : "missing"}. JSON maps are witness/debug only.`;
+      this.renderActionCards(files, "Symbolic Binary Maps", subtitle, (file) => `
+        <article class="entry-card" onclick="lexApp.loadSymbolicMap(decodeURIComponent('${this.uri(file.name || "")}'))">
           <div class="entry-card-top">
             <div>
-              <div class="entry-word">${this.escape(file.source_name || file.name || "")}</div>
+              <div class="entry-word">${this.escape(file.name || "")}</div>
               <div class="entry-meta">${this.escape(file.name || "")}</div>
             </div>
-            <span class="entry-tag">${Number(file.unique_anchor_count || 0).toLocaleString()}</span>
+            <span class="entry-tag">AWSM</span>
           </div>
-          <div class="entry-meta">Observations: ${Number(file.total_anchor_observations || 0).toLocaleString()}</div>
-          <div class="entry-meta">Paragraphs: ${Number(file.paragraph_count || 0).toLocaleString()}</div>
+          <div class="entry-meta">Size: ${Number(file.size_bytes || 0).toLocaleString()} bytes</div>
+          <div class="entry-meta">Sidecars: ${file.sidecars && file.sidecars.locators ? "AWSL" : "-"} ${file.sidecars && file.sidecars.nulls ? "AWSN" : "-"} ${file.sidecars && file.sidecars.visuals ? "AWSV" : "-"}</div>
         </article>
       `);
       this.clearBanner();
     } catch (error) {
-      this.setBanner("error", `Observed map list failed: ${error.message}`);
+      this.setBanner("error", `Symbolic map list failed: ${error.message}`);
+    }
+  },
+
+  async showObservedMaps() {
+    return this.showSymbolicMaps();
+  },
+
+  async loadSymbolicMap(name) {
+    if (!name) return;
+    try {
+      const bundle = await this.api(`/api/lexicon/symbolic-map/${encodeURIComponent(name)}`);
+      this.renderSymbolicMapBundle(bundle);
+      this.clearBanner();
+    } catch (error) {
+      this.setBanner("error", `Symbolic bundle load failed: ${error.message}`);
     }
   },
 
@@ -2015,8 +2038,56 @@ const lexApp = {
       this.renderMappingReport(report);
       this.clearBanner();
     } catch (error) {
-      this.setBanner("error", `Observed map reload failed: ${error.message}`);
+      this.setBanner("error", `JSON witness map reload failed: ${error.message}`);
     }
+  },
+
+  renderSymbolicMapBundle(bundle) {
+    this.setMeta(
+      "Symbolic Binary Bundle",
+      `${Number(bundle.relation_count || 0).toLocaleString()} relations, ${Number(bundle.locator_count || 0).toLocaleString()} locators, ${Number(bundle.null_count || 0).toLocaleString()} NULL coordinates, ${Number(bundle.visual_count || 0).toLocaleString()} visual refs.`
+    );
+    const relations = (bundle.relations || []).slice(0, 18);
+    const locators = (bundle.locators || []).slice(0, 12);
+    const nulls = (bundle.nulls || []).slice(0, 12);
+    const visuals = (bundle.visuals || []).slice(0, 12);
+    this.els.pager.innerHTML = "";
+    this.els.results.innerHTML = `
+      <article class="entry-card report-card">
+        <div class="entry-card-top">
+          <div class="entry-word">${this.escape(bundle.symbolic_map_name || "AWSM bundle")}</div>
+          <span class="entry-tag">binary</span>
+        </div>
+        <div class="entry-meta">AWSM: ${this.escape(bundle.symbolic_map_path || "-")}</div>
+        <div class="entry-meta">Source format: ${this.escape(bundle.source_format || "-")}</div>
+        <div class="entry-meta">JSON role: witness/debug only</div>
+        <div class="report-metric-grid" style="margin-top:12px;">
+          <div class="report-metric"><span class="report-metric-label">Relations</span><strong>${Number(bundle.relation_count || 0).toLocaleString()}</strong></div>
+          <div class="report-metric"><span class="report-metric-label">Locators</span><strong>${Number(bundle.locator_count || 0).toLocaleString()}</strong></div>
+          <div class="report-metric"><span class="report-metric-label">NULL coordinates</span><strong>${Number(bundle.null_count || 0).toLocaleString()}</strong></div>
+          <div class="report-metric"><span class="report-metric-label">Visual refs</span><strong>${Number(bundle.visual_count || 0).toLocaleString()}</strong></div>
+        </div>
+      </article>
+      ${this.renderSymbolRowsCard("AWSM Relations", relations, (row) => `${row.root_symbol_id} ${row.offset > 0 ? "+" : ""}${row.offset} ${row.neighbor_symbol_id}  lane ${row.lane}  count ${row.count}`)}
+      ${this.renderSymbolRowsCard("AWSL Locators", locators, (row) => `block ${row.block_id} lines ${row.line_start}-${row.line_end} paragraph ${row.paragraph_id}`)}
+      ${this.renderSymbolRowsCard("AWSN NULL Coordinates", nulls, (row) => `block ${row.block_id} line ${row.line_start} anchor ${row.anchor_position}: ${row.observed_anchor || ""}`)}
+      ${this.renderSymbolRowsCard("AWSV Visual Refs", visuals, (row) => `${row.visual_record_id || ""} ${row.kind || ""} ${row.source_path_ref || ""}`)}
+    `;
+  },
+
+  renderSymbolRowsCard(title, rows, formatter) {
+    const body = rows.length
+      ? rows.map((row) => `<div class="report-window-line">${this.escape(formatter(row))}</div>`).join("")
+      : `<div class="entry-meta">None.</div>`;
+    return `
+      <article class="entry-card report-card">
+        <div class="entry-card-top">
+          <div class="entry-word">${this.escape(title)}</div>
+          <span class="entry-tag">${Number(rows.length || 0).toLocaleString()}</span>
+        </div>
+        <div class="report-list">${body}</div>
+      </article>
+    `;
   },
 
   renderAnchorPreviewCard(title, rows, subtitle) {

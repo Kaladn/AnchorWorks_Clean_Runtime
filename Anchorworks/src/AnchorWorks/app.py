@@ -499,6 +499,21 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         except (FileNotFoundError, ValueError) as exc:
             raise HTTPException(status_code=404, detail=str(exc))
 
+    @app.get("/api/lexicon/symbolic-maps")
+    def lexicon_symbolic_maps() -> dict[str, Any]:
+        return store.symbolic_map_files()
+
+    @app.get("/api/lexicon/symbolic-map/{name}")
+    def lexicon_symbolic_map(name: str) -> dict[str, Any]:
+        try:
+            return store.load_symbolic_map_bundle(name)
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+
+    @app.get("/api/binary-substrate/status")
+    def binary_substrate_status() -> dict[str, Any]:
+        return store.binary_substrate_status()
+
     @app.get("/api/visual-intake/files")
     def visual_intake_files() -> dict[str, Any]:
         return store.visual_intake_files()

@@ -81,7 +81,7 @@
           <button class="action-btn primary" id="top-btn">Top Words</button>
           <button class="action-btn" id="recent-btn">Recently Mapped</button>
           <button class="action-btn" id="files-btn">Partition Files</button>
-          <button class="action-btn" id="observed-maps-btn">Observed Maps</button>
+          <button class="action-btn" id="observed-maps-btn">Symbolic Maps</button>
         </div>
         <div class="alpha-head">
           <h3>Browse By Letter</h3>
@@ -153,8 +153,8 @@
         <article class="admin-panel">
           <div class="admin-label">Mapping build</div>
           <input id="mapping-path" class="form-control" type="text" placeholder="C:\\path\\to\\document.txt">
-          <div class="helper-text">Reads one file, extracts observed anchors, compares them to the lexicon, and saves the observed map.</div>
-          <button class="action-btn primary" id="mapping-btn">Run Mapping / Anchor Build / Parse</button>
+          <div class="helper-text">Reads one file, anchorizes it, writes AWSM/AWSL/AWSN/AWSV evidence, and keeps JSON as witness/debug only.</div>
+          <button class="action-btn primary" id="mapping-btn">Build Symbolic Map</button>
         </article>
         <article class="admin-panel">
           <div class="admin-label">Import directory</div>
@@ -203,12 +203,12 @@
         <div class="section-head section-head-spread">
           <div>
             <h2>Document Intake</h2>
-            <p>Read, extract, compare, and review lexicon coverage before any mapping or counting.</p>
+            <p>Read, anchorize, compare, and review lexicon coverage before symbolic map and binary count prep.</p>
           </div>
           <div class="intake-actions">
             <input id="intake-file-input" class="visually-hidden" type="file">
             <button class="action-btn primary" id="intake-add-btn" type="button">Add Document</button>
-            <button class="action-btn good" id="intake-map-btn" type="button" disabled>Run Mapping + Counts</button>
+            <button class="action-btn good" id="intake-map-btn" type="button" disabled>Build Symbolic Map</button>
           </div>
         </div>
 
@@ -334,8 +334,8 @@
       <section class="card chat-shell-card">
         <div class="section-head section-head-spread">
           <div>
-            <h2>Chat + Memory Bridge</h2>
-            <p>Resident chat logs, citations, notes, side branches, memory records, and ClearSpeak over the lifetime anchor lattice.</p>
+            <h2>Chat + Binary Evidence Bridge</h2>
+            <p>Resident chat logs, citations, notes, side branches, and ClearSpeak over AWSC binary count cells.</p>
           </div>
           <div class="intake-actions">
             <button class="action-btn" id="chat-refresh-btn" type="button">Refresh</button>
