@@ -39,6 +39,7 @@ from .symbol_count_native import (
 from .symbolic_map_binary import (
     SymbolicMapRelation,
     read_symbolic_map_binary,
+    read_symbolic_map_bundle,
     write_symbolic_map_locator_sidecar,
     write_symbolic_map_null_sidecar,
     write_symbolic_map_visual_sidecar,
@@ -2022,6 +2023,40 @@ class LexiconStore:
             "unique_symbol_relations": len(relation_rows),
             "total_symbol_relation_observations": out["total_symbol_relation_observations"],
             "writes_allowed": out["writes_allowed"],
+        }
+
+    def load_symbolic_map_bundle(self, name: str) -> dict[str, Any]:
+        symbolic_path = self._resolve_symbolic_map_name(name)
+        if not symbolic_path.exists():
+            raise FileNotFoundError(name)
+        bundle = read_symbolic_map_bundle(symbolic_path)
+        return {
+            "ok": True,
+            "schema_version": "anchorworks_symbolic_map_bundle@1",
+            "source_format": "awsm_bundle",
+            "symbolic_map_name": symbolic_path.name,
+            "symbolic_map_path": str(symbolic_path),
+            "metadata": bundle.map.metadata,
+            "relation_count": bundle.map.relation_count,
+            "relations": [
+                {
+                    "root_symbol_id": row.root_symbol_id,
+                    "neighbor_symbol_id": row.neighbor_symbol_id,
+                    "offset": row.offset,
+                    "lane": row.lane,
+                    "flags": row.flags,
+                    "count": row.count,
+                }
+                for row in bundle.map.relations
+            ],
+            "locator_count": len(bundle.locators),
+            "locators": bundle.locators,
+            "null_count": len(bundle.nulls),
+            "nulls": bundle.nulls,
+            "visual_count": len(bundle.visuals),
+            "visuals": bundle.visuals,
+            "paths": bundle.paths,
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
 
     def build_binary_symbol_counts_from_source_local(

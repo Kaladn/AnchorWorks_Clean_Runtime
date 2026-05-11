@@ -9,6 +9,7 @@ from AnchorWorks.symbolic_map_binary import (
     MAGIC,
     RELATION_ROW_SIZE,
     SymbolicMapRelation,
+    read_symbolic_map_bundle,
     read_symbolic_map_locator_sidecar,
     read_symbolic_map_null_sidecar,
     read_symbolic_map_visual_sidecar,
@@ -176,6 +177,54 @@ class SymbolicMapBinaryTests(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 read_symbolic_map_visual_sidecar(path)
+
+    def test_read_symbolic_map_bundle_loads_map_and_sidecars(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.awsm"
+            write_symbolic_map_binary(
+                path,
+                metadata={"source_name": "sample.md"},
+                relations=[SymbolicMapRelation(1, 2, 1, 0, 0, 7)],
+            )
+            write_symbolic_map_locator_sidecar(
+                Path(temp_dir) / "sample.locators.awsl",
+                [{"paragraph_id": 0, "block_id": 0, "line_start": 1, "line_end": 1}],
+            )
+            write_symbolic_map_null_sidecar(
+                Path(temp_dir) / "sample.nulls.awsn",
+                [{"block_id": 0, "line_start": 1, "anchor_position": 1, "observed_anchor": "junk"}],
+            )
+            write_symbolic_map_visual_sidecar(
+                Path(temp_dir) / "sample.visuals.awsv",
+                [{"block_id": "block_0", "visual_record_id": "vis_1"}],
+            )
+
+            bundle = read_symbolic_map_bundle(path)
+
+            self.assertEqual(bundle.map.metadata["source_name"], "sample.md")
+            self.assertEqual(bundle.map.relation_count, 1)
+            self.assertEqual(bundle.locators[0]["block_id"], 0)
+            self.assertEqual(bundle.nulls[0]["observed_anchor"], "junk")
+            self.assertEqual(bundle.visuals[0]["visual_record_id"], "vis_1")
+            self.assertEqual(bundle.paths["map"], str(path))
+            self.assertEqual(bundle.paths["locators"], str(Path(temp_dir) / "sample.locators.awsl"))
+
+    def test_read_symbolic_map_bundle_uses_empty_lists_for_missing_optional_sidecars(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.awsm"
+            write_symbolic_map_binary(
+                path,
+                metadata={"source_name": "sample.md"},
+                relations=[SymbolicMapRelation(1, 2, 1, 0, 0, 7)],
+            )
+
+            bundle = read_symbolic_map_bundle(path)
+
+            self.assertEqual(bundle.map.relation_count, 1)
+            self.assertEqual(bundle.locators, [])
+            self.assertEqual(bundle.nulls, [])
+            self.assertEqual(bundle.visuals, [])
+            self.assertNotIn("locators", bundle.paths)
 
 
 if __name__ == "__main__":

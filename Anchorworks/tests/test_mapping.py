@@ -1472,6 +1472,32 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(visual_rows[0]["recognition_status"], "not_run")
             self.assertEqual(visual_rows[0]["writes_allowed"], {"maps": False, "counts": False, "lifetime": False, "lexicon": False})
 
+    def test_store_loads_binary_symbolic_map_bundle_by_observed_map_name(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "status": "ASSIGNED"}])
+            for letter in "BCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+
+            source_path = Path(temp_dir) / "sample.html"
+            source_path.write_text("<p>alpha junk</p><img src=\"fig.png\" alt=\"Figure\">", encoding="utf-8")
+            store = LexiconStore(root)
+
+            result = store.build_observed_map(source_path, null_anchors={"junk"})
+            Path(result["saved_map_path"]).unlink()
+            bundle = store.load_symbolic_map_bundle(result["saved_map_name"])
+
+            self.assertEqual(bundle["ok"], True)
+            self.assertEqual(bundle["source_format"], "awsm_bundle")
+            self.assertEqual(bundle["relation_count"], result["symbolic_map_relation_count"])
+            self.assertEqual(bundle["locator_count"], result["symbolic_locator_count"])
+            self.assertEqual(bundle["null_count"], result["symbolic_null_count"])
+            self.assertEqual(bundle["visual_count"], result["symbolic_visual_count"])
+            self.assertTrue(any(row["observed_anchor"] == "junk" for row in bundle["nulls"]))
+            self.assertEqual(bundle["visuals"][0]["source_path_ref"], "fig.png")
+            self.assertEqual(bundle["writes_allowed"], {"maps": False, "counts": False, "lifetime": False, "lexicon": False})
+
     def test_ingest_uses_source_local_temp_symbols_for_unresolved_anchors(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"

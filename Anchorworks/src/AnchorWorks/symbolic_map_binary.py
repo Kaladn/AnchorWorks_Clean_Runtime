@@ -40,6 +40,15 @@ class SymbolicMapBinary:
     relation_count: int
 
 
+@dataclass(frozen=True)
+class SymbolicMapBundle:
+    map: SymbolicMapBinary
+    locators: list[dict[str, Any]]
+    nulls: list[dict[str, Any]]
+    visuals: list[dict[str, Any]]
+    paths: dict[str, str]
+
+
 def write_symbolic_map_binary(
     path: str | Path,
     *,
@@ -105,6 +114,39 @@ def read_symbolic_map_binary(path: str | Path) -> SymbolicMapBinary:
         relations=relations,
         metadata_size=metadata_size,
         relation_count=relation_count,
+    )
+
+
+def read_symbolic_map_bundle(path: str | Path) -> SymbolicMapBundle:
+    map_path = Path(path)
+    symbolic_map = read_symbolic_map_binary(map_path)
+    sidecar_paths = _sidecar_paths_for(map_path)
+    paths = {"map": str(map_path)}
+    locators: list[dict[str, Any]] = []
+    nulls: list[dict[str, Any]] = []
+    visuals: list[dict[str, Any]] = []
+
+    locator_path = sidecar_paths["locators"]
+    if locator_path.exists():
+        locators = read_symbolic_map_locator_sidecar(locator_path)
+        paths["locators"] = str(locator_path)
+
+    null_path = sidecar_paths["nulls"]
+    if null_path.exists():
+        nulls = read_symbolic_map_null_sidecar(null_path)
+        paths["nulls"] = str(null_path)
+
+    visual_path = sidecar_paths["visuals"]
+    if visual_path.exists():
+        visuals = read_symbolic_map_visual_sidecar(visual_path)
+        paths["visuals"] = str(visual_path)
+
+    return SymbolicMapBundle(
+        map=symbolic_map,
+        locators=locators,
+        nulls=nulls,
+        visuals=visuals,
+        paths=paths,
     )
 
 
@@ -278,4 +320,15 @@ def _normalize_visual_row(row: dict[str, Any]) -> dict[str, Any]:
             "lifetime": False,
             "lexicon": False,
         },
+    }
+
+
+def _sidecar_paths_for(path: Path) -> dict[str, Path]:
+    if path.suffix.lower() != ".awsm":
+        raise ValueError("symbolic map bundle path must point to an .awsm file")
+    stem = path.with_suffix("")
+    return {
+        "locators": stem.with_suffix(".locators.awsl"),
+        "nulls": stem.with_suffix(".nulls.awsn"),
+        "visuals": stem.with_suffix(".visuals.awsv"),
     }
