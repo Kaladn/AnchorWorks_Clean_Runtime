@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 from pathlib import Path
 from typing import Any
@@ -163,6 +164,12 @@ class SideChatBody(BaseModel):
 
 
 def _default_data_root() -> Path:
+    env_root = os.environ.get("ANCHORWORKS_DATA_ROOT")
+    if env_root:
+        return Path(env_root).expanduser().resolve()
+    for parent in Path(__file__).resolve().parents:
+        if parent.name == "AnchorWorks_Clean_Runtime":
+            return parent
     candidate = Path.home() / "OneDrive" / "Documents" / "Desktop" / "Lexical Data"
     return candidate if candidate.exists() else Path.cwd()
 

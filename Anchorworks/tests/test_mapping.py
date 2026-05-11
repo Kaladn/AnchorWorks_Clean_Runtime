@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app
+from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app, _default_data_root
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from AnchorWorks.clearspeak_attention import infer_attention_frame, rank_attention_candidates
@@ -1152,6 +1152,10 @@ class MappingTests(unittest.TestCase):
         self.assertIn("/api/lexicon/symbolic-map/", app_js)
         self.assertIn("/api/binary-substrate/status", app_js)
         self.assertIn("Symbolic Maps", index_html)
+
+    def test_default_data_root_prefers_clean_runtime_from_repo(self) -> None:
+        root = _default_data_root()
+        self.assertEqual(root, Path("D:/AnchorWorks_Clean_Runtime"))
 
     def test_intake_edit_route_rewrites_anchor_spans_and_refreshes_preview(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

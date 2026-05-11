@@ -7,13 +7,8 @@ from pathlib import Path
 
 import uvicorn
 
-from .app import create_app
+from .app import create_app, _default_data_root
 from .store import LexiconStore
-
-
-def _default_data_root() -> Path:
-    candidate = Path.home() / "OneDrive" / "Documents" / "Desktop" / "Lexical Data"
-    return candidate if candidate.exists() else Path.cwd()
 
 
 def main() -> None:
