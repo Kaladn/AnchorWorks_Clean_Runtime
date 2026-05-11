@@ -94,6 +94,280 @@ AWSG does not render final speech by itself.
 
 AWSG returns graph addresses and source-local topology. The renderer still cites through an evidence frame.
 
+## Graph Viewer Requirement
+
+AWSG should not sit quietly as a hidden artifact.
+
+The graph must become viewable because the whole point of AWSG is to make source-local evidence topology inspectable:
+
+```text
+document
+-> block
+-> line
+-> occurrence
+-> symbol
+-> relation window
+-> NULL coordinate
+-> visual reference
+```
+
+The viewer should feel graph-native, closer to a Neo4j-style exploration surface than a static Python plot.
+
+Important distinction:
+
+```text
+Neo4j-like interaction model: yes.
+Neo4j as required runtime authority: no, not yet.
+```
+
+Python graphing is acceptable for proof exports and tiny debug images. It is not the right primary viewer for AnchorWorks evidence graphs.
+
+Core viewer law:
+
+```text
+Graph connects.
+Viewer inspects.
+Backend permits.
+Nothing mutates from view.
+```
+
+## Viewer Modes
+
+The AWSG viewer should support these read-only modes:
+
+```text
+source overview
+block/line path
+occurrence neighborhood
+symbol neighborhood
+relation-window inspection
+NULL coordinate overlay
+visual reference overlay
+evidence-frame citation path
+```
+
+Minimum useful viewer flow:
+
+```text
+open graph
+-> select document node
+-> expand block
+-> expand line
+-> inspect occurrence
+-> follow symbol
+-> inspect relation windows
+-> show locator/citation address
+```
+
+The first production viewer should not try to load the whole source graph into the browser.
+
+It should load capped graph slices:
+
+```text
+selected node
+radius
+node-type filters
+edge-type filters
+result cap
+```
+
+This keeps the surface usable when a source graph becomes large.
+
+## Viewer Controls
+
+Minimum controls:
+
+```text
+graph selector
+node type filters
+edge type filters
+radius control
+expand selected node
+collapse selected node
+show source locator
+show resolved anchor/symbol
+show relation details
+show NULL coordinates
+show visual refs
+export debug JSON view
+copy citation address
+```
+
+The viewer should include an inspector panel for the selected node or edge.
+
+Inspector fields should be source-local and explicit:
+
+```text
+node_id
+node_type
+source_id
+block_id
+line_start
+line_end
+anchor_position
+surface
+resolved_anchor
+symbol
+lane
+reason
+visual_record_id
+edge_type
+offset
+count
+source sidecar
+```
+
+## Viewer API Contract
+
+The app should eventually expose read-only graph routes.
+
+Suggested route shape:
+
+```text
+GET /api/awsg/graphs
+GET /api/awsg/graph/{graph_name}
+GET /api/awsg/graph/{graph_name}/node/{node_id}
+GET /api/awsg/graph/{graph_name}/slice?node_id=...&radius=1&limit=500
+GET /api/awsg/graph/{graph_name}/export/observed-map-debug
+```
+
+Route responsibilities:
+
+```text
+/graphs
+  list available graph manifests
+
+/graph/{graph_name}
+  return manifest and summary counts
+
+/node/{node_id}
+  return one node plus direct metadata
+
+/slice
+  return a bounded node/edge subgraph for interactive viewing
+
+/export/observed-map-debug
+  regenerate or return the human/debug export
+```
+
+All viewer routes are read-only.
+
+Forbidden viewer writes:
+
+```text
+Canonical
+lexicon
+lifetime counts
+AWSC
+AWSM
+AWSL
+AWSN
+AWSV
+source files
+```
+
+## Rendering Guidance
+
+Use a browser-native graph renderer for the real viewer.
+
+The viewer should be able to handle many nodes by using canvas or WebGL-style rendering, slice loading, and filters.
+
+Do not make Python plotting the main interface.
+
+Allowed uses for Python graph output:
+
+```text
+toy proof images
+test snapshots
+debug exports
+static report diagrams
+```
+
+Main interface target:
+
+```text
+AnchorWorks UI
+-> Source Graphs panel
+-> interactive graph canvas
+-> selected-node inspector
+-> citation/address panel
+```
+
+## Neo4j Position
+
+Neo4j is useful as a mental model and optional export target.
+
+It should not be required for the first AnchorWorks AWSG viewer.
+
+Use Neo4j-like concepts:
+
+```text
+nodes
+edges
+labels
+properties
+neighborhood expansion
+graph queries
+inspector panel
+```
+
+Avoid requiring Neo4j until AnchorWorks has proven:
+
+```text
+AWSG slice API
+source graph manifests
+debug export regeneration
+renderer citation path
+production graph placement
+```
+
+Optional future bridge:
+
+```text
+AWSG -> Cypher export
+AWSG -> Neo4j import
+Neo4j -> exploratory analysis only
+```
+
+Neo4j must not become the source of authority unless explicitly promoted by a later storage contract.
+
+## Viewer Proof Target
+
+Next proof target after the graph contract:
+
+```text
+read toy AWSG runtime graph
+serve bounded graph slice
+render source graph in browser UI
+inspect selected node/edge
+show locator path
+regenerate debug JSON view
+prove no production writes
+```
+
+First acceptable viewer proof:
+
+```text
+one toy graph
+document/block/line/occurrence/symbol nodes visible
+relation_window edges visible
+NULL and visual nodes visible when present
+selected-node inspector works
+slice cap enforced
+no write routes
+tests prove isolation
+```
+
+Production viewer gate:
+
+```text
+one real document graph can be viewed
+large graphs are sliced, not fully loaded
+viewer can copy citation addresses
+viewer can show sidecar provenance
+viewer never writes authority data
+```
+
 ## File Family
 
 Proposed local graph family:
