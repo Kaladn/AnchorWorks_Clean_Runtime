@@ -16,6 +16,7 @@ from .chat_memory_system import ChatMemorySystem
 from .clearspeak import ClearSpeakService
 from .intake_audit import audit_source_directory, rebuild_readiness_report
 from .model_api_client import ModelApiClient
+from .observed_map_graph_viewer import ObservedMapGraphViewer
 from .policy_diagnostics_report import build_settings_report, load_queries
 from .store import LexiconStore
 from .symbol_policy import SymbolPolicy
@@ -180,6 +181,10 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     ui_root = package_root / "ui"
     assets_root = ui_root / "assets"
     store = LexiconStore(data_root or _default_data_root())
+    awsg_viewer = ObservedMapGraphViewer([
+        app_root / "experiments" / "observed_map_graph" / "runtime" / "graph",
+        store.anchor_maps_root / "source_graphs",
+    ])
     tree_brain_controls = TreeBrainControls.load(app_root / "config" / "tree_brain_controls.json")
     clearspeak = ClearSpeakService(store)
     model_api = ModelApiClient()
@@ -187,6 +192,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     app = FastAPI(title="AnchorWorks Lexicon", version=__version__, docs_url="/api/docs")
     app.state.store = store
+    app.state.awsg_viewer = awsg_viewer
     app.state.clearspeak = clearspeak
     app.state.tree_brain_controls = tree_brain_controls
     app.state.model_api = model_api
@@ -528,6 +534,24 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.get("/api/binary-substrate/status")
     def binary_substrate_status() -> dict[str, Any]:
         return store.binary_substrate_status()
+
+    @app.get("/api/awsg/graphs")
+    def awsg_graphs() -> dict[str, Any]:
+        return awsg_viewer.list_graphs()
+
+    @app.get("/api/awsg/graph/{graph_name}")
+    def awsg_graph(graph_name: str) -> dict[str, Any]:
+        try:
+            return awsg_viewer.graph_summary(graph_name)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+
+    @app.get("/api/awsg/graph/{graph_name}/slice")
+    def awsg_graph_slice(graph_name: str, node_id: str = "", radius: int = 1, limit: int = 500) -> dict[str, Any]:
+        try:
+            return awsg_viewer.graph_slice(graph_name, node_id=node_id, radius=radius, limit=limit)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
 
     @app.get("/api/visual-intake/files")
     def visual_intake_files() -> dict[str, Any]:

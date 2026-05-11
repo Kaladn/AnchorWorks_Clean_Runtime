@@ -7,6 +7,8 @@ import sys
 import unittest
 from pathlib import Path
 
+from AnchorWorks.app import create_app
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RUNNER = REPO_ROOT / "experiments" / "observed_map_graph" / "run.py"
@@ -84,6 +86,41 @@ class ObservedMapGraphExperimentTests(unittest.TestCase):
         self.assertEqual(eval_report["missing_node_types"], [])
         self.assertEqual(eval_report["missing_edge_types"], [])
         self.assertTrue(eval_report["debug_export_written"])
+
+    def test_viewer_routes_list_graphs_and_return_capped_slice(self) -> None:
+        subprocess.run([sys.executable, str(RUNNER), "build"], cwd=REPO_ROOT, check=True, capture_output=True, text=True)
+        app = create_app(REPO_ROOT.parent)
+        paths = {getattr(route, "path", ""): route.endpoint for route in app.routes if hasattr(route, "endpoint")}
+
+        listing = paths["/api/awsg/graphs"]()
+        self.assertTrue(listing["ok"])
+        self.assertEqual(listing["graph_count"], 1)
+
+        graph_name = listing["graphs"][0]["graph_name"]
+        summary = paths["/api/awsg/graph/{graph_name}"](graph_name)
+        self.assertTrue(summary["ok"])
+        self.assertGreater(summary["node_count"], 0)
+        self.assertGreater(summary["edge_count"], 0)
+        self.assertEqual(summary["writes_allowed"], {"canonical": False, "counts": False, "lifetime": False, "lexicon": False})
+
+        graph_slice = paths["/api/awsg/graph/{graph_name}/slice"](graph_name, node_id="", radius=1, limit=12)
+        self.assertTrue(graph_slice["ok"])
+        self.assertLessEqual(len(graph_slice["nodes"]), 12)
+        self.assertTrue(graph_slice["nodes"])
+        self.assertTrue(graph_slice["edges"])
+        self.assertTrue(graph_slice["slice"]["read_only"])
+        self.assertIn("document", {node["node_type"] for node in graph_slice["nodes"]})
+
+    def test_viewer_ui_exposes_source_graph_workbench(self) -> None:
+        ui_root = REPO_ROOT / "src" / "AnchorWorks" / "ui"
+        index_html = (ui_root / "index.html").read_text(encoding="utf-8")
+        app_js = (ui_root / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn("Source Graphs", index_html)
+        self.assertIn('id="source-graphs-btn"', index_html)
+        self.assertIn("/api/awsg/graphs", app_js)
+        self.assertIn("/api/awsg/graph/", app_js)
+        self.assertIn("renderSourceGraphSlice", app_js)
 
 
 def _read_json(path: Path) -> dict[str, object]:

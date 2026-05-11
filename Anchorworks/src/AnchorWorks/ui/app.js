@@ -72,6 +72,7 @@ const lexApp = {
       mappingBtn: document.getElementById("mapping-btn"),
       mappingPath: document.getElementById("mapping-path"),
       observedMapsBtn: document.getElementById("observed-maps-btn"),
+      sourceGraphsBtn: document.getElementById("source-graphs-btn"),
       importPath: document.getElementById("import-path"),
       results: document.getElementById("results"),
       pager: document.getElementById("pager"),
@@ -194,6 +195,7 @@ const lexApp = {
     this.els.resetBtn.addEventListener("click", () => this.resetSearch());
     this.els.mappingBtn.addEventListener("click", () => this.runMappingBuild());
     this.els.observedMapsBtn.addEventListener("click", () => this.showSymbolicMaps());
+    this.els.sourceGraphsBtn.addEventListener("click", () => this.showSourceGraphs());
     document.getElementById("top-btn").addEventListener("click", () => this.showTop());
     document.getElementById("random-btn").addEventListener("click", () => this.showRandom());
     document.getElementById("recent-btn").addEventListener("click", () => this.showRecent());
@@ -2018,6 +2020,151 @@ const lexApp = {
 
   async showObservedMaps() {
     return this.showSymbolicMaps();
+  },
+
+  async showSourceGraphs() {
+    try {
+      const data = await this.api("/api/awsg/graphs");
+      const graphs = data.graphs || [];
+      const subtitle = `${Number(data.graph_count || graphs.length || 0).toLocaleString()} source graphs. Read-only topology viewer over AWSG slices.`;
+      this.renderActionCards(graphs, "Source Graphs", subtitle, (graph) => `
+        <article class="entry-card" onclick="lexApp.loadSourceGraph(decodeURIComponent('${this.uri(graph.graph_name || "")}'))">
+          <div class="entry-card-top">
+            <div>
+              <div class="entry-word">${this.escape(graph.graph_name || "")}</div>
+              <div class="entry-meta">${this.escape(graph.source_id || "")}</div>
+            </div>
+            <span class="entry-tag">AWSG</span>
+          </div>
+          <div class="entry-meta">Nodes: ${Number(graph.node_count || 0).toLocaleString()} | Edges: ${Number(graph.edge_count || 0).toLocaleString()}</div>
+          <div class="entry-meta">Read-only graph slice viewer. No authority writes.</div>
+        </article>
+      `);
+      this.clearBanner();
+    } catch (error) {
+      this.setBanner("error", `Source graph list failed: ${error.message}`);
+    }
+  },
+
+  async loadSourceGraph(name, nodeId = "") {
+    if (!name) return;
+    try {
+      const query = nodeId ? `?node_id=${encodeURIComponent(nodeId)}&radius=1&limit=80` : "?radius=1&limit=80";
+      const graph = await this.api(`/api/awsg/graph/${encodeURIComponent(name)}/slice${query}`);
+      this.renderSourceGraphSlice(graph);
+      this.clearBanner();
+    } catch (error) {
+      this.setBanner("error", `Source graph load failed: ${error.message}`);
+    }
+  },
+
+  renderSourceGraphSlice(graph) {
+    const nodes = graph.nodes || [];
+    const edges = graph.edges || [];
+    const selectedNodeId = graph.slice && graph.slice.selected_node_id ? graph.slice.selected_node_id : "";
+    this.setMeta(
+      "Source Graph Slice",
+      `${Number(nodes.length || 0).toLocaleString()} nodes, ${Number(edges.length || 0).toLocaleString()} edges from ${graph.graph_name || "AWSG"}. Viewer is read-only.`
+    );
+    this.els.pager.innerHTML = "";
+    if (!nodes.length) {
+      this.renderEmpty("No graph nodes found. Build the AWSG proof first.");
+      return;
+    }
+    const nodeIndex = new Map(nodes.map((node) => [String(node.node_id || ""), node]));
+    const positions = this.layoutGraphNodes(nodes);
+    const edgeLines = edges.map((edge) => {
+      const from = positions.get(String(edge.from || ""));
+      const to = positions.get(String(edge.to || ""));
+      if (!from || !to) return "";
+      return `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" class="source-graph-edge" stroke="#00d4ff" stroke-opacity="0.42" stroke-width="2"><title>${this.escape(edge.edge_type || "")}</title></line>`;
+    }).join("");
+    const nodeDots = nodes.map((node) => {
+      const pos = positions.get(String(node.node_id || "")) || { x: 0, y: 0 };
+      const nodeType = String(node.node_type || "node");
+      const label = String(node.display_anchor || node.resolved_anchor || node.surface || node.node_type || "node");
+      const selected = String(node.node_id || "") === selectedNodeId ? " selected" : "";
+      const fill = selected ? "rgba(0,255,136,0.26)" : nodeType === "null_coordinate" ? "rgba(255,180,0,0.18)" : nodeType === "visual_ref" ? "rgba(170,96,255,0.2)" : "rgba(0,212,255,0.18)";
+      const stroke = selected ? "#00ff88" : nodeType === "null_coordinate" ? "#ffb000" : nodeType === "visual_ref" ? "#aa60ff" : "#00d4ff";
+      return `
+        <g class="source-graph-node ${this.escape(nodeType)}${selected}" onclick="lexApp.selectSourceGraphNode(decodeURIComponent('${this.uri(graph.graph_name || "")}'), decodeURIComponent('${this.uri(node.node_id || "")}'))">
+          <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}" stroke="${stroke}" stroke-width="${selected ? 3 : 2}"></circle>
+          <text x="${pos.x}" y="${pos.y + 32}" text-anchor="middle" fill="#a9b8d3" font-size="11" font-weight="700">${this.escape(label).slice(0, 18)}</text>
+          <title>${this.escape(node.node_id || "")}</title>
+        </g>
+      `;
+    }).join("");
+    const selectedNode = nodeIndex.get(selectedNodeId) || nodes[0] || {};
+    this.els.results.innerHTML = `
+      <article class="entry-card report-card source-graph-card">
+        <div class="entry-card-top">
+          <div>
+            <div class="entry-word">${this.escape(graph.graph_name || "AWSG")}</div>
+            <div class="entry-meta">Selected: ${this.escape(selectedNodeId || "-")}</div>
+          </div>
+          <span class="entry-tag">read-only</span>
+        </div>
+        <div class="source-graph-workbench">
+          <svg class="source-graph-canvas" viewBox="0 0 900 440" role="img" aria-label="Source graph slice">
+            ${edgeLines}
+            ${nodeDots}
+          </svg>
+          <aside class="source-graph-inspector">
+            <div class="admin-label">Selected Node</div>
+            ${this.renderSourceGraphInspector(selectedNode)}
+          </aside>
+        </div>
+      </article>
+      ${this.renderSymbolRowsCard("Visible Edges", edges.slice(0, 18), (edge) => `${edge.edge_type || ""}: ${edge.from || ""} -> ${edge.to || ""}${edge.offset !== undefined ? ` offset ${edge.offset}` : ""}`)}
+    `;
+  },
+
+  layoutGraphNodes(nodes) {
+    const positions = new Map();
+    const centerX = 450;
+    const centerY = 210;
+    const radius = 155;
+    const count = Math.max(1, nodes.length);
+    nodes.forEach((node, index) => {
+      if (index === 0) {
+        positions.set(String(node.node_id || ""), { x: centerX, y: centerY });
+        return;
+      }
+      const angle = ((index - 1) / Math.max(1, count - 1)) * Math.PI * 2 - Math.PI / 2;
+      const ring = radius + (index % 3) * 34;
+      positions.set(String(node.node_id || ""), {
+        x: Math.round(centerX + Math.cos(angle) * ring),
+        y: Math.round(centerY + Math.sin(angle) * ring),
+      });
+    });
+    return positions;
+  },
+
+  selectSourceGraphNode(graphName, nodeId) {
+    this.loadSourceGraph(graphName, nodeId);
+  },
+
+  renderSourceGraphInspector(node) {
+    const keys = [
+      "node_id",
+      "node_type",
+      "source_id",
+      "block_id",
+      "line_start",
+      "line_end",
+      "anchor_position",
+      "surface",
+      "resolved_anchor",
+      "symbol",
+      "lane",
+      "reason",
+      "visual_record_id",
+      "source_path_ref",
+    ];
+    return keys
+      .filter((key) => node[key] !== undefined && node[key] !== "")
+      .map((key) => `<div class="source-graph-field"><span>${this.escape(key)}</span><strong>${this.escape(String(node[key]))}</strong></div>`)
+      .join("") || `<div class="entry-meta">No node selected.</div>`;
   },
 
   async loadSymbolicMap(name) {
