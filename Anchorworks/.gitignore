@@ -9,3 +9,4 @@ dist/
 *.egg-info/
 *.log
 experiments/toy_evidence_renderer/runtime/
+experiments/observed_map_graph/runtime/
