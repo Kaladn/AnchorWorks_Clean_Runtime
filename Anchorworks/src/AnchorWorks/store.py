@@ -36,7 +36,13 @@ from .symbol_count_native import (
     verify_binary_counts,
     write_awss_from_symbol_count_artifacts,
 )
-from .symbolic_map_binary import SymbolicMapRelation, read_symbolic_map_binary, write_symbolic_map_binary
+from .symbolic_map_binary import (
+    SymbolicMapRelation,
+    read_symbolic_map_binary,
+    write_symbolic_map_locator_sidecar,
+    write_symbolic_map_null_sidecar,
+    write_symbolic_map_binary,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -1114,6 +1120,20 @@ class LexiconStore:
         if not safe_name:
             safe_name = "symbolic"
         return self.symbolic_maps_dir / f"{safe_name}-{digest}.awsm"
+
+    def _symbolic_locator_path(self, source_path: Path) -> Path:
+        digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]
+        safe_name = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in source_path.stem).strip("_")
+        if not safe_name:
+            safe_name = "symbolic"
+        return self.symbolic_maps_dir / f"{safe_name}-{digest}.locators.awsl"
+
+    def _symbolic_null_path(self, source_path: Path) -> Path:
+        digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]
+        safe_name = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in source_path.stem).strip("_")
+        if not safe_name:
+            safe_name = "symbolic"
+        return self.symbolic_maps_dir / f"{safe_name}-{digest}.nulls.awsn"
 
     def _misspelled_review_path(self, source_path: Path) -> Path:
         digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]
@@ -2496,6 +2516,8 @@ class LexiconStore:
 
         map_path = self._observed_map_path(source_path)
         symbolic_map_path = self._symbolic_map_path(source_path)
+        symbolic_locator_path = self._symbolic_locator_path(source_path)
+        symbolic_null_path = self._symbolic_null_path(source_path)
         observed_map_name = map_path.name
         prepared = prepare_file(source_path)
         source_id = hashlib.sha1((str(source_path) + "\n" + prepared.sha256 + "\n" + observed_map_name).encode("utf-8")).hexdigest()
@@ -2700,6 +2722,19 @@ class LexiconStore:
             "count_write": count_write,
         }
 
+        locator_rows = [
+            {
+                "paragraph_id": int(paragraph.get("paragraph_id", 0) or 0),
+                "block_id": int(paragraph.get("block_id", paragraph.get("paragraph_id", 0)) or 0),
+                "line_start": int(paragraph.get("line_start", 0) or 0),
+                "line_end": int(paragraph.get("line_end", paragraph.get("line_start", 0)) or paragraph.get("line_start", 0) or 0),
+                "anchor_count": int(paragraph.get("anchor_count", len(paragraph.get("resolved_anchors") or paragraph.get("anchors") or [])) or 0),
+                "countable_anchor_count": int(paragraph.get("countable_anchor_count", 0) or 0),
+            }
+            for paragraph in mapping["paragraphs"]
+            if isinstance(paragraph, dict)
+        ]
+
         write_symbolic_map_binary(
             symbolic_map_path,
             metadata={
@@ -2727,8 +2762,14 @@ class LexiconStore:
                 for row in symbolic_relation_rows
             ],
         )
+        write_symbolic_map_locator_sidecar(symbolic_locator_path, locator_rows)
+        write_symbolic_map_null_sidecar(symbolic_null_path, null_index)
         payload["symbolic_map_path"] = str(symbolic_map_path)
         payload["symbolic_map_relation_count"] = len(symbolic_relation_rows)
+        payload["symbolic_locator_path"] = str(symbolic_locator_path)
+        payload["symbolic_locator_count"] = len(locator_rows)
+        payload["symbolic_null_path"] = str(symbolic_null_path)
+        payload["symbolic_null_count"] = len(null_index)
         self._write_json(map_path, payload)
 
         return {
@@ -2740,6 +2781,12 @@ class LexiconStore:
             "symbolic_map_path": str(symbolic_map_path),
             "symbolic_map_name": symbolic_map_path.name,
             "symbolic_map_relation_count": len(symbolic_relation_rows),
+            "symbolic_locator_path": str(symbolic_locator_path),
+            "symbolic_locator_name": symbolic_locator_path.name,
+            "symbolic_locator_count": len(locator_rows),
+            "symbolic_null_path": str(symbolic_null_path),
+            "symbolic_null_name": symbolic_null_path.name,
+            "symbolic_null_count": len(null_index),
             "paragraph_count": payload["paragraph_count"],
             "window_radius": payload["window_radius"],
             "total_anchor_observations": payload["total_anchor_observations"],

@@ -183,13 +183,15 @@ These are completed on the active branch:
 ~~AWSM hot path for source-local symbol count artifacts~~
 ~~JSON observed-map fallback retained for parity/debug only~~
 ~~100-doc AWSM parity benchmark~~
+~~AWSM block/line locator sidecar~~
+~~AWSM NULL coordinate sidecar~~
 ~~Cloud Of Clouds answer contract~~
 ```
 
 Current test confirmation:
 
 ```text
-Full suite reached 123 passing tests after AWSM hot-path source-local symbol count artifacts.
+Full suite reached 129 passing tests after AWSM NULL coordinate sidecars.
 No active runtime behavior was added for Cloud Of Clouds yet.
 ```
 
@@ -345,6 +347,92 @@ AWSC counts.
 Canonical governs.
 ```
 
+## AWSM Locator Sidecar Checkpoint
+
+AWSM now has a block/line locator sidecar.
+
+Shape:
+
+```text
+AWSM relation file:      *.awsm
+AWSM locator sidecar:    *.locators.awsl
+```
+
+The sidecar stores source-local block address rows:
+
+```text
+paragraph_id
+block_id
+line_start
+line_end
+anchor_count
+countable_anchor_count
+```
+
+Verification:
+
+```text
+AWSL sidecar round-trips under CRC.
+AWSL sidecar rejects corrupted payloads.
+Ingest writes AWSL beside AWSM.
+AWSL survives after JSON observed map deletion.
+Full unittest suite: 126 tests OK.
+```
+
+Locator law:
+
+```text
+AWSM serves relations.
+AWSL proves block and line address.
+JSON remains witness/debug only.
+```
+
+## AWSM NULL Coordinate Sidecar Checkpoint
+
+AWSM now has a NULL coordinate sidecar.
+
+Shape:
+
+```text
+AWSM relation file:      *.awsm
+AWSM locator sidecar:    *.locators.awsl
+AWSM NULL sidecar:       *.nulls.awsn
+```
+
+The NULL sidecar stores parseable exclusions:
+
+```text
+block_id
+line_start
+line_end
+anchor_position
+anchor_label
+observed_anchor
+surface
+resolved_anchor = __NULL__
+count_eligible = false
+memory_truth = false
+```
+
+Verification:
+
+```text
+AWSN sidecar round-trips under CRC.
+AWSN sidecar rejects corrupted payloads.
+Ingest writes AWSN beside AWSM/AWSL.
+AWSN survives after JSON observed map deletion.
+Full unittest suite: 129 tests OK.
+```
+
+NULL law:
+
+```text
+NULL is parseable.
+NULL is locatable.
+NULL is auditable.
+NULL is not memory truth.
+```
+
 ## Vision And Media Boundary
 
 The visual intake law remains active:
@@ -452,19 +540,19 @@ Start here when returning to binaries:
 ~~Build source-local symbol count artifacts directly from AWSM instead of JSON observed maps.~~
 ~~Route source-local symbol artifact builder through AWSM by default.~~
 ~~Add 100-doc AWSM parity benchmark.~~
-1. Add AWSM block/line locator section or sidecar.
-2. Add AWSM NULL coordinate section or sidecar.
-3. Add AWSM visual-ref pointer section or sidecar.
-4. Add binary read API for AWSM maps.
-5. Add 1000-doc AWSM parity benchmark.
-6. Make JSON observed-map output optional debug mode.
-7. Route AWSS creation through AWSM-derived artifacts.
-8. Add CloudOfClouds builder from AWSC cells.
-9. Add AnswerField builder with cloud caps.
-10. Add AnswerPath walker with path-health scoring.
-11. Move native scoring into ClearSpeak behind a binary-read feature gate.
-12. Add batch-aware native scoring for many active contexts.
-13. Only after CPU-native proof: design GPU sparse symbolic field loader.
+~~Add AWSM block/line locator section or sidecar.~~
+~~Add AWSM NULL coordinate section or sidecar.~~
+1. Add AWSM visual-ref pointer section or sidecar.
+2. Add binary read API for AWSM maps.
+3. Add 1000-doc AWSM parity benchmark.
+4. Make JSON observed-map output optional debug mode.
+5. Route AWSS creation through AWSM-derived artifacts.
+6. Add CloudOfClouds builder from AWSC cells.
+7. Add AnswerField builder with cloud caps.
+8. Add AnswerPath walker with path-health scoring.
+9. Move native scoring into ClearSpeak behind a binary-read feature gate.
+10. Add batch-aware native scoring for many active contexts.
+11. Only after CPU-native proof: design GPU sparse symbolic field loader.
 ```
 
 ## Ready Confirmations
@@ -476,6 +564,8 @@ AWSC exists.
 AWSS exists.
 AWSM exists.
 AWSM serves source-local symbol count artifacts.
+AWSM block/line locator sidecar exists.
+AWSM NULL coordinate sidecar exists.
 Native C++ merge exists.
 Native C++ verify exists.
 Native C++ score exists.
@@ -484,7 +574,7 @@ JSON observed maps are parity/debug fallback for this path.
 New maps write outside runtime State.
 Batch intake exists.
 Cloud Of Clouds contract exists.
-Next build target is AWSM locator sidecars: block/line first, then NULL coordinates, then visual refs.
+Next build target is AWSM visual-ref pointer sidecar.
 ```
 
 ## Do Not Do Yet

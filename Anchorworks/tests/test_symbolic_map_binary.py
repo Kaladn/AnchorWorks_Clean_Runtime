@@ -9,7 +9,11 @@ from AnchorWorks.symbolic_map_binary import (
     MAGIC,
     RELATION_ROW_SIZE,
     SymbolicMapRelation,
+    read_symbolic_map_locator_sidecar,
+    read_symbolic_map_null_sidecar,
     read_symbolic_map_binary,
+    write_symbolic_map_locator_sidecar,
+    write_symbolic_map_null_sidecar,
     write_symbolic_map_binary,
 )
 
@@ -60,6 +64,78 @@ class SymbolicMapBinaryTests(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 read_symbolic_map_binary(path)
+
+    def test_round_trip_block_line_locator_sidecar(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.locators.awsl"
+            rows = [
+                {
+                    "paragraph_id": 0,
+                    "block_id": 0,
+                    "line_start": 1,
+                    "line_end": 2,
+                    "anchor_count": 3,
+                    "countable_anchor_count": 2,
+                },
+                {
+                    "paragraph_id": 1,
+                    "block_id": 1,
+                    "line_start": 4,
+                    "line_end": 4,
+                    "anchor_count": 1,
+                    "countable_anchor_count": 1,
+                },
+            ]
+
+            write_symbolic_map_locator_sidecar(path, rows)
+            loaded = read_symbolic_map_locator_sidecar(path)
+
+            self.assertEqual(loaded, rows)
+
+    def test_locator_sidecar_crc_rejects_corruption(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.locators.awsl"
+            write_symbolic_map_locator_sidecar(path, [{"paragraph_id": 0, "block_id": 0, "line_start": 1, "line_end": 1}])
+            raw = bytearray(path.read_bytes())
+            raw[-1] ^= 0x01
+            path.write_bytes(raw)
+
+            with self.assertRaises(ValueError):
+                read_symbolic_map_locator_sidecar(path)
+
+    def test_round_trip_null_coordinate_sidecar(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.nulls.awsn"
+            rows = [
+                {
+                    "block_id": 72,
+                    "line_start": 4,
+                    "line_end": 4,
+                    "anchor_position": 7,
+                    "anchor_label": "Block 72 Ln 4 Anchor 7",
+                    "observed_anchor": "badjunk",
+                    "surface": "badjunk",
+                    "resolved_anchor": "__NULL__",
+                    "count_eligible": False,
+                    "memory_truth": False,
+                }
+            ]
+
+            write_symbolic_map_null_sidecar(path, rows)
+            loaded = read_symbolic_map_null_sidecar(path)
+
+            self.assertEqual(loaded, rows)
+
+    def test_null_sidecar_crc_rejects_corruption(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "sample.nulls.awsn"
+            write_symbolic_map_null_sidecar(path, [{"block_id": 1, "line_start": 1, "anchor_position": 2}])
+            raw = bytearray(path.read_bytes())
+            raw[-1] ^= 0x01
+            path.write_bytes(raw)
+
+            with self.assertRaises(ValueError):
+                read_symbolic_map_null_sidecar(path)
 
 
 if __name__ == "__main__":

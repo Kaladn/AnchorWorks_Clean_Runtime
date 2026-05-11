@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Any
 
 MAGIC = b"AWSM"
+LOCATOR_MAGIC = b"AWSL"
+NULL_MAGIC = b"AWSN"
 VERSION = 0x0100
 HEADER_SIZE = 64
 RELATION_ROW_SIZE = 24
@@ -105,6 +107,76 @@ def read_symbolic_map_binary(path: str | Path) -> SymbolicMapBinary:
     )
 
 
+def write_symbolic_map_locator_sidecar(path: str | Path, rows: list[dict[str, Any]]) -> None:
+    normalized = [_normalize_locator_row(row) for row in rows]
+    _write_json_sidecar(path, magic=LOCATOR_MAGIC, rows=normalized)
+
+
+def read_symbolic_map_locator_sidecar(path: str | Path) -> list[dict[str, Any]]:
+    rows = _read_json_sidecar(path, magic=LOCATOR_MAGIC, label="locator")
+    return [_normalize_locator_row(row) for row in rows]
+
+
+def write_symbolic_map_null_sidecar(path: str | Path, rows: list[dict[str, Any]]) -> None:
+    normalized = [_normalize_null_row(row) for row in rows]
+    _write_json_sidecar(path, magic=NULL_MAGIC, rows=normalized)
+
+
+def read_symbolic_map_null_sidecar(path: str | Path) -> list[dict[str, Any]]:
+    rows = _read_json_sidecar(path, magic=NULL_MAGIC, label="NULL coordinate")
+    return [_normalize_null_row(row) for row in rows]
+
+
+def _write_json_sidecar(path: str | Path, *, magic: bytes, rows: list[dict[str, Any]]) -> None:
+    payload = json.dumps(rows, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    header = _HEADER.pack(
+        magic,
+        VERSION,
+        HEADER_SIZE,
+        HEADER_SIZE + len(payload),
+        len(payload),
+        len(rows),
+        0,
+        zlib.crc32(payload) & 0xFFFFFFFF,
+        0,
+        0,
+    )
+    header = header + bytes(HEADER_SIZE - len(header))
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = output.with_name(f"{output.name}.tmp")
+    temp_path.write_bytes(header + payload)
+    os.replace(temp_path, output)
+
+
+def _read_json_sidecar(path: str | Path, *, magic: bytes, label: str) -> list[dict[str, Any]]:
+    raw = Path(path).read_bytes()
+    if len(raw) < HEADER_SIZE:
+        raise ValueError(f"symbolic map {label} sidecar is shorter than header")
+    found_magic, version, header_size, total_size, payload_size, row_count, row_size, payload_crc, relation_crc, _reserved = _HEADER.unpack(
+        raw[:_HEADER.size]
+    )
+    if found_magic != magic:
+        raise ValueError(f"invalid symbolic map {label} sidecar magic")
+    if version != VERSION:
+        raise ValueError(f"unsupported symbolic map {label} sidecar version")
+    if header_size != HEADER_SIZE:
+        raise ValueError(f"unsupported symbolic map {label} sidecar header size")
+    if total_size != len(raw):
+        raise ValueError(f"symbolic map {label} sidecar total size mismatch")
+    if row_size != 0 or relation_crc != 0:
+        raise ValueError(f"invalid symbolic map {label} sidecar relation fields")
+    payload = raw[HEADER_SIZE:]
+    if len(payload) != payload_size:
+        raise ValueError(f"symbolic map {label} sidecar payload size mismatch")
+    if zlib.crc32(payload) & 0xFFFFFFFF != payload_crc:
+        raise ValueError(f"symbolic map {label} sidecar CRC mismatch")
+    rows = json.loads(payload.decode("utf-8"))
+    if not isinstance(rows, list) or len(rows) != row_count:
+        raise ValueError(f"symbolic map {label} sidecar row count mismatch")
+    return [row for row in rows if isinstance(row, dict)]
+
+
 def _pack_relation(row: SymbolicMapRelation) -> bytes:
     if row.root_symbol_id < 0 or row.neighbor_symbol_id < 0:
         raise ValueError("symbol ids must be non-negative")
@@ -143,3 +215,32 @@ def _symbol_bytes(symbol_id: int) -> bytes:
     if symbol_id < 0 or symbol_id > (1 << 40) - 1:
         raise ValueError("symbol id must fit 40 bits")
     return int(symbol_id).to_bytes(5, "big")
+
+
+def _normalize_locator_row(row: dict[str, Any]) -> dict[str, int]:
+    return {
+        "paragraph_id": int(row.get("paragraph_id", 0) or 0),
+        "block_id": int(row.get("block_id", row.get("paragraph_id", 0)) or 0),
+        "line_start": int(row.get("line_start", 0) or 0),
+        "line_end": int(row.get("line_end", row.get("line_start", 0)) or row.get("line_start", 0) or 0),
+        "anchor_count": int(row.get("anchor_count", 0) or 0),
+        "countable_anchor_count": int(row.get("countable_anchor_count", 0) or 0),
+    }
+
+
+def _normalize_null_row(row: dict[str, Any]) -> dict[str, Any]:
+    block_id = int(row.get("block_id", row.get("paragraph_id", 0)) or 0)
+    line_start = int(row.get("line_start", 0) or 0)
+    anchor_position = int(row.get("anchor_position", row.get("position", 0)) or 0)
+    return {
+        "block_id": block_id,
+        "line_start": line_start,
+        "line_end": int(row.get("line_end", line_start) or line_start),
+        "anchor_position": anchor_position,
+        "anchor_label": str(row.get("anchor_label") or f"Block {block_id} Ln {line_start} Anchor {anchor_position}"),
+        "observed_anchor": str(row.get("observed_anchor") or ""),
+        "surface": str(row.get("surface") or ""),
+        "resolved_anchor": str(row.get("resolved_anchor") or "__NULL__"),
+        "count_eligible": bool(row.get("count_eligible", False)),
+        "memory_truth": bool(row.get("memory_truth", False)),
+    }
