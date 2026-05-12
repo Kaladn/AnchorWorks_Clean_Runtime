@@ -40,6 +40,16 @@ Hard law for this plan:
 A frame is evidence of pixels, not evidence of words until recognition exists.
 ```
 
+Visual sovereignty law:
+
+```text
+NEVER normalize before vision.
+Vision is the deterministic truth record.
+All cleanup, normalization, repair, compression, symbol conversion, and text shaping must occur after visual proofing.
+```
+
+For PDFs and document films, this means rendered/page-frame evidence must be preserved before any source text cleanup or derived text comparison is allowed to influence the visual record. Source text can tell; vision proves the seen state.
+
 ---
 
 ## Files

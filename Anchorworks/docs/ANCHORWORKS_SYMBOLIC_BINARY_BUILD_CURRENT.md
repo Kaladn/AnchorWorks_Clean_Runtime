@@ -38,6 +38,28 @@ Clouds limit the answer surface.
 The renderer speaks the completed path.
 ```
 
+## Visual Sovereignty Rule
+
+Hard rule for every intake path:
+
+```text
+NEVER normalize before vision.
+Vision is the deterministic truth record.
+All cleanup, normalization, repair, compression, symbol conversion, or text shaping happens after visual proofing.
+```
+
+This means the first preservation layer must keep the original seen state:
+
+```text
+source file
+-> visual/page/frame evidence if visualizable
+-> native geometry/hash/order/timing
+-> source-local visual proof
+-> only then derived text cleanup or symbolic conversion
+```
+
+Text extraction may run in parallel as a source claim, but it may not overwrite or pre-clean the visual record. If source text and visual proof disagree, both sides stay recorded and the disagreement becomes evidence for review.
+
 ## Hardware And Toolchain
 
 Confirmed current machine:

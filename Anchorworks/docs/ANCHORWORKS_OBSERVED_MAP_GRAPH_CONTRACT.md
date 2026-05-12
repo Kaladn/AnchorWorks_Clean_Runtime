@@ -54,6 +54,18 @@ Observed maps are still truth-shaped.
 JSON was only the training wheels.
 ```
 
+## Visual Sovereignty Rule
+
+AWSG must preserve the rule:
+
+```text
+NEVER normalize before vision.
+Vision is the deterministic truth record.
+All manipulations are post visual proofing.
+```
+
+Graph nodes and edges may connect source text, anchors, symbols, NULL coordinates, and visual references, but they must not imply that cleaned text is the original observed state. The graph must be able to point back to the visual/page/frame evidence before any cleanup, normalization, or symbolic interpretation is treated as usable derived structure.
+
 ## Purpose
 
 AWSG gives AnchorWorks a source-local graph of observed evidence.

@@ -36,6 +36,18 @@ The model does not learn facts.
 The model learns how to render permitted evidence.
 ```
 
+## Visual Sovereignty Rule
+
+Toy evidence experiments must follow the production intake law:
+
+```text
+NEVER normalize before vision.
+Vision is the deterministic truth record.
+All manipulation is post visual proofing.
+```
+
+Generated toy rows may include simplified fixtures, but the training/eval frame must label whether a field came from source text, visual evidence, or a derived comparison. No normalized surface is allowed to pretend it is the original observed state.
+
 ## Commands
 
 Keep the same runner and sandbox.
