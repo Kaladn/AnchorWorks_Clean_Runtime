@@ -48,6 +48,13 @@ from .symbolic_map_binary import (
     write_symbolic_map_visual_sidecar,
     write_symbolic_map_binary,
 )
+from .store_modules.admin import AdminStore
+from .store_modules.authority import AuthorityStore
+from .store_modules.evidence import EvidenceStore
+from .store_modules.intake import IntakeStore
+from .store_modules.memory import MemoryStore
+from .store_modules.paths import StorePaths, anchor_maps_root_for
+from .store_modules.visual import VisualStore
 
 
 logger = logging.getLogger(__name__)
@@ -60,10 +67,7 @@ COMPANION_AUTHORITY_LANES = {"math_terms_or_symbols", "math_markup", "domain_not
 NULL_SYMBOL_LANES = {"null_symbol_anchors", "source_id_artifacts"}
 
 def _anchor_maps_root_for(data_root: Path) -> Path:
-    configured = os.environ.get("ANCHORWORKS_MAP_ROOT")
-    if configured:
-        return Path(configured).expanduser().resolve()
-    return (Path(data_root).expanduser().resolve().parent / "AnchorMaps").resolve()
+    return anchor_maps_root_for(data_root)
 
 
 def _utc_now() -> str:
@@ -171,6 +175,7 @@ def _normalize_with_source_index(text: str) -> tuple[str, list[int]]:
 class LexiconStore:
     def __init__(self, data_root: Path) -> None:
         self.root = Path(data_root).expanduser().resolve()
+        self.paths = StorePaths(self.root)
         self.canonical_dir = self.root / "Canonical"
         self.spare_dir = self.root / "Spare_Slots"
         self.spare_slots_path = self.spare_dir / "spare_slots.json"
@@ -222,6 +227,12 @@ class LexiconStore:
         self._spare_entries_cache: list[dict[str, Any]] | None = None
         self._spare_entries_cache_key: tuple[tuple[str, int | None, int | None], ...] | None = None
         self._lock = threading.RLock()
+        self.authority = AuthorityStore(self)
+        self.evidence = EvidenceStore(self)
+        self.memory = MemoryStore(self)
+        self.intake_power = IntakeStore(self)
+        self.visual = VisualStore(self)
+        self.admin = AdminStore(self)
 
         self.spare_dir.mkdir(parents=True, exist_ok=True)
         self.state_dir.mkdir(parents=True, exist_ok=True)
