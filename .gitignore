@@ -2,11 +2,13 @@ openvino_env/
 *.log
 Anchorworks/anchorworks-8081*.out.log
 Anchorworks/anchorworks-8081*.err.log
+Anchorworks/reports/**
 
 # Reconstructed from payload_chunks/Spare_Slots/spare_slots.json.
 Spare_Slots/spare_slots.json
 
 # Runtime/generated payloads stay local unless explicitly approved.
+State/State/**
 State/lifetime_co_occurrence_counts.zip
 State/lifetime_co_occurrence_counts.json
 State/observed_maps/**

@@ -18,6 +18,7 @@ TrueVision currently proves:
 preserves page/frame visual identity: yes
 preserves geometry/hash/order/timing: yes
 reconstructs prose from vision alone: no
+controlled black-pixel text reconstruction: yes, on deterministic black/white glyph frames
 ```
 
 The generated vision-only reconstruction file proves the boundary:
@@ -34,10 +35,52 @@ recognition candidates: empty
 OCR/recognition: not run
 ```
 
+The first black-pixel reconstruction trial proves a narrower but important path:
+
+```text
+black pixel field
+-> row/line band detection
+-> glyph component extraction
+-> glyph shape match
+-> spacing/punctuation repair
+-> exact ordered text on a controlled visual document
+```
+
+Proof artifact:
+
+```text
+D:\AnchorWorks_Clean_Runtime\Anchorworks\reports\truevision\black_pixel_text_reconstruction\black_pixel_doc_trimmed_20260512T102320Z_report_spacing_checked.json
+```
+
+Measured proof:
+
+```text
+exact_match: true
+glyphs decoded: 72
+decode time: about 0.0046 seconds
+glyphs/sec: about 15,529
+```
+
+Boundary:
+
+```text
+This is not general document OCR yet.
+It proves the deterministic black-mark reconstruction route on clean rendered document marks with a known glyph shape set.
+Arbitrary PDFs still need page rendering, glyph cataloging, anti-alias handling, layout segmentation, and source verification.
+```
+
 Hard law for this plan:
 
 ```text
 A frame is evidence of pixels, not evidence of words until recognition exists.
+```
+
+Black-pixel reconstruction law:
+
+```text
+For black/white document pages, first recognize the mark field.
+Black pixels form line, glyph, spacing, and punctuation evidence.
+Text is a derived candidate only after ordered mark reconstruction succeeds.
 ```
 
 Visual sovereignty law:
@@ -49,6 +92,23 @@ All cleanup, normalization, repair, compression, symbol conversion, and text sha
 ```
 
 For PDFs and document films, this means rendered/page-frame evidence must be preserved before any source text cleanup or derived text comparison is allowed to influence the visual record. Source text can tell; vision proves the seen state.
+
+Document-film separator law:
+
+```text
+When documents or pages are played as a film for visual intake, insert a blank white separator frame between source frames by default.
+Document frame -> blank white separator -> document frame -> blank white separator.
+The separator is source-local timing evidence, not document content.
+Duplicate separator hashes are expected and must be reported, not treated as source duplicates.
+```
+
+Reason:
+
+```text
+Adjacent document frames can share black/white pixel positions even when the words differ.
+A blank separator frame creates a visual state reset so frame-to-frame change detection does not smear one document/page into the next.
+Recognition remains off unless an explicit backend is invoked later.
+```
 
 ---
 
@@ -769,5 +829,40 @@ Option B: Build deterministic glyph/line reconstruction over rendered bitmap fra
 Option C: Build dual-path verification between source text and visual line scaffolds.
 ```
 
-Recommended next: Option A, because vector/text PDFs cannot become visual frames without page rendering.
+Recommended next:
+
+```text
+1. Option A: Install/use a local PDF render backend and render vector PDFs into TrueVision frames.
+2. Option B: Develop black-pixel deterministic text reconstruction over rendered bitmap frames.
+3. Option C: Build dual-path verification between source text and visual line/glyph reconstruction.
+```
+
+Reason:
+
+```text
+Black-pixel reconstruction needs actual page frames before it can handle real PDFs.
+The controlled proof showed the mark-to-text path is viable, so it is now earmarked as the next TrueVision recognition-development branch after page rendering exists.
+```
+
+Black-pixel reconstruction development queue:
+
+```text
+1. Render one real PDF page to a black/white or thresholded frame.
+2. Segment black pixels into line bands and glyph/mark components.
+3. Build per-document glyph shape catalog before claiming text.
+4. Handle anti-aliased gray pixels with deterministic threshold policy.
+5. Infer spaces and attach punctuation without changing source evidence.
+6. Emit visual text candidates with confidence and exact frame coordinates.
+7. Compare visual candidates against source-extracted text when available.
+8. Keep all outputs source-local until approval gates promote anything.
+```
+
+Tiny lock:
+
+```text
+Black pixels locate marks.
+Glyph catalogs name marks.
+Source text verifies when available.
+Recognition remains candidate evidence until approved.
+```
 

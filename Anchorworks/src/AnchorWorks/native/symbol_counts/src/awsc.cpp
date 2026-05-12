@@ -11,6 +11,9 @@ namespace anchorworks::awsc {
 namespace {
 
 constexpr std::size_t AWSS_RECORD_SIZE = 24;
+constexpr std::size_t AWSY_RECORD_SIZE = 8;
+constexpr std::uint8_t AWSY_SEQUENCE_START = 1U << 0;
+constexpr std::uint8_t AWSY_COUNT_BLOCKED = 1U << 1;
 
 std::uint16_t read_u16_le(const std::vector<std::uint8_t>& data, std::size_t offset) {
     return static_cast<std::uint16_t>(data[offset]) |
@@ -208,6 +211,27 @@ std::vector<StreamRecord> read_awss_stream(const std::filesystem::path& path) {
     return records;
 }
 
+std::vector<SymbolStreamRecord> read_symbol_stream(const std::filesystem::path& path) {
+    const auto data = read_all(path);
+    if (data.size() % AWSY_RECORD_SIZE != 0) {
+        throw std::runtime_error("AWSY symbol stream size is not divisible by 8 bytes");
+    }
+    std::vector<SymbolStreamRecord> records;
+    records.reserve(data.size() / AWSY_RECORD_SIZE);
+    for (std::size_t offset = 0; offset < data.size(); offset += AWSY_RECORD_SIZE) {
+        SymbolStreamRecord record{};
+        std::copy_n(data.begin() + static_cast<std::ptrdiff_t>(offset), 5, record.symbol.begin());
+        record.lane = data[offset + 5];
+        record.flags = data[offset + 6];
+        record.boundary_flags = data[offset + 7];
+        if (!is_valid_relation_lane(record.lane)) {
+            throw std::runtime_error("AWSY symbol stream contains invalid lane");
+        }
+        records.push_back(record);
+    }
+    return records;
+}
+
 void write_cell(const std::filesystem::path& path, const Cell& cell) {
     if (!is_valid_relation_lane(cell.root_lane)) {
         throw std::runtime_error("invalid root lane");
@@ -348,6 +372,91 @@ void merge_stream_to_cells(
              << "  \"schema_version\": \"anchorworks_symbol_counts_binary@1.1\",\n"
              << "  \"cell_count\": " << buckets.size() << ",\n"
              << "  \"generation\": " << generation << "\n"
+             << "}\n";
+}
+
+void merge_symbol_stream_to_cells(
+    const std::filesystem::path& input_path,
+    const std::filesystem::path& output_root,
+    std::uint64_t generation,
+    std::int8_t window_radius
+) {
+    if (window_radius <= 0) {
+        throw std::runtime_error("window radius must be positive");
+    }
+
+    struct RootBucket {
+        std::uint8_t root_lane = LANE_CANONICAL;
+        std::vector<Relation> relations;
+    };
+
+    std::map<Symbol, RootBucket> buckets;
+    std::vector<SymbolStreamRecord> sequence;
+    auto flush_sequence = [&]() {
+        for (std::size_t position = 0; position < sequence.size(); ++position) {
+            const auto& root_record = sequence[position];
+            if ((root_record.boundary_flags & AWSY_COUNT_BLOCKED) != 0) {
+                continue;
+            }
+            auto& bucket = buckets[root_record.symbol];
+            if (bucket.relations.empty()) {
+                bucket.root_lane = root_record.lane;
+            } else if (bucket.root_lane != root_record.lane) {
+                throw std::runtime_error("AWSY stream changes root lane for one symbol");
+            }
+            for (int offset = -window_radius; offset <= window_radius; ++offset) {
+                if (offset == 0) {
+                    continue;
+                }
+                const auto neighbor_index = static_cast<int>(position) + offset;
+                if (neighbor_index < 0 || neighbor_index >= static_cast<int>(sequence.size())) {
+                    continue;
+                }
+                const auto& neighbor_record = sequence[static_cast<std::size_t>(neighbor_index)];
+                if ((neighbor_record.boundary_flags & AWSY_COUNT_BLOCKED) != 0) {
+                    continue;
+                }
+                bucket.relations.push_back(Relation{
+                    neighbor_record.symbol,
+                    static_cast<std::int8_t>(offset),
+                    neighbor_record.lane,
+                    neighbor_record.flags,
+                    1,
+                });
+            }
+        }
+        sequence.clear();
+    };
+
+    for (const auto& record : read_symbol_stream(input_path)) {
+        if ((record.boundary_flags & AWSY_SEQUENCE_START) != 0 && !sequence.empty()) {
+            flush_sequence();
+        }
+        sequence.push_back(record);
+    }
+    if (!sequence.empty()) {
+        flush_sequence();
+    }
+
+    std::filesystem::create_directories(output_root / "indexes");
+    for (const auto& [root, bucket] : buckets) {
+        write_cell(cell_path_for(output_root, root), Cell{
+            root,
+            bucket.root_lane,
+            0,
+            generation,
+            0,
+            0,
+            bucket.relations
+        });
+    }
+    std::ofstream metadata(output_root / "metadata.json", std::ios::trunc);
+    metadata << "{\n"
+             << "  \"schema_version\": \"anchorworks_symbol_counts_binary@1.1\",\n"
+             << "  \"input_format\": \"AWSY\",\n"
+             << "  \"cell_count\": " << buckets.size() << ",\n"
+             << "  \"generation\": " << generation << ",\n"
+             << "  \"window_radius\": " << static_cast<int>(window_radius) << "\n"
              << "}\n";
 }
 

@@ -10,7 +10,7 @@ from pathlib import Path
 from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app, _default_data_root
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
-from AnchorWorks.clearspeak_attention import infer_attention_frame, rank_attention_candidates
+from AnchorWorks.clearspeak_attention import build_active_cloud_frame, infer_attention_frame, rank_attention_candidates
 from AnchorWorks.clearspeak import ClearSpeakService
 from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
@@ -157,6 +157,41 @@ class MappingTests(unittest.TestCase):
             self.assertTrue(result["binary"]["ok"])
             self.assertGreater(result["binary"]["stream_record_count"], 0)
             self.assertTrue(all(Path(row["saved_map_path"]).parent == store.observed_maps_dir for row in result["maps"]))
+            self.assertFalse(any((store.state_dir / "observed_maps").glob("*.observed.json")))
+
+    def test_chunked_symbolic_intake_flushes_checkpoints_and_chunk_binaries(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "hex": "0x0000000001"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "hex": "0x0000000002"}])
+            _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", [])
+            sources = []
+            for index in range(5):
+                path = Path(temp_dir) / f"chapter_{index}.txt"
+                path.write_text(f"alpha beta alpha {index}.", encoding="utf-8")
+                sources.append(path)
+
+            store = LexiconStore(root)
+            result = store.build_symbolic_intake_batch_chunked(
+                sources,
+                max_workers=1,
+                generation=31,
+                run_id="unit_chunked",
+                chunk_file_limit=2,
+            )
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["status"], "completed")
+            self.assertEqual(result["source_count"], 5)
+            self.assertEqual(result["chunk_count"], 3)
+            self.assertEqual(result["completed_chunks"], 3)
+            self.assertEqual(result["files_ok"], 5)
+            self.assertEqual(result["files_failed"], 0)
+            self.assertTrue(Path(result["manifest_path"]).is_file())
+            self.assertEqual(len(list((store.ingest_staging_dir / "chunked_symbolic_intake" / "unit_chunked" / "chunks").glob("*.json"))), 3)
+            self.assertTrue(all((row.get("binary") or {}).get("ok") for row in result["chunks"]))
+            self.assertTrue(Path(result["chunk_binary_root"]).exists())
             self.assertFalse(any((store.state_dir / "observed_maps").glob("*.observed.json")))
 
     def test_different_document_types_write_symbolic_binary_maps(self) -> None:
@@ -313,6 +348,47 @@ class MappingTests(unittest.TestCase):
         self.assertGreater(ranked[0]["role_fit"]["score"], 0)
         self.assertEqual(ranked[0]["answer_health"]["status"], "supported")
 
+    def test_active_cloud_frame_scores_candidates_with_qraf_parts_and_rejections(self) -> None:
+        count_index = {
+            "by_anchor": {
+                "sear": {
+                    "+1": Counter({"meat": 9, "pan": 8, "the": 30}),
+                    "+2": Counter({"heat": 4}),
+                },
+                "meat": {
+                    "-1": Counter({"sear": 9}),
+                    "+1": Counter({"pan": 7}),
+                },
+                "pan": {
+                    "+1": Counter({"heat": 6}),
+                },
+            }
+        }
+        frame = infer_attention_frame(["how", "do", "i", "sear", "meat", "?"])
+
+        active = build_active_cloud_frame(
+            count_index,
+            question_anchors=["how", "do", "i", "sear", "meat", "?"],
+            rear_context=["sear", "meat"],
+            answer_so_far=[],
+            forward_context=[],
+            blocked={"sear", "meat"},
+            attention_frame=frame,
+            top_k=6,
+        )
+
+        self.assertEqual(active["schema_version"], "anchorworks_active_cloud_frame@1")
+        self.assertEqual(active["weights"], {"question": 0.35, "rear": 0.25, "answer": 0.3, "forward": 0.1})
+        self.assertEqual(active["combined_cloud_formula"], "C_t = wq Q + wr R + wa A_t + wf F_t")
+        self.assertEqual(active["candidates"][0]["anchor"], "pan")
+        self.assertIn("question_fit", active["candidates"][0]["score_parts"])
+        self.assertIn("rear_fit", active["candidates"][0]["score_parts"])
+        self.assertIn("answer_fit", active["candidates"][0]["score_parts"])
+        self.assertIn("forward_fit", active["candidates"][0]["score_parts"])
+        self.assertIn("source_support", active["candidates"][0]["score_parts"])
+        self.assertGreater(active["candidates"][0]["score"], active["candidates"][1]["score"])
+        self.assertTrue(any(row["anchor"] == "the" and row["reason"] == "glue_as_content" for row in active["rejected_candidates"]))
+
     def test_clearspeak_answer_assembly_exposes_attention_frame(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
@@ -343,6 +419,12 @@ class MappingTests(unittest.TestCase):
 
             self.assertEqual(result.answer_assembly["attention_frame"]["frame_type"], "method_question")
             self.assertEqual(result.answer_assembly["attention_frame"]["role_by_anchor"]["sear"], "action_candidate")
+            self.assertEqual(result.answer_assembly["schema_version"], "clearspeak_active_cloud_answer@1")
+            self.assertEqual(result.answer_assembly["contract"]["active_cloud_answer_walk"], True)
+            self.assertEqual(result.answer_assembly["active_cloud_weights"], {"question": 0.35, "rear": 0.25, "answer": 0.3, "forward": 0.1})
+            self.assertEqual(result.answer_assembly["trace"][0]["chosen_anchor"], "pan")
+            self.assertIn("question_fit", result.answer_assembly["trace"][0]["score_parts"])
+            self.assertIn("rejected_candidates", result.answer_assembly["trace"][0])
             self.assertEqual(result.answer_assembly["attention_frame"]["role_by_anchor"]["meat"], "object_candidate")
             self.assertEqual(result.answer_assembly["terms"][0]["anchor"], "pan")
             self.assertEqual(result.answer_assembly["terms"][0]["role_fit"]["matched_roles"], ["action_candidate", "object_candidate"])

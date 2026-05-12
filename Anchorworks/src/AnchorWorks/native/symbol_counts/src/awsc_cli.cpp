@@ -83,6 +83,7 @@ void print_usage() {
     std::cerr
         << "anchorworks-symbol-counts commands:\n"
         << "  merge-stream --input <awss.bin> --output <root> [--generation <n>]\n"
+        << "  merge-symbol-stream --input <awsy.bin> --output <root> [--generation <n>] [--window-radius <n>]\n"
         << "  verify --root <root>\n"
         << "  inspect --cell <cell>\n"
         << "  score --root <root> --context <hex,hex> [--top-k <n>] [--allowed-lanes <ids>]\n";
@@ -103,6 +104,15 @@ int main(int argc, char** argv) {
             const auto generation = arg_u64(argc, argv, "--generation", 0);
             awsc::merge_stream_to_cells(input, output, generation);
             std::cout << "{\"ok\":true,\"command\":\"merge-stream\"}\n";
+            return 0;
+        }
+        if (command == "merge-symbol-stream") {
+            const auto input = std::filesystem::path(arg_value(argc, argv, "--input"));
+            const auto output = std::filesystem::path(arg_value(argc, argv, "--output"));
+            const auto generation = arg_u64(argc, argv, "--generation", 0);
+            const auto window_radius = static_cast<std::int8_t>(arg_u64(argc, argv, "--window-radius", 6));
+            awsc::merge_symbol_stream_to_cells(input, output, generation, window_radius);
+            std::cout << "{\"ok\":true,\"command\":\"merge-symbol-stream\"}\n";
             return 0;
         }
         if (command == "verify") {

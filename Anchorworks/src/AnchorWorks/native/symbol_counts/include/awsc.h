@@ -51,6 +51,13 @@ struct StreamRecord {
     std::uint64_t count = 0;
 };
 
+struct SymbolStreamRecord {
+    Symbol symbol{};
+    std::uint8_t lane = LANE_CANONICAL;
+    std::uint8_t flags = 0;
+    std::uint8_t boundary_flags = 0;
+};
+
 struct VerifyResult {
     std::uint64_t checked = 0;
     std::vector<std::string> errors;
@@ -61,10 +68,17 @@ std::string symbol_to_hex(const Symbol& symbol);
 Symbol symbol_from_hex(const std::string& text);
 
 std::vector<StreamRecord> read_awss_stream(const std::filesystem::path& path);
+std::vector<SymbolStreamRecord> read_symbol_stream(const std::filesystem::path& path);
 void merge_stream_to_cells(
     const std::filesystem::path& input_path,
     const std::filesystem::path& output_root,
     std::uint64_t generation
+);
+void merge_symbol_stream_to_cells(
+    const std::filesystem::path& input_path,
+    const std::filesystem::path& output_root,
+    std::uint64_t generation,
+    std::int8_t window_radius
 );
 
 void write_cell(const std::filesystem::path& path, const Cell& cell);

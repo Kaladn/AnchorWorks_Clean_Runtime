@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import hashlib
+import ctypes
+import gc
 import json
 import logging
 import os
 import random
 import re
 import threading
+import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from collections import Counter
 from datetime import datetime, timezone
@@ -65,6 +68,54 @@ def _anchor_maps_root_for(data_root: Path) -> Path:
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _current_process_rss_bytes() -> int:
+    if os.name == "nt":
+        class PROCESS_MEMORY_COUNTERS_EX(ctypes.Structure):
+            _fields_ = [
+                ("cb", ctypes.c_ulong),
+                ("PageFaultCount", ctypes.c_ulong),
+                ("PeakWorkingSetSize", ctypes.c_size_t),
+                ("WorkingSetSize", ctypes.c_size_t),
+                ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                ("PagefileUsage", ctypes.c_size_t),
+                ("PeakPagefileUsage", ctypes.c_size_t),
+                ("PrivateUsage", ctypes.c_size_t),
+            ]
+
+        counters = PROCESS_MEMORY_COUNTERS_EX()
+        counters.cb = ctypes.sizeof(PROCESS_MEMORY_COUNTERS_EX)
+        if ctypes.windll.psapi.GetProcessMemoryInfo(  # type: ignore[attr-defined]
+            ctypes.windll.kernel32.GetCurrentProcess(),  # type: ignore[attr-defined]
+            ctypes.byref(counters),
+            counters.cb,
+        ):
+            return int(counters.WorkingSetSize)
+        return 0
+    try:
+        import resource
+
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return int(usage.ru_maxrss) * 1024
+    except Exception:
+        return 0
+
+
+def _memory_status(rss_bytes: int, soft_warning_gb: float, emergency_flush_gb: float, abort_gb: float) -> str:
+    if rss_bytes <= 0:
+        return "unknown"
+    gib = rss_bytes / (1024 * 1024 * 1024)
+    if gib >= float(abort_gb):
+        return "abort_after_chunk"
+    if gib >= float(emergency_flush_gb):
+        return "emergency_flush"
+    if gib >= float(soft_warning_gb):
+        return "soft_warning"
+    return "ok"
 
 
 def _is_visual_preview_content(content: str) -> bool:
@@ -2261,6 +2312,239 @@ class LexiconStore:
             "binary": binary,
             "writes_allowed": {"maps": True, "counts": False, "lifetime": False, "lexicon": False},
         }
+
+    def build_symbolic_intake_batch_chunked(
+        self,
+        source_paths: list[str | Path],
+        *,
+        max_workers: int | None = None,
+        generation: int = 0,
+        null_anchors: set[str] | None = None,
+        run_id: str | None = None,
+        chunk_file_limit: int = 250,
+        soft_warning_gb: float = 32.0,
+        emergency_flush_gb: float = 36.0,
+        abort_gb: float = 39.0,
+        write_chunk_binaries: bool = True,
+    ) -> dict[str, Any]:
+        normalized_paths = [Path(path).expanduser().resolve() for path in source_paths]
+        if not normalized_paths:
+            raise ValueError("at least one source path is required")
+        for path in normalized_paths:
+            if not path.exists():
+                raise FileNotFoundError(path)
+            if not path.is_file():
+                raise IsADirectoryError(path)
+
+        safe_run_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(run_id or f"chunked_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}")).strip("._") or "chunked"
+        run_root = self.ingest_staging_dir / "chunked_symbolic_intake" / safe_run_id
+        chunks_root = run_root / "chunks"
+        chunk_binary_root = self.state_dir / "symbol_counts_binary_chunks" / safe_run_id
+        run_root.mkdir(parents=True, exist_ok=True)
+        chunks_root.mkdir(parents=True, exist_ok=True)
+        if write_chunk_binaries:
+            chunk_binary_root.mkdir(parents=True, exist_ok=True)
+
+        file_limit = max(1, int(chunk_file_limit))
+        worker_count = max(1, int(max_workers or (os.cpu_count() or 1)))
+        chunks = [
+            normalized_paths[index : index + file_limit]
+            for index in range(0, len(normalized_paths), file_limit)
+        ]
+        manifest_path = run_root / "manifest.json"
+        stop_path = run_root / "STOP"
+        started = time.perf_counter()
+        chunk_rows: list[dict[str, Any]] = []
+        failed_files: list[dict[str, Any]] = []
+        stopped_reason = ""
+        completed_chunk_ids: set[str] = set()
+        if manifest_path.exists():
+            try:
+                existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+                for row in existing.get("chunks") or []:
+                    if not isinstance(row, dict):
+                        continue
+                    chunk_id = str(row.get("chunk_id") or "")
+                    if chunk_id and int(row.get("files_failed", 0) or 0) == 0:
+                        completed_chunk_ids.add(chunk_id)
+                        chunk_rows.append(row)
+                for error in existing.get("failed_files") or []:
+                    if isinstance(error, dict):
+                        failed_files.append(error)
+            except Exception:
+                completed_chunk_ids = set()
+                chunk_rows = []
+                failed_files = []
+
+        for chunk_index, chunk_paths in enumerate(chunks, start=1):
+            chunk_id = f"chunk_{chunk_index:04d}"
+            if stop_path.exists():
+                stopped_reason = "stop_requested_before_chunk"
+                break
+            if chunk_id in completed_chunk_ids:
+                continue
+            chunk_started = time.perf_counter()
+            rss_start = _current_process_rss_bytes()
+            chunk_manifest_path = chunks_root / f"{chunk_id}.json"
+            chunk_workers = max(1, min(worker_count, len(chunk_paths)))
+            worker_args = [
+                (str(self.root), str(path), "binary_source_local", sorted(null_anchors or set()))
+                for path in chunk_paths
+            ]
+
+            map_results: list[dict[str, Any]] = []
+            map_errors: list[dict[str, Any]] = []
+            if chunk_workers == 1:
+                for args in worker_args:
+                    try:
+                        map_results.append(_build_observed_map_worker(args))
+                    except Exception as exc:
+                        error = {"source_path": args[1], "stage": "map", "error": str(exc)}
+                        map_errors.append(error)
+                        failed_files.append(error)
+            else:
+                with ProcessPoolExecutor(max_workers=chunk_workers) as executor:
+                    future_by_path = {executor.submit(_build_observed_map_worker, args): args[1] for args in worker_args}
+                    for future in as_completed(future_by_path):
+                        source_path = future_by_path[future]
+                        try:
+                            map_results.append(future.result())
+                        except Exception as exc:
+                            error = {"source_path": source_path, "stage": "map", "error": str(exc)}
+                            map_errors.append(error)
+                            failed_files.append(error)
+                map_results.sort(key=lambda row: str(row.get("source_path") or "").lower())
+
+            symbol_artifacts: list[dict[str, Any]] = []
+            symbol_errors: list[dict[str, Any]] = []
+            for row in map_results:
+                try:
+                    symbol_artifacts.append(self.build_source_local_symbol_counts(str(row["saved_map_name"])))
+                except Exception as exc:
+                    error = {
+                        "source_path": str(row.get("source_path") or ""),
+                        "observed_map_name": str(row.get("saved_map_name") or ""),
+                        "stage": "source_local_symbol_counts",
+                        "error": str(exc),
+                    }
+                    symbol_errors.append(error)
+                    failed_files.append(error)
+
+            binary: dict[str, Any] | None = None
+            binary_error = ""
+            if write_chunk_binaries and symbol_artifacts:
+                try:
+                    artifact_paths = [self.source_local_symbol_counts_dir / str(row["symbol_counts_name"]) for row in symbol_artifacts]
+                    stream_path = run_root / "symbol_streams" / f"{chunk_id}.awss"
+                    stream = write_awss_from_symbol_count_artifacts(artifact_paths, stream_path)
+                    output_root = chunk_binary_root / chunk_id
+                    merge = merge_symbol_stream(stream_path, output_root, generation=int(generation))
+                    verify = verify_binary_counts(output_root)
+                    binary = {
+                        "ok": bool(merge.get("ok")) and bool(verify.get("ok")),
+                        "stream_path": str(stream_path),
+                        "stream_record_count": int(stream.get("record_count", 0) or 0),
+                        "stream_observation_count": int(stream.get("observation_count", 0) or 0),
+                        "stream_size_bytes": stream_path.stat().st_size if stream_path.exists() else 0,
+                        "binary_counts_root": str(output_root),
+                        "verify": verify,
+                    }
+                except Exception as exc:
+                    binary_error = str(exc)
+
+            del worker_args
+            gc.collect()
+            rss_end = _current_process_rss_bytes()
+            peak_rss = max(rss_start, rss_end)
+            elapsed = time.perf_counter() - chunk_started
+            chunk_row = {
+                "chunk_id": chunk_id,
+                "source_count": len(chunk_paths),
+                "files_ok": len(symbol_artifacts),
+                "files_failed": len(map_errors) + len(symbol_errors),
+                "source_paths": [str(path) for path in chunk_paths],
+                "map_count": len(map_results),
+                "maps": [
+                    {
+                        "source_path": str(row.get("source_path") or ""),
+                        "saved_map_name": str(row.get("saved_map_name") or ""),
+                        "symbolic_map_name": str(row.get("symbolic_map_name") or ""),
+                    }
+                    for row in map_results
+                ],
+                "symbol_artifact_count": len(symbol_artifacts),
+                "symbol_artifacts": [
+                    {
+                        "source_path": str(row.get("source_path") or ""),
+                        "symbol_counts_name": str(row.get("symbol_counts_name") or ""),
+                        "unique_symbol_relations": int(row.get("unique_symbol_relations", 0) or 0),
+                        "total_symbol_relation_observations": int(row.get("total_symbol_relation_observations", 0) or 0),
+                    }
+                    for row in symbol_artifacts
+                ],
+                "binary": binary,
+                "binary_error": binary_error,
+                "errors": map_errors + symbol_errors,
+                "elapsed_seconds": round(elapsed, 6),
+                "rss_start_bytes": rss_start,
+                "rss_end_bytes": rss_end,
+                "peak_rss_bytes": peak_rss,
+                "memory_status": _memory_status(peak_rss, soft_warning_gb, emergency_flush_gb, abort_gb),
+            }
+            chunk_manifest_path.write_text(json.dumps(chunk_row, indent=2, ensure_ascii=False), encoding="utf-8")
+            chunk_rows.append(chunk_row)
+
+            manifest = {
+                "schema_version": "anchorworks_chunked_symbolic_intake_run@1",
+                "run_id": safe_run_id,
+                "status": "running",
+                "source_count": len(normalized_paths),
+                "chunk_count": len(chunks),
+                "completed_chunks": len(chunk_rows),
+                "chunk_file_limit": file_limit,
+                "memory_budget": {
+                    "soft_warning_gb": soft_warning_gb,
+                    "emergency_flush_gb": emergency_flush_gb,
+                    "abort_gb": abort_gb,
+                },
+                "chunk_binary_root": str(chunk_binary_root) if write_chunk_binaries else "",
+                "chunks": chunk_rows,
+                "failed_files": failed_files,
+                "writes_allowed": {"maps": True, "counts": False, "lifetime": False, "lexicon": False},
+            }
+            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+            if peak_rss >= int(float(abort_gb) * 1024 * 1024 * 1024):
+                stopped_reason = "abort_gb_reached_after_safe_chunk_flush"
+                break
+            if stop_path.exists():
+                stopped_reason = "stop_requested_after_safe_chunk_flush"
+                break
+
+        total_elapsed = time.perf_counter() - started
+        ok = not stopped_reason and not failed_files and all((row.get("binary") or {}).get("ok", True) for row in chunk_rows)
+        final = {
+            "schema_version": "anchorworks_chunked_symbolic_intake_run@1",
+            "run_id": safe_run_id,
+            "status": "stopped" if stopped_reason else "completed",
+            "ok": bool(ok),
+            "stopped_reason": stopped_reason,
+            "source_count": len(normalized_paths),
+            "chunk_count": len(chunks),
+            "completed_chunks": len(chunk_rows),
+            "files_ok": sum(int(row.get("files_ok", 0) or 0) for row in chunk_rows),
+            "files_failed": len(failed_files),
+            "manifest_path": str(manifest_path),
+            "run_root": str(run_root),
+            "map_root": str(self.observed_maps_dir),
+            "source_local_symbol_counts_root": str(self.source_local_symbol_counts_dir),
+            "chunk_binary_root": str(chunk_binary_root) if write_chunk_binaries else "",
+            "elapsed_seconds": round(total_elapsed, 6),
+            "chunks": chunk_rows,
+            "failed_files": failed_files,
+            "writes_allowed": {"maps": True, "counts": False, "lifetime": False, "lexicon": False},
+        }
+        manifest_path.write_text(json.dumps(final, indent=2, ensure_ascii=False), encoding="utf-8")
+        return final
 
     def search_flat_document_evidence(
         self,

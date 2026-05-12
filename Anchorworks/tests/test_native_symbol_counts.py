@@ -17,9 +17,11 @@ from AnchorWorks.symbol_count_cells import (
 )
 from AnchorWorks.symbol_count_native import (
     inspect_cell,
+    merge_compact_symbol_stream,
     merge_symbol_stream,
     score_binary_counts,
     verify_binary_counts,
+    write_compact_symbol_stream,
     write_awss_from_symbol_count_artifacts,
 )
 
@@ -219,6 +221,75 @@ class NativeSymbolCountsTests(unittest.TestCase):
             self.assertTrue(payload["ok"])
             self.assertEqual([row["symbol"] for row in payload["candidates"]], ["00000000AA", "00000000BB"])
             self.assertEqual(payload["candidates"][0]["supporting_roots"], 2)
+
+    def test_native_merge_compact_symbol_stream_builds_relations(self) -> None:
+        with TemporaryDirectory() as root:
+            temp_root = Path(root)
+            stream_path = temp_root / "sample.awsy"
+            output_root = temp_root / "binary_counts"
+
+            stream = write_compact_symbol_stream(
+                [[
+                    {"symbol": "0x0000000001", "lane": CANONICAL_LANE},
+                    {"symbol": "0x0000000002", "lane": CANONICAL_LANE},
+                    {"symbol": "0x0000000003", "lane": MATH_COMPANION_LANE},
+                    {"symbol": "0x0000000002", "lane": CANONICAL_LANE},
+                ]],
+                stream_path,
+            )
+            self.assertEqual(stream["record_count"], 4)
+            self.assertEqual(stream_path.stat().st_size, 32)
+
+            merge = merge_compact_symbol_stream(
+                stream_path,
+                output_root,
+                generation=15,
+                window_radius=2,
+                executable=self.exe,
+            )
+            self.assertTrue(merge["ok"])
+
+            verify_payload = verify_binary_counts(output_root, executable=self.exe)
+            self.assertTrue(verify_payload["ok"])
+            self.assertEqual(verify_payload["checked"], 3)
+
+            cell = read_symbol_cell(output_root / "cells" / "00" / "0000000002.cell")
+            rows = {(row.offset, row.neighbor_symbol, row.lane): row.count for row in cell.relations}
+            self.assertEqual(rows[(-1, symbol_to_bytes("0x0000000001"), CANONICAL_LANE)], 1)
+            self.assertEqual(rows[(1, symbol_to_bytes("0x0000000003"), MATH_COMPANION_LANE)], 1)
+            self.assertEqual(rows[(2, symbol_to_bytes("0x0000000002"), CANONICAL_LANE)], 1)
+
+    def test_native_compact_symbol_stream_respects_sequence_boundaries(self) -> None:
+        with TemporaryDirectory() as root:
+            temp_root = Path(root)
+            stream_path = temp_root / "sample.awsy"
+            output_root = temp_root / "binary_counts"
+
+            write_compact_symbol_stream(
+                [
+                    [
+                        {"symbol": "0x0000000001", "lane": CANONICAL_LANE},
+                        {"symbol": "0x0000000002", "lane": CANONICAL_LANE},
+                    ],
+                    [
+                        {"symbol": "0x0000000003", "lane": CANONICAL_LANE},
+                        {"symbol": "0x0000000004", "lane": CANONICAL_LANE},
+                    ],
+                ],
+                stream_path,
+            )
+            merge_compact_symbol_stream(
+                stream_path,
+                output_root,
+                generation=16,
+                window_radius=2,
+                executable=self.exe,
+            )
+
+            cell = read_symbol_cell(output_root / "cells" / "00" / "0000000002.cell")
+            neighbors = {row.neighbor_symbol for row in cell.relations}
+            self.assertIn(symbol_to_bytes("0x0000000001"), neighbors)
+            self.assertNotIn(symbol_to_bytes("0x0000000003"), neighbors)
 
     @staticmethod
     def _stream_record(

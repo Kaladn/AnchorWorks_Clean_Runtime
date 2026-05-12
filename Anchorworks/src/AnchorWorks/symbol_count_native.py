@@ -23,6 +23,9 @@ VS_CMAKE = Path(
     r"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
 )
 AWSS_RECORD_SIZE = 24
+AWSY_RECORD_SIZE = 8
+AWSY_SEQUENCE_START = 1 << 0
+AWSY_COUNT_BLOCKED = 1 << 1
 
 
 def cmake_path() -> Path:
@@ -90,6 +93,37 @@ def merge_symbol_stream(
             str(output_root),
             "--generation",
             str(generation),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return json.loads(result.stdout)
+
+
+def merge_compact_symbol_stream(
+    input_path: str | Path,
+    output_root: str | Path,
+    *,
+    generation: int = 0,
+    window_radius: int = 6,
+    executable: str | Path | None = None,
+) -> dict[str, Any]:
+    exe = Path(executable) if executable else native_executable_path()
+    if not exe.exists():
+        exe = build_native_symbol_counts()
+    result = subprocess.run(
+        [
+            str(exe),
+            "merge-symbol-stream",
+            "--input",
+            str(input_path),
+            "--output",
+            str(output_root),
+            "--generation",
+            str(generation),
+            "--window-radius",
+            str(window_radius),
         ],
         check=True,
         capture_output=True,
@@ -203,6 +237,41 @@ def write_awss_from_symbol_count_artifacts(
     }
 
 
+def write_compact_symbol_stream(
+    sequences: list[list[dict[str, Any]]],
+    output_path: str | Path,
+) -> dict[str, Any]:
+    out = Path(output_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    record_count = 0
+    with out.open("wb") as handle:
+        for sequence in sequences:
+            first = True
+            for item in sequence:
+                symbol = str(item.get("symbol") or "").strip()
+                if not symbol:
+                    continue
+                boundary_flags = int(item.get("boundary_flags", 0) or 0)
+                if first:
+                    boundary_flags |= AWSY_SEQUENCE_START
+                    first = False
+                if bool(item.get("count_blocked", False)):
+                    boundary_flags |= AWSY_COUNT_BLOCKED
+                handle.write(_pack_awsy_record(
+                    symbol=symbol,
+                    lane=int(item.get("lane", SOURCE_LOCAL_TEMP_LANE) or 0),
+                    flags=int(item.get("flags", 0) or 0),
+                    boundary_flags=boundary_flags,
+                ))
+                record_count += 1
+    return {
+        "ok": True,
+        "stream_path": str(out),
+        "record_count": record_count,
+        "record_size": AWSY_RECORD_SIZE,
+    }
+
+
 def _authority_by_symbol(payload: dict[str, Any]) -> dict[str, str]:
     out: dict[str, str] = {}
     for row in payload.get("symbol_authority") or []:
@@ -256,4 +325,20 @@ def _pack_awss_record(
         root_lane,
         0,
         count,
+    )
+
+
+def _pack_awsy_record(
+    *,
+    symbol: str,
+    lane: int,
+    flags: int,
+    boundary_flags: int,
+) -> bytes:
+    return struct.pack(
+        "<5sBBB",
+        symbol_to_bytes(symbol),
+        int(lane) & 0xFF,
+        int(flags) & 0xFF,
+        int(boundary_flags) & 0xFF,
     )
