@@ -6,7 +6,9 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from .clearspeak_attention import (
+    ACTIVE_CLOUD_WEIGHTS,
     attention_math_contract,
+    build_active_cloud_frame,
     content_anchors,
     infer_attention_frame,
     rank_attention_candidates,
@@ -167,53 +169,79 @@ class ClearSpeakService:
         if not seeds:
             return _empty_answer_assembly("no_content_seed")
         attention_frame = infer_attention_frame(represented)
-        context = list(seeds)
+        rear_context = list(seeds[-6:])
+        answer_so_far: list[str] = []
+        forward_context: list[str] = []
         selected: list[dict[str, Any]] = []
         selected_anchors: set[str] = set()
         trace: list[dict[str, Any]] = []
         blocked = set(seeds)
 
         for step in range(max(1, int(limit or 6))):
-            pool = self._rank_count_candidates(
+            active_cloud = build_active_cloud_frame(
                 count_index,
-                context,
+                question_anchors=represented,
+                rear_context=rear_context,
+                answer_so_far=answer_so_far,
+                forward_context=forward_context,
                 blocked=blocked | selected_anchors,
                 attention_frame=attention_frame,
+                top_k=6,
             )
+            pool = active_cloud["candidates"]
             if not pool:
                 return {
-                    "schema_version": "clearspeak_dynamic_count_answer@1",
+                    "schema_version": "clearspeak_active_cloud_answer@1",
                     "seed_anchors": seeds,
                     "terms": selected,
                     "trace": trace,
                     "stop_reason": "no_supported_candidate" if selected else "no_candidate_pool",
                     "attention_frame": attention_frame,
+                    "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
                     "attention_math": attention_math_contract(),
                     "contract": _answer_assembly_contract(),
                 }
             winner = pool[0]
             selected.append({**winner, "selection_step": step + 1})
             selected_anchors.add(winner["anchor"])
-            before = context[-50:]
-            context.append(winner["anchor"])
-            context = context[-50:]
+            before_rear = list(rear_context)
+            before_answer = list(answer_so_far)
+            answer_so_far = answer_so_far[-49:] + [winner["anchor"]]
+            rear_context = (answer_so_far[-6:] + seeds)[-12:]
+            forward_context = _forward_context_from_count_index(count_index, winner["anchor"])
             trace.append({
                 "step": step + 1,
-                "context_before": before,
+                "chosen_anchor": winner["anchor"],
                 "selected_anchor": winner["anchor"],
+                "candidate_rank": winner.get("candidate_rank", 1),
+                "score": winner["score"],
                 "selection_score": winner["selection_score"],
+                "score_parts": winner.get("score_parts") or {},
+                "penalties": winner.get("penalties") or {},
                 "supporting_context": winner["supporting_context"],
-                "context_after": context,
+                "rear_context_before": before_rear,
+                "answer_so_far_before": before_answer,
+                "rear_context_after": rear_context,
+                "answer_so_far_after": answer_so_far,
+                "forward_context_after": forward_context,
+                "active_cloud": {
+                    "schema_version": active_cloud["schema_version"],
+                    "clouds": active_cloud["clouds"],
+                    "weights": active_cloud["weights"],
+                    "combined_cloud_formula": active_cloud["combined_cloud_formula"],
+                },
                 "candidate_preview": pool[:6],
+                "rejected_candidates": active_cloud.get("rejected_candidates") or [],
             })
 
         return {
-            "schema_version": "clearspeak_dynamic_count_answer@1",
+            "schema_version": "clearspeak_active_cloud_answer@1",
             "seed_anchors": seeds,
             "terms": selected,
             "trace": trace,
             "stop_reason": "answer_limit_reached",
             "attention_frame": attention_frame,
+            "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
             "attention_math": attention_math_contract(),
             "contract": _answer_assembly_contract(),
         }
@@ -248,6 +276,9 @@ def summarize_clearspeak_evidence(result: ClearSpeakResult | dict[str, Any]) -> 
 
 def _answer_assembly_contract() -> dict[str, bool]:
     return {
+        "active_cloud_answer_walk": True,
+        "question_rear_answer_forward_clouds": True,
+        "trace_explains_speech": True,
         "topk_is_walked_not_displayed": True,
         "selected_terms_reenter_context": True,
         "punctuation_cannot_speak": True,
@@ -258,14 +289,34 @@ def _answer_assembly_contract() -> dict[str, bool]:
     }
 
 
+def _forward_context_from_count_index(count_index: dict[str, Any], anchor: str, limit: int = 6) -> list[str]:
+    retrieved = retrieve_from_count_index(count_index, anchor, limit=limit)
+    rows: list[dict[str, Any]] = []
+    offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
+    for offset, items in offsets.items():
+        try:
+            numeric_offset = int(str(offset).replace("+", ""))
+        except ValueError:
+            continue
+        if numeric_offset <= 0:
+            continue
+        for item in items or []:
+            neighbor = str(item.get("anchor") or "").strip()
+            if neighbor and not any(row.get("anchor") == neighbor for row in rows):
+                rows.append({"anchor": neighbor, "observations": int(item.get("observations", 0) or 0)})
+    rows.sort(key=lambda row: (-int(row.get("observations", 0) or 0), str(row.get("anchor") or "")))
+    return [str(row["anchor"]) for row in rows[:limit]]
+
+
 def _empty_answer_assembly(reason: str) -> dict[str, Any]:
     return {
-        "schema_version": "clearspeak_dynamic_count_answer@1",
+        "schema_version": "clearspeak_active_cloud_answer@1",
         "seed_anchors": [],
         "terms": [],
         "trace": [],
         "stop_reason": reason,
         "attention_frame": infer_attention_frame([]),
+        "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
         "attention_math": attention_math_contract(),
         "contract": _answer_assembly_contract(),
     }

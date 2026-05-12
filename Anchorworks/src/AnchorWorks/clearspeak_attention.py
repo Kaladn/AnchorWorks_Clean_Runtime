@@ -8,6 +8,19 @@ ATTENTION_CONTRACT = "anchorworks_clearspeak_attention@1"
 ATTENTION_LAW = "Counts store weight; context clouds store neighborhood; attention chooses relevance."
 MULTI_CONTEXT_SUPPORT_BONUS = 8.0
 ROLE_SUPPORT_BONUS = 6.0
+ACTIVE_CLOUD_WEIGHTS = {
+    "question": 0.35,
+    "rear": 0.25,
+    "answer": 0.30,
+    "forward": 0.10,
+}
+ACTIVE_SCORE_WEIGHTS = {
+    "question_fit": 0.30,
+    "rear_fit": 0.25,
+    "answer_fit": 0.25,
+    "forward_fit": 0.15,
+    "source_support": 0.05,
+}
 
 
 _ANSWER_EXCLUSION_SET = {
@@ -161,6 +174,139 @@ def rank_attention_candidates(
     return ranked
 
 
+def build_active_cloud_frame(
+    count_index: dict[str, Any],
+    *,
+    question_anchors: list[str],
+    rear_context: list[str],
+    answer_so_far: list[str],
+    forward_context: list[str],
+    blocked: set[str] | None = None,
+    attention_frame: dict[str, Any] | None = None,
+    top_k: int = 6,
+    limit_per_anchor: int = 32,
+) -> dict[str, Any]:
+    """Build and score the active Q/R/A/F cloud for one answer step."""
+
+    frame = attention_frame or infer_attention_frame(question_anchors)
+    blocked_set = {str(anchor or "").strip().casefold() for anchor in (blocked or set())}
+    clouds = {
+        "question": _clean_list(question_anchors),
+        "rear": _clean_list(rear_context),
+        "answer": _clean_list(answer_so_far),
+        "forward": _clean_list(forward_context),
+    }
+    candidate_rows: dict[str, dict[str, Any]] = {}
+    rejected: dict[tuple[str, str], dict[str, Any]] = {}
+
+    for cloud_name, anchors in clouds.items():
+        for root in anchors:
+            retrieved = retrieve_from_count_index(count_index, root, limit=limit_per_anchor)
+            offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
+            for offset, rows in offsets.items():
+                distance = offset_distance(str(offset))
+                position_strength = 1.0 / max(distance, 1)
+                for row in rows or []:
+                    anchor = str(row.get("anchor") or "").strip().casefold()
+                    observations = int(row.get("observations", 0) or 0)
+                    if not anchor or observations <= 0:
+                        continue
+                    gate_reason = _candidate_gate_reason(anchor, blocked_set)
+                    if gate_reason:
+                        rejected.setdefault((anchor, gate_reason), {
+                            "anchor": anchor,
+                            "reason": gate_reason,
+                            "supporting_cloud": cloud_name,
+                            "supporting_anchor": root,
+                        })
+                        continue
+                    current = candidate_rows.setdefault(anchor, {
+                        "anchor": anchor,
+                        "raw_observations": 0,
+                        "weighted_observations": 0.0,
+                        "cloud_support": {
+                            "question": set(),
+                            "rear": set(),
+                            "answer": set(),
+                            "forward": set(),
+                        },
+                        "support_offsets": set(),
+                    })
+                    current["raw_observations"] += observations
+                    current["weighted_observations"] += observations * position_strength * ACTIVE_CLOUD_WEIGHTS[cloud_name]
+                    current["cloud_support"][cloud_name].add(root)
+                    current["support_offsets"].add(str(offset))
+
+    candidates: list[dict[str, Any]] = []
+    for anchor, row in candidate_rows.items():
+        score_parts = {
+            "question_fit": _support_fit(row["cloud_support"]["question"], clouds["question"]),
+            "rear_fit": _support_fit(row["cloud_support"]["rear"], clouds["rear"]),
+            "answer_fit": _support_fit(row["cloud_support"]["answer"], clouds["answer"]),
+            "forward_fit": _support_fit(row["cloud_support"]["forward"], clouds["forward"]),
+            "source_support": min(1.0, float(row["raw_observations"]) / 10.0),
+        }
+        penalties = _candidate_penalties(anchor, row, clouds)
+        score = (
+            ACTIVE_SCORE_WEIGHTS["question_fit"] * score_parts["question_fit"]
+            + ACTIVE_SCORE_WEIGHTS["rear_fit"] * score_parts["rear_fit"]
+            + ACTIVE_SCORE_WEIGHTS["answer_fit"] * score_parts["answer_fit"]
+            + ACTIVE_SCORE_WEIGHTS["forward_fit"] * score_parts["forward_fit"]
+            + ACTIVE_SCORE_WEIGHTS["source_support"] * score_parts["source_support"]
+            + min(0.25, float(row["weighted_observations"]) / 100.0)
+            - penalties["total"]
+        )
+        supporting_context = _ordered_supporting_context(row["cloud_support"], clouds)
+        role_fit = _role_fit(frame, supporting_context)
+        score += min(0.10, float(role_fit["score"]) / 100.0)
+        candidates.append({
+            "anchor": anchor,
+            "score": round(score, 6),
+            "selection_score": round(score, 6),
+            "score_parts": {key: round(value, 6) for key, value in score_parts.items()},
+            "penalties": penalties,
+            "raw_observations": int(row["raw_observations"]),
+            "weighted_observations": round(float(row["weighted_observations"]), 6),
+            "supporting_context": supporting_context,
+            "cloud_support": {key: sorted(value) for key, value in row["cloud_support"].items()},
+            "support_offsets": sorted(row["support_offsets"], key=offset_sort_key),
+            "role_fit": role_fit,
+            "source_support": {
+                "kind": "lifetime_anchor_counts",
+                "score": round(score_parts["source_support"], 6),
+                "evidence_required_for_claim": True,
+            },
+            "answer_health": {
+                "status": "supported",
+                "reason": "candidate_supported_by_active_cloud",
+            },
+            "attention_math": attention_math_contract(),
+            "frame_type": frame["frame_type"],
+            "why_chosen": [
+                "candidate_in_active_cloud",
+                "Q/R/A/F_score_parts",
+                "gates_passed_before_score",
+                "path_trace_required",
+            ],
+        })
+
+    candidates.sort(key=lambda item: (-float(item["score"]), -int(item["raw_observations"]), str(item["anchor"])))
+    for index, row in enumerate(candidates, start=1):
+        row["candidate_rank"] = index
+    return {
+        "schema_version": "anchorworks_active_cloud_frame@1",
+        "combined_cloud_formula": "C_t = wq Q + wr R + wa A_t + wf F_t",
+        "weights": dict(ACTIVE_CLOUD_WEIGHTS),
+        "score_weights": dict(ACTIVE_SCORE_WEIGHTS),
+        "clouds": clouds,
+        "attention_frame": frame,
+        "candidates": candidates[: max(1, int(top_k or 6))],
+        "candidate_count": len(candidates),
+        "rejected_candidates": sorted(rejected.values(), key=lambda item: (item["reason"], item["anchor"])),
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
 def attention_math_contract() -> dict[str, Any]:
     return {
         "schema_version": ATTENTION_CONTRACT,
@@ -171,6 +317,9 @@ def attention_math_contract() -> dict[str, Any]:
         "position_strength": "1 / absolute_offset_distance",
         "candidate_score": "sum(observations * position_strength) + supporting_context_count * 8",
         "role_aware_candidate_score": "base_candidate_score + role_fit_score",
+        "active_cloud_formula": "C_t = wq Q + wr R + wa A_t + wf F_t",
+        "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
+        "active_candidate_score": "0.30*question_fit + 0.25*rear_fit + 0.25*answer_fit + 0.15*forward_fit + 0.05*source_support - penalties",
         "selected_anchor_reenters_context": True,
         "counts_create_truth": False,
         "clouds_cite_proof": False,
@@ -276,6 +425,66 @@ def blocked_answer_anchor(anchor: str) -> bool:
     if len(clean) == 1 and not clean.isalnum():
         return True
     return bool(clean) and all(char.isdigit() for char in clean)
+
+
+def _clean_list(anchors: list[str]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for anchor in anchors:
+        clean = str(anchor or "").strip().casefold()
+        if not clean or clean in seen:
+            continue
+        seen.add(clean)
+        out.append(clean)
+    return out
+
+
+def _candidate_gate_reason(anchor: str, blocked: set[str]) -> str:
+    clean = str(anchor or "").strip().casefold()
+    if clean in blocked:
+        return "query_echo"
+    if clean in _ANSWER_EXCLUSION_SET:
+        return "glue_as_content"
+    if len(clean) == 1 and not clean.isalnum():
+        return "punctuation_as_content"
+    if clean and all(char.isdigit() for char in clean):
+        return "number_as_content"
+    return ""
+
+
+def _support_fit(supporting: set[str], cloud: list[str]) -> float:
+    if not cloud:
+        return 0.0
+    return min(1.0, len(set(supporting)) / max(1, len(set(cloud))))
+
+
+def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, list[str]]) -> dict[str, float]:
+    penalties = {
+        "glue_as_content_penalty": 0.0,
+        "unsupported_jump_penalty": 0.0,
+        "repetition_penalty": 0.0,
+        "contradiction_penalty": 0.0,
+        "source_mismatch_penalty": 0.0,
+        "query_echo_penalty": 0.0,
+    }
+    if anchor in set(clouds["question"]):
+        penalties["query_echo_penalty"] = 0.50
+    if clouds["answer"] and anchor in set(clouds["answer"]):
+        penalties["repetition_penalty"] = 0.75
+    if not row["cloud_support"]["question"] and not row["cloud_support"]["answer"]:
+        penalties["unsupported_jump_penalty"] = 0.20
+    penalties["total"] = round(sum(penalties.values()), 6)
+    return penalties
+
+
+def _ordered_supporting_context(cloud_support: dict[str, set[str]], clouds: dict[str, list[str]]) -> list[str]:
+    ordered: list[str] = []
+    for cloud_name in ("question", "rear", "answer", "forward"):
+        support = cloud_support.get(cloud_name) or set()
+        for anchor in clouds.get(cloud_name) or []:
+            if anchor in support and anchor not in ordered:
+                ordered.append(anchor)
+    return ordered
 
 
 def retrieve_from_count_index(count_index: dict[str, Any], anchor: str, limit: int = 25) -> dict[str, Any]:
