@@ -21,6 +21,7 @@ from AnchorWorks.local_meta_overlay import (
     query_local_overlay_cloud,
     score_candidate,
 )
+from AnchorWorks.phrase_lexicon import PhraseLexiconStore
 from AnchorWorks.store import LexiconStore
 from AnchorWorks.symbol_count_cells import CANONICAL_LANE, SymbolRelation, write_symbol_cell
 from AnchorWorks.symbolic_map_binary import (
@@ -1287,6 +1288,47 @@ class MappingTests(unittest.TestCase):
 
         self.assertEqual(score["weights"], {"local": 0.45, "global": 0.25, "role": 0.2, "source_locator": 0.1})
         self.assertAlmostEqual(score["score"], 0.56)
+
+    def test_phrase_lexicon_is_external_and_rebuilds_anchor_phrase_refs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, entries in {
+                "N": [{"word": "newton", "hex": "0x0000000001", "status": "ASSIGNED", "tone_signature": "TONE_N"}],
+                "L": [{"word": "laws", "hex": "0x0000000002", "status": "ASSIGNED", "tone_signature": "TONE_L"}],
+                "O": [{"word": "of", "hex": "0x0000000003", "status": "ASSIGNED", "tone_signature": "TONE_O"}],
+                "M": [{"word": "motion", "hex": "0x0000000004", "status": "ASSIGNED", "tone_signature": "TONE_M"}],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", entries)
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(2))
+            _write_json(root / "Structural" / "structural.json", [])
+
+            store = LexiconStore(root)
+            phrase_store = PhraseLexiconStore(root, store)
+            phrase = phrase_store.assign_phrase(
+                "newton laws of motion",
+                phrase_type="concept",
+                join_role_by_anchor={
+                    "newton": "field_specifier",
+                    "laws": "phrase_head",
+                    "of": "director",
+                    "motion": "field_object",
+                },
+            )
+            memberships = phrase_store.phrase_memberships_for_anchor("laws")
+
+            self.assertEqual(phrase["schema_version"], "anchorworks_phrase_lexicon@1")
+            self.assertEqual(phrase["pack"], "phrase")
+            self.assertEqual(phrase["status"], "ASSIGNED")
+            self.assertEqual(phrase["anchor_sequence"], ["newton", "laws", "of", "motion"])
+            self.assertEqual(phrase["symbol_sequence"], ["0x0000000001", "0x0000000002", "0x0000000003", "0x0000000004"])
+            self.assertEqual(memberships[0]["hex"], phrase["hex"])
+            self.assertEqual(memberships[0]["role"], "phrase_head")
+            laws_entry = store._find_entry("laws")[0]
+            self.assertEqual(laws_entry["status"], "ASSIGNED")
+            self.assertEqual(laws_entry["tone_signature"], "TONE_L")
+            self.assertNotIn("phrase_refs", laws_entry)
 
     def test_chat_documents_mode_uses_document_passages_and_line_citations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
