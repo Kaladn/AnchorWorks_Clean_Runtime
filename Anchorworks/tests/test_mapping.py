@@ -10,7 +10,7 @@ from pathlib import Path
 from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app, _default_data_root
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
-from AnchorWorks.clearspeak_attention import build_active_cloud_frame, infer_attention_frame, rank_attention_candidates
+from AnchorWorks.clearspeak_attention import build_active_cloud_frame, choose_candidate_with_lookahead, infer_attention_frame, rank_attention_candidates
 from AnchorWorks.clearspeak import ClearSpeakService
 from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
@@ -389,6 +389,47 @@ class MappingTests(unittest.TestCase):
         self.assertGreater(active["candidates"][0]["score"], active["candidates"][1]["score"])
         self.assertTrue(any(row["anchor"] == "the" and row["reason"] == "glue_as_content" for row in active["rejected_candidates"]))
 
+    def test_clearspeak_lookahead_rejects_anomalous_future_shape(self) -> None:
+        count_index = {
+            "by_anchor": {
+                "seed": {
+                    "+1": Counter({"loud": 10, "healthy": 4}),
+                    "+2": Counter({"loud": 8}),
+                },
+                "loud": {
+                    "+1": Counter({"of": 12, "__NULL__": 9}),
+                    "+2": Counter({"the": 8}),
+                },
+                "healthy": {
+                    "+1": Counter({"pan": 5, "surface": 4}),
+                    "+2": Counter({"heat": 3}),
+                },
+            }
+        }
+        active = build_active_cloud_frame(
+            count_index,
+            question_anchors=["how", "seed"],
+            rear_context=["seed"],
+            answer_so_far=[],
+            forward_context=[],
+            blocked={"seed"},
+            attention_frame=infer_attention_frame(["how", "seed"]),
+            top_k=6,
+        )
+
+        decision = choose_candidate_with_lookahead(
+            count_index,
+            active["candidates"],
+            seed_anchors=["seed"],
+            blocked={"seed"},
+            lookahead_k=3,
+        )
+
+        self.assertEqual(decision["chosen"]["anchor"], "healthy")
+        by_anchor = {row["anchor"]: row for row in decision["candidates"]}
+        self.assertEqual(by_anchor["loud"]["pattern_health"], "anomalous")
+        self.assertEqual(by_anchor["healthy"]["pattern_health"], "healthy")
+
     def test_clearspeak_answer_assembly_exposes_attention_frame(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
@@ -411,6 +452,8 @@ class MappingTests(unittest.TestCase):
                     {"anchor": "sear", "offset": "+1", "neighbor": "pan", "observations": 7},
                     {"anchor": "meat", "offset": "+1", "neighbor": "pan", "observations": 6},
                     {"anchor": "sear", "offset": "+2", "neighbor": "heat", "observations": 5},
+                    {"anchor": "pan", "offset": "+1", "neighbor": "heat", "observations": 4},
+                    {"anchor": "pan", "offset": "+2", "neighbor": "surface", "observations": 3},
                 ],
                 observed_counts=Counter({"sear": 1, "meat": 1, "pan": 1, "heat": 1}),
             )
@@ -424,6 +467,8 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.answer_assembly["active_cloud_weights"], {"question": 0.35, "rear": 0.25, "answer": 0.3, "forward": 0.1})
             self.assertEqual(result.answer_assembly["trace"][0]["chosen_anchor"], "pan")
             self.assertIn("question_fit", result.answer_assembly["trace"][0]["score_parts"])
+            self.assertEqual(result.answer_assembly["trace"][0]["lookahead_decision"]["chosen"]["anchor"], "pan")
+            self.assertEqual(result.answer_assembly["trace"][0]["lookahead_decision"]["chosen"]["pattern_health"], "healthy")
             self.assertIn("rejected_candidates", result.answer_assembly["trace"][0])
             self.assertEqual(result.answer_assembly["attention_frame"]["role_by_anchor"]["meat"], "object_candidate")
             self.assertEqual(result.answer_assembly["terms"][0]["anchor"], "pan")

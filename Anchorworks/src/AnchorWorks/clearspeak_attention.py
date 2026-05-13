@@ -307,6 +307,131 @@ def build_active_cloud_frame(
     }
 
 
+def choose_candidate_with_lookahead(
+    count_index: dict[str, Any],
+    candidates: list[dict[str, Any]],
+    *,
+    seed_anchors: list[str],
+    blocked: set[str] | None = None,
+    lookahead_k: int = 6,
+    min_future_content: int = 2,
+    max_future_glue_ratio: float = 0.50,
+    max_future_null_ratio: float = 0.25,
+) -> dict[str, Any]:
+    """Choose a candidate only after checking whether its future still has shape."""
+
+    blocked_set = {str(anchor or "").strip().casefold() for anchor in (blocked or set())}
+    seed_set = {str(anchor or "").strip().casefold() for anchor in seed_anchors if str(anchor or "").strip()}
+    scored: list[dict[str, Any]] = []
+    for row in candidates:
+        anchor = str(row.get("anchor") or "").strip().casefold()
+        future = _lookahead_health(
+            count_index,
+            anchor,
+            seed_set=seed_set,
+            blocked=blocked_set | {anchor},
+            lookahead_k=lookahead_k,
+            min_future_content=min_future_content,
+            max_future_glue_ratio=max_future_glue_ratio,
+            max_future_null_ratio=max_future_null_ratio,
+        )
+        current_score = float(row.get("score", row.get("selection_score", 0.0)) or 0.0)
+        anomaly_penalty = 0.55 if future["pattern_health"] == "anomalous" else 0.0
+        scored.append({
+            **row,
+            "current_score": round(current_score, 6),
+            "lookahead_score": future["lookahead_score"],
+            "final_score": round(current_score + float(future["lookahead_score"]) - anomaly_penalty, 6),
+            "anomaly_penalty": anomaly_penalty,
+            **future,
+        })
+    scored.sort(key=lambda item: (-float(item["final_score"]), int(item.get("candidate_rank", 9999)), str(item.get("anchor") or "")))
+    chosen = next((row for row in scored if row.get("pattern_health") == "healthy"), scored[0] if scored else {})
+    return {
+        "schema_version": "clearspeak_topk_lookahead@1",
+        "chosen": chosen,
+        "candidates": scored,
+        "lookahead": {
+            "lookahead_k": lookahead_k,
+            "min_future_content": min_future_content,
+            "max_future_glue_ratio": max_future_glue_ratio,
+            "max_future_null_ratio": max_future_null_ratio,
+        },
+        "law": "A top-K anchor is chosen only if its future still has shape; fallback preserves current top-K when no healthy future exists.",
+    }
+
+
+def _lookahead_health(
+    count_index: dict[str, Any],
+    anchor: str,
+    *,
+    seed_set: set[str],
+    blocked: set[str],
+    lookahead_k: int,
+    min_future_content: int,
+    max_future_glue_ratio: float,
+    max_future_null_ratio: float,
+) -> dict[str, Any]:
+    retrieved = retrieve_from_count_index(count_index, anchor, limit=max(lookahead_k * 4, 8))
+    offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
+    future_counts: Counter[str] = Counter()
+    total = 0
+    glue_total = 0
+    null_total = 0
+    for _offset, rows in offsets.items():
+        for item in rows or []:
+            neighbor = str(item.get("anchor") or "").strip().casefold()
+            observations = int(item.get("observations", 0) or 0)
+            if not neighbor or observations <= 0:
+                continue
+            total += observations
+            if neighbor == "__null__":
+                null_total += observations
+                continue
+            if blocked_answer_anchor(neighbor):
+                glue_total += observations
+                continue
+            if neighbor in blocked:
+                continue
+            future_counts[neighbor] += observations
+    if total <= 0:
+        return {
+            "future_cloud": [],
+            "future_content_count": 0,
+            "future_glue_ratio": 1.0,
+            "future_null_ratio": 1.0,
+            "backlink_support": 0,
+            "lookahead_score": -1.0,
+            "pattern_health": "anomalous",
+            "rejected_reason": "future_cloud_empty",
+        }
+    future_rows = [
+        anchor_name
+        for anchor_name, _count in sorted(future_counts.items(), key=lambda item: (-item[1], item[0]))[:lookahead_k]
+    ]
+    non_seed_content = [item for item in future_rows if item not in seed_set]
+    backlink_support = sum(1 for item in future_counts if item in seed_set)
+    glue_ratio = glue_total / total
+    null_ratio = null_total / total
+    content_count = len(non_seed_content)
+    anomalous = (
+        content_count < min_future_content
+        or glue_ratio > max_future_glue_ratio
+        or null_ratio > max_future_null_ratio
+    )
+    lookahead_score = (content_count / max(1, lookahead_k)) + (0.12 * backlink_support) - (0.6 * glue_ratio) - (0.8 * null_ratio)
+    return {
+        "future_cloud": future_rows,
+        "future_content_count": content_count,
+        "future_glue_ratio": round(glue_ratio, 6),
+        "future_null_ratio": round(null_ratio, 6),
+        "backlink_support": backlink_support,
+        "lookahead_score": round(lookahead_score, 6),
+        "pattern_health": "anomalous" if anomalous else "healthy",
+        "rejected_reason": "future_cloud_null_or_glue_heavy" if anomalous else "",
+    }
+
+
 def attention_math_contract() -> dict[str, Any]:
     return {
         "schema_version": ATTENTION_CONTRACT,

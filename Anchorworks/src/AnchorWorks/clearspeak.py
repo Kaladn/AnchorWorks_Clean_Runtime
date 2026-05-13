@@ -9,6 +9,7 @@ from .clearspeak_attention import (
     ACTIVE_CLOUD_WEIGHTS,
     attention_math_contract,
     build_active_cloud_frame,
+    choose_candidate_with_lookahead,
     content_anchors,
     infer_attention_frame,
     rank_attention_candidates,
@@ -201,7 +202,14 @@ class ClearSpeakService:
                     "attention_math": attention_math_contract(),
                     "contract": _answer_assembly_contract(),
                 }
-            winner = pool[0]
+            lookahead_decision = choose_candidate_with_lookahead(
+                count_index,
+                pool,
+                seed_anchors=seeds,
+                blocked=blocked | selected_anchors,
+                lookahead_k=6,
+            )
+            winner = lookahead_decision.get("chosen") or pool[0]
             selected.append({**winner, "selection_step": step + 1})
             selected_anchors.add(winner["anchor"])
             before_rear = list(rear_context)
@@ -224,6 +232,7 @@ class ClearSpeakService:
                 "rear_context_after": rear_context,
                 "answer_so_far_after": answer_so_far,
                 "forward_context_after": forward_context,
+                "lookahead_decision": lookahead_decision,
                 "active_cloud": {
                     "schema_version": active_cloud["schema_version"],
                     "clouds": active_cloud["clouds"],
@@ -285,6 +294,7 @@ def _answer_assembly_contract() -> dict[str, bool]:
         "numbers_cannot_speak": True,
         "query_echoes_cannot_speak": True,
         "counts_only_no_document_claims": True,
+        "topk_lookahead_future_shape": True,
         "memory_writes": False,
     }
 
