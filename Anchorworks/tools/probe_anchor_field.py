@@ -6,7 +6,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-from AnchorWorks.anchor_field import build_anchor_field_from_observed_map, skim_three_level_cloud
+from AnchorWorks.anchor_field import build_anchor_field_from_observed_map, build_query_frame, choose_topk_with_lookahead, skim_three_level_cloud
 
 
 def choose_seed(field) -> str:
@@ -29,7 +29,9 @@ def main() -> int:
     observed_map = json.loads(map_path.read_text(encoding="utf-8"))
     field = build_anchor_field_from_observed_map(observed_map)
     seed = choose_seed(field)
-    cloud = skim_three_level_cloud(field, [seed], max_level_width=6, null_stop_ratio=0.6)
+    frame = build_query_frame(["how", seed])
+    cloud = skim_three_level_cloud(field, frame["content_seeds"], query_frame=frame, max_level_width=6, null_stop_ratio=0.6)
+    decision = choose_topk_with_lookahead(field, frame["content_seeds"], query_frame=frame, top_k=6, lookahead_k=6)
     report = {
         "schema_version": "anchorworks_anchor_field_probe@1",
         "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -38,12 +40,20 @@ def main() -> int:
         "anchor_count": field.anchor_count,
         "seed": seed,
         "cloud": cloud,
+        "lookahead_decision": decision,
     }
     output_dir = Path("reports") / "anchor_field"
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"anchor_field_probe_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
     output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print(json.dumps({"report_path": str(output_path), "seed": seed, "anchor_count": field.anchor_count, "shape": cloud["shape"], "stop_reason": cloud["stop_reason"]}, indent=2))
+    print(json.dumps({
+        "report_path": str(output_path),
+        "seed": seed,
+        "anchor_count": field.anchor_count,
+        "shape": cloud["shape"],
+        "stop_reason": cloud["stop_reason"],
+        "chosen": decision.get("chosen", {}),
+    }, indent=2))
     return 0
 
 

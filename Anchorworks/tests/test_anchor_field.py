@@ -6,6 +6,7 @@ from AnchorWorks.anchor_field import (
     AnchorField,
     build_anchor_field_from_observed_map,
     build_query_frame,
+    choose_topk_with_lookahead,
     skim_three_level_cloud,
 )
 
@@ -90,6 +91,55 @@ class AnchorFieldTests(unittest.TestCase):
         self.assertNotIn("the", cloud["levels"]["2"])
         self.assertIn("with", cloud["blocked_as_content"])
         self.assertEqual(cloud["query_frame"]["frame"], "method_question")
+
+    def test_lookahead_rejects_loud_candidate_with_anomalous_future(self) -> None:
+        field = AnchorField(
+            source_name="toy",
+            window_radius=2,
+            stream=[
+                "seed",
+                "loud",
+                "meat",
+                "seed",
+                "loud",
+                "__NULL__",
+                "seed",
+                "healthy",
+                "pan",
+                "surface",
+                "heat",
+            ],
+            positions=[
+                {"paragraph_id": 0, "position": index, "anchor": anchor}
+                for index, anchor in enumerate([
+                    "seed",
+                    "loud",
+                    "meat",
+                    "seed",
+                    "loud",
+                    "__NULL__",
+                    "seed",
+                    "healthy",
+                    "pan",
+                    "surface",
+                    "heat",
+                ])
+            ],
+        )
+        frame = build_query_frame(["how", "seed"])
+        decision = choose_topk_with_lookahead(
+            field,
+            ["seed"],
+            query_frame=frame,
+            top_k=6,
+            lookahead_k=3,
+            max_future_null_ratio=0.3,
+        )
+        self.assertNotEqual(decision["chosen"]["anchor"], "loud")
+        self.assertEqual(decision["chosen"]["pattern_health"], "healthy")
+        rejected = {row["anchor"]: row for row in decision["candidates"]}
+        self.assertEqual(rejected["loud"]["pattern_health"], "anomalous")
+        self.assertGreater(rejected["healthy"]["lookahead_score"], rejected["loud"]["lookahead_score"])
 
 
 if __name__ == "__main__":

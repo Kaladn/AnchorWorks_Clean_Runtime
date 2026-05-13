@@ -17,7 +17,7 @@ RELATION_GLUE = {"of", "to", "for", "with", "from", "in", "on", "by", "as", "at"
 ARTICLE_GLUE = {"the", "a", "an"}
 PRONOUN_ROLE = {"i": "speaker_subject", "me": "speaker_object", "you": "user_target", "we": "speaker_group", "it": "reference_subject", "they": "reference_group"}
 PUNCTUATION = {".", ",", "?", "!", ":", ";", "(", ")", "[", "]", "{", "}", "\"", "'", "-", "/", "\\"}
-CONTENT_BLOCKED_ANCHORS = AUXILIARY_GLUE | RELATION_GLUE | ARTICLE_GLUE | PUNCTUATION | set(QUESTION_DIRECTORS)
+CONTENT_BLOCKED_ANCHORS = AUXILIARY_GLUE | RELATION_GLUE | ARTICLE_GLUE | PUNCTUATION | set(QUESTION_DIRECTORS) | {"__NULL__"}
 
 
 @dataclass(frozen=True)
@@ -139,6 +139,141 @@ def _shape_summary(levels: dict[str, list[str]]) -> dict[str, Any]:
     }
 
 
+def _candidate_counter(
+    field: AnchorField,
+    anchors: list[str],
+    blocked: set[str],
+    content_blocked: set[str],
+) -> tuple[Counter[str], set[str]]:
+    combined: Counter[str] = Counter()
+    blocked_as_content: set[str] = set()
+    for anchor in anchors:
+        neighbors = field.neighbors_for(anchor)
+        combined.update(neighbors)
+    for anchor in list(combined):
+        if anchor in blocked:
+            del combined[anchor]
+            continue
+        if anchor in content_blocked:
+            blocked_as_content.add(anchor)
+            del combined[anchor]
+    return combined, blocked_as_content
+
+
+def _future_health(
+    field: AnchorField,
+    candidate: str,
+    *,
+    seed_set: set[str],
+    content_blocked: set[str],
+    lookahead_k: int,
+    min_future_content: int,
+    max_future_glue_ratio: float,
+    max_future_null_ratio: float,
+) -> dict[str, Any]:
+    future_raw = field.neighbors_for(candidate)
+    total = sum(future_raw.values())
+    if total <= 0:
+        return {
+            "future_cloud": [],
+            "lookahead_score": -1.0,
+            "future_content_count": 0,
+            "future_glue_ratio": 1.0,
+            "future_null_ratio": 1.0,
+            "pattern_health": "anomalous",
+            "rejected_reason": "future_cloud_empty",
+        }
+    future_glue = sum(count for anchor, count in future_raw.items() if anchor in content_blocked)
+    future_null = sum(count for anchor, count in future_raw.items() if anchor == "__NULL__")
+    future_counter = Counter({anchor: count for anchor, count in future_raw.items() if anchor not in content_blocked})
+    future_rows = _top(future_counter, lookahead_k, {candidate}, set())[0]
+    future_non_seed_rows = [anchor for anchor in future_rows if anchor not in seed_set]
+    backlink_support = sum(1 for anchor in future_raw if anchor in seed_set)
+    glue_ratio = future_glue / total if total else 1.0
+    null_ratio = future_null / total if total else 1.0
+    content_count = len(future_non_seed_rows)
+    anomalous = (
+        content_count < min_future_content
+        or glue_ratio > max_future_glue_ratio
+        or null_ratio > max_future_null_ratio
+    )
+    lookahead_score = (content_count / max(1, lookahead_k)) + (0.12 * backlink_support) - (0.6 * glue_ratio) - (0.8 * null_ratio)
+    return {
+        "future_cloud": future_rows,
+        "lookahead_score": round(lookahead_score, 4),
+        "future_content_count": content_count,
+        "future_glue_ratio": round(glue_ratio, 4),
+        "future_null_ratio": round(null_ratio, 4),
+        "backlink_support": backlink_support,
+        "pattern_health": "anomalous" if anomalous else "healthy",
+        "rejected_reason": "future_cloud_null_or_glue_heavy" if anomalous else "",
+    }
+
+
+def choose_topk_with_lookahead(
+    field: AnchorField,
+    seed_anchors: list[str],
+    *,
+    query_frame: dict[str, Any] | None = None,
+    top_k: int = 6,
+    lookahead_k: int = 6,
+    min_future_content: int = 2,
+    max_future_glue_ratio: float = 0.45,
+    max_future_null_ratio: float = 0.2,
+) -> dict[str, Any]:
+    seeds = [anchor for anchor in dict.fromkeys(str(anchor).strip() for anchor in seed_anchors) if anchor]
+    content_blocked = set(CONTENT_BLOCKED_ANCHORS)
+    if query_frame:
+        content_blocked.update(str(anchor) for anchor in query_frame.get("content_blocked_anchors") or [])
+    current_counter, blocked_as_content = _candidate_counter(field, seeds, set(seeds), content_blocked)
+    current_total = max(1, max(current_counter.values()) if current_counter else 1)
+    current_rows = current_counter.most_common(top_k * 3)
+    candidates: list[dict[str, Any]] = []
+    for rank, (anchor, count) in enumerate(current_rows, start=1):
+        future = _future_health(
+            field,
+            anchor,
+            seed_set=set(seeds),
+            content_blocked=content_blocked,
+            lookahead_k=lookahead_k,
+            min_future_content=min_future_content,
+            max_future_glue_ratio=max_future_glue_ratio,
+            max_future_null_ratio=max_future_null_ratio,
+        )
+        current_score = count / current_total
+        anomaly_penalty = 0.55 if future["pattern_health"] == "anomalous" else 0.0
+        final_score = current_score + float(future["lookahead_score"]) - anomaly_penalty
+        candidates.append(
+            {
+                "anchor": anchor,
+                "rank": rank,
+                "current_count": int(count),
+                "current_score": round(current_score, 4),
+                "final_score": round(final_score, 4),
+                "anomaly_penalty": anomaly_penalty,
+                **future,
+            }
+        )
+    candidates.sort(key=lambda row: (-float(row["final_score"]), int(row["rank"]), str(row["anchor"])))
+    chosen = next((row for row in candidates if row["pattern_health"] == "healthy"), candidates[0] if candidates else {})
+    return {
+        "schema_version": "anchorworks_anchor_topk_lookahead@1",
+        "seed_anchors": seeds,
+        "query_frame": query_frame or {},
+        "chosen": chosen,
+        "candidates": candidates[:top_k],
+        "blocked_as_content": sorted(blocked_as_content),
+        "lookahead": {
+            "top_k": top_k,
+            "lookahead_k": lookahead_k,
+            "min_future_content": min_future_content,
+            "max_future_glue_ratio": max_future_glue_ratio,
+            "max_future_null_ratio": max_future_null_ratio,
+        },
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
 def skim_three_level_cloud(
     field: AnchorField,
     seed_anchors: list[str],
@@ -164,6 +299,13 @@ def skim_three_level_cloud(
             combined.update(neighbors)
             for neighbor, count in neighbors.items():
                 support.setdefault(neighbor, {})[anchor] = int(count)
+        raw_total = sum(combined.values())
+        raw_null_ratio = (combined.get("__NULL__", 0) / raw_total) if raw_total else 0.0
+        if level == "1" and raw_total and raw_null_ratio >= null_stop_ratio:
+            level_rows[level] = ["__NULL__"] if "__NULL__" in combined else []
+            blocked_as_content.add("__NULL__")
+            stop_reason = "null_heavy_surface"
+            break
         selected, blocked_here = _top(combined, max_level_width, blocked, content_blocked)
         blocked_as_content.update(blocked_here)
         level_rows[level] = selected
