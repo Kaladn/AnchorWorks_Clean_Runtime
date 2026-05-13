@@ -16,6 +16,7 @@ from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
 from AnchorWorks.intake import NULL_ANCHOR, build_anchor_map, compose_anchor_stream, extract_anchor_rows, extract_anchors
 from AnchorWorks.store import LexiconStore
+from AnchorWorks.symbol_count_cells import CANONICAL_LANE, SymbolRelation, write_symbol_cell
 from AnchorWorks.symbolic_map_binary import (
     read_symbolic_map_binary,
     read_symbolic_map_locator_sidecar,
@@ -513,6 +514,41 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.evidence[0]["anchor"], "sear")
             self.assertEqual(result.evidence[0]["neighbors"][0], {"anchor": "pan", "observations": 7})
             self.assertEqual(result.answer_assembly["terms"][0]["anchor"], "pan")
+
+    def test_clearspeak_reads_awsc_binary_cells_as_count_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "hex": "0x0000000001", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "hex": "0x0000000002", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_G.json", [{"word": "gamma", "hex": "0x0000000003", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "delta", "hex": "0x0000000004", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [])
+            store = LexiconStore(root)
+            write_symbol_cell(
+                store.symbol_counts_binary_dir / "cells" / "00" / "0000000001.cell",
+                symbol="0x0000000001",
+                root_lane=CANONICAL_LANE,
+                relations=[SymbolRelation(offset=1, neighbor_symbol="0x0000000002", count=9)],
+            )
+            write_symbol_cell(
+                store.symbol_counts_binary_dir / "cells" / "00" / "0000000002.cell",
+                symbol="0x0000000002",
+                root_lane=CANONICAL_LANE,
+                relations=[
+                    SymbolRelation(offset=1, neighbor_symbol="0x0000000003", count=6),
+                    SymbolRelation(offset=2, neighbor_symbol="0x0000000004", count=5),
+                ],
+            )
+
+            result = ClearSpeakService(store).query("alpha", limit=3)
+
+            self.assertEqual(result.speech, "beta gamma delta")
+            self.assertEqual(result.evidence[0]["anchor"], "alpha")
+            self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
+            self.assertEqual(result.answer_assembly["trace"][0]["lookahead_decision"]["chosen"]["pattern_health"], "healthy")
 
     def test_anchor_rows_preserve_surface_and_fused_boundaries(self) -> None:
         fused_rows = extract_anchor_rows("state-of-the-art")
@@ -1180,8 +1216,9 @@ class MappingTests(unittest.TestCase):
             assistant = history["messages"][-1]
 
             self.assertEqual(result.mode, "documents")
-            self.assertIn("The source document supports", result.response)
-            self.assertIn("block 1, line 3", result.response)
+            self.assertEqual(result.response, "requires shielding grounding")
+            self.assertIn("The source document supports", result.clearspeak["response"])
+            self.assertIn("block 1, line 3", result.clearspeak["response"])
             self.assertEqual(assistant["model_identity"]["evidence_mode"], "documents")
             self.assertEqual(assistant["model_identity"]["evidence_engine"], "document_answer_assembler")
             self.assertEqual(result.citations[0]["citation_type"], "source_locator")
@@ -1219,8 +1256,9 @@ class MappingTests(unittest.TestCase):
             chat = ChatMemorySystem(root, ClearSpeakService(store))
             result = chat.send("emp defense", mode="documents", branch="main")
 
-            self.assertIn("block 1, line 3", result.response)
-            self.assertIn("figure vis_emp_graph", result.response)
+            self.assertEqual(result.response, "requires shielding grounding")
+            self.assertIn("block 1, line 3", result.clearspeak["response"])
+            self.assertIn("figure vis_emp_graph", result.clearspeak["response"])
             self.assertEqual(result.evidence["runtime_source"], "flat_symbolic_documents")
             self.assertEqual(result.citations[0]["source"], "flat_symbolic_document")
 

@@ -304,7 +304,6 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents", "auto"}:
             document_result = chat_memory.document_answer.answer(body.query, limit=body.limit).to_dict()
             if document_result.get("ok"):
-                document_result["speech"] = document_result["response"]
                 return document_result
             if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents"}:
                 represented = document_result.get("represented_anchors") or []

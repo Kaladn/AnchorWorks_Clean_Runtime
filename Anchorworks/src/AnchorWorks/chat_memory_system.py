@@ -191,7 +191,7 @@ class ChatMemorySystem:
             document_payload = document_result.to_dict()
             if document_result.ok:
                 clearspeak_payload = document_payload
-                response = document_result.response
+                response = str(document_payload.get("speech") or document_result.response)
                 citations = document_result.citations
                 actor = "clearspeak"
                 engine = document_result.engine

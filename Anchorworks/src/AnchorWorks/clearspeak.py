@@ -8,6 +8,7 @@ from typing import Any
 from .clearspeak_attention import (
     ACTIVE_CLOUD_WEIGHTS,
     attention_math_contract,
+    blocked_answer_anchor,
     build_active_cloud_frame,
     choose_candidate_with_lookahead,
     content_anchors,
@@ -17,6 +18,7 @@ from .clearspeak_attention import (
 )
 from .intake import extract_anchors
 from .lifetime_symbol_mirror import load_lifetime_by_symbol_dir
+from .symbol_count_cells import read_symbol_cell
 
 
 @dataclass
@@ -54,7 +56,7 @@ class ClearSpeakService:
         unique = recognition["query_anchors"]
         represented = recognition["represented_anchors"]
         missing = recognition["missing_anchors"]
-        count_index = self._load_count_index()
+        count_index = self._load_count_index(represented)
 
         evidence: list[dict[str, Any]] = []
         citation_rows: list[dict[str, Any]] = []
@@ -173,10 +175,13 @@ class ClearSpeakService:
             lines.append(f"{row['anchor']}: {compact}")
         return "\n".join(lines)
 
-    def _load_count_index(self) -> dict[str, Any]:
+    def _load_count_index(self, seed_anchors: list[str] | None = None) -> dict[str, Any]:
         external_by_symbol_dir = os.environ.get("ANCHORWORKS_LIFETIME_BY_SYMBOL_DIR")
         if external_by_symbol_dir:
             return load_lifetime_by_symbol_dir(external_by_symbol_dir)
+        awsc_index = self._load_awsc_count_index(seed_anchors or [])
+        if awsc_index["by_anchor"]:
+            return awsc_index
         if hasattr(self.store, "_load_combined_relation_counts"):
             counter, _observed = self.store._load_combined_relation_counts()
             by_anchor: dict[str, dict[str, Counter[str]]] = {}
@@ -186,6 +191,68 @@ class ClearSpeakService:
                 by_anchor.setdefault(anchor, {}).setdefault(offset, Counter())[neighbor] += int(observations)
             return {"by_anchor": by_anchor}
         return {"by_anchor": {}}
+
+    def _load_awsc_count_index(self, seed_anchors: list[str]) -> dict[str, Any]:
+        root = getattr(self.store, "symbol_counts_binary_dir", None)
+        cells_root = (root / "cells") if root else None
+        if cells_root is None or not cells_root.exists():
+            return {"by_anchor": {}}
+        if not hasattr(self.store, "_canonical_symbol_by_anchor"):
+            return {"by_anchor": {}}
+        symbol_by_anchor = self.store._canonical_symbol_by_anchor()
+        anchor_by_symbol = {
+            _normalize_symbol_hex(symbol): self.store.normalize_anchor(anchor) if hasattr(self.store, "normalize_anchor") else str(anchor).strip().casefold()
+            for anchor, symbol in symbol_by_anchor.items()
+            if str(anchor or "").strip() and str(symbol or "").strip()
+        }
+        by_anchor: dict[str, dict[str, Counter[str]]] = {}
+        loaded_symbols: set[str] = set()
+
+        def load_cell(symbol_hex: str) -> list[tuple[str, int]]:
+            normalized_symbol = _normalize_symbol_hex(symbol_hex)
+            if not normalized_symbol or normalized_symbol in loaded_symbols:
+                return []
+            loaded_symbols.add(normalized_symbol)
+            path = _awsc_cell_path(cells_root, normalized_symbol)
+            if not path.exists():
+                return []
+            try:
+                cell = read_symbol_cell(path)
+            except ValueError:
+                return []
+            root_anchor = anchor_by_symbol.get(_symbol_bytes_to_hex(cell.symbol))
+            if not root_anchor:
+                return []
+            expansion_counts: Counter[str] = Counter()
+            for relation in cell.relations:
+                neighbor_anchor = anchor_by_symbol.get(_symbol_bytes_to_hex(relation.neighbor_symbol))
+                if not neighbor_anchor:
+                    continue
+                count = int(relation.count)
+                if count <= 0:
+                    continue
+                neighbor_symbol = _symbol_bytes_to_hex(relation.neighbor_symbol)
+                offset = f"+{int(relation.offset)}" if int(relation.offset) > 0 else str(int(relation.offset))
+                by_anchor.setdefault(root_anchor, {}).setdefault(offset, Counter())[neighbor_anchor] += count
+                if not blocked_answer_anchor(neighbor_anchor):
+                    expansion_counts[neighbor_symbol] += count
+            return sorted(expansion_counts.items(), key=lambda item: (-item[1], item[0]))[:32]
+
+        seed_symbols = [
+            _normalize_symbol_hex(symbol_by_anchor.get(str(anchor or "").strip().casefold(), ""))
+            for anchor in seed_anchors
+        ]
+        expansion_symbols: list[str] = []
+        for symbol_hex in seed_symbols:
+            expansion_symbols.extend(symbol for symbol, _count in load_cell(symbol_hex))
+        for symbol_hex in expansion_symbols[:128]:
+            load_cell(symbol_hex)
+        return {
+            "by_anchor": by_anchor,
+            "count_source": "awsc_binary_symbol_cells",
+            "symbolic_runtime": True,
+            "display_decoded_at_edge": True,
+        }
 
     def _assemble_answer_terms(self, represented: list[str], *, count_index: dict[str, Any], limit: int = 6) -> dict[str, Any]:
         seeds = content_anchors(represented)
@@ -352,6 +419,24 @@ def _empty_answer_assembly(reason: str) -> dict[str, Any]:
         "attention_math": attention_math_contract(),
         "contract": _answer_assembly_contract(),
     }
+
+
+def _symbol_bytes_to_hex(symbol: bytes) -> str:
+    return f"0x{int.from_bytes(symbol, 'big'):010X}"
+
+
+def _normalize_symbol_hex(symbol: str) -> str:
+    text = str(symbol or "").strip()
+    if not text:
+        return ""
+    if text.lower().startswith("0x"):
+        text = text[2:]
+    return f"0x{text.upper().zfill(10)}"
+
+
+def _awsc_cell_path(cells_root: Any, symbol_hex: str) -> Any:
+    text = _normalize_symbol_hex(symbol_hex)[2:]
+    return cells_root / text[:2] / f"{text}.cell"
 
 
 def _ordered_unique(values: list[str]) -> list[str]:

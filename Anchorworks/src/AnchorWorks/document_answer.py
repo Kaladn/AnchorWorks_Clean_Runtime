@@ -1,8 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from collections import Counter
 from typing import Any
 
+from .clearspeak_attention import (
+    ACTIVE_CLOUD_WEIGHTS,
+    attention_math_contract,
+    build_active_cloud_frame,
+    choose_candidate_with_lookahead,
+    content_anchors,
+    infer_attention_frame,
+)
 from .intake import extract_anchors
 
 
@@ -14,7 +23,9 @@ class DocumentAnswerResult:
     represented_anchors: list[str]
     missing_anchors: list[str]
     lexicon_recognition: dict[str, Any]
+    speech: str
     response: str
+    answer_assembly: dict[str, Any]
     evidence: dict[str, Any]
     citations: list[dict[str, Any]]
     evidence_mode: str = "documents"
@@ -48,6 +59,8 @@ class DocumentAnswerAssembler:
         ][: max(1, int(limit or 6))]
         citations = [_citation_for_passage(row) for row in passages[:3]]
         response = render_document_passages(passages[:3])
+        answer_assembly = build_document_cloud_answer(focus_anchors, passages, limit=limit)
+        speech = render_answer_assembly_speech(answer_assembly) or response
         return DocumentAnswerResult(
             ok=bool(passages),
             query=query_text,
@@ -55,7 +68,9 @@ class DocumentAnswerAssembler:
             represented_anchors=represented_focus,
             missing_anchors=missing_focus,
             lexicon_recognition=recognition,
+            speech=speech,
             response=response,
+            answer_assembly=answer_assembly,
             evidence=evidence,
             citations=citations,
         )
@@ -99,6 +114,116 @@ def render_document_passages(passages: list[dict[str, Any]]) -> str:
     return "The source document supports these points: " + points + source_phrase
 
 
+def build_document_cloud_answer(query_anchors: list[str], passages: list[dict[str, Any]], *, limit: int = 6) -> dict[str, Any]:
+    count_index = _document_passage_count_index(passages)
+    represented = _ordered_unique([str(anchor or "").strip().casefold() for anchor in query_anchors if str(anchor or "").strip()])
+    seeds = content_anchors(represented)
+    if not seeds:
+        return _empty_document_answer_assembly("no_content_seed")
+    attention_frame = infer_attention_frame(represented)
+    rear_context = list(seeds[-6:])
+    answer_so_far: list[str] = []
+    forward_context: list[str] = []
+    selected: list[dict[str, Any]] = []
+    selected_anchors: set[str] = set()
+    trace: list[dict[str, Any]] = []
+    blocked = set(seeds)
+    for step in range(max(1, int(limit or 6))):
+        active_cloud = build_active_cloud_frame(
+            count_index,
+            question_anchors=represented,
+            rear_context=rear_context,
+            answer_so_far=answer_so_far,
+            forward_context=forward_context,
+            blocked=blocked | selected_anchors,
+            attention_frame=attention_frame,
+            top_k=6,
+        )
+        pool = active_cloud["candidates"]
+        if not pool:
+            return {
+                "schema_version": "document_cloud_answer@1",
+                "seed_anchors": seeds,
+                "terms": selected,
+                "trace": trace,
+                "stop_reason": "no_supported_candidate" if selected else "no_candidate_pool",
+                "attention_frame": attention_frame,
+                "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
+                "attention_math": attention_math_contract(),
+                "count_source": "source_local_document_cloud",
+            }
+        lookahead_decision = choose_candidate_with_lookahead(
+            count_index,
+            pool,
+            seed_anchors=seeds,
+            blocked=blocked | selected_anchors,
+            lookahead_k=6,
+        )
+        winner = lookahead_decision.get("chosen") or pool[0]
+        selected.append({**winner, "selection_step": step + 1})
+        selected_anchors.add(winner["anchor"])
+        before_rear = list(rear_context)
+        before_answer = list(answer_so_far)
+        answer_so_far = answer_so_far[-49:] + [winner["anchor"]]
+        rear_context = (answer_so_far[-6:] + seeds)[-12:]
+        forward_context = _forward_context_from_count_index(count_index, winner["anchor"])
+        trace.append({
+            "step": step + 1,
+            "chosen_anchor": winner["anchor"],
+            "candidate_rank": winner.get("candidate_rank", 1),
+            "score": winner["score"],
+            "score_parts": winner.get("score_parts") or {},
+            "penalties": winner.get("penalties") or {},
+            "supporting_context": winner["supporting_context"],
+            "rear_context_before": before_rear,
+            "answer_so_far_before": before_answer,
+            "rear_context_after": rear_context,
+            "answer_so_far_after": answer_so_far,
+            "forward_context_after": forward_context,
+            "lookahead_decision": lookahead_decision,
+            "candidate_preview": pool[:6],
+            "rejected_candidates": active_cloud.get("rejected_candidates") or [],
+        })
+    return {
+        "schema_version": "document_cloud_answer@1",
+        "seed_anchors": seeds,
+        "terms": selected,
+        "trace": trace,
+        "stop_reason": "answer_limit_reached",
+        "attention_frame": attention_frame,
+        "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
+        "attention_math": attention_math_contract(),
+        "count_source": "source_local_document_cloud",
+    }
+
+
+def render_answer_assembly_speech(answer_assembly: dict[str, Any]) -> str:
+    terms = [
+        str(row.get("anchor") or "").strip()
+        for row in answer_assembly.get("terms", [])
+        if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+    ]
+    return " ".join(terms)
+
+
+def _document_passage_count_index(passages: list[dict[str, Any]], *, window_radius: int = 6) -> dict[str, Any]:
+    by_anchor: dict[str, dict[str, Counter[str]]] = {}
+    for row in passages:
+        anchors = [str(anchor or "").strip().casefold() for anchor in extract_anchors(str(row.get("text") or "")) if str(anchor or "").strip()]
+        for index, anchor in enumerate(anchors):
+            for neighbor_index in range(max(0, index - window_radius), min(len(anchors), index + window_radius + 1)):
+                if neighbor_index == index:
+                    continue
+                offset_value = neighbor_index - index
+                offset = f"+{offset_value}" if offset_value > 0 else str(offset_value)
+                by_anchor.setdefault(anchor, {}).setdefault(offset, Counter())[anchors[neighbor_index]] += 1
+    return {
+        "by_anchor": by_anchor,
+        "count_source": "source_local_document_cloud",
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
 def _passage_with_locator(row: dict[str, Any]) -> str:
     text = _clean_passage_sentence(str(row.get("text") or ""))
     if not text:
@@ -133,6 +258,33 @@ def _citation_for_passage(row: dict[str, Any]) -> dict[str, Any]:
         "coord": f"{source_name}:block{block_id}:{line_part}",
         "score": float(row.get("score", 0.0) or 0.0),
         "visual_refs": row.get("visual_refs") or [],
+    }
+
+
+def _forward_context_from_count_index(count_index: dict[str, Any], anchor: str, limit: int = 6) -> list[str]:
+    offsets = ((count_index.get("by_anchor") or {}).get(str(anchor or "").strip().casefold()) or {})
+    forward = Counter()
+    for offset, rows in offsets.items():
+        try:
+            offset_value = int(str(offset).replace("+", ""))
+        except ValueError:
+            offset_value = 0
+        if offset_value <= 0:
+            continue
+        for neighbor, count in Counter(rows or {}).items():
+            if int(count or 0) > 0:
+                forward[str(neighbor)] += int(count)
+    return [anchor for anchor, _count in forward.most_common(limit)]
+
+
+def _empty_document_answer_assembly(reason: str) -> dict[str, Any]:
+    return {
+        "schema_version": "document_cloud_answer@1",
+        "seed_anchors": [],
+        "terms": [],
+        "trace": [],
+        "stop_reason": reason,
+        "count_source": "source_local_document_cloud",
     }
 
 
