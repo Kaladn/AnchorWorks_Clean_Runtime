@@ -35,6 +35,11 @@ from .positional_resonance import (
     write_jsonl,
 )
 from .phrase_lexicon import PhraseLexiconStore
+from .phrase_candidates import (
+    build_phrase_candidates_from_symbolic_dir,
+    write_phrase_candidate_review,
+    write_phrase_candidate_review_from_observed_maps,
+)
 from .symbol_relation_counts import build_source_local_symbol_table, build_symbol_relation_rows
 from .symbol_count_native import (
     merge_symbol_stream,
@@ -211,6 +216,7 @@ class LexiconStore:
         self.flat_documents_visual_links_dir = self.flat_documents_dir / "visual_links"
         self.flat_documents_occurrence_index_dir = self.flat_documents_dir / "occurrence_index"
         self.flat_documents_local_overlays_dir = self.flat_documents_dir / "local_overlays"
+        self.phrase_candidates_dir = self.state_dir / "phrase_candidates"
         self.intake_uploads_dir = self.state_dir / "intake_uploads"
         self.lifetime_counts_path = self.state_dir / "lifetime_co_occurrence_counts.json"
         self.missing_anchor_registry_path = self.state_dir / "missing_anchor_registry.json"
@@ -265,6 +271,7 @@ class LexiconStore:
         self.flat_documents_visual_links_dir.mkdir(parents=True, exist_ok=True)
         self.flat_documents_occurrence_index_dir.mkdir(parents=True, exist_ok=True)
         self.flat_documents_local_overlays_dir.mkdir(parents=True, exist_ok=True)
+        self.phrase_candidates_dir.mkdir(parents=True, exist_ok=True)
         self.intake_uploads_dir.mkdir(parents=True, exist_ok=True)
         self._ensure_state_file(self.unmatched_path, [])
         self._ensure_state_file(self.pending_path, [])
@@ -1853,6 +1860,51 @@ class LexiconStore:
 
     def match_phrase_authority(self, anchors: list[str]) -> dict[str, Any] | None:
         return self.phrases.match_phrase(anchors)
+
+    def build_phrase_candidate_review(
+        self,
+        *,
+        min_length: int = 2,
+        max_length: int = 5,
+        min_count: int = 2,
+        max_candidates: int = 5000,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        review = build_phrase_candidates_from_symbolic_dir(
+            self.flat_documents_symbolic_dir,
+            min_length=min_length,
+            max_length=max_length,
+            min_count=min_count,
+            max_candidates=max_candidates,
+            limit=limit,
+        )
+        written = write_phrase_candidate_review(self.phrase_candidates_dir, review)
+        return {
+            **written,
+            "candidate_count": int(review.get("candidate_count", 0) or 0),
+            "symbolic_doc_count": int(review.get("symbolic_doc_count", 0) or 0),
+            "writes_allowed": review["writes_allowed"],
+        }
+
+    def build_phrase_candidate_review_from_observed_maps(
+        self,
+        *,
+        min_length: int = 2,
+        max_length: int = 5,
+        min_count: int = 2,
+        max_candidates: int = 5000,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        return write_phrase_candidate_review_from_observed_maps(
+            self.observed_maps_dir,
+            self.phrase_candidates_dir,
+            symbolic_map_dir=self.symbolic_maps_dir,
+            min_length=min_length,
+            max_length=max_length,
+            min_count=min_count,
+            max_candidates=max_candidates,
+            limit=limit,
+        )
 
     def anchorize_flat_document(self, source_path: Path | None = None, *, name: str = "") -> dict[str, Any]:
         raw_root = self.flat_documents_raw_dir.resolve()

@@ -18,6 +18,7 @@ State/flat_documents/block_index/**
 State/flat_documents/occurrence_index/**
 State/flat_documents/visual_links/**
 State/flat_documents/local_overlays/**
+State/phrase_candidates/**
 State/jobs/**
 State/intake_uploads/**
 State/source_local_preview_counts/**

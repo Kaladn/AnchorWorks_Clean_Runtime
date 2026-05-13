@@ -141,9 +141,10 @@ Phrase candidates should be pulled from already observed anchor/symbol streams.
 First source inputs:
 
 ```text
-symbolized flat documents
-local meta-count overlays
-AWSM/AWSS streams where available
+symbolized flat documents [implemented first]
+local meta-count overlays [planned]
+AWSM plus observed-map debug input [implemented offline fallback]
+AWSS streams where available [planned]
 ```
 
 Do not build phrase candidates from raw observed-map JSON in chat/runtime.
@@ -165,9 +166,25 @@ anchor stream
 -> count repeated spans
 -> track source diversity
 -> track left/right boundaries
--> track phrase field neighbors
+-> track phrase field neighbors [planned]
 -> write phrase review candidates
 ```
+
+Current implementation:
+
+```text
+src/AnchorWorks/phrase_candidates.py
+LexiconStore.build_phrase_candidate_review()
+LexiconStore.build_phrase_candidate_review_from_observed_maps()
+State/phrase_candidates/phrase_candidates.jsonl
+State/phrase_candidates/phrase_candidates_manifest.json
+```
+
+The current candidate builder is review-only. It reads already-symbolized flat
+documents, and can also run an offline debug build from observed maps plus AWSM
+symbol authority when flat symbolic docs do not exist. It emits corpus-native
+phrase candidates and does not mutate Canonical, Phrase_Lexicon, AWSC, lifetime
+counts, or approved phrase authority.
 
 Phrase candidate types:
 
@@ -271,23 +288,26 @@ display text renders at the edge
 
 ## Mini Todo
 
-1. Define phrase lexicon storage beside Canonical.
+1. [done] Define phrase lexicon storage beside Canonical.
 2. Add Lexicon Browser `Words | Phrases` toggle.
-3. Add phrase candidate extraction from symbolized flat docs or overlays.
-4. Add phrase review records without mutating Canonical.
+3. [partial] Add phrase candidate extraction from symbolized flat docs or overlays.
+   - symbolized flat docs: done
+   - observed maps + AWSM offline fallback: done
+   - overlays: pending
+4. [done] Add phrase review records without mutating Canonical.
 5. Add phrase assignment/promotion using the same authority discipline as words.
-6. Add phrase lookup before renderer field selection.
-7. Replace Newton/laws/motion hard-code with phrase-derived field pressure.
+6. [done] Add phrase lookup before renderer field selection.
+7. [done] Replace Newton/laws/motion hard-code with phrase-derived field pressure.
 8. Add renderer tests:
    - broad `laws` does not lock physics by itself
    - `laws motion` creates a partial field
-   - approved `newton laws of motion` creates a concept phrase field
+   - [done] approved `newton laws of motion` creates a concept phrase field
    - min/target/max anchor policy still applies
-   - renderer trace names phrase field source
+   - [done] renderer trace names phrase field source
 9. Keep observed maps out of chat/runtime.
-10. Keep phrase lexicon out of AWSC relation payloads.
-11. Keep `status` as lifecycle only.
-12. Keep `tone_signature` out of phrase joining.
+10. [done] Keep phrase lexicon out of AWSC relation payloads.
+11. [done] Keep `status` as lifecycle only.
+12. [done] Keep `tone_signature` out of phrase joining.
 13. Make anchor `phrase_refs` rebuildable from phrase lexicon.
 
 ## Done For This Mini Todo When

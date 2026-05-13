@@ -12,3 +12,4 @@ experiments/toy_evidence_renderer/runtime/
 experiments/observed_map_graph/runtime/
 ../State/flat_documents/local_overlays/
 ../State/jobs/
+../State/phrase_candidates/
