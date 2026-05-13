@@ -14,11 +14,42 @@ Core law:
 Words and phrases share the browser shape.
 Anchors and phrase anchors stay separate authority lanes.
 Renderer uses approved phrase authority; it does not hard-code meaning.
+Counts remain anchor-symbol memory.
+Phrases are recognized authority, not counted lifetime memory.
 ```
 
 ## Phrase Lexicon Shape
 
 The phrase lexicon should live beside the existing lexicon as its own external authority, not inside counts, maps, overlays, or renderer code.
+
+Phrase authority must not overload anchor `status`.
+
+```text
+status = slot lifecycle only
+tone_signature = identity/display metadata only
+phrase_refs = optional anchor-side helper pointer
+phrase lexicon = source of phrase authority
+```
+
+Allowed `status` meanings stay coarse:
+
+```text
+AVAILABLE
+ASSIGNED
+REVIEW
+RETIRED
+REJECTED
+```
+
+Do not use `status` for:
+
+```text
+phrase membership
+renderer role
+field lock
+count role
+phrase join role
+```
 
 Expected browser behavior:
 
@@ -49,10 +80,18 @@ Minimum phrase record:
   "schema_version": "anchorworks_phrase_lexicon@1",
   "phrase": "newton laws of motion",
   "status": "ASSIGNED",
-  "authority": "PHRASE",
+  "authority": "phrase",
+  "pack": "phrase",
   "hex": "0x0000000000",
+  "symbol": "0x0000000000",
   "anchor_sequence": ["newton", "laws", "of", "motion"],
   "symbol_sequence": ["0x...", "0x...", "0x...", "0x..."],
+  "join_role_by_anchor": {
+    "newton": "field_specifier",
+    "laws": "phrase_head",
+    "of": "director",
+    "motion": "field_object"
+  },
   "phrase_type": "concept",
   "source_support": {
     "occurrences": 0,
@@ -70,6 +109,31 @@ Phrase symbols use the same fixed-width identity discipline as anchors.
 No odd phrase-only symbol size.
 ```
 
+Future anchor entry helper fields:
+
+```json
+{
+  "word": "laws",
+  "hex": "0x...",
+  "status": "ASSIGNED",
+  "tone_signature": "TONE_...",
+  "phrase_refs": ["0xPHRASE_A"],
+  "phrase_roles": {
+    "0xPHRASE_A": "phrase_head"
+  }
+}
+```
+
+These helper fields are optional acceleration/display pointers only. They must be rebuildable from the phrase lexicon.
+
+Hard rule:
+
+```text
+Anchors do not own phrases.
+Phrase authority names the join.
+Anchors may point to phrase authority for fast browsing.
+```
+
 ## Phrase Candidate Build
 
 Phrase candidates should be pulled from already observed anchor/symbol streams.
@@ -83,6 +147,14 @@ AWSM/AWSS streams where available
 ```
 
 Do not build phrase candidates from raw observed-map JSON in chat/runtime.
+
+Do not write phrase candidates into AWSC.
+
+```text
+AWSC counts anchors.
+Phrase lexicon recognizes joined authority.
+Renderer uses phrase authority to shape anchor-count walks.
+```
 
 Candidate extraction:
 
@@ -178,6 +250,15 @@ query anchors
 -> final human rendering
 ```
 
+Phrase use rule:
+
+```text
+approved phrase may start or finish an answer shape
+approved phrase may lock an active field
+approved phrase may guide slot expectations
+approved phrase is not counted as lifetime relation memory
+```
+
 If an approved phrase exists:
 
 ```text
@@ -205,6 +286,9 @@ display text renders at the edge
    - renderer trace names phrase field source
 9. Keep observed maps out of chat/runtime.
 10. Keep phrase lexicon out of AWSC relation payloads.
+11. Keep `status` as lifecycle only.
+12. Keep `tone_signature` out of phrase joining.
+13. Make anchor `phrase_refs` rebuildable from phrase lexicon.
 
 ## Done For This Mini Todo When
 
@@ -216,4 +300,3 @@ Renderer can use approved phrase authority.
 Newton/laws/motion hard-code is removed.
 Tests prove phrase tightening replaces hard-coded field pressure.
 ```
-
