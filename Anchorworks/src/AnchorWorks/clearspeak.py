@@ -26,6 +26,7 @@ class ClearSpeakResult:
     represented_anchors: list[str]
     missing_anchors: list[str]
     lexicon_recognition: dict[str, Any]
+    speech: str
     response: str
     evidence: list[dict[str, Any]]
     citations: list[dict[str, Any]]
@@ -77,6 +78,7 @@ class ClearSpeakService:
             })
 
         answer_assembly = self._assemble_answer_terms(represented, count_index=count_index, limit=limit)
+        speech = self._compose_speech(represented, missing, answer_assembly)
         response = self._compose_response(query_text, represented, missing, evidence, answer_assembly)
         return ClearSpeakResult(
             query=query_text,
@@ -84,6 +86,7 @@ class ClearSpeakService:
             represented_anchors=represented,
             missing_anchors=missing,
             lexicon_recognition=recognition,
+            speech=speech,
             response=response,
             evidence=evidence,
             citations=citation_rows,
@@ -106,6 +109,25 @@ class ClearSpeakService:
             "lexicon_first": True,
             "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
+
+    def _compose_speech(
+        self,
+        represented: list[str],
+        missing: list[str],
+        answer_assembly: dict[str, Any],
+    ) -> str:
+        terms = [
+            str(row.get("anchor") or "").strip()
+            for row in answer_assembly.get("terms", [])
+            if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+        ]
+        if terms:
+            return " ".join(terms)
+        if represented:
+            return "I recognize " + ", ".join(represented) + ", but I do not have count support yet."
+        if missing:
+            return "I do not recognize " + ", ".join(missing) + " in the lexicon yet."
+        return "ClearSpeak is ready."
 
     def _compose_response(
         self,

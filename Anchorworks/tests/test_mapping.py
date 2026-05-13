@@ -957,6 +957,7 @@ class MappingTests(unittest.TestCase):
 
             self.assertEqual(result["represented_anchors"], ["stop"])
             self.assertEqual(result["missing_anchors"], ["mystery"])
+            self.assertEqual(result["speech"], "not")
             self.assertEqual(result["citations"][0]["coord"], "clearspeak:lifetime:stop")
             self.assertIn("stop: not (4)", result["response"])
             self.assertEqual(before, after)
@@ -1007,6 +1008,8 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(len(history["messages"]), 2)
             self.assertEqual(history["messages"][0]["sender"], "user")
             self.assertEqual(history["messages"][1]["sender"], "assistant")
+            self.assertEqual(history["messages"][1]["content"], "not")
+            self.assertEqual(result.response, "not")
             self.assertEqual(status["chat_messages"], 2)
             self.assertEqual(status["citations"], 1)
             self.assertTrue(history["citations_by_block"])
@@ -1241,7 +1244,8 @@ class MappingTests(unittest.TestCase):
             assistant = chat.history(branch="main")["messages"][-1]
 
             self.assertEqual(result.mode, "counts")
-            self.assertIn("stop: not (4)", result.response)
+            self.assertEqual(result.response, "not")
+            self.assertIn("stop: not (4)", result.clearspeak["response"])
             self.assertNotIn("Chat memory received", result.response)
             self.assertEqual(assistant["model_identity"]["evidence_mode"], "counts")
 

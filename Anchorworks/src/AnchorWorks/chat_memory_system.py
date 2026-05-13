@@ -179,7 +179,7 @@ class ChatMemorySystem:
                 "document_mode_never_pretends_to_be_counts": True,
                 "memory_writes": False,
             }
-            response = clearspeak_payload["response"]
+            response = str(clearspeak_payload.get("speech") or clearspeak_payload["response"])
             citations = clearspeak_payload.get("citations") or []
             actor = "clearspeak"
             engine = "clearspeak_counts"
@@ -228,7 +228,7 @@ class ChatMemorySystem:
                 clearspeak_payload["evidence_mode"] = "counts"
                 clearspeak_payload["engine"] = "clearspeak_counts"
                 clearspeak_payload["document_fallback_reason"] = "no_source_local_map_support"
-                response = clearspeak_payload["response"]
+                response = str(clearspeak_payload.get("speech") or clearspeak_payload["response"])
                 citations = clearspeak_payload.get("citations") or []
                 actor = "clearspeak"
                 engine = "clearspeak_counts"
@@ -236,7 +236,7 @@ class ChatMemorySystem:
         elif mode_name == "clearspeak":
             clearspeak_result = self.clearspeak.query(clean_message)
             clearspeak_payload = clearspeak_result.to_dict()
-            response = clearspeak_payload["response"]
+            response = str(clearspeak_payload.get("speech") or clearspeak_payload["response"])
             citations = clearspeak_payload.get("citations") or []
             actor = "clearspeak"
             engine = "clearspeak"
