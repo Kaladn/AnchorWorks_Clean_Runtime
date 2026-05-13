@@ -1330,6 +1330,65 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(laws_entry["tone_signature"], "TONE_L")
             self.assertNotIn("phrase_refs", laws_entry)
 
+    def test_phrase_authority_shapes_clearspeak_field_without_counting_phrase(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, entries in {
+                "A": [{"word": "acceleration", "hex": "0x0000000005", "status": "ASSIGNED"}],
+                "F": [{"word": "force", "hex": "0x0000000006", "status": "ASSIGNED"}],
+                "L": [
+                    {"word": "laws", "hex": "0x0000000002", "status": "ASSIGNED"},
+                    {"word": "law", "hex": "0x0000000007", "status": "ASSIGNED"},
+                ],
+                "M": [
+                    {"word": "motion", "hex": "0x0000000004", "status": "ASSIGNED"},
+                    {"word": "mass", "hex": "0x0000000008", "status": "ASSIGNED"},
+                ],
+                "N": [{"word": "newton", "hex": "0x0000000001", "status": "ASSIGNED"}],
+                "O": [
+                    {"word": "of", "hex": "0x0000000003", "status": "ASSIGNED"},
+                    {"word": "objects", "hex": "0x0000000009", "status": "ASSIGNED"},
+                ],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", entries)
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(2))
+            _write_json(root / "Structural" / "structural.json", [])
+            store = LexiconStore(root)
+            PhraseLexiconStore(root, store).assign_phrase(
+                "newton laws of motion",
+                phrase_type="concept",
+                join_role_by_anchor={
+                    "newton": "field_specifier",
+                    "laws": "phrase_head",
+                    "of": "director",
+                    "motion": "field_object",
+                },
+            )
+            _write_count_read_fixture(
+                store,
+                [
+                    {"anchor": "laws", "offset": "+1", "neighbor": "energy", "observations": 80},
+                    {"anchor": "motion", "offset": "+1", "neighbor": "energy", "observations": 80},
+                    {"anchor": "newton", "offset": "+1", "neighbor": "law", "observations": 10},
+                    {"anchor": "laws", "offset": "+2", "neighbor": "force", "observations": 8},
+                    {"anchor": "motion", "offset": "+1", "neighbor": "objects", "observations": 8},
+                    {"anchor": "force", "offset": "+1", "neighbor": "mass", "observations": 7},
+                    {"anchor": "mass", "offset": "+1", "neighbor": "acceleration", "observations": 7},
+                ],
+                observed_counts=Counter({"newton": 1, "laws": 1, "motion": 1}),
+            )
+
+            result = ClearSpeakService(store).query("newton laws of motion", min_anchors=4, target_anchors=6, max_anchors=8)
+
+            frame = result.answer_assembly["attention_frame"]
+            self.assertEqual(frame["phrase_field"]["phrase"], "newton laws of motion")
+            self.assertEqual(frame["phrase_field"]["phrase_type"], "concept")
+            self.assertIn("field_specifier", frame["role_by_anchor"]["newton"])
+            self.assertNotEqual(result.answer_assembly["terms"][0]["anchor"], "energy")
+            self.assertEqual(result.answer_assembly["trace"][0]["candidate_preview"][0]["source_support"]["kind"], "lifetime_anchor_counts")
+
     def test_chat_documents_mode_uses_document_passages_and_line_citations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"

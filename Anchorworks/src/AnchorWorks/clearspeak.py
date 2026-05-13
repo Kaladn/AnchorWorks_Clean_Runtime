@@ -285,7 +285,10 @@ class ClearSpeakService:
         seeds = content_anchors(represented)
         if not seeds:
             return _empty_answer_assembly("no_content_seed")
-        attention_frame = infer_attention_frame(represented)
+        phrase_field = None
+        if hasattr(self.store, "match_phrase_authority"):
+            phrase_field = self.store.match_phrase_authority(represented)
+        attention_frame = infer_attention_frame(represented, phrase_field=phrase_field)
         length_policy = build_answer_length_policy(
             limit=limit,
             min_anchors=min_anchors,

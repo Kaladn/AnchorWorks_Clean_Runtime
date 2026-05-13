@@ -80,6 +80,32 @@ class PhraseLexiconStore:
         memberships.sort(key=lambda row: (row["phrase"], row["hex"]))
         return memberships
 
+    def match_phrase(self, anchors: list[str]) -> dict[str, Any] | None:
+        query = [str(anchor or "").strip().casefold() for anchor in anchors if str(anchor or "").strip()]
+        if not query:
+            return None
+        best: dict[str, Any] | None = None
+        best_score = -1
+        for entry in self.phrases():
+            if str(entry.get("status") or "").upper() != "ASSIGNED":
+                continue
+            sequence = [str(item or "").strip().casefold() for item in entry.get("anchor_sequence") or []]
+            if not sequence:
+                continue
+            cursor = 0
+            matched = 0
+            for anchor in query:
+                if cursor < len(sequence) and anchor == sequence[cursor]:
+                    cursor += 1
+                    matched += 1
+            if matched < max(2, len(sequence) - 1):
+                continue
+            score = matched * 10 + len(sequence)
+            if score > best_score:
+                best = entry
+                best_score = score
+        return best
+
     def phrases(self) -> list[dict[str, Any]]:
         out: list[dict[str, Any]] = []
         for path in sorted(self.phrase_dir.glob("*.json"), key=lambda item: item.name.lower()):
@@ -120,4 +146,3 @@ def _phrase_hex(anchor_sequence: list[str], symbol_sequence: list[str]) -> str:
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
-

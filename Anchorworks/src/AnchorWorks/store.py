@@ -34,6 +34,7 @@ from .positional_resonance import (
     build_source_local_resonance_index,
     write_jsonl,
 )
+from .phrase_lexicon import PhraseLexiconStore
 from .symbol_relation_counts import build_source_local_symbol_table, build_symbol_relation_rows
 from .symbol_count_native import (
     merge_symbol_stream,
@@ -235,6 +236,7 @@ class LexiconStore:
         self.intake_power = IntakeStore(self)
         self.visual = VisualStore(self)
         self.admin = AdminStore(self)
+        self.phrases = PhraseLexiconStore(self.root, self)
 
         self.spare_dir.mkdir(parents=True, exist_ok=True)
         self.state_dir.mkdir(parents=True, exist_ok=True)
@@ -1848,6 +1850,9 @@ class LexiconStore:
         if not overlay_path.exists() or not overlay_path.is_file():
             return None
         return load_local_meta_count_overlay(overlay_path)
+
+    def match_phrase_authority(self, anchors: list[str]) -> dict[str, Any] | None:
+        return self.phrases.match_phrase(anchors)
 
     def anchorize_flat_document(self, source_path: Path | None = None, *, name: str = "") -> dict[str, Any]:
         raw_root = self.flat_documents_raw_dir.resolve()

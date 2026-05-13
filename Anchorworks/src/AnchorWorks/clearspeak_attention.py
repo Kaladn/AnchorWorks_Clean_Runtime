@@ -309,6 +309,7 @@ def build_active_cloud_frame(
         supporting_context = _ordered_supporting_context(row["cloud_support"], clouds)
         role_fit = _role_fit(frame, supporting_context)
         score += min(0.10, float(role_fit["score"]) / 100.0)
+        score -= _phrase_field_drift_penalty(anchor, frame)
         candidates.append({
             "anchor": anchor,
             "score": round(score, 6),
@@ -584,7 +585,7 @@ def attention_math_contract() -> dict[str, Any]:
     }
 
 
-def infer_attention_frame(anchors: list[str]) -> dict[str, Any]:
+def infer_attention_frame(anchors: list[str], phrase_field: dict[str, Any] | None = None) -> dict[str, Any]:
     observed = [str(anchor or "").strip().casefold() for anchor in anchors if str(anchor or "").strip()]
     frame_type = _frame_type(observed)
     content = content_anchors(observed)
@@ -605,8 +606,12 @@ def infer_attention_frame(anchors: list[str]) -> dict[str, Any]:
 
     for anchor in content:
         role_by_anchor.setdefault(anchor, "content_anchor")
+    phrase_payload = _phrase_field_payload(phrase_field)
+    if phrase_payload:
+        for anchor, role in phrase_payload.get("join_role_by_anchor", {}).items():
+            role_by_anchor[anchor] = role
 
-    return {
+    frame = {
         "schema_version": "anchorworks_attention_frame@1",
         "frame_type": frame_type,
         "observed_anchors": observed,
@@ -621,6 +626,9 @@ def infer_attention_frame(anchors: list[str]) -> dict[str, Any]:
             "lexicon": False,
         },
     }
+    if phrase_payload:
+        frame["phrase_field"] = phrase_payload
+    return frame
 
 
 def content_anchors(anchors: list[str]) -> list[str]:
@@ -642,6 +650,8 @@ def _frame_type(anchors: list[str]) -> str:
 
 def _required_answer_slots(frame: dict[str, Any], content: set[str]) -> list[str]:
     frame_type = str(frame.get("frame_type") or "")
+    if isinstance(frame.get("phrase_field"), dict):
+        return ["subject", "category", "mechanism", "parts"]
     if frame_type in {"question", "open_context"} and {"newton", "laws", "motion"} & content:
         return ["subject", "category", "mechanism", "parts"]
     if frame_type == "method_question":
@@ -748,10 +758,41 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
     if not row["cloud_support"]["question"] and not row["cloud_support"]["answer"]:
         penalties["unsupported_jump_penalty"] = 0.20
     content = set(_clean_list(frame.get("content_anchors") or []))
-    if {"newton", "laws", "motion"} & content and anchor not in NEWTON_MOTION_FIELD_TERMS:
+    penalties["domain_drift_penalty"] = _phrase_field_drift_penalty(anchor, frame)
+    if not penalties["domain_drift_penalty"] and {"newton", "laws", "motion"} & content and anchor not in NEWTON_MOTION_FIELD_TERMS:
         penalties["domain_drift_penalty"] = 0.45
     penalties["total"] = round(sum(penalties.values()), 6)
     return penalties
+
+
+def _phrase_field_payload(phrase_field: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not isinstance(phrase_field, dict):
+        return None
+    sequence = [str(anchor or "").strip().casefold() for anchor in phrase_field.get("anchor_sequence") or [] if str(anchor or "").strip()]
+    if not sequence:
+        return None
+    return {
+        "schema_version": "anchorworks_phrase_field@1",
+        "phrase": str(phrase_field.get("phrase") or " ".join(sequence)),
+        "hex": str(phrase_field.get("hex") or phrase_field.get("symbol") or ""),
+        "phrase_type": str(phrase_field.get("phrase_type") or ""),
+        "anchor_sequence": sequence,
+        "join_role_by_anchor": {
+            str(anchor or "").strip().casefold(): str(role)
+            for anchor, role in (phrase_field.get("join_role_by_anchor") or {}).items()
+            if str(anchor or "").strip()
+        },
+        "authority": "phrase_lexicon",
+    }
+
+
+def _phrase_field_drift_penalty(anchor: str, frame: dict[str, Any]) -> float:
+    phrase = frame.get("phrase_field") if isinstance(frame.get("phrase_field"), dict) else {}
+    sequence = set(_clean_list((phrase or {}).get("anchor_sequence") or []))
+    if not sequence:
+        return 0.0
+    field_terms = sequence | NEWTON_MOTION_FIELD_TERMS
+    return 0.45 if str(anchor or "").strip().casefold() not in field_terms else 0.0
 
 
 def _ordered_supporting_context(cloud_support: dict[str, set[str]], clouds: dict[str, list[str]]) -> list[str]:
