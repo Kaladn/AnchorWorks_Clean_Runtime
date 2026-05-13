@@ -15,6 +15,12 @@ from AnchorWorks.clearspeak import ClearSpeakService
 from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.document_prep import prepare_bytes
 from AnchorWorks.intake import NULL_ANCHOR, build_anchor_map, compose_anchor_stream, extract_anchor_rows, extract_anchors
+from AnchorWorks.local_meta_overlay import (
+    build_local_meta_count_overlay,
+    load_local_meta_count_overlay,
+    query_local_overlay_cloud,
+    score_candidate,
+)
 from AnchorWorks.store import LexiconStore
 from AnchorWorks.symbol_count_cells import CANONICAL_LANE, SymbolRelation, write_symbol_cell
 from AnchorWorks.symbolic_map_binary import (
@@ -1169,9 +1175,11 @@ class MappingTests(unittest.TestCase):
             self.assertTrue(Path(result["block_index_path"]).exists())
             self.assertTrue(Path(result["occurrence_index_path"]).exists())
             self.assertTrue(Path(result["visual_links_path"]).exists())
+            self.assertTrue(Path(result["local_overlay_path"]).exists())
             self.assertTrue(Path(observed["saved_map_path"]).exists())
             self.assertEqual(result["block_count"], 2)
             self.assertEqual(result["visual_link_count"], 1)
+            self.assertGreater(result["local_overlay_relation_count"], 0)
             self.assertEqual(result["writes_allowed"], {"maps": False, "counts": False, "lifetime": False, "lexicon": False})
 
             block_rows = [json.loads(line) for line in Path(result["block_index_path"]).read_text(encoding="utf-8").splitlines()]
@@ -1185,6 +1193,46 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(evidence["runtime_source"], "flat_symbolic_documents")
             self.assertEqual(passage["block_id"], 1)
             self.assertEqual(passage["visual_refs"][0]["visual_record_id"], "vis_emp_graph")
+            overlay = load_local_meta_count_overlay(result["local_overlay_path"])
+            self.assertEqual(overlay["source_id"], result["source_id"])
+            self.assertEqual(overlay["locator_ref"], result["block_index_path"])
+            self.assertEqual(overlay["visual_ref_locator_ref"], result["visual_links_path"])
+            self.assertEqual(overlay["block_relation_index"]["block_1"]["line_start"], 3)
+
+    def test_local_meta_overlay_builds_from_flat_doc_and_queries_neighbors(self) -> None:
+        symbolic_flat_doc = {
+            "schema_version": "flat_symbolic_document@2",
+            "saved_document_name": "emp.symbolic.json",
+            "blocks": [
+                {"block_id": "block_0", "line_start": 1, "line_end": 1, "anchor_stream": ["title", "line"]},
+                {"block_id": "block_1", "line_start": 3, "line_end": 3, "anchor_stream": ["emp", "defense", "requires", "shielding", "grounding"]},
+            ],
+        }
+        locator_sidecar = {"path": "emp.blocks.jsonl"}
+
+        overlay = build_local_meta_count_overlay("source_emp", symbolic_flat_doc, locator_sidecar, observed_map_debug="emp.observed.json")
+        cloud = query_local_overlay_cloud(["emp"], overlay, top_k=3)
+
+        self.assertEqual(overlay["schema_version"], "anchorworks_local_meta_count_overlay@1")
+        self.assertEqual(overlay["symbolized_flat_doc_ref"], "emp.symbolic.json")
+        self.assertEqual(overlay["locator_ref"], "emp.blocks.jsonl")
+        self.assertEqual(overlay["created_from_observed_map"], "emp.observed.json")
+        self.assertEqual(overlay["block_relation_index"]["block_1"]["line_start"], 3)
+        self.assertEqual(overlay["local_symbol_counts"]["emp"], 1)
+        self.assertEqual(cloud["neighbors"][0]["symbol"], "defense")
+        self.assertEqual(cloud["neighbors"][0]["locator_refs"][0]["block_id"], "block_1")
+
+    def test_renderer_candidate_score_matches_local_global_formula(self) -> None:
+        score = score_candidate(
+            local_fit=0.8,
+            global_fit=0.4,
+            role_fit=0.5,
+            source_locator_support=1.0,
+            penalties={"glue": 0.1},
+        )
+
+        self.assertEqual(score["weights"], {"local": 0.45, "global": 0.25, "role": 0.2, "source_locator": 0.1})
+        self.assertAlmostEqual(score["score"], 0.56)
 
     def test_chat_documents_mode_uses_document_passages_and_line_citations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1252,6 +1300,7 @@ class MappingTests(unittest.TestCase):
             payload["paragraphs"][1]["visual_refs"] = [{"visual_record_id": "vis_emp_graph", "kind": "graph"}]
             observed_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
             store.build_flat_runtime_from_observed_map(observed["saved_map_name"])
+            observed_path.unlink()
 
             chat = ChatMemorySystem(root, ClearSpeakService(store))
             result = chat.send("emp defense", mode="documents", branch="main")
@@ -1259,6 +1308,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.response, "requires shielding grounding")
             self.assertIn("block 1, line 3", result.clearspeak["response"])
             self.assertIn("figure vis_emp_graph", result.clearspeak["response"])
+            self.assertEqual(result.clearspeak["answer_assembly"]["count_source"], "local_meta_overlay")
             self.assertEqual(result.evidence["runtime_source"], "flat_symbolic_documents")
             self.assertEqual(result.citations[0]["source"], "flat_symbolic_document")
 

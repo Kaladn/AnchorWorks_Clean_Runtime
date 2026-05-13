@@ -29,6 +29,7 @@ from .intake import (
     extract_anchor_rows,
     split_paragraphs,
 )
+from .local_meta_overlay import build_local_meta_count_overlay, load_local_meta_count_overlay
 from .positional_resonance import (
     build_source_local_resonance_index,
     write_jsonl,
@@ -208,6 +209,7 @@ class LexiconStore:
         self.flat_documents_block_index_dir = self.flat_documents_dir / "block_index"
         self.flat_documents_visual_links_dir = self.flat_documents_dir / "visual_links"
         self.flat_documents_occurrence_index_dir = self.flat_documents_dir / "occurrence_index"
+        self.flat_documents_local_overlays_dir = self.flat_documents_dir / "local_overlays"
         self.intake_uploads_dir = self.state_dir / "intake_uploads"
         self.lifetime_counts_path = self.state_dir / "lifetime_co_occurrence_counts.json"
         self.missing_anchor_registry_path = self.state_dir / "missing_anchor_registry.json"
@@ -260,6 +262,7 @@ class LexiconStore:
         self.flat_documents_block_index_dir.mkdir(parents=True, exist_ok=True)
         self.flat_documents_visual_links_dir.mkdir(parents=True, exist_ok=True)
         self.flat_documents_occurrence_index_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_local_overlays_dir.mkdir(parents=True, exist_ok=True)
         self.intake_uploads_dir.mkdir(parents=True, exist_ok=True)
         self._ensure_state_file(self.unmatched_path, [])
         self._ensure_state_file(self.pending_path, [])
@@ -1818,6 +1821,7 @@ class LexiconStore:
             "block_index_root": str(self.flat_documents_block_index_dir),
             "visual_links_root": str(self.flat_documents_visual_links_dir),
             "occurrence_index_root": str(self.flat_documents_occurrence_index_dir),
+            "local_overlay_root": str(self.flat_documents_local_overlays_dir),
             "raw_files": raw_files,
             "symbolic_files": symbolic_files,
         }
@@ -1831,6 +1835,19 @@ class LexiconStore:
         if symbolic_path.parent == self.flat_documents_symbolic_dir.resolve() and symbolic_path.exists() and symbolic_path.is_file():
             return {"ok": True, **self._read_json(symbolic_path, {})}
         raise FileNotFoundError(name)
+
+    def load_local_overlay_for_symbolic_document(self, saved_document_name: str) -> dict[str, Any] | None:
+        clean = str(saved_document_name or "").strip()
+        suffix = ".symbolic.json"
+        if not clean.endswith(suffix):
+            return None
+        overlay_name = clean[: -len(suffix)] + ".local_overlay.awlo.json"
+        overlay_path = (self.flat_documents_local_overlays_dir / overlay_name).resolve()
+        if overlay_path.parent != self.flat_documents_local_overlays_dir.resolve():
+            return None
+        if not overlay_path.exists() or not overlay_path.is_file():
+            return None
+        return load_local_meta_count_overlay(overlay_path)
 
     def anchorize_flat_document(self, source_path: Path | None = None, *, name: str = "") -> dict[str, Any]:
         raw_root = self.flat_documents_raw_dir.resolve()
@@ -1884,6 +1901,7 @@ class LexiconStore:
         block_index_path = self.flat_documents_block_index_dir / f"{stem}.blocks.jsonl"
         occurrence_index_path = self.flat_documents_occurrence_index_dir / f"{stem}.occurrences.jsonl"
         visual_links_path = self.flat_documents_visual_links_dir / f"{stem}.visual_links.jsonl"
+        local_overlay_path = self.flat_documents_local_overlays_dir / f"{stem}.local_overlay.awlo.json"
 
         paragraphs = [row for row in payload.get("paragraphs") or [] if isinstance(row, dict)]
         occurrences = [row for row in payload.get("occurrences") or [] if isinstance(row, dict)]
@@ -1994,6 +2012,13 @@ class LexiconStore:
         write_jsonl(block_index_path, block_rows)
         write_jsonl(occurrence_index_path, occurrence_rows)
         write_jsonl(visual_links_path, visual_link_rows)
+        local_overlay = build_local_meta_count_overlay(
+            source_id,
+            symbolic,
+            block_index_path,
+            observed_map_debug=path.name,
+        )
+        self._write_json(local_overlay_path, local_overlay)
 
         return {
             "ok": True,
@@ -2008,9 +2033,11 @@ class LexiconStore:
             "block_index_path": str(block_index_path),
             "occurrence_index_path": str(occurrence_index_path),
             "visual_links_path": str(visual_links_path),
+            "local_overlay_path": str(local_overlay_path),
             "block_count": len(block_rows),
             "occurrence_count": len(occurrence_rows),
             "visual_link_count": len(visual_link_rows),
+            "local_overlay_relation_count": len(local_overlay["local_relation_counts"]),
             "writes_allowed": symbolic["writes_allowed"],
         }
 

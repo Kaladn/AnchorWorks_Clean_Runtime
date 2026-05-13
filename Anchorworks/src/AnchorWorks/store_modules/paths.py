@@ -50,6 +50,7 @@ class StorePaths:
         self.flat_documents_block_index_dir = self.flat_documents_dir / "block_index"
         self.flat_documents_visual_links_dir = self.flat_documents_dir / "visual_links"
         self.flat_documents_occurrence_index_dir = self.flat_documents_dir / "occurrence_index"
+        self.flat_documents_local_overlays_dir = self.flat_documents_dir / "local_overlays"
         self.intake_uploads_dir = self.state_dir / "intake_uploads"
         self.lifetime_counts_path = self.state_dir / "lifetime_co_occurrence_counts.json"
         self.missing_anchor_registry_path = self.state_dir / "missing_anchor_registry.json"
@@ -91,6 +92,7 @@ class StorePaths:
             self.flat_documents_block_index_dir,
             self.flat_documents_visual_links_dir,
             self.flat_documents_occurrence_index_dir,
+            self.flat_documents_local_overlays_dir,
             self.intake_uploads_dir,
         )
 

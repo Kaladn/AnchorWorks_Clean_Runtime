@@ -13,6 +13,7 @@ from .clearspeak_attention import (
     infer_attention_frame,
 )
 from .intake import extract_anchors
+from .local_meta_overlay import query_local_overlay_cloud, renderer_cloud_input
 
 
 @dataclass
@@ -59,7 +60,12 @@ class DocumentAnswerAssembler:
         ][: max(1, int(limit or 6))]
         citations = [_citation_for_passage(row) for row in passages[:3]]
         response = render_document_passages(passages[:3])
-        answer_assembly = build_document_cloud_answer(focus_anchors, passages, limit=limit)
+        overlays = self._load_local_overlays(passages)
+        answer_assembly = (
+            build_document_overlay_answer(focus_anchors, overlays, limit=limit)
+            if overlays
+            else build_document_cloud_answer(focus_anchors, passages, limit=limit)
+        )
         speech = render_answer_assembly_speech(answer_assembly) or response
         return DocumentAnswerResult(
             ok=bool(passages),
@@ -90,6 +96,24 @@ class DocumentAnswerAssembler:
             "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
 
+    def _load_local_overlays(self, passages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if not hasattr(self.store, "load_local_overlay_for_symbolic_document"):
+            return []
+        overlays: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for passage in passages:
+            name = str(passage.get("saved_document_name") or "").strip()
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            try:
+                overlay = self.store.load_local_overlay_for_symbolic_document(name)
+            except Exception:
+                overlay = None
+            if isinstance(overlay, dict):
+                overlays.append(overlay)
+        return overlays
+
 
 def render_document_passages(passages: list[dict[str, Any]]) -> str:
     selected = [
@@ -116,6 +140,18 @@ def render_document_passages(passages: list[dict[str, Any]]) -> str:
 
 def build_document_cloud_answer(query_anchors: list[str], passages: list[dict[str, Any]], *, limit: int = 6) -> dict[str, Any]:
     count_index = _document_passage_count_index(passages)
+    return _walk_document_count_index(query_anchors, count_index, limit=limit)
+
+
+def build_document_overlay_answer(query_anchors: list[str], overlays: list[dict[str, Any]], *, limit: int = 6) -> dict[str, Any]:
+    count_index = _document_overlay_count_index(query_anchors, overlays)
+    answer = _walk_document_count_index(query_anchors, count_index, limit=limit)
+    answer["source_local_cloud"] = count_index.get("source_local_cloud") or {}
+    answer["renderer_cloud_input"] = count_index.get("renderer_cloud_input") or {}
+    return answer
+
+
+def _walk_document_count_index(query_anchors: list[str], count_index: dict[str, Any], *, limit: int = 6) -> dict[str, Any]:
     represented = _ordered_unique([str(anchor or "").strip().casefold() for anchor in query_anchors if str(anchor or "").strip()])
     seeds = content_anchors(represented)
     if not seeds:
@@ -150,7 +186,7 @@ def build_document_cloud_answer(query_anchors: list[str], passages: list[dict[st
                 "attention_frame": attention_frame,
                 "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
                 "attention_math": attention_math_contract(),
-                "count_source": "source_local_document_cloud",
+                "count_source": str(count_index.get("count_source") or "source_local_document_cloud"),
             }
         lookahead_decision = choose_candidate_with_lookahead(
             count_index,
@@ -193,7 +229,7 @@ def build_document_cloud_answer(query_anchors: list[str], passages: list[dict[st
         "attention_frame": attention_frame,
         "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
         "attention_math": attention_math_contract(),
-        "count_source": "source_local_document_cloud",
+        "count_source": str(count_index.get("count_source") or "source_local_document_cloud"),
     }
 
 
@@ -220,6 +256,40 @@ def _document_passage_count_index(passages: list[dict[str, Any]], *, window_radi
     return {
         "by_anchor": by_anchor,
         "count_source": "source_local_document_cloud",
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
+def _document_overlay_count_index(query_anchors: list[str], overlays: list[dict[str, Any]]) -> dict[str, Any]:
+    by_anchor: dict[str, dict[str, Counter[str]]] = {}
+    query_symbols = [str(anchor or "").strip().casefold() for anchor in query_anchors if str(anchor or "").strip()]
+    clouds: list[dict[str, Any]] = []
+    locator_refs: list[dict[str, Any]] = []
+    for overlay in overlays:
+        cloud = query_local_overlay_cloud(query_symbols, overlay, top_k=6)
+        clouds.append(cloud)
+        locator_refs.extend([row for row in cloud.get("locator_refs") or [] if isinstance(row, dict)])
+        for row in overlay.get("local_relation_counts") or []:
+            if not isinstance(row, dict):
+                continue
+            anchor = str(row.get("symbol") or "").strip().casefold()
+            offset = str(row.get("offset") or "")
+            neighbor = str(row.get("neighbor_symbol") or "").strip().casefold()
+            count = int(row.get("count", 0) or 0)
+            if not anchor or not offset or not neighbor or count <= 0:
+                continue
+            by_anchor.setdefault(anchor, {}).setdefault(offset, Counter())[neighbor] += count
+    cloud_input = renderer_cloud_input(
+        query_symbols=query_symbols,
+        source_local_cloud={"schema_version": "anchorworks_source_local_overlay_cloud@1", "clouds": clouds},
+        global_awsc_cloud={},
+        locator_refs=locator_refs,
+    ).to_dict()
+    return {
+        "by_anchor": by_anchor,
+        "count_source": "local_meta_overlay",
+        "source_local_cloud": cloud_input["source_local_cloud"],
+        "renderer_cloud_input": cloud_input,
         "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
     }
 
