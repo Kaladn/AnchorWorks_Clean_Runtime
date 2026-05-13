@@ -26,29 +26,6 @@ ANSWER_SLOT_KEYWORDS = {
     "mechanism": {"force", "forces", "mass", "acceleration", "accelerate", "motion", "move", "object", "objects"},
     "parts": {"first", "second", "third", "three", "pair", "pairs"},
 }
-NEWTON_MOTION_FIELD_TERMS = {
-    "acceleration",
-    "accelerate",
-    "equal",
-    "first",
-    "force",
-    "forces",
-    "inertia",
-    "law",
-    "laws",
-    "mass",
-    "motion",
-    "move",
-    "moves",
-    "object",
-    "objects",
-    "opposite",
-    "pair",
-    "pairs",
-    "second",
-    "third",
-    "three",
-}
 
 
 _ANSWER_EXCLUSION_SET = {
@@ -652,8 +629,6 @@ def _required_answer_slots(frame: dict[str, Any], content: set[str]) -> list[str
     frame_type = str(frame.get("frame_type") or "")
     if isinstance(frame.get("phrase_field"), dict):
         return ["subject", "category", "mechanism", "parts"]
-    if frame_type in {"question", "open_context"} and {"newton", "laws", "motion"} & content:
-        return ["subject", "category", "mechanism", "parts"]
     if frame_type == "method_question":
         return ["subject", "mechanism"]
     if frame_type == "question":
@@ -759,8 +734,6 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
         penalties["unsupported_jump_penalty"] = 0.20
     content = set(_clean_list(frame.get("content_anchors") or []))
     penalties["domain_drift_penalty"] = _phrase_field_drift_penalty(anchor, frame)
-    if not penalties["domain_drift_penalty"] and {"newton", "laws", "motion"} & content and anchor not in NEWTON_MOTION_FIELD_TERMS:
-        penalties["domain_drift_penalty"] = 0.45
     penalties["total"] = round(sum(penalties.values()), 6)
     return penalties
 
@@ -791,7 +764,7 @@ def _phrase_field_drift_penalty(anchor: str, frame: dict[str, Any]) -> float:
     sequence = set(_clean_list((phrase or {}).get("anchor_sequence") or []))
     if not sequence:
         return 0.0
-    field_terms = sequence | NEWTON_MOTION_FIELD_TERMS
+    field_terms = sequence | set().union(*ANSWER_SLOT_KEYWORDS.values())
     return 0.45 if str(anchor or "").strip().casefold() not in field_terms else 0.0
 
 
