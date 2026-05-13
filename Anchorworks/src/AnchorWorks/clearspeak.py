@@ -7,8 +7,11 @@ from typing import Any
 
 from .clearspeak_attention import (
     ACTIVE_CLOUD_WEIGHTS,
+    answer_length_state,
+    answer_slot_state,
     attention_math_contract,
     blocked_answer_anchor,
+    build_answer_length_policy,
     build_active_cloud_frame,
     choose_candidate_with_lookahead,
     content_anchors,
@@ -50,7 +53,15 @@ class ClearSpeakService:
             **status,
         }
 
-    def query(self, text: str, limit: int = 6) -> ClearSpeakResult:
+    def query(
+        self,
+        text: str,
+        limit: int = 6,
+        *,
+        min_anchors: int | None = None,
+        target_anchors: int | None = None,
+        max_anchors: int | None = None,
+    ) -> ClearSpeakResult:
         query_text = str(text or "").strip()
         recognition = self._recognize(query_text)
         unique = recognition["query_anchors"]
@@ -79,7 +90,14 @@ class ClearSpeakService:
                 "observations": row["total_neighbor_observations"],
             })
 
-        answer_assembly = self._assemble_answer_terms(represented, count_index=count_index, limit=limit)
+        answer_assembly = self._assemble_answer_terms(
+            represented,
+            count_index=count_index,
+            limit=limit,
+            min_anchors=min_anchors,
+            target_anchors=target_anchors,
+            max_anchors=max_anchors,
+        )
         speech = self._compose_speech(represented, missing, answer_assembly)
         response = self._compose_response(query_text, represented, missing, evidence, answer_assembly)
         return ClearSpeakResult(
@@ -254,11 +272,26 @@ class ClearSpeakService:
             "display_decoded_at_edge": True,
         }
 
-    def _assemble_answer_terms(self, represented: list[str], *, count_index: dict[str, Any], limit: int = 6) -> dict[str, Any]:
+    def _assemble_answer_terms(
+        self,
+        represented: list[str],
+        *,
+        count_index: dict[str, Any],
+        limit: int = 6,
+        min_anchors: int | None = None,
+        target_anchors: int | None = None,
+        max_anchors: int | None = None,
+    ) -> dict[str, Any]:
         seeds = content_anchors(represented)
         if not seeds:
             return _empty_answer_assembly("no_content_seed")
         attention_frame = infer_attention_frame(represented)
+        length_policy = build_answer_length_policy(
+            limit=limit,
+            min_anchors=min_anchors,
+            target_anchors=target_anchors,
+            max_anchors=max_anchors,
+        )
         rear_context = list(seeds[-6:])
         answer_so_far: list[str] = []
         forward_context: list[str] = []
@@ -267,7 +300,7 @@ class ClearSpeakService:
         trace: list[dict[str, Any]] = []
         blocked = set(seeds)
 
-        for step in range(max(1, int(limit or 6))):
+        for step in range(max(1, int(length_policy["max_anchors"]))):
             active_cloud = build_active_cloud_frame(
                 count_index,
                 question_anchors=represented,
@@ -306,6 +339,8 @@ class ClearSpeakService:
             answer_so_far = answer_so_far[-49:] + [winner["anchor"]]
             rear_context = (answer_so_far[-6:] + seeds)[-12:]
             forward_context = _forward_context_from_count_index(count_index, winner["anchor"])
+            slot_state = answer_slot_state(attention_frame, seeds, answer_so_far)
+            length_state = answer_length_state(length_policy, len(answer_so_far), slot_state)
             trace.append({
                 "step": step + 1,
                 "chosen_anchor": winner["anchor"],
@@ -321,6 +356,8 @@ class ClearSpeakService:
                 "rear_context_after": rear_context,
                 "answer_so_far_after": answer_so_far,
                 "forward_context_after": forward_context,
+                "slot_state": slot_state,
+                "length_state": length_state,
                 "lookahead_decision": lookahead_decision,
                 "active_cloud": {
                     "schema_version": active_cloud["schema_version"],
@@ -331,13 +368,30 @@ class ClearSpeakService:
                 "candidate_preview": pool[:6],
                 "rejected_candidates": active_cloud.get("rejected_candidates") or [],
             })
+            if length_state["stop_allowed"] and length_state["reason"] == "stop_allowed":
+                return {
+                    "schema_version": "clearspeak_active_cloud_answer@1",
+                    "seed_anchors": seeds,
+                    "terms": selected,
+                    "trace": trace,
+                    "stop_reason": "frame_satisfied_after_target",
+                    "length_policy": length_policy,
+                    "slot_state": slot_state,
+                    "attention_frame": attention_frame,
+                    "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
+                    "attention_math": attention_math_contract(),
+                    "contract": _answer_assembly_contract(),
+                }
 
+        final_slot_state = answer_slot_state(attention_frame, seeds, answer_so_far)
         return {
             "schema_version": "clearspeak_active_cloud_answer@1",
             "seed_anchors": seeds,
             "terms": selected,
             "trace": trace,
             "stop_reason": "answer_limit_reached",
+            "length_policy": length_policy,
+            "slot_state": final_slot_state,
             "attention_frame": attention_frame,
             "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
             "attention_math": attention_math_contract(),

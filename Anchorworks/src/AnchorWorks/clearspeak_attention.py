@@ -21,6 +21,34 @@ ACTIVE_SCORE_WEIGHTS = {
     "forward_fit": 0.15,
     "source_support": 0.05,
 }
+ANSWER_SLOT_KEYWORDS = {
+    "category": {"law", "laws", "principle", "principles", "rule", "rules"},
+    "mechanism": {"force", "forces", "mass", "acceleration", "accelerate", "motion", "move", "object", "objects"},
+    "parts": {"first", "second", "third", "three", "pair", "pairs"},
+}
+NEWTON_MOTION_FIELD_TERMS = {
+    "acceleration",
+    "accelerate",
+    "equal",
+    "first",
+    "force",
+    "forces",
+    "inertia",
+    "law",
+    "laws",
+    "mass",
+    "motion",
+    "move",
+    "moves",
+    "object",
+    "objects",
+    "opposite",
+    "pair",
+    "pairs",
+    "second",
+    "third",
+    "three",
+}
 
 
 _ANSWER_EXCLUSION_SET = {
@@ -268,7 +296,7 @@ def build_active_cloud_frame(
             "forward_fit": _support_fit(row["cloud_support"]["forward"], clouds["forward"]),
             "source_support": min(1.0, float(row["raw_observations"]) / 10.0),
         }
-        penalties = _candidate_penalties(anchor, row, clouds)
+        penalties = _candidate_penalties(anchor, row, clouds, frame)
         score = (
             ACTIVE_SCORE_WEIGHTS["question_fit"] * score_parts["question_fit"]
             + ACTIVE_SCORE_WEIGHTS["rear_fit"] * score_parts["rear_fit"]
@@ -380,6 +408,89 @@ def choose_candidate_with_lookahead(
             "max_future_null_ratio": max_future_null_ratio,
         },
         "law": "A top-K anchor is chosen only if its future still has shape; fallback preserves current top-K when no healthy future exists.",
+    }
+
+
+def build_answer_length_policy(
+    *,
+    limit: int = 6,
+    min_anchors: int | None = None,
+    target_anchors: int | None = None,
+    max_anchors: int | None = None,
+) -> dict[str, Any]:
+    max_count = max(1, int(max_anchors if max_anchors is not None else limit or 6))
+    min_count = max(0, int(min_anchors if min_anchors is not None else 0))
+    if min_count > max_count:
+        min_count = max_count
+    target_count = int(target_anchors if target_anchors is not None else max(min_count, min(max_count, int(limit or max_count))))
+    target_count = max(min_count, min(max_count, target_count))
+    return {
+        "schema_version": "anchorworks_answer_length_policy@1",
+        "min_anchors": min_count,
+        "target_anchors": target_count,
+        "max_anchors": max_count,
+        "stop_law": "Before min, continue; after target, stop only when required slots are satisfied or max is reached.",
+    }
+
+
+def answer_slot_state(frame: dict[str, Any], seed_anchors: list[str], emitted_anchors: list[str]) -> dict[str, Any]:
+    content = set(_clean_list(frame.get("content_anchors") or seed_anchors))
+    emitted = set(_clean_list(emitted_anchors))
+    required = _required_answer_slots(frame, content)
+    satisfied: list[str] = []
+    slot_hits: dict[str, list[str]] = {}
+
+    if "subject" in required and content:
+        satisfied.append("subject")
+        slot_hits["subject"] = sorted(content)
+    for slot, keywords in ANSWER_SLOT_KEYWORDS.items():
+        hits = sorted((content | emitted) & keywords)
+        if slot == "parts":
+            if len(set(hits) & {"first", "second", "third", "three"}) >= 2:
+                satisfied.append(slot)
+                slot_hits[slot] = hits
+        elif hits:
+            satisfied.append(slot)
+            slot_hits[slot] = hits
+
+    missing = [slot for slot in required if slot not in set(satisfied)]
+    return {
+        "schema_version": "anchorworks_answer_slot_state@1",
+        "required_slots": required,
+        "satisfied_slots": satisfied,
+        "missing_slots": missing,
+        "slot_hits": slot_hits,
+        "all_required_satisfied": not missing,
+    }
+
+
+def answer_length_state(policy: dict[str, Any], emitted_count: int, slot_state: dict[str, Any]) -> dict[str, Any]:
+    min_count = int(policy.get("min_anchors", 0) or 0)
+    target_count = int(policy.get("target_anchors", min_count) or min_count)
+    max_count = int(policy.get("max_anchors", target_count) or target_count)
+    below_min = emitted_count < min_count
+    at_target = emitted_count >= target_count
+    at_max = emitted_count >= max_count
+    slots_satisfied = bool(slot_state.get("all_required_satisfied", True))
+    stop_allowed = (not below_min) and (slots_satisfied or at_max) and (at_target or at_max)
+    if at_max:
+        reason = "max_anchor_count_reached"
+    elif below_min:
+        reason = "below_min_anchor_count"
+    elif not slots_satisfied:
+        reason = "required_slots_missing"
+    elif not at_target:
+        reason = "below_target_anchor_count"
+    else:
+        reason = "stop_allowed"
+    return {
+        "schema_version": "anchorworks_answer_length_state@1",
+        "emitted_count": emitted_count,
+        "below_min": below_min,
+        "at_target": at_target,
+        "at_max": at_max,
+        "stop_allowed": stop_allowed,
+        "reason": reason,
     }
 
 
@@ -529,6 +640,17 @@ def _frame_type(anchors: list[str]) -> str:
     return "open_context"
 
 
+def _required_answer_slots(frame: dict[str, Any], content: set[str]) -> list[str]:
+    frame_type = str(frame.get("frame_type") or "")
+    if frame_type in {"question", "open_context"} and {"newton", "laws", "motion"} & content:
+        return ["subject", "category", "mechanism", "parts"]
+    if frame_type == "method_question":
+        return ["subject", "mechanism"]
+    if frame_type == "question":
+        return ["subject", "category"]
+    return []
+
+
 def _surface_role(anchor: str, frame_type: str) -> str:
     if anchor == "how":
         return "method_marker" if frame_type == "method_declaration" else "question_marker"
@@ -594,6 +716,8 @@ def _candidate_gate_reason(anchor: str, blocked: set[str]) -> str:
         return "query_echo"
     if clean in _ANSWER_EXCLUSION_SET:
         return "glue_as_content"
+    if clean and any((not char.isalnum()) and char not in {"'", "-"} for char in clean):
+        return "punctuation_as_content"
     if len(clean) == 1 and not clean.isalnum():
         return "punctuation_as_content"
     if clean and all(char.isdigit() for char in clean):
@@ -607,7 +731,7 @@ def _support_fit(supporting: set[str], cloud: list[str]) -> float:
     return min(1.0, len(set(supporting)) / max(1, len(set(cloud))))
 
 
-def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, list[str]]) -> dict[str, float]:
+def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, list[str]], frame: dict[str, Any]) -> dict[str, float]:
     penalties = {
         "glue_as_content_penalty": 0.0,
         "unsupported_jump_penalty": 0.0,
@@ -615,6 +739,7 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
         "contradiction_penalty": 0.0,
         "source_mismatch_penalty": 0.0,
         "query_echo_penalty": 0.0,
+        "domain_drift_penalty": 0.0,
     }
     if anchor in set(clouds["question"]):
         penalties["query_echo_penalty"] = 0.50
@@ -622,6 +747,9 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
         penalties["repetition_penalty"] = 0.75
     if not row["cloud_support"]["question"] and not row["cloud_support"]["answer"]:
         penalties["unsupported_jump_penalty"] = 0.20
+    content = set(_clean_list(frame.get("content_anchors") or []))
+    if {"newton", "laws", "motion"} & content and anchor not in NEWTON_MOTION_FIELD_TERMS:
+        penalties["domain_drift_penalty"] = 0.45
     penalties["total"] = round(sum(penalties.values()), 6)
     return penalties
 

@@ -481,6 +481,60 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.answer_assembly["terms"][0]["anchor"], "pan")
             self.assertEqual(result.answer_assembly["terms"][0]["role_fit"]["matched_roles"], ["action_candidate", "object_candidate"])
 
+    def test_clearspeak_answer_walk_obeys_min_max_anchor_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, words in {
+                "A": ["acceleration"],
+                "E": ["energy"],
+                "F": ["first", "force"],
+                "L": ["laws", "law"],
+                "M": ["motion", "mass", "move"],
+                "N": ["newton"],
+                "O": ["objects"],
+                "S": ["second"],
+                "T": ["third"],
+                "W": ["what"],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [{"word": word, "status": "ASSIGNED"} for word in words])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(16))
+            _write_json(root / "Structural" / "structural.json", [])
+            store = LexiconStore(root)
+            _write_count_read_fixture(
+                store,
+                [
+                    {"anchor": "newton", "offset": "+1", "neighbor": "law", "observations": 9},
+                    {"anchor": "laws", "offset": "+1", "neighbor": "energy", "observations": 50},
+                    {"anchor": "motion", "offset": "+2", "neighbor": "energy", "observations": 50},
+                    {"anchor": "laws", "offset": "+1", "neighbor": "first", "observations": 8},
+                    {"anchor": "laws", "offset": "+2", "neighbor": "second", "observations": 8},
+                    {"anchor": "laws", "offset": "+3", "neighbor": "third", "observations": 8},
+                    {"anchor": "motion", "offset": "+1", "neighbor": "objects", "observations": 8},
+                    {"anchor": "motion", "offset": "+2", "neighbor": "force", "observations": 7},
+                    {"anchor": "force", "offset": "+1", "neighbor": "mass", "observations": 7},
+                    {"anchor": "mass", "offset": "+1", "neighbor": "acceleration", "observations": 7},
+                    {"anchor": "acceleration", "offset": "+1", "neighbor": "move", "observations": 6},
+                    {"anchor": "first", "offset": "+1", "neighbor": "force", "observations": 5},
+                    {"anchor": "second", "offset": "+1", "neighbor": "mass", "observations": 5},
+                    {"anchor": "third", "offset": "+1", "neighbor": "objects", "observations": 5},
+                ],
+                observed_counts=Counter({"newton": 1, "laws": 1, "motion": 1}),
+            )
+
+            result = ClearSpeakService(store).query("what newton laws motion", min_anchors=8, max_anchors=9)
+
+            self.assertGreaterEqual(len(result.answer_assembly["terms"]), 8)
+            self.assertLessEqual(len(result.answer_assembly["terms"]), 9)
+            self.assertEqual(result.answer_assembly["length_policy"]["min_anchors"], 8)
+            self.assertEqual(result.answer_assembly["length_policy"]["max_anchors"], 9)
+            self.assertIn("mechanism", result.answer_assembly["slot_state"]["satisfied_slots"])
+            self.assertIn("parts", result.answer_assembly["slot_state"]["satisfied_slots"])
+            self.assertIn("length_state", result.answer_assembly["trace"][0])
+            self.assertNotEqual(result.answer_assembly["terms"][0]["anchor"], "energy")
+            self.assertIn("domain_drift_penalty", result.answer_assembly["trace"][0]["candidate_preview"][0]["penalties"])
+
     def test_clearspeak_can_read_external_lifetime_by_symbol_mirror(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
