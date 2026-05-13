@@ -17,6 +17,8 @@ State/flat_documents/symbolic/**
 State/flat_documents/block_index/**
 State/flat_documents/occurrence_index/**
 State/flat_documents/visual_links/**
+State/flat_documents/local_overlays/**
+State/jobs/**
 State/intake_uploads/**
 State/source_local_preview_counts/**
 State/source_local_symbol_counts/**
