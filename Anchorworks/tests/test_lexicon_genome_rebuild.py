@@ -229,6 +229,11 @@ class LexiconGenomeRebuildTests(unittest.TestCase):
             self.assertNotIn("font_symbol", promoted)
             self.assertNotIn("frequency", promoted)
 
+            pool_manifest = json.loads((data_root / "State" / "symbol_genome_pool" / "manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(pool_manifest["next_index"], 2)
+            self.assertEqual(pool_manifest["assigned_count"], 2)
+            self.assertEqual(pool_manifest["last_checkpoint_reason"], "live lexicon genome promotion")
+
 
 if __name__ == "__main__":
     unittest.main()

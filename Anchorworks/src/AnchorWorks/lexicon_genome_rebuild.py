@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .symbol_genome_native import allocate_symbol_genome_batch, build_native_symbol_genome
+from .symbol_genome_pool import SymbolGenomePool
 
 
 ALLOWED_REBUILT_FIELDS = {
@@ -243,6 +244,10 @@ def promote_genome_rebuild_to_live(
         _write_json(structural_path, structural_rows)
 
     verification = verify_live_genome_lexicon(root)
+    pool_status = _reserve_symbol_genome_pool_after_live_promotion(
+        root,
+        promoted_canonical_rows + promoted_structural_rows,
+    )
     report = {
         "ok": verification["ok"],
         "schema_version": "anchorworks_lexicon_genome_live_promotion@1",
@@ -252,11 +257,32 @@ def promote_genome_rebuild_to_live(
         "backup_root": str(backup),
         "canonical_rows": promoted_canonical_rows,
         "structural_rows": promoted_structural_rows,
+        "symbol_genome_pool_next_index": pool_status["next_index"],
+        "symbol_genome_pool_assigned_count": pool_status["assigned_count"],
         **verification,
     }
     reports_root = rebuild / "reports"
     _write_json(reports_root / "live_promotion_report.json", report)
     return report
+
+
+def _reserve_symbol_genome_pool_after_live_promotion(root: Path, live_rows: int) -> dict[str, Any]:
+    pool = SymbolGenomePool(root / "State" / "symbol_genome_pool")
+    manifest = pool._read_manifest()
+    reserved_count = int(live_rows)
+    manifest["next_index"] = max(int(manifest.get("next_index") or 0), reserved_count)
+    manifest["assigned_count"] = max(int(manifest.get("assigned_count") or 0), reserved_count)
+    manifest["updated_at"] = _utc_now()
+    manifest["last_checkpoint_at"] = manifest["updated_at"]
+    manifest["last_checkpoint_reason"] = "live lexicon genome promotion"
+    manifest.setdefault("checkpoints", []).append({
+        "checkpoint_at": manifest["updated_at"],
+        "reason": "live lexicon genome promotion",
+        "next_index": manifest["next_index"],
+        "assigned_count": manifest["assigned_count"],
+    })
+    pool._write_manifest(manifest)
+    return pool.status()
 
 
 def verify_live_genome_lexicon(data_root: str | Path) -> dict[str, Any]:

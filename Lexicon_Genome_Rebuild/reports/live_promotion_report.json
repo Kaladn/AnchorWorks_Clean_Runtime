@@ -7,6 +7,8 @@
   "backup_root": "D:\\AnchorWorks_Clean_Runtime\\Lexicon_Backups\\pre_genome_swap_20260514T084220Z",
   "canonical_rows": 281948,
   "structural_rows": 68,
+  "symbol_genome_pool_next_index": 282016,
+  "symbol_genome_pool_assigned_count": 282016,
   "live_rows": 282016,
   "duplicate_symbols": 0,
   "missing_word": 0,
