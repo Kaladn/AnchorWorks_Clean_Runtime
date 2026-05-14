@@ -1,80 +1,26 @@
 [
   {
-    "binary": "0100101100111001011111101000011001011011",
-    "hex": "0x4B397E865B",
-    "font_symbol": "CHAR_0100101100",
-    "tone_signature": "TONE_543",
-    "status": "ASSIGNED",
     "word": "ádi",
-    "display": "ádi",
-    "symbol": "0x4B397E865B",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 31
+    "symbol": "0x1000044CEA"
   },
   {
-    "binary": "1000000110110011100010001100100000010010",
-    "hex": "0x81B388C812",
-    "font_symbol": "CHAR_1000000110",
-    "tone_signature": "TONE_7062",
-    "status": "ASSIGNED",
     "word": "álvares",
-    "display": "álvares",
-    "symbol": "0x81B388C812",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044CEB"
   },
   {
-    "binary": "1100001101010001100010001100100000111000",
-    "hex": "0xC35188C838",
-    "font_symbol": "CHAR_1100001101",
-    "tone_signature": "TONE_1468",
-    "status": "ASSIGNED",
     "word": "álvaro",
-    "display": "álvaro",
-    "symbol": "0xC35188C838",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044CEC"
   },
   {
-    "binary": "1100100101100101100010001100100000111100",
-    "hex": "0xC96588C83C",
-    "font_symbol": "CHAR_1100100101",
-    "tone_signature": "TONE_9568",
-    "status": "ASSIGNED",
     "word": "ángel",
-    "display": "ángel",
-    "symbol": "0xC96588C83C",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044CED"
   },
   {
-    "binary": "1100100000001000011101110011101011101010",
-    "hex": "0xC808773AEA",
-    "font_symbol": "CHAR_1100100000",
-    "tone_signature": "TONE_10894",
-    "status": "ASSIGNED",
     "word": "árbenz",
-    "display": "árbenz",
-    "symbol": "0xC808773AEA",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 6
+    "symbol": "0x1000044CEE"
   },
   {
-    "binary": "0000001000010000011101110011101000001010",
-    "hex": "0x0210773A0A",
-    "font_symbol": "CHAR_0000001000",
-    "tone_signature": "TONE_3790",
-    "status": "ASSIGNED",
     "word": "árbenz's",
-    "display": "árbenz's",
-    "symbol": "0x0210773A0A",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 2
+    "symbol": "0x1000044CEF"
   }
 ]

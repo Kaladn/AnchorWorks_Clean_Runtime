@@ -1,28 +1,10 @@
 [
   {
-    "binary": "1010001100100111011111101000011001011110",
-    "hex": "0xA3277E865E",
-    "font_symbol": "CHAR_1010001100",
-    "tone_signature": "TONE_12706",
-    "status": "ASSIGNED",
     "word": "života",
-    "display": "života",
-    "symbol": "0xA3277E865E",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 31
+    "symbol": "0x1000044D30"
   },
   {
-    "binary": "0100101100010100100001101011000001110100",
-    "hex": "0x4B1486B074",
-    "font_symbol": "CHAR_0100101100",
-    "tone_signature": "TONE_18616",
-    "status": "ASSIGNED",
     "word": "župa",
-    "display": "župa",
-    "symbol": "0x4B1486B074",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 69
+    "symbol": "0x1000044D31"
   }
 ]

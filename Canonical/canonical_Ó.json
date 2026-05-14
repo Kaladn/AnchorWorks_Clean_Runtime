@@ -1,15 +1,6 @@
 [
   {
-    "binary": "0110010101101100011101110011010001100011",
-    "hex": "0x656C773463",
-    "font_symbol": "CHAR_0110010101",
-    "tone_signature": "TONE_8519",
-    "status": "ASSIGNED",
     "word": "óglaigh",
-    "display": "óglaigh",
-    "symbol": "0x656C773463",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D18"
   }
 ]

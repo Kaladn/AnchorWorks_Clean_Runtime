@@ -1,1130 +1,274 @@
 [
   {
-    "binary": "0100000001011111111011001110101101100110",
-    "hex": "0x405FECEB66",
-    "symbol": "0x405FECEB66",
-    "word": "0",
-    "display": "DIGIT_0",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_9322",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001101011100001101011001001110011",
-    "hex": "0x406B86B273",
-    "symbol": "0x406B86B273",
-    "word": "1",
-    "display": "DIGIT_1",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_16663",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011010100011100110101111000111010",
-    "hex": "0x40D4735E3A",
-    "symbol": "0x40D4735E3A",
-    "word": "2",
-    "display": "DIGIT_2",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_17598",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001001110000001110100000010000101",
-    "hex": "0x404E074085",
-    "symbol": "0x404E074085",
-    "word": "3",
-    "display": "DIGIT_3",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_5161",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001001011001000100111011101110111",
-    "hex": "0x404B227777",
-    "symbol": "0x404B227777",
-    "word": "4",
-    "display": "DIGIT_4",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_17051",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011101111001011010001001001111101",
-    "hex": "0x40EF2D127D",
-    "symbol": "0x40EF2D127D",
-    "word": "5",
-    "display": "DIGIT_5",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_15521",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011100111111101101100000000010001",
-    "hex": "0x40E7F6C011",
-    "symbol": "0x40E7F6C011",
-    "word": "6",
-    "display": "DIGIT_6",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_14965",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001111001000000100110100110011011",
-    "hex": "0x407902699B",
-    "symbol": "0x407902699B",
-    "word": "7",
-    "display": "DIGIT_7",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_8287",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000101100011000100100001000110010",
-    "hex": "0x402C624232",
-    "symbol": "0x402C624232",
-    "word": "8",
-    "display": "DIGIT_8",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_4022",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000011001010110000001111000100111",
-    "hex": "0x4019581E27",
-    "symbol": "0x4019581E27",
-    "word": "9",
-    "display": "DIGIT_9",
-    "category": "digit",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_12331",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011001010100101111000000100010010",
-    "hex": "0x40CA978112",
-    "symbol": "0x40CA978112",
-    "word": "a",
-    "display": "LETTER_a",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_13654",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000111110001000111110100000010110",
-    "hex": "0x403E23E816",
-    "symbol": "0x403E23E816",
-    "word": "b",
-    "display": "LETTER_b",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_7610",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000101110011111010010110000000011",
-    "hex": "0x402E7D2C03",
-    "symbol": "0x402E7D2C03",
-    "word": "c",
-    "display": "LETTER_c",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_2247",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000011000101011000011111001110011",
-    "hex": "0x4018AC3E73",
-    "symbol": "0x4018AC3E73",
-    "word": "d",
-    "display": "LETTER_d",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_8407",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000111111011110011011101101111011",
-    "hex": "0x403F79BB7B",
-    "symbol": "0x403F79BB7B",
-    "word": "e",
-    "display": "LETTER_e",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_9503",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000100101001011110001000011001000",
-    "hex": "0x40252F10C8",
-    "symbol": "0x40252F10C8",
-    "word": "f",
-    "display": "LETTER_f",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_8524",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011001101000010101010100110000101",
-    "hex": "0x40CD0AA985",
-    "symbol": "0x40CD0AA985",
-    "word": "g",
-    "display": "LETTER_g",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_15081",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010101010101010010100000000100110",
-    "hex": "0x40AAA94026",
-    "symbol": "0x40AAA94026",
-    "word": "h",
-    "display": "LETTER_h",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_5770",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011011110011111010001101101110010",
-    "hex": "0x40DE7D1B72",
-    "symbol": "0x40DE7D1B72",
-    "word": "i",
-    "display": "LETTER_i",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_8022",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000011000100111110100000000000011",
-    "hex": "0x40189F4003",
-    "symbol": "0x40189F4003",
-    "word": "j",
-    "display": "LETTER_j",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_16839",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010000010010101001100001100101001",
-    "hex": "0x408254C329",
-    "symbol": "0x408254C329",
-    "word": "k",
-    "display": "LETTER_k",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_109",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010101100101011001000011011000000",
-    "hex": "0x40ACAC86C0",
-    "symbol": "0x40ACAC86C0",
-    "word": "l",
-    "display": "LETTER_l",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_14884",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001100010110001100110101001111010",
-    "hex": "0x4062C66A7A",
-    "symbol": "0x4062C66A7A",
-    "word": "m",
-    "display": "LETTER_m",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_17598",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000011011000101101011000111011111",
-    "hex": "0x401B16B1DF",
-    "symbol": "0x401B16B1DF",
-    "word": "n",
-    "display": "LETTER_n",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_19203",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001100101110001110100110000010101",
-    "hex": "0x4065C74C15",
-    "symbol": "0x4065C74C15",
-    "word": "o",
-    "display": "LETTER_o",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_7001",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000010100100011011110100111000101",
-    "hex": "0x40148DE9C5",
-    "symbol": "0x40148DE9C5",
-    "word": "p",
-    "display": "LETTER_p",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_11785",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010001110001101011100001011001101",
-    "hex": "0x408E35C2CD",
-    "symbol": "0x408E35C2CD",
-    "word": "q",
-    "display": "LETTER_q",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_14993",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001000101010000110100100111100100",
-    "hex": "0x40454349E4",
-    "symbol": "0x40454349E4",
-    "word": "r",
-    "display": "LETTER_r",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_4776",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000000100001110100111000110000111",
-    "hex": "0x40043A7187",
-    "symbol": "0x40043A7187",
-    "word": "s",
-    "display": "LETTER_s",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_6059",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011100011101110011000101001001101",
-    "hex": "0x40E3B98A4D",
-    "symbol": "0x40E3B98A4D",
-    "word": "t",
-    "display": "LETTER_t",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_14641",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000001011111111101001001101011110",
-    "hex": "0x400BFE935E",
-    "symbol": "0x400BFE935E",
-    "word": "u",
-    "display": "LETTER_u",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_290",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001001100100101000100100001011110",
-    "hex": "0x404C94485E",
-    "symbol": "0x404C94485E",
-    "word": "v",
-    "display": "LETTER_v",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_13314",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001010000111001110010000111100100",
-    "hex": "0x4050E721E4",
-    "symbol": "0x4050E721E4",
-    "word": "w",
-    "display": "LETTER_w",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_11816",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000101101011100010001011001000010",
-    "hex": "0x402D711642",
-    "symbol": "0x402D711642",
-    "word": "x",
-    "display": "LETTER_x",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_13030",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010100001111111001110010000110110",
-    "hex": "0x40A1FCE436",
-    "symbol": "0x40A1FCE436",
-    "word": "y",
-    "display": "LETTER_y",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_12314",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001011001010011100101000110011010",
-    "hex": "0x40594E519A",
-    "symbol": "0x40594E519A",
-    "word": "z",
-    "display": "LETTER_z",
-    "category": "letter_lower",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_11966",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000000101101010011100010101101001",
-    "hex": "0x4005A9C569",
-    "symbol": "0x4005A9C569",
-    "word": "A",
-    "display": "LETTER_A",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_19245",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011101100110101100110011100100101",
-    "hex": "0x40ECD66725",
-    "symbol": "0x40ECD66725",
-    "word": "B",
-    "display": "LETTER_B",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_1129",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010111100011110101111011110011101",
-    "hex": "0x40BC7AF79D",
-    "symbol": "0x40BC7AF79D",
-    "word": "C",
-    "display": "LETTER_C",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_2433",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001110100101111011001000001001001",
-    "hex": "0x4074BD9049",
-    "symbol": "0x4074BD9049",
-    "word": "D",
-    "display": "LETTER_D",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_7341",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001111101000101101010000101001011",
-    "hex": "0x407D16A14B",
-    "symbol": "0x407D16A14B",
-    "word": "E",
-    "display": "LETTER_E",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_2127",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010011101011010110100011001110010",
-    "hex": "0x409D6B4672",
-    "symbol": "0x409D6B4672",
-    "word": "F",
-    "display": "LETTER_F",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_342",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010101001100011110111100111000100",
-    "hex": "0x40A98F79C4",
-    "symbol": "0x40A98F79C4",
-    "word": "G",
-    "display": "LETTER_G",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_19368",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000001011100010000010110100101110",
-    "hex": "0x400B882D2E",
-    "symbol": "0x400B882D2E",
-    "word": "H",
-    "display": "LETTER_H",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_882",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000001100111110101101010100101110",
-    "hex": "0x400CFAD52E",
-    "symbol": "0x400CFAD52E",
-    "word": "I",
-    "display": "LETTER_I",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_12210",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011100001010010001001101000010110",
-    "hex": "0x40E1489A16",
-    "symbol": "0x40E1489A16",
-    "word": "J",
-    "display": "LETTER_J",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_18682",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011100011101010101000100100011101",
-    "hex": "0x40E3AA891D",
-    "symbol": "0x40E3AA891D",
-    "word": "K",
-    "display": "LETTER_K",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_11297",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010001001110110011101011011010101",
-    "hex": "0x4089D9D6D5",
-    "symbol": "0x4089D9D6D5",
-    "word": "L",
-    "display": "LETTER_L",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_1945",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001011110111110001111011010110111",
-    "hex": "0x405EF8F6B7",
-    "symbol": "0x405EF8F6B7",
-    "word": "M",
-    "display": "LETTER_M",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_1435",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010111100110101000110000000001111",
-    "hex": "0x40BCD4600F",
-    "symbol": "0x40BCD4600F",
-    "word": "N",
-    "display": "LETTER_N",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_1875",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011101110010000010110010000010111",
-    "hex": "0x40EE416417",
-    "symbol": "0x40EE416417",
-    "word": "O",
-    "display": "LETTER_O",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_9915",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010010100100010111010000110001010",
-    "hex": "0x40948BA18A",
-    "symbol": "0x40948BA18A",
-    "word": "P",
-    "display": "LETTER_P",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_5870",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011110111101011101100101000110101",
-    "hex": "0x40F7AECA35",
-    "symbol": "0x40F7AECA35",
-    "word": "Q",
-    "display": "LETTER_Q",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_14425",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010000001010100101110110001011001",
-    "hex": "0x408152EC59",
-    "symbol": "0x408152EC59",
-    "word": "R",
-    "display": "LETTER_R",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_2365",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011101101011001010111011001000001",
-    "hex": "0x40ED657641",
-    "symbol": "0x40ED657641",
-    "word": "S",
-    "display": "LETTER_S",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_16645",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001001110000001101001001100001010",
-    "hex": "0x404E06930A",
-    "symbol": "0x404E06930A",
-    "word": "T",
-    "display": "LETTER_T",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_750",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010000110010110010000111110101100",
-    "hex": "0x4086590FAC",
-    "symbol": "0x4086590FAC",
-    "word": "U",
-    "display": "LETTER_U",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_10704",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001011000110101001101111111010110",
-    "hex": "0x4058D4DFD6",
-    "symbol": "0x4058D4DFD6",
-    "word": "V",
-    "display": "LETTER_V",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_12986",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001110001110111111011111110000100",
-    "hex": "0x4071DFBF84",
-    "symbol": "0x4071DFBF84",
-    "word": "W",
-    "display": "LETTER_W",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_16008",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011101101001010100000111101000011",
-    "hex": "0x40ED2A0F43",
-    "symbol": "0x40ED2A0F43",
-    "word": "X",
-    "display": "LETTER_X",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_3655",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001010110100000001001101000101100",
-    "hex": "0x4056809A2C",
-    "symbol": "0x4056809A2C",
-    "word": "Y",
-    "display": "LETTER_Y",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_15696",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001111111000100111001011110000100",
-    "hex": "0x407F139784",
-    "symbol": "0x407F139784",
-    "word": "Z",
-    "display": "LETTER_Z",
-    "category": "letter_upper",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_17448",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010111011011100100000100010111100",
-    "hex": "0x40BB7208BC",
-    "symbol": "0x40BB7208BC",
     "word": "!",
-    "display": "PUNCT_EXCLAMATION",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_19776",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D5C"
   },
   {
-    "binary": "0100000011000011011001000001111110000101",
-    "hex": "0x40C3641F85",
-    "symbol": "0x40C3641F85",
-    "word": "@",
-    "display": "PUNCT_AT",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_5833",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000110011010000110101100110111001",
-    "hex": "0x40334359B9",
-    "symbol": "0x40334359B9",
-    "word": "#",
-    "display": "PUNCT_HASH",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_18941",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000001001111111001001011000001000",
-    "hex": "0x4009FC9608",
-    "symbol": "0x4009FC9608",
-    "word": "$",
-    "display": "PUNCT_DOLLAR",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_15468",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010111011111100111111000100011100",
-    "hex": "0x40BBF3F11C",
-    "symbol": "0x40BBF3F11C",
-    "word": "%",
-    "display": "PUNCT_PERCENT",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_13408",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001110100110011011001111011111001",
-    "hex": "0x4074CD9EF9",
-    "symbol": "0x4074CD9EF9",
-    "word": "^",
-    "display": "PUNCT_CARET",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_19677",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010010101000111011100111011100011",
-    "hex": "0x40951DCEE3",
-    "symbol": "0x40951DCEE3",
-    "word": "&",
-    "display": "PUNCT_AMPERSAND",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_5735",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001101000010010001000100011000000",
-    "hex": "0x40684888C0",
-    "symbol": "0x40684888C0",
-    "word": "*",
-    "display": "PUNCT_ASTERISK",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_11108",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000110010111010111011000110101011",
-    "hex": "0x4032EBB1AB",
-    "symbol": "0x4032EBB1AB",
-    "word": "(",
-    "display": "PUNCT_LPAREN",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_14287",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010111010010111101100010100011101",
-    "hex": "0x40BA5EC51D",
-    "symbol": "0x40BA5EC51D",
-    "word": ")",
-    "display": "PUNCT_RPAREN",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_20065",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000111001011100111110000000100010",
-    "hex": "0x403973E022",
-    "symbol": "0x403973E022",
-    "word": "-",
-    "display": "PUNCT_HYPHEN",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_2374",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011010010111000101010110111110111",
-    "hex": "0x40D2E2ADF7",
-    "symbol": "0x40D2E2ADF7",
-    "word": "_",
-    "display": "PUNCT_UNDERSCORE",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_18075",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000111000000010010001100010111001",
-    "hex": "0x40380918B9",
-    "symbol": "0x40380918B9",
-    "word": "=",
-    "display": "PUNCT_EQUALS",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_7293",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010100011000110001100001001000010",
-    "hex": "0x40A318C242",
-    "symbol": "0x40A318C242",
-    "word": "+",
-    "display": "PUNCT_PLUS",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_15846",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000100100010110000100001110101011",
-    "hex": "0x40245843AB",
-    "symbol": "0x40245843AB",
-    "word": "[",
-    "display": "PUNCT_LBRACKET",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_11311",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011001111101011100000110101000010",
-    "hex": "0x40CFAE0D42",
-    "symbol": "0x40CFAE0D42",
-    "word": "]",
-    "display": "PUNCT_RBRACKET",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_17414",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000000010000111111011010110010110",
-    "hex": "0x40021FB596",
-    "symbol": "0x40021FB596",
-    "word": "{",
-    "display": "PUNCT_LBRACE",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_19578",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011010001000010110011011010101010",
-    "hex": "0x40D10B36AA",
-    "symbol": "0x40D10B36AA",
-    "word": "}",
-    "display": "PUNCT_RBRACE",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_20078",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011001011111001011100111111011111",
-    "hex": "0x40CBE5CFDF",
-    "symbol": "0x40CBE5CFDF",
-    "word": "|",
-    "display": "PUNCT_PIPE",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_2851",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010101001001001010011110111001000",
-    "hex": "0x40A9253DC8",
-    "symbol": "0x40A9253DC8",
-    "word": "\\",
-    "display": "PUNCT_BACKSLASH",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_17196",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000001000001101110000000010111101010",
-    "hex": "0x4041B805EA",
-    "symbol": "0x4041B805EA",
-    "word": ";",
-    "display": "PUNCT_SEMICOLON",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_6222",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000011100111101011000000011110000110",
-    "hex": "0x40E7AC0786",
-    "symbol": "0x40E7AC0786",
-    "word": ":",
-    "display": "PUNCT_COLON",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_18058",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000000100110010111111101101000010111",
-    "hex": "0x40265FDA17",
-    "symbol": "0x40265FDA17",
-    "word": "'",
-    "display": "PUNCT_APOSTROPHE",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000000",
-    "tone_signature": "TONE_3003",
-    "status": "STRUCTURAL",
-    "pack": "structural"
-  },
-  {
-    "binary": "0100000010001010001100110001111111011101",
-    "hex": "0x408A331FDD",
-    "symbol": "0x408A331FDD",
     "word": "\"",
-    "display": "PUNCT_DOUBLE_QUOTE",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_13345",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D5D"
   },
   {
-    "binary": "0100000011010000001101010000001011000100",
-    "hex": "0x40D03502C4",
-    "symbol": "0x40D03502C4",
+    "word": "#",
+    "symbol": "0x1000044D5E"
+  },
+  {
+    "word": "$",
+    "symbol": "0x1000044D5F"
+  },
+  {
+    "word": "%",
+    "symbol": "0x1000044D60"
+  },
+  {
+    "word": "&",
+    "symbol": "0x1000044D61"
+  },
+  {
+    "word": "'",
+    "symbol": "0x1000044D62"
+  },
+  {
+    "word": "(",
+    "symbol": "0x1000044D63"
+  },
+  {
+    "word": ")",
+    "symbol": "0x1000044D64"
+  },
+  {
+    "word": "*",
+    "symbol": "0x1000044D65"
+  },
+  {
+    "word": "+",
+    "symbol": "0x1000044D66"
+  },
+  {
     "word": ",",
-    "display": "PUNCT_COMMA",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_2088",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D67"
   },
   {
-    "binary": "0100000011001101101101001110111000101010",
-    "hex": "0x40CDB4EE2A",
-    "symbol": "0x40CDB4EE2A",
+    "word": "-",
+    "symbol": "0x1000044D68"
+  },
+  {
     "word": ".",
-    "display": "PUNCT_PERIOD",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_13774",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D69"
   },
   {
-    "binary": "0100000010001010010111101101101010110010",
-    "hex": "0x408A5EDAB2",
-    "symbol": "0x408A5EDAB2",
     "word": "/",
-    "display": "PUNCT_SLASH",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_19222",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D6A"
   },
   {
-    "binary": "0100000011011010101111010011101011111111",
-    "hex": "0x40DABD3AFF",
-    "symbol": "0x40DABD3AFF",
+    "word": "0",
+    "symbol": "0x1000044D6B"
+  },
+  {
+    "word": "1",
+    "symbol": "0x1000044D6C"
+  },
+  {
+    "word": "2",
+    "symbol": "0x1000044D6D"
+  },
+  {
+    "word": "3",
+    "symbol": "0x1000044D6E"
+  },
+  {
+    "word": "4",
+    "symbol": "0x1000044D6F"
+  },
+  {
+    "word": "5",
+    "symbol": "0x1000044D70"
+  },
+  {
+    "word": "6",
+    "symbol": "0x1000044D71"
+  },
+  {
+    "word": "7",
+    "symbol": "0x1000044D72"
+  },
+  {
+    "word": "8",
+    "symbol": "0x1000044D73"
+  },
+  {
+    "word": "9",
+    "symbol": "0x1000044D74"
+  },
+  {
+    "word": ":",
+    "symbol": "0x1000044D75"
+  },
+  {
+    "word": ";",
+    "symbol": "0x1000044D76"
+  },
+  {
     "word": "<",
-    "display": "PUNCT_LESS_THAN",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_1539",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D77"
   },
   {
-    "binary": "0100000001100010101101100111111000011111",
-    "hex": "0x4062B67E1F",
-    "symbol": "0x4062B67E1F",
+    "word": "=",
+    "symbol": "0x1000044D78"
+  },
+  {
     "word": ">",
-    "display": "PUNCT_GREATER_THAN",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_14051",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D79"
   },
   {
-    "binary": "0100000010001010100011011110100000100011",
-    "hex": "0x408A8DE823",
-    "symbol": "0x408A8DE823",
     "word": "?",
-    "display": "PUNCT_QUESTION",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_2855",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D7A"
   },
   {
-    "binary": "0100000001111010110011100100001100011100",
-    "hex": "0x407ACE431C",
-    "symbol": "0x407ACE431C",
-    "word": "~",
-    "display": "PUNCT_TILDE",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000001",
-    "tone_signature": "TONE_4992",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "word": "@",
+    "symbol": "0x1000044D7B"
   },
   {
-    "binary": "0100000010001101001100111111010100100000",
-    "hex": "0x408D33F520",
-    "symbol": "0x408D33F520",
+    "word": "[",
+    "symbol": "0x1000044D7C"
+  },
+  {
+    "word": "\\",
+    "symbol": "0x1000044D7D"
+  },
+  {
+    "word": "]",
+    "symbol": "0x1000044D7E"
+  },
+  {
+    "word": "^",
+    "symbol": "0x1000044D7F"
+  },
+  {
+    "word": "_",
+    "symbol": "0x1000044D80"
+  },
+  {
     "word": "`",
-    "display": "PUNCT_BACKTICK",
-    "category": "punctuation",
-    "font_symbol": "CHAR_0100000010",
-    "tone_signature": "TONE_19588",
-    "status": "STRUCTURAL",
-    "pack": "structural"
+    "symbol": "0x1000044D81"
+  },
+  {
+    "word": "a",
+    "symbol": "0x1000044D82"
+  },
+  {
+    "word": "b",
+    "symbol": "0x1000044D83"
+  },
+  {
+    "word": "c",
+    "symbol": "0x1000044D84"
+  },
+  {
+    "word": "d",
+    "symbol": "0x1000044D85"
+  },
+  {
+    "word": "e",
+    "symbol": "0x1000044D86"
+  },
+  {
+    "word": "f",
+    "symbol": "0x1000044D87"
+  },
+  {
+    "word": "g",
+    "symbol": "0x1000044D88"
+  },
+  {
+    "word": "h",
+    "symbol": "0x1000044D89"
+  },
+  {
+    "word": "i",
+    "symbol": "0x1000044D8A"
+  },
+  {
+    "word": "j",
+    "symbol": "0x1000044D8B"
+  },
+  {
+    "word": "k",
+    "symbol": "0x1000044D8C"
+  },
+  {
+    "word": "l",
+    "symbol": "0x1000044D8D"
+  },
+  {
+    "word": "m",
+    "symbol": "0x1000044D8E"
+  },
+  {
+    "word": "n",
+    "symbol": "0x1000044D8F"
+  },
+  {
+    "word": "o",
+    "symbol": "0x1000044D90"
+  },
+  {
+    "word": "p",
+    "symbol": "0x1000044D91"
+  },
+  {
+    "word": "q",
+    "symbol": "0x1000044D92"
+  },
+  {
+    "word": "r",
+    "symbol": "0x1000044D93"
+  },
+  {
+    "word": "s",
+    "symbol": "0x1000044D94"
+  },
+  {
+    "word": "t",
+    "symbol": "0x1000044D95"
+  },
+  {
+    "word": "u",
+    "symbol": "0x1000044D96"
+  },
+  {
+    "word": "v",
+    "symbol": "0x1000044D97"
+  },
+  {
+    "word": "w",
+    "symbol": "0x1000044D98"
+  },
+  {
+    "word": "x",
+    "symbol": "0x1000044D99"
+  },
+  {
+    "word": "y",
+    "symbol": "0x1000044D9A"
+  },
+  {
+    "word": "z",
+    "symbol": "0x1000044D9B"
+  },
+  {
+    "word": "{",
+    "symbol": "0x1000044D9C"
+  },
+  {
+    "word": "|",
+    "symbol": "0x1000044D9D"
+  },
+  {
+    "word": "}",
+    "symbol": "0x1000044D9E"
+  },
+  {
+    "word": "~",
+    "symbol": "0x1000044D9F"
   }
 ]

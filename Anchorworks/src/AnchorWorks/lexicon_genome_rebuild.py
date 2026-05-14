@@ -191,6 +191,145 @@ def verify_rebuilt_lexicon(output_root: str | Path) -> dict[str, Any]:
     }
 
 
+def promote_genome_rebuild_to_live(
+    data_root: str | Path,
+    *,
+    rebuild_root: str | Path | None = None,
+    backup_root: str | Path | None = None,
+) -> dict[str, Any]:
+    root = Path(data_root).expanduser().resolve()
+    rebuild = Path(rebuild_root).expanduser().resolve() if rebuild_root else root / "Lexicon_Genome_Rebuild"
+    if not rebuild.exists():
+        raise FileNotFoundError(rebuild)
+    manifest_path = rebuild / "reports" / "rebuild_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not manifest.get("ok"):
+        raise ValueError("cannot promote a failed genome rebuild")
+
+    backup = Path(backup_root).expanduser().resolve() if backup_root else root / "Lexicon_Backups" / f"pre_genome_swap_{_timestamp_slug()}"
+    backup.mkdir(parents=True, exist_ok=False)
+    for lane in ["Canonical", "Structural"]:
+        source = root / lane
+        if source.exists():
+            shutil.copytree(source, backup / lane)
+
+    live_canonical = root / "Canonical"
+    live_structural = root / "Structural"
+    live_canonical.mkdir(parents=True, exist_ok=True)
+    live_structural.mkdir(parents=True, exist_ok=True)
+    for path in live_canonical.glob("canonical_*.json"):
+        path.unlink()
+    structural_path = live_structural / "structural.json"
+    if structural_path.exists():
+        structural_path.unlink()
+
+    promoted_canonical_rows = 0
+    live_canonical_by_letter: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for path in sorted((rebuild / "Canonical").glob("*.json")):
+        rows = [_live_row_from_rebuild(row) for row in json.loads(path.read_text(encoding="utf-8"))]
+        promoted_canonical_rows += len(rows)
+        for row in rows:
+            live_canonical_by_letter[_live_letter_for_word(row["word"])].append(row)
+    for letter, rows in sorted(live_canonical_by_letter.items()):
+        rows.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
+        _write_json(live_canonical / f"canonical_{letter}.json", rows)
+
+    promoted_structural_rows = 0
+    structural_rows = []
+    rebuilt_structural_path = rebuild / "Structural" / "structural.json"
+    if rebuilt_structural_path.exists():
+        structural_rows = [_live_row_from_rebuild(row) for row in json.loads(rebuilt_structural_path.read_text(encoding="utf-8"))]
+        promoted_structural_rows = len(structural_rows)
+        _write_json(structural_path, structural_rows)
+
+    verification = verify_live_genome_lexicon(root)
+    report = {
+        "ok": verification["ok"],
+        "schema_version": "anchorworks_lexicon_genome_live_promotion@1",
+        "promoted_at": _utc_now(),
+        "data_root": str(root),
+        "rebuild_root": str(rebuild),
+        "backup_root": str(backup),
+        "canonical_rows": promoted_canonical_rows,
+        "structural_rows": promoted_structural_rows,
+        **verification,
+    }
+    reports_root = rebuild / "reports"
+    _write_json(reports_root / "live_promotion_report.json", report)
+    return report
+
+
+def verify_live_genome_lexicon(data_root: str | Path) -> dict[str, Any]:
+    root = Path(data_root).expanduser().resolve()
+    paths = sorted((root / "Canonical").glob("canonical_*.json"))
+    structural_path = root / "Structural" / "structural.json"
+    if structural_path.exists():
+        paths.append(structural_path)
+    rows: list[dict[str, Any]] = []
+    for path in paths:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(payload, list):
+            rows.extend(row for row in payload if isinstance(row, dict))
+    symbols: list[str] = []
+    missing_word = 0
+    tone_count = 0
+    font_count = 0
+    frequency_count = 0
+    extra_field_count = 0
+    for row in rows:
+        if set(row) != {"word", "symbol"}:
+            extra_field_count += 1
+        if not str(row.get("word") or "").strip():
+            missing_word += 1
+        if "tone_signature" in row:
+            tone_count += 1
+        if "font_symbol" in row:
+            font_count += 1
+        if "frequency" in row:
+            frequency_count += 1
+        symbol = str(row.get("symbol") or "")
+        symbols.append(symbol)
+    duplicate_symbols = len(symbols) - len(set(symbols))
+    ok = (
+        rows
+        and duplicate_symbols == 0
+        and missing_word == 0
+        and tone_count == 0
+        and font_count == 0
+        and frequency_count == 0
+        and extra_field_count == 0
+    )
+    return {
+        "live_rows": len(rows),
+        "duplicate_symbols": duplicate_symbols,
+        "missing_word": missing_word,
+        "tone_signature_count": tone_count,
+        "font_symbol_count": font_count,
+        "frequency_count": frequency_count,
+        "non_minimal_row_count": extra_field_count,
+        "ok": bool(ok),
+    }
+
+
+def _live_row_from_rebuild(row: dict[str, Any]) -> dict[str, Any]:
+    anchor = str(row.get("anchor") or row.get("display") or "").strip()
+    genome_hex = str(row.get("genome_hex") or row.get("genome_symbol") or "").strip()
+    genome_binary = str(row.get("genome_binary") or "").strip()
+    if not anchor or not genome_hex or not genome_binary:
+        raise ValueError(f"cannot promote incomplete rebuild row: {row}")
+    return {
+        "word": anchor,
+        "symbol": genome_hex,
+    }
+
+
+def _live_letter_for_word(word: str) -> str:
+    for char in str(word or "").strip().lower():
+        if char.isalpha():
+            return char.upper()
+    return "A"
+
+
 def _read_source_rows(root: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     canonical_root = root / "Canonical"
@@ -343,3 +482,7 @@ def _source_hashes(root: Path) -> dict[str, str]:
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _timestamp_slug() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")

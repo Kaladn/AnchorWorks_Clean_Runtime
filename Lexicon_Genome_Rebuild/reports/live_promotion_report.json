@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "schema_version": "anchorworks_lexicon_genome_live_promotion@1",
+  "promoted_at": "2026-05-14T08:42:22.536339+00:00",
+  "data_root": "D:\\AnchorWorks_Clean_Runtime",
+  "rebuild_root": "D:\\AnchorWorks_Clean_Runtime\\Lexicon_Genome_Rebuild",
+  "backup_root": "D:\\AnchorWorks_Clean_Runtime\\Lexicon_Backups\\pre_genome_swap_20260514T084220Z",
+  "canonical_rows": 281948,
+  "structural_rows": 68,
+  "live_rows": 282016,
+  "duplicate_symbols": 0,
+  "missing_word": 0,
+  "tone_signature_count": 0,
+  "font_symbol_count": 0,
+  "frequency_count": 0,
+  "non_minimal_row_count": 0
+}

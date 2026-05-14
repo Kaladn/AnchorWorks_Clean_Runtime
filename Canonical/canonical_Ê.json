@@ -1,15 +1,6 @@
 [
   {
-    "binary": "1101000011101110100010011110010111001010",
-    "hex": "0xD0EE89E5CA",
-    "font_symbol": "CHAR_1101000011",
-    "tone_signature": "TONE_12334",
-    "status": "ASSIGNED",
     "word": "être",
-    "display": "être",
-    "symbol": "0xD0EE89E5CA",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 168
+    "symbol": "0x1000044D16"
   }
 ]

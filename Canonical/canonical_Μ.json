@@ -1,41 +1,14 @@
 [
   {
-    "binary": "1110001011011100100010000101111011101010",
-    "hex": "0xE2DC885EEA",
-    "font_symbol": "CHAR_1110001011",
-    "tone_signature": "TONE_13710",
-    "status": "ASSIGNED",
     "word": "μmol",
-    "display": "μmol",
-    "symbol": "0xE2DC885EEA",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 100
+    "symbol": "0x1000044D3D"
   },
   {
-    "binary": "1100100001001100100000001101000110000110",
-    "hex": "0xC84C80D186",
-    "font_symbol": "CHAR_1100100001",
-    "tone_signature": "TONE_9962",
-    "status": "ASSIGNED",
     "word": "μpa",
-    "display": "μpa",
-    "symbol": "0xC84C80D186",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 27
+    "symbol": "0x1000044D3E"
   },
   {
-    "binary": "0100001001111110100010111010011100101000",
-    "hex": "0x427E8BA728",
-    "font_symbol": "CHAR_0100001001",
-    "tone_signature": "TONE_3148",
-    "status": "ASSIGNED",
     "word": "μsa",
-    "display": "μsa",
-    "symbol": "0x427E8BA728",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 604
+    "symbol": "0x1000044D3F"
   }
 ]

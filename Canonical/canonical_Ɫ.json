@@ -1,15 +1,6 @@
 [
   {
-    "binary": "1000001000111001011111110010111001011010",
-    "hex": "0x82397F2E5A",
-    "font_symbol": "CHAR_1000001000",
-    "tone_signature": "TONE_4830",
-    "status": "ASSIGNED",
     "word": "ɫaː",
-    "display": "ɫaː",
-    "symbol": "0x82397F2E5A",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 27
+    "symbol": "0x1000044D32"
   }
 ]

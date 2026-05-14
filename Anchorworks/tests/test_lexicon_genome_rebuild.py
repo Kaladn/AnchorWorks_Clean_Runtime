@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from AnchorWorks.lexicon_genome_rebuild import build_lexicon_genome_rebuild
+from AnchorWorks.lexicon_genome_rebuild import build_lexicon_genome_rebuild, promote_genome_rebuild_to_live
 from AnchorWorks.symbol_genome_native import build_native_symbol_genome
 
 
@@ -158,6 +158,76 @@ class LexiconGenomeRebuildTests(unittest.TestCase):
             self.assertEqual(manifest["generator"], "native_cpp_symbol_genome_allocator")
             self.assertEqual(manifest["tone_signature_absent"], True)
             self.assertEqual(manifest["font_symbol_absent"], True)
+
+    def test_promote_rebuild_writes_live_compatible_rows_and_backup(self) -> None:
+        with TemporaryDirectory() as root:
+            temp_root = Path(root)
+            data_root = temp_root / "source"
+            rebuild_root = data_root / "Lexicon_Genome_Rebuild"
+            (data_root / "Canonical").mkdir(parents=True)
+            (data_root / "Structural").mkdir(parents=True)
+            live_canonical = data_root / "Canonical" / "canonical_H.json"
+            live_structural = data_root / "Structural" / "structural.json"
+            live_canonical.write_text(json.dumps([{
+                "word": "hello",
+                "hex": "0xAAAAAAAAAA",
+                "symbol": "0xAAAAAAAAAA",
+                "binary": "1010101010101010101010101010101010101010",
+                "tone_signature": "TONE_OLD",
+                "font_symbol": "CHAR_OLD",
+                "status": "ASSIGNED",
+                "pack": "canonical",
+            }]), encoding="utf-8")
+            live_structural.write_text(json.dumps([{
+                "word": "0",
+                "hex": "0xBBBBBBBBBB",
+                "symbol": "0xBBBBBBBBBB",
+                "binary": "1011101110111011101110111011101110111011",
+                "status": "STRUCTURAL",
+                "pack": "structural",
+            }]), encoding="utf-8")
+            (rebuild_root / "Canonical").mkdir(parents=True)
+            (rebuild_root / "Structural").mkdir(parents=True)
+            (rebuild_root / "reports").mkdir(parents=True)
+            (rebuild_root / "Canonical" / "canonical_H_U0048.json").write_text(json.dumps([{
+                "anchor": "hello",
+                "display": "hello",
+                "genome_symbol": "0x1000000000",
+                "genome_hex": "0x1000000000",
+                "genome_binary": "0001000000000000000000000000000000000000",
+                "status": "ASSIGNED",
+                "pack": "canonical",
+                "created_at": "2026-05-14T00:00:00+00:00",
+                "category": "core",
+                "source_old_hex": "0xAAAAAAAAAA",
+                "source_old_symbol": "0xAAAAAAAAAA",
+            }]), encoding="utf-8")
+            (rebuild_root / "Structural" / "structural.json").write_text(json.dumps([{
+                "anchor": "0",
+                "display": "DIGIT_0",
+                "genome_symbol": "0x1000000001",
+                "genome_hex": "0x1000000001",
+                "genome_binary": "0001000000000000000000000000000000000001",
+                "status": "ASSIGNED",
+                "pack": "structural",
+                "created_at": "2026-05-14T00:00:00+00:00",
+                "category": "core",
+                "source_old_hex": "0xBBBBBBBBBB",
+                "source_old_symbol": "0xBBBBBBBBBB",
+            }]), encoding="utf-8")
+            (rebuild_root / "reports" / "rebuild_manifest.json").write_text(json.dumps({"ok": True}), encoding="utf-8")
+
+            report = promote_genome_rebuild_to_live(data_root, rebuild_root=rebuild_root)
+
+            self.assertTrue(report["ok"])
+            self.assertTrue(Path(report["backup_root"]).exists())
+            promoted = json.loads((data_root / "Canonical" / "canonical_H.json").read_text(encoding="utf-8"))[0]
+            self.assertEqual(set(promoted), {"word", "symbol"})
+            self.assertEqual(promoted["word"], "hello")
+            self.assertEqual(promoted["symbol"], "0x1000000000")
+            self.assertNotIn("tone_signature", promoted)
+            self.assertNotIn("font_symbol", promoted)
+            self.assertNotIn("frequency", promoted)
 
 
 if __name__ == "__main__":

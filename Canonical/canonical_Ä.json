@@ -1,28 +1,10 @@
 [
   {
-    "binary": "1010101111001001100010001100100011100110",
-    "hex": "0xABC988C8E6",
-    "font_symbol": "CHAR_1010101111",
-    "tone_signature": "TONE_12458",
-    "status": "ASSIGNED",
     "word": "ägyptisches",
-    "display": "ägyptisches",
-    "symbol": "0xABC988C8E6",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044CF0"
   },
   {
-    "binary": "1010100111011110100000011110001101011011",
-    "hex": "0xA9DE81E35B",
-    "font_symbol": "CHAR_1010100111",
-    "tone_signature": "TONE_7423",
-    "status": "ASSIGNED",
     "word": "ältesten",
-    "display": "ältesten",
-    "symbol": "0xA9DE81E35B",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 33
+    "symbol": "0x1000044CF1"
   }
 ]

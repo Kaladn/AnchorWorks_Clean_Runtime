@@ -1,15 +1,6 @@
 [
   {
-    "binary": "1100100100011100100010011010001101101000",
-    "hex": "0xC91C89A368",
-    "font_symbol": "CHAR_1100100100",
-    "tone_signature": "TONE_8908",
-    "status": "ASSIGNED",
     "word": "œuvre",
-    "display": "œuvre",
-    "symbol": "0xC91C89A368",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 152
+    "symbol": "0x1000044D26"
   }
 ]

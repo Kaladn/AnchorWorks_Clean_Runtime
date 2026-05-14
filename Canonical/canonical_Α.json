@@ -1,15 +1,6 @@
 [
   {
-    "binary": "0111011110111110011101110011001101000101",
-    "hex": "0x77BE773345",
-    "font_symbol": "CHAR_0111011110",
-    "tone_signature": "TONE_11273",
-    "status": "ASSIGNED",
     "word": "αdd",
-    "display": "αdd",
-    "symbol": "0x77BE773345",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D37"
   }
 ]

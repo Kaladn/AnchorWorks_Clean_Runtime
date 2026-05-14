@@ -1,15 +1,6 @@
 [
   {
-    "binary": "0100110111010000100010010110000011011001",
-    "hex": "0x4DD08960D9",
-    "font_symbol": "CHAR_0100110111",
-    "tone_signature": "TONE_6045",
-    "status": "ASSIGNED",
     "word": "ème",
-    "display": "ème",
-    "symbol": "0x4DD08960D9",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 138
+    "symbol": "0x1000044CF6"
   }
 ]

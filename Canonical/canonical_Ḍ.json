@@ -1,15 +1,6 @@
 [
   {
-    "binary": "0101100001001001011111101110001101000000",
-    "hex": "0x58497EE340",
-    "font_symbol": "CHAR_0101100001",
-    "tone_signature": "TONE_14628",
-    "status": "ASSIGNED",
     "word": "ḍākinī",
-    "display": "ḍākinī",
-    "symbol": "0x58497EE340",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 29
+    "symbol": "0x1000044D42"
   }
 ]

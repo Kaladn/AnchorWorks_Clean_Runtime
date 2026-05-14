@@ -1,106 +1,34 @@
 [
   {
-    "binary": "1001111111001101011111011110100110111100",
-    "hex": "0x9FCD7DE9BC",
-    "font_symbol": "CHAR_1001111111",
-    "tone_signature": "TONE_1280",
-    "status": "ASSIGNED",
     "word": "öffentlichen",
-    "display": "öffentlichen",
-    "symbol": "0x9FCD7DE9BC",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 34
+    "symbol": "0x1000044D19"
   },
   {
-    "binary": "0001011100010111100010001100010101010010",
-    "hex": "0x171788C552",
-    "font_symbol": "CHAR_0001011100",
-    "tone_signature": "TONE_7286",
-    "status": "ASSIGNED",
     "word": "öhman",
-    "display": "öhman",
-    "symbol": "0x171788C552",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 5
+    "symbol": "0x1000044D1A"
   },
   {
-    "binary": "0110000011110111011101110101000111010101",
-    "hex": "0x60F77751D5",
-    "font_symbol": "CHAR_0110000011",
-    "tone_signature": "TONE_12601",
-    "status": "ASSIGNED",
     "word": "öre",
-    "display": "öre",
-    "symbol": "0x60F77751D5",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 108
+    "symbol": "0x1000044D1B"
   },
   {
-    "binary": "0110101100101110011101110011100110110000",
-    "hex": "0x6B2E7739B0",
-    "font_symbol": "CHAR_0110101100",
-    "tone_signature": "TONE_6260",
-    "status": "ASSIGNED",
     "word": "ösby",
-    "display": "ösby",
-    "symbol": "0x6B2E7739B0",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 2
+    "symbol": "0x1000044D1C"
   },
   {
-    "binary": "1011000111101011100010001100101110100111",
-    "hex": "0xB1EB88CBA7",
-    "font_symbol": "CHAR_1011000111",
-    "tone_signature": "TONE_2283",
-    "status": "ASSIGNED",
     "word": "österreichischen",
-    "display": "österreichischen",
-    "symbol": "0xB1EB88CBA7",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D1D"
   },
   {
-    "binary": "0100011010011001100010001100010110011110",
-    "hex": "0x469988C59E",
-    "font_symbol": "CHAR_0100011010",
-    "tone_signature": "TONE_8354",
-    "status": "ASSIGNED",
     "word": "ötzi",
-    "display": "ötzi",
-    "symbol": "0x469988C59E",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 5
+    "symbol": "0x1000044D1E"
   },
   {
-    "binary": "0011101011010001100010001100101110101101",
-    "hex": "0x3AD188CBAD",
-    "font_symbol": "CHAR_0011101011",
-    "tone_signature": "TONE_6449",
-    "status": "ASSIGNED",
     "word": "ötzi's",
-    "display": "ötzi's",
-    "symbol": "0x3AD188CBAD",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D1F"
   },
   {
-    "binary": "1110101101111111011101111010011100111100",
-    "hex": "0xEB7F77A73C",
-    "font_symbol": "CHAR_1110101101",
-    "tone_signature": "TONE_2688",
-    "status": "ASSIGNED",
     "word": "över",
-    "display": "över",
-    "symbol": "0xEB7F77A73C",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 99
+    "symbol": "0x1000044D20"
   }
 ]

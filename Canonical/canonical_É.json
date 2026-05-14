@@ -1,405 +1,126 @@
 [
   {
-    "binary": "1111111111000010011101110011011001001011",
-    "hex": "0xFFC277364B",
-    "font_symbol": "CHAR_1111111111",
-    "tone_signature": "TONE_13167",
-    "status": "ASSIGNED",
     "word": "éamon",
-    "display": "éamon",
-    "symbol": "0xFFC277364B",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044CF7"
   },
   {
-    "binary": "1110001010111000011101110011100111111110",
-    "hex": "0xE2B87739FE",
-    "font_symbol": "CHAR_1110001010",
-    "tone_signature": "TONE_10370",
-    "status": "ASSIGNED",
     "word": "éboulé",
-    "display": "éboulé",
-    "symbol": "0xE2B87739FE",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 2
+    "symbol": "0x1000044CF8"
   },
   {
-    "binary": "0011001101100101011101111011011000100011",
-    "hex": "0x336577B623",
-    "font_symbol": "CHAR_0011001101",
-    "tone_signature": "TONE_16423",
-    "status": "ASSIGNED",
     "word": "économique",
-    "display": "économique",
-    "symbol": "0x336577B623",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 98
+    "symbol": "0x1000044CF9"
   },
   {
-    "binary": "0011011100000001011110100100100111101000",
-    "hex": "0x37017A49E8",
-    "font_symbol": "CHAR_0011011100",
-    "tone_signature": "TONE_12908",
-    "status": "ASSIGNED",
     "word": "économiques",
-    "display": "économiques",
-    "symbol": "0x37017A49E8",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 58
+    "symbol": "0x1000044CFA"
   },
   {
-    "binary": "0100000011011111011111011000000000110100",
-    "hex": "0x40DF7D8034",
-    "font_symbol": "CHAR_0100000011",
-    "tone_signature": "TONE_11032",
-    "status": "ASSIGNED",
     "word": "écrit",
-    "display": "écrit",
-    "symbol": "0x40DF7D8034",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 36
+    "symbol": "0x1000044CFB"
   },
   {
-    "binary": "0110111011010110100001110110101001000101",
-    "hex": "0x6ED6876A45",
-    "font_symbol": "CHAR_0110111011",
-    "tone_signature": "TONE_1449",
-    "status": "ASSIGNED",
     "word": "écu",
-    "display": "écu",
-    "symbol": "0x6ED6876A45",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 80
+    "symbol": "0x1000044CFC"
   },
   {
-    "binary": "0111101101011010100010000001111111010111",
-    "hex": "0x7B5A881FD7",
-    "font_symbol": "CHAR_0111101101",
-    "tone_signature": "TONE_7995",
-    "status": "ASSIGNED",
     "word": "écus",
-    "display": "écus",
-    "symbol": "0x7B5A881FD7",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 94
+    "symbol": "0x1000044CFD"
   },
   {
-    "binary": "1101000011111001100010001100011001000011",
-    "hex": "0xD0F988C643",
-    "font_symbol": "CHAR_1101000011",
-    "tone_signature": "TONE_8103",
-    "status": "ASSIGNED",
     "word": "édouard",
-    "display": "édouard",
-    "symbol": "0xD0F988C643",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 2
+    "symbol": "0x1000044CFE"
   },
   {
-    "binary": "0110001010100010011101110011010101111111",
-    "hex": "0x62A277357F",
-    "font_symbol": "CHAR_0110001010",
-    "tone_signature": "TONE_16579",
-    "status": "ASSIGNED",
     "word": "égalité",
-    "display": "égalité",
-    "symbol": "0x62A277357F",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044CFF"
   },
   {
-    "binary": "0011111100100111011111001110010100010110",
-    "hex": "0x3F277CE516",
-    "font_symbol": "CHAR_0011111100",
-    "tone_signature": "TONE_16282",
-    "status": "ASSIGNED",
     "word": "électeurs",
-    "display": "électeurs",
-    "symbol": "0x3F277CE516",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 39
+    "symbol": "0x1000044D00"
   },
   {
-    "binary": "0001001001011011011110110011101111101100",
-    "hex": "0x125B7B3BEC",
-    "font_symbol": "CHAR_0001001001",
-    "tone_signature": "TONE_14352",
-    "status": "ASSIGNED",
     "word": "électrique",
-    "display": "électrique",
-    "symbol": "0x125B7B3BEC",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 50
+    "symbol": "0x1000044D01"
   },
   {
-    "binary": "0000101000001110100010011111001101100001",
-    "hex": "0x0A0E89F361",
-    "font_symbol": "CHAR_0000101000",
-    "tone_signature": "TONE_14821",
-    "status": "ASSIGNED",
     "word": "élite",
-    "display": "élite",
-    "symbol": "0x0A0E89F361",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 172
+    "symbol": "0x1000044D02"
   },
   {
-    "binary": "0001110010101011011111010100100001111010",
-    "hex": "0x1CAB7D487A",
-    "font_symbol": "CHAR_0001110010",
-    "tone_signature": "TONE_18878",
-    "status": "ASSIGNED",
     "word": "élites",
-    "display": "élites",
-    "symbol": "0x1CAB7D487A",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 37
+    "symbol": "0x1000044D03"
   },
   {
-    "binary": "0111000111101110100010010000110100100110",
-    "hex": "0x71EE890D26",
-    "font_symbol": "CHAR_0111000111",
-    "tone_signature": "TONE_3754",
-    "status": "ASSIGNED",
     "word": "élémentaire",
-    "display": "élémentaire",
-    "symbol": "0x71EE890D26",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 122
+    "symbol": "0x1000044D04"
   },
   {
-    "binary": "0110010010111011011101001001011110110101",
-    "hex": "0x64BB7497B5",
-    "font_symbol": "CHAR_0110010010",
-    "tone_signature": "TONE_10105",
-    "status": "ASSIGNED",
     "word": "émigré",
-    "display": "émigré",
-    "symbol": "0x64BB7497B5",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 438
+    "symbol": "0x1000044D05"
   },
   {
-    "binary": "0000100101010011011101001001110001011001",
-    "hex": "0x0953749C59",
-    "font_symbol": "CHAR_0000100101",
-    "tone_signature": "TONE_16893",
-    "status": "ASSIGNED",
     "word": "émigrés",
-    "display": "émigrés",
-    "symbol": "0x0953749C59",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 433
+    "symbol": "0x1000044D06"
   },
   {
-    "binary": "0111110000110101100010001100010111101101",
-    "hex": "0x7C3588C5ED",
-    "font_symbol": "CHAR_0111110000",
-    "tone_signature": "TONE_817",
-    "status": "ASSIGNED",
     "word": "émile",
-    "display": "émile",
-    "symbol": "0x7C3588C5ED",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 3
+    "symbol": "0x1000044D07"
   },
   {
-    "binary": "0010100111010101100010001100101010011010",
-    "hex": "0x29D588CA9A",
-    "font_symbol": "CHAR_0010100111",
-    "tone_signature": "TONE_11006",
-    "status": "ASSIGNED",
     "word": "émilie",
-    "display": "émilie",
-    "symbol": "0x29D588CA9A",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D08"
   },
   {
-    "binary": "1011100110110110100001101011000010100000",
-    "hex": "0xB9B686B0A0",
-    "font_symbol": "CHAR_1011100110",
-    "tone_signature": "TONE_10212",
-    "status": "ASSIGNED",
     "word": "éminence",
-    "display": "éminence",
-    "symbol": "0xB9B686B0A0",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 69
+    "symbol": "0x1000044D09"
   },
   {
-    "binary": "1101010010101110100001010101101011100000",
-    "hex": "0xD4AE855AE0",
-    "font_symbol": "CHAR_1101010010",
-    "tone_signature": "TONE_1988",
-    "status": "ASSIGNED",
     "word": "éntekhno",
-    "display": "éntekhno",
-    "symbol": "0xD4AE855AE0",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 55
+    "symbol": "0x1000044D0A"
   },
   {
-    "binary": "1111110100011011011101000011110101010101",
-    "hex": "0xFD1B743D55",
-    "font_symbol": "CHAR_1111110100",
-    "tone_signature": "TONE_8697",
-    "status": "ASSIGNED",
     "word": "épée",
-    "display": "épée",
-    "symbol": "0xFD1B743D55",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 720
+    "symbol": "0x1000044D0B"
   },
   {
-    "binary": "0101000010010000100000111110110111001101",
-    "hex": "0x509083EDCD",
-    "font_symbol": "CHAR_0101000010",
-    "tone_signature": "TONE_8977",
-    "status": "ASSIGNED",
     "word": "équations",
-    "display": "équations",
-    "symbol": "0x509083EDCD",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 44
+    "symbol": "0x1000044D0C"
   },
   {
-    "binary": "0101000101011011100010001100101011001110",
-    "hex": "0x515B88CACE",
-    "font_symbol": "CHAR_0101000101",
-    "tone_signature": "TONE_2546",
-    "status": "ASSIGNED",
     "word": "étage",
-    "display": "étage",
-    "symbol": "0x515B88CACE",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D0D"
   },
   {
-    "binary": "0111100111110000100001111110110111100010",
-    "hex": "0x79F087EDE2",
-    "font_symbol": "CHAR_0111100111",
-    "tone_signature": "TONE_3014",
-    "status": "ASSIGNED",
     "word": "était",
-    "display": "était",
-    "symbol": "0x79F087EDE2",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 90
+    "symbol": "0x1000044D0E"
   },
   {
-    "binary": "0110100010110101011101011010010111011010",
-    "hex": "0x68B575A5DA",
-    "font_symbol": "CHAR_0110100010",
-    "tone_signature": "TONE_5150",
-    "status": "ASSIGNED",
     "word": "étale",
-    "display": "étale",
-    "symbol": "0x68B575A5DA",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 208
+    "symbol": "0x1000044D0F"
   },
   {
-    "binary": "1101011000000101100010001100101100001001",
-    "hex": "0xD60588CB09",
-    "font_symbol": "CHAR_1101011000",
-    "tone_signature": "TONE_12397",
-    "status": "ASSIGNED",
     "word": "états",
-    "display": "états",
-    "symbol": "0xD60588CB09",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D10"
   },
   {
-    "binary": "1010000010110000011101110011010011010111",
-    "hex": "0xA0B07734D7",
-    "font_symbol": "CHAR_1010000010",
-    "tone_signature": "TONE_9787",
-    "status": "ASSIGNED",
     "word": "étienne",
-    "display": "étienne",
-    "symbol": "0xA0B07734D7",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D11"
   },
   {
-    "binary": "0110100010001011011101111100000100100110",
-    "hex": "0x688B77C126",
-    "font_symbol": "CHAR_0110100010",
-    "tone_signature": "TONE_138",
-    "status": "ASSIGNED",
     "word": "étoiles",
-    "display": "étoiles",
-    "symbol": "0x688B77C126",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 97
+    "symbol": "0x1000044D12"
   },
   {
-    "binary": "0001011111100100100000011011000000010111",
-    "hex": "0x17E481B017",
-    "font_symbol": "CHAR_0001011111",
-    "tone_signature": "TONE_12379",
-    "status": "ASSIGNED",
     "word": "étrange",
-    "display": "étrange",
-    "symbol": "0x17E481B017",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 32
+    "symbol": "0x1000044D13"
   },
   {
-    "binary": "0110001011010011011111010100100011000011",
-    "hex": "0x62D37D48C3",
-    "font_symbol": "CHAR_0110001011",
-    "tone_signature": "TONE_18311",
-    "status": "ASSIGNED",
     "word": "étrangers",
-    "display": "étrangers",
-    "symbol": "0x62D37D48C3",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 37
+    "symbol": "0x1000044D14"
   },
   {
-    "binary": "1011101100000000011101110011010010011010",
-    "hex": "0xBB0077349A",
-    "font_symbol": "CHAR_1011101100",
-    "tone_signature": "TONE_16702",
-    "status": "ASSIGNED",
     "word": "étude",
-    "display": "étude",
-    "symbol": "0xBB0077349A",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D15"
   }
 ]

@@ -1,54 +1,18 @@
 [
   {
-    "binary": "1111100110010111100010001100110001000100",
-    "hex": "0xF99788CC44",
-    "font_symbol": "CHAR_1111100110",
-    "tone_signature": "TONE_1608",
-    "status": "ASSIGNED",
     "word": "šahīd",
-    "display": "šahīd",
-    "symbol": "0xF99788CC44",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D2A"
   },
   {
-    "binary": "1110110101100011011110110111111101001100",
-    "hex": "0xED637B7F4C",
-    "font_symbol": "CHAR_1110110101",
-    "tone_signature": "TONE_7152",
-    "status": "ASSIGNED",
     "word": "škola",
-    "display": "škola",
-    "symbol": "0xED637B7F4C",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 48
+    "symbol": "0x1000044D2B"
   },
   {
-    "binary": "1111011101101111011111000110000111110110",
-    "hex": "0xF76F7C61F6",
-    "font_symbol": "CHAR_1111011101",
-    "tone_signature": "TONE_4730",
-    "status": "ASSIGNED",
     "word": "što",
-    "display": "što",
-    "symbol": "0xF76F7C61F6",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 42
+    "symbol": "0x1000044D2C"
   },
   {
-    "binary": "1110111011000011011101110000101101001011",
-    "hex": "0xEEC3770B4B",
-    "font_symbol": "CHAR_1110111011",
-    "tone_signature": "TONE_15343",
-    "status": "ASSIGNED",
     "word": "šuma",
-    "display": "šuma",
-    "symbol": "0xEEC3770B4B",
-    "mapped_at": "2026-05-05T10:45:55.654263+00:00",
-    "pack": "canonical",
-    "frequency": 118
+    "symbol": "0x1000044D2D"
   }
 ]

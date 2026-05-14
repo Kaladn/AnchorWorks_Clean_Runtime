@@ -1,15 +1,6 @@
 [
   {
-    "binary": "1001010001000101100010001100101110110011",
-    "hex": "0x944588CBB3",
-    "font_symbol": "CHAR_1001010001",
-    "tone_signature": "TONE_12855",
-    "status": "ASSIGNED",
     "word": "ørsted",
-    "display": "ørsted",
-    "symbol": "0x944588CBB3",
-    "mapped_at": "2026-05-09T20:32:10.355835+00:00",
-    "pack": "canonical",
-    "frequency": 1
+    "symbol": "0x1000044D21"
   }
 ]
