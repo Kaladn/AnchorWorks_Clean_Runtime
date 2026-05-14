@@ -43,7 +43,7 @@
     <div id="login-gate" style="
         position: fixed; inset: 0; z-index: 10000;
         background: var(--primary-bg);
-        display: flex; align-items: center; justify-content: center;
+        display: none; align-items: center; justify-content: center;
         flex-direction: column; gap: 24px;
     ">
         <div style="text-align: center; max-width: 400px; padding: 40px;">
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <div class="app-container" id="app-container" style="display: none;">
+    <div class="app-container" id="app-container">
         <!-- Header -->
         <div class="header">
             <button id="hamburger-btn" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">&#9776;</button>

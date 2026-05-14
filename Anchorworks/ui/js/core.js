@@ -376,12 +376,13 @@ function _authCandidateOrigins() {
 window.getAuthBase = () => AUTH_BASE;
 
 function _authRequired() {
+    if (window.ANCHORWORKS_CONFIG?.auth?.required === true) return true;
     try {
-        if (localStorage.getItem('anchorworks_require_auth') === 'true') return true;
+        localStorage.removeItem('anchorworks_require_auth');
     } catch (_) {
         // Keep local V1 launch auth-free if storage is unavailable.
     }
-    return window.ANCHORWORKS_CONFIG?.auth?.required === true;
+    return false;
 }
 
 function _b64url(buffer) {
