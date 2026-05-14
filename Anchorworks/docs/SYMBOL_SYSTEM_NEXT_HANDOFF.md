@@ -1,25 +1,26 @@
 # Symbol System Next Handoff
 
-Status: checkpoint before making phrase and future symbolic authority lexicon-native.
+Status: checkpoint for making phrase and future symbolic authority lexicon-native through the Symbol Genome Protocol.
 
 ## Current Truth
 
-The repo is clean at this handoff. Phrase candidate review exists, phrase authority wiring exists, and ClearSpeak can use approved phrase authority when records are present.
+Phrase candidate review exists, phrase authority wiring exists, and ClearSpeak can use approved phrase authority when records are present.
 
-Current phrase authority still needs the symbolic correction:
+Phrase authority now has a clear symbolic split:
 
 ```text
 candidate phrase id = deterministic review fingerprint
-approved phrase symbol = real assigned lexicon identity
+approved phrase symbol = Symbol Genome identity
 ```
 
 ## Next Work
 
-Make phrase authority use the same identity discipline as word anchors:
+Make all future symbolic authority use the same lexicon-shaped identity discipline:
 
 ```text
-Spare_Slots allocation
--> binary / hex / font_symbol / tone label fields
+Symbol Genome allocation
+-> 5-byte symbol
+-> binary / hex / font_symbol / visual rune / integrity hash / tone label fields
 -> Phrase_Lexicon record
 -> Lexicon Explorer Words | Phrases toggle
 ```
@@ -31,6 +32,8 @@ Do not hash approved phrase symbols.
 Do not mutate Canonical for phrase authority.
 Do not overload status with phrase roles.
 Do not use tone_signature as TTS tone.
+Do preserve Symbol Genome byte structure.
+Do preserve 8x8 visual rune metadata.
 Human display is text.
 Internal authority is symbols.
 ```

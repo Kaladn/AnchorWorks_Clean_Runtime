@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from .symbol_genome import generate_symbol_genome_identity
 
 
 PHRASE_SCHEMA_VERSION = "anchorworks_phrase_lexicon@1"
@@ -30,16 +31,29 @@ class PhraseLexiconStore:
         if not anchor_sequence:
             raise ValueError("phrase requires at least one anchor")
         symbol_sequence = [self._anchor_symbol(anchor) for anchor in anchor_sequence]
-        phrase_hex = _phrase_hex(anchor_sequence, symbol_sequence)
+        phrase_text = " ".join(anchor_sequence)
+        identity = generate_symbol_genome_identity(phrase_text, category="specialized", priority=2)
+        phrase_hex = str(identity["hex"])
         entry = {
             "schema_version": PHRASE_SCHEMA_VERSION,
-            "phrase": " ".join(anchor_sequence),
-            "display": " ".join(anchor_sequence),
+            "phrase": phrase_text,
+            "display": phrase_text,
+            "binary": identity["binary"],
+            "font_symbol": identity["font_symbol"],
+            "tone_label": "",
+            "tone_profile": None,
             "status": "ASSIGNED",
             "authority": "phrase",
             "pack": "phrase",
             "hex": phrase_hex,
             "symbol": phrase_hex,
+            "symbol_schema_version": identity["schema_version"],
+            "symbol_category": identity["category"],
+            "symbol_priority": identity["priority"],
+            "symbol_bytes": identity["symbol_bytes"],
+            "visual_grid": identity["visual_grid"],
+            "visual_rune": identity["visual_rune"],
+            "integrity_hash": identity["integrity_hash"],
             "anchor_sequence": anchor_sequence,
             "symbol_sequence": symbol_sequence,
             "join_role_by_anchor": {
@@ -137,11 +151,6 @@ class PhraseLexiconStore:
 
 def _phrase_anchor_sequence(phrase: str) -> list[str]:
     return [part.strip().casefold() for part in str(phrase or "").split() if part.strip()]
-
-
-def _phrase_hex(anchor_sequence: list[str], symbol_sequence: list[str]) -> str:
-    seed = "\x1f".join(anchor_sequence) + "\x1e" + "\x1f".join(symbol_sequence)
-    return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:10].upper()
 
 
 def _utc_now() -> str:
