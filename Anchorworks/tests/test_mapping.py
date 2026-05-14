@@ -611,6 +611,49 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
             self.assertEqual(result.answer_assembly["trace"][0]["lookahead_decision"]["chosen"]["pattern_health"], "healthy")
 
+    def test_clearspeak_reads_old_awsc_cells_through_genome_mapping(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_A.json", [{"word": "alpha", "symbol": "0x1000000001"}])
+            _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "symbol": "0x1000000002"}])
+            _write_json(root / "Canonical" / "canonical_G.json", [{"word": "gamma", "symbol": "0x1000000003"}])
+            _write_json(root / "Structural" / "structural.json", [])
+            mapping_path = root / "Lexicon_Genome_Rebuild" / "mappings" / "old_symbol_to_genome_symbol.jsonl"
+            mapping_path.parent.mkdir(parents=True, exist_ok=True)
+            mapping_path.write_text(
+                "\n".join(
+                    json.dumps(row)
+                    for row in [
+                        {"anchor": "alpha", "old_symbol": "0x0000000001", "genome_symbol": "0x1000000001", "pack": "canonical"},
+                        {"anchor": "beta", "old_symbol": "0x0000000002", "genome_symbol": "0x1000000002", "pack": "canonical"},
+                        {"anchor": "gamma", "old_symbol": "0x0000000003", "genome_symbol": "0x1000000003", "pack": "canonical"},
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            store = LexiconStore(root)
+            write_symbol_cell(
+                store.symbol_counts_binary_dir / "cells" / "00" / "0000000001.cell",
+                symbol="0x0000000001",
+                root_lane=CANONICAL_LANE,
+                relations=[SymbolRelation(offset=1, neighbor_symbol="0x0000000002", count=9)],
+            )
+            write_symbol_cell(
+                store.symbol_counts_binary_dir / "cells" / "00" / "0000000002.cell",
+                symbol="0x0000000002",
+                root_lane=CANONICAL_LANE,
+                relations=[SymbolRelation(offset=1, neighbor_symbol="0x0000000003", count=6)],
+            )
+
+            result = ClearSpeakService(store).query("alpha", limit=2)
+
+            self.assertEqual(result.speech, "beta gamma")
+            self.assertEqual(result.evidence[0]["anchor"], "alpha")
+            self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
+            self.assertTrue(result.answer_assembly["terms"])
+
     def test_anchor_rows_preserve_surface_and_fused_boundaries(self) -> None:
         fused_rows = extract_anchor_rows("state-of-the-art")
         spaced_rows = extract_anchor_rows("state - of - the - art")

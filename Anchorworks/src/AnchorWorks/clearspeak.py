@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import os
 from collections import Counter
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Any
 
 from .clearspeak_attention import (
@@ -218,13 +220,16 @@ class ClearSpeakService:
         if not hasattr(self.store, "_canonical_symbol_by_anchor"):
             return {"by_anchor": {}}
         symbol_by_anchor = self.store._canonical_symbol_by_anchor()
-        anchor_by_symbol = {
+        anchor_by_symbol: dict[str, str] = {
             _normalize_symbol_hex(symbol): self.store.normalize_anchor(anchor) if hasattr(self.store, "normalize_anchor") else str(anchor).strip().casefold()
             for anchor, symbol in symbol_by_anchor.items()
             if str(anchor or "").strip() and str(symbol or "").strip()
         }
+        legacy_symbol_by_anchor, legacy_anchor_by_symbol = self._load_genome_legacy_count_bridge()
+        anchor_by_symbol.update(legacy_anchor_by_symbol)
         by_anchor: dict[str, dict[str, Counter[str]]] = {}
         loaded_symbols: set[str] = set()
+        bridge_hits: set[str] = set()
 
         def load_cell(symbol_hex: str) -> list[tuple[str, int]]:
             normalized_symbol = _normalize_symbol_hex(symbol_hex)
@@ -241,6 +246,8 @@ class ClearSpeakService:
             root_anchor = anchor_by_symbol.get(_symbol_bytes_to_hex(cell.symbol))
             if not root_anchor:
                 return []
+            if normalized_symbol in legacy_anchor_by_symbol:
+                bridge_hits.add(normalized_symbol)
             expansion_counts: Counter[str] = Counter()
             for relation in cell.relations:
                 neighbor_anchor = anchor_by_symbol.get(_symbol_bytes_to_hex(relation.neighbor_symbol))
@@ -256,10 +263,16 @@ class ClearSpeakService:
                     expansion_counts[neighbor_symbol] += count
             return sorted(expansion_counts.items(), key=lambda item: (-item[1], item[0]))[:32]
 
-        seed_symbols = [
-            _normalize_symbol_hex(symbol_by_anchor.get(str(anchor or "").strip().casefold(), ""))
-            for anchor in seed_anchors
-        ]
+        seed_symbols: list[str] = []
+        for anchor in seed_anchors:
+            clean_anchor = str(anchor or "").strip().casefold()
+            for symbol in (
+                symbol_by_anchor.get(clean_anchor, ""),
+                legacy_symbol_by_anchor.get(clean_anchor, ""),
+            ):
+                normalized_symbol = _normalize_symbol_hex(symbol)
+                if normalized_symbol and normalized_symbol not in seed_symbols:
+                    seed_symbols.append(normalized_symbol)
         expansion_symbols: list[str] = []
         for symbol_hex in seed_symbols:
             expansion_symbols.extend(symbol for symbol, _count in load_cell(symbol_hex))
@@ -267,10 +280,40 @@ class ClearSpeakService:
             load_cell(symbol_hex)
         return {
             "by_anchor": by_anchor,
-            "count_source": "awsc_binary_symbol_cells",
+            "count_source": (
+                "awsc_binary_symbol_cells_genome_legacy_bridge"
+                if bridge_hits
+                else "awsc_binary_symbol_cells"
+            ),
             "symbolic_runtime": True,
             "display_decoded_at_edge": True,
+            "genome_authority": True,
+            "legacy_symbol_bridge": bool(bridge_hits),
         }
+
+    def _load_genome_legacy_count_bridge(self) -> tuple[dict[str, str], dict[str, str]]:
+        data_root = Path(getattr(self.store, "root", "") or "")
+        mapping_path = data_root / "Lexicon_Genome_Rebuild" / "mappings" / "old_symbol_to_genome_symbol.jsonl"
+        if not mapping_path.exists():
+            return {}, {}
+        legacy_symbol_by_anchor: dict[str, str] = {}
+        anchor_by_legacy_symbol: dict[str, str] = {}
+        for line in mapping_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(row, dict):
+                continue
+            anchor = str(row.get("anchor") or "").strip().casefold()
+            old_symbol = _normalize_symbol_hex(str(row.get("old_symbol") or ""))
+            if not anchor or not old_symbol:
+                continue
+            legacy_symbol_by_anchor.setdefault(anchor, old_symbol)
+            anchor_by_legacy_symbol.setdefault(old_symbol, anchor)
+        return legacy_symbol_by_anchor, anchor_by_legacy_symbol
 
     def _assemble_answer_terms(
         self,
