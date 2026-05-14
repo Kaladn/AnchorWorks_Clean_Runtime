@@ -2711,6 +2711,7 @@ const lexApp = {
       this.symbolPolicy = data.symbol_policy || {};
       this.renderTreeBrainControls(this.treeBrainControls);
       this.renderSymbolPolicy(this.symbolPolicy);
+      this.renderSettingsInventory(data.settings_inventory || null);
       this.clearBanner();
     } catch (error) {
       this.setBanner("error", `Tree-Brain controls failed to load: ${error.message}`);
@@ -2746,9 +2747,9 @@ const lexApp = {
   labelControlSection(sectionName) {
     const labels = {
       tree_limits: "Primary tree size, depth, branch width, and pruning pressure.",
-      rescue_layer: "Flat oxygen layer. Samples around seeds but never builds another tree.",
-      answer_regulation: "Answer length and evidence thresholds. Long answers must earn it.",
-      scoring: "Evidence weights and penalties used after policy approves candidate leaves.",
+      rescue_layer: "Diagnostic-only. Parked until runtime consumes these rescue controls.",
+      answer_regulation: "Diagnostic-only unless routed through ClearSpeak min/target/max controls.",
+      scoring: "Diagnostic-only. Active renderer still uses code-level scoring constants.",
       diagnostics_harness: "Fixed query harness paths for repeatable policy diagnostics.",
     };
     return labels[sectionName] || "Visible tuning controls persisted to config.";
@@ -2829,7 +2830,7 @@ const lexApp = {
       });
       this.treeBrainControls = data.tree_brain_controls;
       this.renderTreeBrainControls(this.treeBrainControls);
-      this.setBanner("success", "Tree-Brain controls saved. Cockpit switches are now active.");
+      this.setBanner("success", "Tree-Brain controls saved as diagnostic-only settings. Active runtime wiring has not changed.");
     } catch (error) {
       this.setBanner("error", `Tree-Brain controls save failed: ${error.message}`);
     }
@@ -2873,7 +2874,7 @@ const lexApp = {
               <span class="entry-tag">${value.length} items</span>
             </div>
             <textarea data-policy-key="${this.escape(key)}" data-policy-type="list" rows="8">${this.escape(value.join("\n"))}</textarea>
-            <div class="control-help">One item per line or comma-separated. Policy remains the authority.</div>
+            <div class="control-help">One item per line or comma-separated. Diagnostic policy file; active renderer wiring is separate.</div>
           </label>
         `;
       }
@@ -2885,7 +2886,7 @@ const lexApp = {
               `<option value="${option}" ${String(value) === option ? "selected" : ""}>${option}</option>`
             )).join("")}
           </select>
-          <div class="control-help">Policy switch persisted to symbol_policy.json.</div>
+          <div class="control-help">Diagnostic policy switch persisted to symbol_policy.json.</div>
         </label>
       `;
     }).join("");
@@ -2916,10 +2917,18 @@ const lexApp = {
       });
       this.symbolPolicy = data.symbol_policy || policy;
       this.renderSymbolPolicy(this.symbolPolicy);
-      this.setBanner("success", "Symbol policy saved. Tree now consumes the updated policy.");
+      this.setBanner("success", "Symbol policy saved as diagnostic policy. Active renderer wiring has not changed.");
     } catch (error) {
       this.setBanner("error", `Symbol policy save failed: ${error.message}`);
     }
+  },
+
+  renderSettingsInventory(inventory) {
+    if (!inventory || !Array.isArray(inventory.settings)) return;
+    const runtime = inventory.settings.filter((row) => row.runtime_active);
+    const diagnostic = inventory.settings.filter((row) => !row.runtime_active);
+    const summary = `Runtime active: ${runtime.map((row) => row.label).join(", ") || "none"}. Diagnostic-only: ${diagnostic.map((row) => row.label).join(", ") || "none"}.`;
+    this.setMeta("Settings Truth", summary);
   },
 
   exportTreeBrainConfig() {

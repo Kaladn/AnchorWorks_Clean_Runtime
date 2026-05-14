@@ -18,6 +18,7 @@ from .intake_audit import audit_source_directory, rebuild_readiness_report
 from .model_api_client import ModelApiClient
 from .observed_map_graph_viewer import ObservedMapGraphViewer
 from .policy_diagnostics_report import build_settings_report, load_queries
+from .settings_inventory import build_settings_inventory
 from .store import LexiconStore
 from .symbol_policy import SymbolPolicy
 from .tree_brain_controls import TreeBrainControls
@@ -247,7 +248,12 @@ def create_app(data_root: Path | None = None) -> FastAPI:
             "tree_brain_controls": tree_brain_controls.to_dict(),
             "active_controls": tree_brain_controls.active_values(),
             "symbol_policy": _read_symbol_policy(),
+            "settings_inventory": build_settings_inventory(app_root),
         }
+
+    @app.get("/api/settings/inventory")
+    def settings_inventory() -> dict[str, Any]:
+        return build_settings_inventory(app_root)
 
     @app.post("/api/tree-brain/controls")
     def tree_brain_controls_save(body: TreeBrainControlsBody) -> dict[str, Any]:
