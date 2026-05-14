@@ -28,6 +28,7 @@ window.ANCHORWORKS_CONFIG = {
     reasoning: _normalizeServiceUrl('anchorworks_reasoning_url', `${location.protocol}//${location.hostname}:5051`),
     citations: _normalizeServiceUrl('anchorworks_citations_url', `${location.protocol}//${location.hostname}:5052`),
     ui:        _normalizeServiceUrl('anchorworks_ui_url',        location.origin),
+    auth:      { required: false },
 };
 
 // WebSocket URL: derived from bridge, protocol-aware

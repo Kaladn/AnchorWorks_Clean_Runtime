@@ -58,7 +58,7 @@
         _gpuToggleUi(gpuEnabled);
         _set('scfg-log-level', extra.log_level || 'info');
         _setChk('scfg-require-hello', extra.anchorworks_node_require_hello !== false);
-        _setChk('scfg-require-auth',  extra.network_require_auth      !== false);
+        _setChk('scfg-require-auth',  extra.network_require_auth      === true);
     }
 
     // ── Save handlers (called from HTML onclick) ───────────────────────────
@@ -109,7 +109,7 @@
             const extraPayload = {
                 log_level:                  _val('scfg-log-level') || 'info',
                 anchorworks_node_require_hello:  document.getElementById('scfg-require-hello')?.checked ?? true,
-                network_require_auth:       document.getElementById('scfg-require-auth')?.checked  ?? true,
+                network_require_auth:       document.getElementById('scfg-require-auth')?.checked  ?? false,
             };
 
             const [r1, r2] = await Promise.all([

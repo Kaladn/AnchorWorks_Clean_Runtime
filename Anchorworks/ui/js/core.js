@@ -375,6 +375,15 @@ function _authCandidateOrigins() {
 
 window.getAuthBase = () => AUTH_BASE;
 
+function _authRequired() {
+    try {
+        if (localStorage.getItem('anchorworks_require_auth') === 'true') return true;
+    } catch (_) {
+        // Keep local V1 launch auth-free if storage is unavailable.
+    }
+    return window.ANCHORWORKS_CONFIG?.auth?.required === true;
+}
+
 function _b64url(buffer) {
     return btoa(String.fromCharCode(...new Uint8Array(buffer)))
         .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -506,10 +515,17 @@ async function authLogin() {
 }
 
 async function initAuth() {
-    const status = await checkAuthStatus();
     const gate = document.getElementById('login-gate');
     const appEl = document.getElementById('app-container');
     const statusEl = document.getElementById('auth-status');
+
+    if (!_authRequired()) {
+        if (gate) gate.style.display = 'none';
+        if (appEl) appEl.style.display = '';
+        return;
+    }
+
+    const status = await checkAuthStatus();
 
     if (status.error) {
         statusEl.innerHTML = `<p style="color: var(--warning);">Server not reachable. Start AnchorWorks services first.</p>`;
