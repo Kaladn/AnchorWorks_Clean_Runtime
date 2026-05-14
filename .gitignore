@@ -1,4 +1,6 @@
 openvino_env/
+__pycache__/
+*.pyc
 *.log
 Anchorworks/anchorworks-8081*.out.log
 Anchorworks/anchorworks-8081*.err.log
