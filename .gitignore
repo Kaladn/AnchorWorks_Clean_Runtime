@@ -43,3 +43,8 @@ Anchorworks/docs/CODEX_HANDOFF_STATE.json
 
 # Keep empty runtime directory markers.
 !**/.gitkeep
+
+# Legacy spare-symbol pools are preserved locally, not tracked.
+Spare_Slots/**
+!Spare_Slots/README.md
+!Spare_Slots/spare_slots.example.json
