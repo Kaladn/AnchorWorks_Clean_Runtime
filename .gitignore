@@ -48,3 +48,4 @@ Anchorworks/docs/CODEX_HANDOFF_STATE.json
 Spare_Slots/**
 !Spare_Slots/README.md
 !Spare_Slots/spare_slots.example.json
+DO_NOT_USE_LEGACY/**
