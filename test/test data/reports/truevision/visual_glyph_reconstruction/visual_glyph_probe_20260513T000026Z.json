@@ -1,0 +1,13 @@
+{
+  "schema_version": "anchorworks_visual_glyph_reconstruction_probe@1",
+  "run_id": "visual_glyph_probe_20260513T000026Z",
+  "expected_text": "A:B.",
+  "text_candidate": "A:B.",
+  "exact_match": true,
+  "unknown_glyphs": 0,
+  "blocking_anomalies": 0,
+  "anomalies": [],
+  "resolved_anchor": "",
+  "count_eligible": true,
+  "memory_truth": true
+}

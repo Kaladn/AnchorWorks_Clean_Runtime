@@ -1,0 +1,252 @@
+{
+  "schema_version": "anchorworks_black_pixel_text_reconstruction_trial@1",
+  "run_id": "black_pixel_doc_trimmed_20260512T102320Z",
+  "image_path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\black_pixel_text_reconstruction\\black_pixel_doc_trimmed_20260512T102320Z.bmp",
+  "recovered_text_path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\black_pixel_text_reconstruction\\black_pixel_doc_trimmed_20260512T102320Z_recovered.txt",
+  "source_text": "TRUEVISION SEES BLACK PIXELS.\nANCHORWORKS READS ORDERED MARKS.\nDOC 1: VISION FIRST.",
+  "recovered_text": "TRUEVISION SEES BLACK PIXELS.\nANCHORWORKS READS ORDERED MARKS.\nDOC 1 : VISION FIRST.",
+  "exact_match": false,
+  "width": 948,
+  "height": 204,
+  "scale": 4,
+  "black_pixels": 17152,
+  "line_bands": [
+    [
+      32,
+      60
+    ],
+    [
+      88,
+      116
+    ],
+    [
+      144,
+      172
+    ]
+  ],
+  "glyphs_decoded": 72,
+  "elapsed_seconds": 0.004637,
+  "glyphs_per_second": 15528.62,
+  "boundary": "Exact for deterministic black/white rendered glyph set; arbitrary PDFs still need font/shape learning or source verification.",
+  "trace_sample": [
+    {
+      "bounds": [
+        32,
+        32,
+        52,
+        60
+      ],
+      "trim_pattern": [
+        "11111",
+        "00100",
+        "00100",
+        "00100",
+        "00100",
+        "00100",
+        "00100"
+      ],
+      "decoded": "T"
+    },
+    {
+      "bounds": [
+        60,
+        32,
+        80,
+        60
+      ],
+      "trim_pattern": [
+        "11110",
+        "10001",
+        "10001",
+        "11110",
+        "10100",
+        "10010",
+        "10001"
+      ],
+      "decoded": "R"
+    },
+    {
+      "bounds": [
+        88,
+        32,
+        108,
+        60
+      ],
+      "trim_pattern": [
+        "10001",
+        "10001",
+        "10001",
+        "10001",
+        "10001",
+        "10001",
+        "01110"
+      ],
+      "decoded": "U"
+    },
+    {
+      "bounds": [
+        116,
+        32,
+        136,
+        60
+      ],
+      "trim_pattern": [
+        "11111",
+        "10000",
+        "10000",
+        "11110",
+        "10000",
+        "10000",
+        "11111"
+      ],
+      "decoded": "E"
+    },
+    {
+      "bounds": [
+        144,
+        32,
+        164,
+        60
+      ],
+      "trim_pattern": [
+        "10001",
+        "10001",
+        "10001",
+        "10001",
+        "10001",
+        "01010",
+        "00100"
+      ],
+      "decoded": "V"
+    },
+    {
+      "bounds": [
+        176,
+        32,
+        188,
+        60
+      ],
+      "trim_pattern": [
+        "111",
+        "010",
+        "010",
+        "010",
+        "010",
+        "010",
+        "111"
+      ],
+      "decoded": "I"
+    },
+    {
+      "bounds": [
+        200,
+        32,
+        220,
+        60
+      ],
+      "trim_pattern": [
+        "01111",
+        "10000",
+        "10000",
+        "01110",
+        "00001",
+        "00001",
+        "11110"
+      ],
+      "decoded": "S"
+    },
+    {
+      "bounds": [
+        232,
+        32,
+        244,
+        60
+      ],
+      "trim_pattern": [
+        "111",
+        "010",
+        "010",
+        "010",
+        "010",
+        "010",
+        "111"
+      ],
+      "decoded": "I"
+    },
+    {
+      "bounds": [
+        256,
+        32,
+        276,
+        60
+      ],
+      "trim_pattern": [
+        "01110",
+        "10001",
+        "10001",
+        "10001",
+        "10001",
+        "10001",
+        "01110"
+      ],
+      "decoded": "O"
+    },
+    {
+      "bounds": [
+        284,
+        32,
+        304,
+        60
+      ],
+      "trim_pattern": [
+        "10001",
+        "11001",
+        "10101",
+        "10011",
+        "10001",
+        "10001",
+        "10001"
+      ],
+      "decoded": "N"
+    },
+    {
+      "bounds": [
+        336,
+        32,
+        356,
+        60
+      ],
+      "trim_pattern": [
+        "01111",
+        "10000",
+        "10000",
+        "01110",
+        "00001",
+        "00001",
+        "11110"
+      ],
+      "decoded": "S"
+    },
+    {
+      "bounds": [
+        364,
+        32,
+        384,
+        60
+      ],
+      "trim_pattern": [
+        "11111",
+        "10000",
+        "10000",
+        "11110",
+        "10000",
+        "10000",
+        "11111"
+      ],
+      "decoded": "E"
+    }
+  ],
+  "post_spacing_recovered_text": "TRUEVISION SEES BLACK PIXELS.\nANCHORWORKS READS ORDERED MARKS.\nDOC 1: VISION FIRST.",
+  "post_spacing_exact_match": true,
+  "spacing_rule": "Attach punctuation marks .,:- to the previous glyph when a word-gap inference would otherwise precede them."
+}

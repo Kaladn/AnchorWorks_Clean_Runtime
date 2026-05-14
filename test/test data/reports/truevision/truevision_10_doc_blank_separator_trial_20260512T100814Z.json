@@ -1,0 +1,2854 @@
+{
+  "schema_version": "anchorworks_truevision_blank_separator_trial@1",
+  "run_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z",
+  "created_utc": "2026-05-12T10:08:15.478630+00:00",
+  "mode": "dry_run_metadata_only",
+  "source_doc_root": "D:\\curated data\\markdown_openstax",
+  "docs_selected": [
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90376\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90377\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90378\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90379\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90380\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90381\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90382\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90384\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90386\\index.cnxml.md",
+    "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90387\\index.cnxml.md"
+  ],
+  "frame_geometry": {
+    "width": 1280,
+    "height": 720,
+    "format": "BMP",
+    "color_mode": "RGB"
+  },
+  "target_frame_rate_fps": 240.0,
+  "frame_step_ms": 4.167,
+  "policy": {
+    "sequence": "document_frame_then_blank_white_separator",
+    "blank_separator_required": true,
+    "duplicate_blank_hashes_expected": true,
+    "recognition_enabled": false,
+    "production_writes_allowed": false
+  },
+  "summary": {
+    "documents": 10,
+    "frames_total": 20,
+    "document_frames": 10,
+    "blank_separator_frames": 10,
+    "duplicate_content_hashes": 1,
+    "blank_separator_duplicate_hash_count": 10,
+    "region_count": 0,
+    "recognition_candidates": 0,
+    "write_policy_violations": 0,
+    "elapsed_seconds": 0.509574,
+    "constructed_frames_per_second": 39.25,
+    "constructed_documents_per_second": 19.62
+  },
+  "duplicate_hashes": {
+    "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73": 10
+  },
+  "write_policy_violations": [],
+  "frames": [
+    {
+      "frame_id": "frame_00000",
+      "frame_role": "document_frame",
+      "frame_index": 0,
+      "frame_timestamp_ms": 0.0,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90376\\index.cnxml.md",
+      "source_name": "doc_001_m90376.bmp",
+      "visual_record_id": "visual_36a45925160f4324",
+      "visual_content_hash": "d83a0e70863611a5c737f6197687fc50c7e337859a185ed8df85b2907d73703b",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_36a45925160f4324",
+          "source_name": "doc_001_m90376.bmp",
+          "media_type": "image",
+          "sha256": "d83a0e70863611a5c737f6197687fc50c7e337859a185ed8df85b2907d73703b",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 0,
+          "frame_timestamp_ms": 0,
+          "page_index": 0,
+          "page_number": 1,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_36a45925160f4324",
+        "region_map_id": "region_map_216f9a4ffd0cc765",
+        "source_hash": "d83a0e70863611a5c737f6197687fc50c7e337859a185ed8df85b2907d73703b",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_36a45925160f4324",
+        "region_map_id": "region_map_216f9a4ffd0cc765",
+        "recognition_layer_id": "recognition_bf316f5b17a29f16",
+        "source_hash": "d83a0e70863611a5c737f6197687fc50c7e337859a185ed8df85b2907d73703b",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00001",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 1,
+      "frame_timestamp_ms": 4.167,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90376\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_001.bmp",
+      "visual_record_id": "visual_3998b0f434c26b76",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_3998b0f434c26b76",
+          "source_name": "blank_separator_after_doc_001.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 1,
+          "frame_timestamp_ms": 4,
+          "page_index": 0,
+          "page_number": 1,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_3998b0f434c26b76",
+        "region_map_id": "region_map_1be7d6a19e7ee57f",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_3998b0f434c26b76",
+        "region_map_id": "region_map_1be7d6a19e7ee57f",
+        "recognition_layer_id": "recognition_43447c5e1988d0ca",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00002",
+      "frame_role": "document_frame",
+      "frame_index": 2,
+      "frame_timestamp_ms": 8.334,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90377\\index.cnxml.md",
+      "source_name": "doc_002_m90377.bmp",
+      "visual_record_id": "visual_952f447391d06975",
+      "visual_content_hash": "5e0a9a4ba5002e439b906fbeab5cfd36ea22a10a71f4d30a2ae1c618c00fe643",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_952f447391d06975",
+          "source_name": "doc_002_m90377.bmp",
+          "media_type": "image",
+          "sha256": "5e0a9a4ba5002e439b906fbeab5cfd36ea22a10a71f4d30a2ae1c618c00fe643",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 2,
+          "frame_timestamp_ms": 8,
+          "page_index": 1,
+          "page_number": 2,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_952f447391d06975",
+        "region_map_id": "region_map_48d070be02110094",
+        "source_hash": "5e0a9a4ba5002e439b906fbeab5cfd36ea22a10a71f4d30a2ae1c618c00fe643",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_952f447391d06975",
+        "region_map_id": "region_map_48d070be02110094",
+        "recognition_layer_id": "recognition_ef56bb9940f0ffab",
+        "source_hash": "5e0a9a4ba5002e439b906fbeab5cfd36ea22a10a71f4d30a2ae1c618c00fe643",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00003",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 3,
+      "frame_timestamp_ms": 12.501,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90377\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_002.bmp",
+      "visual_record_id": "visual_337c5276510142fa",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_337c5276510142fa",
+          "source_name": "blank_separator_after_doc_002.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 3,
+          "frame_timestamp_ms": 13,
+          "page_index": 1,
+          "page_number": 2,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_337c5276510142fa",
+        "region_map_id": "region_map_1405c63d03f1865f",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_337c5276510142fa",
+        "region_map_id": "region_map_1405c63d03f1865f",
+        "recognition_layer_id": "recognition_1e37e4ea1ca97f1b",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00004",
+      "frame_role": "document_frame",
+      "frame_index": 4,
+      "frame_timestamp_ms": 16.668,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90378\\index.cnxml.md",
+      "source_name": "doc_003_m90378.bmp",
+      "visual_record_id": "visual_5fb73612b6e5553c",
+      "visual_content_hash": "fcd3f474cc94834eaae4ff60290855d302c7b5c641deda636912dbb69739bafc",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_5fb73612b6e5553c",
+          "source_name": "doc_003_m90378.bmp",
+          "media_type": "image",
+          "sha256": "fcd3f474cc94834eaae4ff60290855d302c7b5c641deda636912dbb69739bafc",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 4,
+          "frame_timestamp_ms": 17,
+          "page_index": 2,
+          "page_number": 3,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_5fb73612b6e5553c",
+        "region_map_id": "region_map_a248dcd080f41183",
+        "source_hash": "fcd3f474cc94834eaae4ff60290855d302c7b5c641deda636912dbb69739bafc",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_5fb73612b6e5553c",
+        "region_map_id": "region_map_a248dcd080f41183",
+        "recognition_layer_id": "recognition_94030c285e66bcaa",
+        "source_hash": "fcd3f474cc94834eaae4ff60290855d302c7b5c641deda636912dbb69739bafc",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00005",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 5,
+      "frame_timestamp_ms": 20.835,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90378\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_003.bmp",
+      "visual_record_id": "visual_b0d229c511e45ac2",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_b0d229c511e45ac2",
+          "source_name": "blank_separator_after_doc_003.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 5,
+          "frame_timestamp_ms": 21,
+          "page_index": 2,
+          "page_number": 3,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_b0d229c511e45ac2",
+        "region_map_id": "region_map_bae5c79769700011",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_b0d229c511e45ac2",
+        "region_map_id": "region_map_bae5c79769700011",
+        "recognition_layer_id": "recognition_da4801dc114e753c",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00006",
+      "frame_role": "document_frame",
+      "frame_index": 6,
+      "frame_timestamp_ms": 25.002,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90379\\index.cnxml.md",
+      "source_name": "doc_004_m90379.bmp",
+      "visual_record_id": "visual_bdec501633e9264f",
+      "visual_content_hash": "c09134ccd54c24a97fdbde0ac939ec0e7ea031c6fe50a0e8fc6fdf4b44741c77",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_bdec501633e9264f",
+          "source_name": "doc_004_m90379.bmp",
+          "media_type": "image",
+          "sha256": "c09134ccd54c24a97fdbde0ac939ec0e7ea031c6fe50a0e8fc6fdf4b44741c77",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 6,
+          "frame_timestamp_ms": 25,
+          "page_index": 3,
+          "page_number": 4,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_bdec501633e9264f",
+        "region_map_id": "region_map_6a299c78e5eced9b",
+        "source_hash": "c09134ccd54c24a97fdbde0ac939ec0e7ea031c6fe50a0e8fc6fdf4b44741c77",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_bdec501633e9264f",
+        "region_map_id": "region_map_6a299c78e5eced9b",
+        "recognition_layer_id": "recognition_a842b9b047950c14",
+        "source_hash": "c09134ccd54c24a97fdbde0ac939ec0e7ea031c6fe50a0e8fc6fdf4b44741c77",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00007",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 7,
+      "frame_timestamp_ms": 29.168999999999997,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90379\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_004.bmp",
+      "visual_record_id": "visual_57b26c149aac2ddf",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_57b26c149aac2ddf",
+          "source_name": "blank_separator_after_doc_004.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 7,
+          "frame_timestamp_ms": 29,
+          "page_index": 3,
+          "page_number": 4,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_57b26c149aac2ddf",
+        "region_map_id": "region_map_8390527e92d3ae79",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_57b26c149aac2ddf",
+        "region_map_id": "region_map_8390527e92d3ae79",
+        "recognition_layer_id": "recognition_7ac26175a71a112c",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00008",
+      "frame_role": "document_frame",
+      "frame_index": 8,
+      "frame_timestamp_ms": 33.336,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90380\\index.cnxml.md",
+      "source_name": "doc_005_m90380.bmp",
+      "visual_record_id": "visual_a6d318e516dcc08a",
+      "visual_content_hash": "dd3e5887d538b3f41afdc0102d8d64b49e22ef2770a6dcdbb25778f6039231c6",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_a6d318e516dcc08a",
+          "source_name": "doc_005_m90380.bmp",
+          "media_type": "image",
+          "sha256": "dd3e5887d538b3f41afdc0102d8d64b49e22ef2770a6dcdbb25778f6039231c6",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 8,
+          "frame_timestamp_ms": 33,
+          "page_index": 4,
+          "page_number": 5,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_a6d318e516dcc08a",
+        "region_map_id": "region_map_ec73cdce1ed88033",
+        "source_hash": "dd3e5887d538b3f41afdc0102d8d64b49e22ef2770a6dcdbb25778f6039231c6",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_a6d318e516dcc08a",
+        "region_map_id": "region_map_ec73cdce1ed88033",
+        "recognition_layer_id": "recognition_86ab7de0a67a687c",
+        "source_hash": "dd3e5887d538b3f41afdc0102d8d64b49e22ef2770a6dcdbb25778f6039231c6",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00009",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 9,
+      "frame_timestamp_ms": 37.503,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90380\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_005.bmp",
+      "visual_record_id": "visual_9a0f8f9138d2c697",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_9a0f8f9138d2c697",
+          "source_name": "blank_separator_after_doc_005.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 9,
+          "frame_timestamp_ms": 38,
+          "page_index": 4,
+          "page_number": 5,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_9a0f8f9138d2c697",
+        "region_map_id": "region_map_2f7540c7c445f3b5",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_9a0f8f9138d2c697",
+        "region_map_id": "region_map_2f7540c7c445f3b5",
+        "recognition_layer_id": "recognition_3c20fe865c35f1c8",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00010",
+      "frame_role": "document_frame",
+      "frame_index": 10,
+      "frame_timestamp_ms": 41.67,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90381\\index.cnxml.md",
+      "source_name": "doc_006_m90381.bmp",
+      "visual_record_id": "visual_947325ad7f943cdd",
+      "visual_content_hash": "f04a187c515a2198afcdbd90b885ee900453806fd012068370d74da901b38bc1",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_947325ad7f943cdd",
+          "source_name": "doc_006_m90381.bmp",
+          "media_type": "image",
+          "sha256": "f04a187c515a2198afcdbd90b885ee900453806fd012068370d74da901b38bc1",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 10,
+          "frame_timestamp_ms": 42,
+          "page_index": 5,
+          "page_number": 6,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_947325ad7f943cdd",
+        "region_map_id": "region_map_0326a31b018dbb5b",
+        "source_hash": "f04a187c515a2198afcdbd90b885ee900453806fd012068370d74da901b38bc1",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_947325ad7f943cdd",
+        "region_map_id": "region_map_0326a31b018dbb5b",
+        "recognition_layer_id": "recognition_8049eecd4cd0bf10",
+        "source_hash": "f04a187c515a2198afcdbd90b885ee900453806fd012068370d74da901b38bc1",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00011",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 11,
+      "frame_timestamp_ms": 45.836999999999996,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90381\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_006.bmp",
+      "visual_record_id": "visual_ae034a5a6b6b1570",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_ae034a5a6b6b1570",
+          "source_name": "blank_separator_after_doc_006.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 11,
+          "frame_timestamp_ms": 46,
+          "page_index": 5,
+          "page_number": 6,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_ae034a5a6b6b1570",
+        "region_map_id": "region_map_69fcf06a2385d161",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_ae034a5a6b6b1570",
+        "region_map_id": "region_map_69fcf06a2385d161",
+        "recognition_layer_id": "recognition_a29a7daeb79ff5ba",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00012",
+      "frame_role": "document_frame",
+      "frame_index": 12,
+      "frame_timestamp_ms": 50.004,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90382\\index.cnxml.md",
+      "source_name": "doc_007_m90382.bmp",
+      "visual_record_id": "visual_9b0240b0d8d6fc19",
+      "visual_content_hash": "9fc62135e76a96418c7eb2d59e4ed26dcd8f0d3de3df71dfa6f0d52ba8ecb84b",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_9b0240b0d8d6fc19",
+          "source_name": "doc_007_m90382.bmp",
+          "media_type": "image",
+          "sha256": "9fc62135e76a96418c7eb2d59e4ed26dcd8f0d3de3df71dfa6f0d52ba8ecb84b",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 12,
+          "frame_timestamp_ms": 50,
+          "page_index": 6,
+          "page_number": 7,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_9b0240b0d8d6fc19",
+        "region_map_id": "region_map_51642252f735465f",
+        "source_hash": "9fc62135e76a96418c7eb2d59e4ed26dcd8f0d3de3df71dfa6f0d52ba8ecb84b",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_9b0240b0d8d6fc19",
+        "region_map_id": "region_map_51642252f735465f",
+        "recognition_layer_id": "recognition_15647909fff445c8",
+        "source_hash": "9fc62135e76a96418c7eb2d59e4ed26dcd8f0d3de3df71dfa6f0d52ba8ecb84b",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00013",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 13,
+      "frame_timestamp_ms": 54.171,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90382\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_007.bmp",
+      "visual_record_id": "visual_d56cb89b0bf5ca0d",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_d56cb89b0bf5ca0d",
+          "source_name": "blank_separator_after_doc_007.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 13,
+          "frame_timestamp_ms": 54,
+          "page_index": 6,
+          "page_number": 7,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_d56cb89b0bf5ca0d",
+        "region_map_id": "region_map_04727a1472939eef",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_d56cb89b0bf5ca0d",
+        "region_map_id": "region_map_04727a1472939eef",
+        "recognition_layer_id": "recognition_eceaac8c0eaf22fb",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00014",
+      "frame_role": "document_frame",
+      "frame_index": 14,
+      "frame_timestamp_ms": 58.337999999999994,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90384\\index.cnxml.md",
+      "source_name": "doc_008_m90384.bmp",
+      "visual_record_id": "visual_e246d5de05bc5de8",
+      "visual_content_hash": "95fdd2022d0a40fa015e1b71de4b83478ce1b57c77e86ee79e7fec8734719462",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_e246d5de05bc5de8",
+          "source_name": "doc_008_m90384.bmp",
+          "media_type": "image",
+          "sha256": "95fdd2022d0a40fa015e1b71de4b83478ce1b57c77e86ee79e7fec8734719462",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 14,
+          "frame_timestamp_ms": 58,
+          "page_index": 7,
+          "page_number": 8,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_e246d5de05bc5de8",
+        "region_map_id": "region_map_8dc931e84e315658",
+        "source_hash": "95fdd2022d0a40fa015e1b71de4b83478ce1b57c77e86ee79e7fec8734719462",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_e246d5de05bc5de8",
+        "region_map_id": "region_map_8dc931e84e315658",
+        "recognition_layer_id": "recognition_00d22c6c84c7f1d7",
+        "source_hash": "95fdd2022d0a40fa015e1b71de4b83478ce1b57c77e86ee79e7fec8734719462",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00015",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 15,
+      "frame_timestamp_ms": 62.504999999999995,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90384\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_008.bmp",
+      "visual_record_id": "visual_d7ecb2ef9a19076b",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_d7ecb2ef9a19076b",
+          "source_name": "blank_separator_after_doc_008.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 15,
+          "frame_timestamp_ms": 63,
+          "page_index": 7,
+          "page_number": 8,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_d7ecb2ef9a19076b",
+        "region_map_id": "region_map_1a0ba0059f2cff2e",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_d7ecb2ef9a19076b",
+        "region_map_id": "region_map_1a0ba0059f2cff2e",
+        "recognition_layer_id": "recognition_07159ff0aeecee02",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00016",
+      "frame_role": "document_frame",
+      "frame_index": 16,
+      "frame_timestamp_ms": 66.672,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90386\\index.cnxml.md",
+      "source_name": "doc_009_m90386.bmp",
+      "visual_record_id": "visual_c7b38fe5a22a6098",
+      "visual_content_hash": "0ec1c3108baff3adaa962a783f111f7a8b6200b0d2ad4521cde5df90a93332e1",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_c7b38fe5a22a6098",
+          "source_name": "doc_009_m90386.bmp",
+          "media_type": "image",
+          "sha256": "0ec1c3108baff3adaa962a783f111f7a8b6200b0d2ad4521cde5df90a93332e1",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 16,
+          "frame_timestamp_ms": 67,
+          "page_index": 8,
+          "page_number": 9,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_c7b38fe5a22a6098",
+        "region_map_id": "region_map_e430e72eb9991465",
+        "source_hash": "0ec1c3108baff3adaa962a783f111f7a8b6200b0d2ad4521cde5df90a93332e1",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_c7b38fe5a22a6098",
+        "region_map_id": "region_map_e430e72eb9991465",
+        "recognition_layer_id": "recognition_7ea96f43af5c8a1e",
+        "source_hash": "0ec1c3108baff3adaa962a783f111f7a8b6200b0d2ad4521cde5df90a93332e1",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00017",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 17,
+      "frame_timestamp_ms": 70.839,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90386\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_009.bmp",
+      "visual_record_id": "visual_5d0c44249c2434d4",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_5d0c44249c2434d4",
+          "source_name": "blank_separator_after_doc_009.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 17,
+          "frame_timestamp_ms": 71,
+          "page_index": 8,
+          "page_number": 9,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_5d0c44249c2434d4",
+        "region_map_id": "region_map_5d94ee4305be1eb9",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_5d0c44249c2434d4",
+        "region_map_id": "region_map_5d94ee4305be1eb9",
+        "recognition_layer_id": "recognition_0d02f0e8e583c61e",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00018",
+      "frame_role": "document_frame",
+      "frame_index": 18,
+      "frame_timestamp_ms": 75.006,
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90387\\index.cnxml.md",
+      "source_name": "doc_010_m90387.bmp",
+      "visual_record_id": "visual_a780c436b1efb9a2",
+      "visual_content_hash": "ca4d50a8e12e83f3247b0a0f5ba133130e0c5b064cb9647a916fa46aea46619b",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_a780c436b1efb9a2",
+          "source_name": "doc_010_m90387.bmp",
+          "media_type": "image",
+          "sha256": "ca4d50a8e12e83f3247b0a0f5ba133130e0c5b064cb9647a916fa46aea46619b",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 18,
+          "frame_timestamp_ms": 75,
+          "page_index": 9,
+          "page_number": 10,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_a780c436b1efb9a2",
+        "region_map_id": "region_map_d1762934d8b3195a",
+        "source_hash": "ca4d50a8e12e83f3247b0a0f5ba133130e0c5b064cb9647a916fa46aea46619b",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_a780c436b1efb9a2",
+        "region_map_id": "region_map_d1762934d8b3195a",
+        "recognition_layer_id": "recognition_e55732c028883a85",
+        "source_hash": "ca4d50a8e12e83f3247b0a0f5ba133130e0c5b064cb9647a916fa46aea46619b",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    },
+    {
+      "frame_id": "frame_00019",
+      "frame_role": "blank_separator_frame",
+      "frame_index": 19,
+      "frame_timestamp_ms": 79.173,
+      "source_path_ref": "separator_after::D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90387\\index.cnxml.md",
+      "source_name": "blank_separator_after_doc_010.bmp",
+      "visual_record_id": "visual_86ba22f18e9e7231",
+      "visual_content_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "file_format": "BMP",
+      "visual_manifest": {
+        "contract_version": "anchorworks_visual_intake@1",
+        "source": {
+          "visual_record_id": "visual_86ba22f18e9e7231",
+          "source_name": "blank_separator_after_doc_010.bmp",
+          "media_type": "image",
+          "sha256": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+          "byte_size": 2764854,
+          "width": 1280,
+          "height": 720,
+          "aspect_ratio": "16:9",
+          "color_mode": "RGB",
+          "file_format": "BMP",
+          "frame_index": 19,
+          "frame_timestamp_ms": 79,
+          "page_index": 9,
+          "page_number": 10,
+          "source_document_id": "truevision_10_doc_blank_separator_trial_20260512T100814Z"
+        },
+        "authority": "source_local_visual_evidence",
+        "approval_status": "preview_only",
+        "backend_capabilities": [
+          {
+            "backend_id": "compucog_vision_yolo_a",
+            "backend_type": "object_detection",
+            "provider": "local_compucog",
+            "version": "phase_a",
+            "inputs_supported": [
+              "screen_capture",
+              "image_frame"
+            ],
+            "outputs_supported": [
+              "detections",
+              "scene_analysis",
+              "auto_labels"
+            ],
+            "coordinate_space": "native_pixels",
+            "distorts_source": false,
+            "may_resize_for_model": true,
+            "resize_is_derived": true,
+            "writes_allowed": {
+              "maps": false,
+              "counts": false,
+              "lifetime": false,
+              "lexicon": false
+            }
+          }
+        ],
+        "layers": [
+          {
+            "layer_type": "source_geometry",
+            "backend_id": "truevision",
+            "coordinate_space": "native_pixels",
+            "items": [
+              {
+                "width": 1280,
+                "height": 720,
+                "aspect_ratio": "16:9",
+                "color_mode": "RGB",
+                "file_format": "BMP"
+              }
+            ],
+            "status": "preview_only"
+          }
+        ],
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Native pixels are preserved as source evidence.",
+          "OCR/object/scene layers are derived later by approved backends.",
+          "Visual preview does not write maps, counts, lifetime, or lexicon."
+        ]
+      },
+      "visual_region_map": {
+        "contract_version": "anchorworks_visual_region_map@1",
+        "visual_record_id": "visual_86ba22f18e9e7231",
+        "region_map_id": "region_map_62d5a46809ecbd3f",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "coordinate_space": "native_pixels",
+        "backend_id": "anchorworks_region_map_schema",
+        "regions": [],
+        "relations": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Region map is initialized empty; no visual regions have been generated.",
+          "Regions must use native source coordinates unless explicitly marked as derived grid cells."
+        ]
+      },
+      "visual_recognition_layer": {
+        "contract_version": "anchorworks_visual_recognition_layer@1",
+        "visual_record_id": "visual_86ba22f18e9e7231",
+        "region_map_id": "region_map_62d5a46809ecbd3f",
+        "recognition_layer_id": "recognition_3651739f0d865c26",
+        "source_hash": "04e491e160dd24c2eb1e833b35560f3b8b9aed937bf83eb70070b8bd152dfd73",
+        "backend_id": "anchorworks_recognition_schema",
+        "candidates": [],
+        "approval_status": "candidate",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        },
+        "notes": [
+          "Recognition layer is initialized empty; no OCR/object/scene candidates have been generated.",
+          "Recognition candidates remain evidence until approval promotes them."
+        ]
+      },
+      "recognition_status": "not_run",
+      "region_status": "empty",
+      "writes_allowed": {
+        "maps": false,
+        "counts": false,
+        "lifetime": false,
+        "lexicon": false
+      }
+    }
+  ]
+}

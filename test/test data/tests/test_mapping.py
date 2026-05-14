@@ -37,6 +37,14 @@ def _write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _anchorworks_repo_root() -> Path:
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent if (parent / "src" / "AnchorWorks").exists() else parent / "Anchorworks"
+        if (candidate / "src" / "AnchorWorks").exists():
+            return candidate
+    raise RuntimeError("Anchorworks repo root not found")
+
+
 def _write_count_read_fixture(
     store: LexiconStore,
     relation_rows: list[dict[str, object]],
@@ -1591,7 +1599,7 @@ class MappingTests(unittest.TestCase):
             self.assertFalse(result["writes_performed"])
 
     def test_chat_ui_exposes_workbench_controls(self) -> None:
-        ui_root = Path(__file__).resolve().parents[1] / "src" / "AnchorWorks" / "ui"
+        ui_root = _anchorworks_repo_root() / "src" / "AnchorWorks" / "ui"
         index_html = (ui_root / "index.html").read_text(encoding="utf-8")
         app_js = (ui_root / "app.js").read_text(encoding="utf-8")
 

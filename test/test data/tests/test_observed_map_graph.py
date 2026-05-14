@@ -10,9 +10,18 @@ from pathlib import Path
 from AnchorWorks.app import create_app
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-RUNNER = REPO_ROOT / "experiments" / "observed_map_graph" / "run.py"
-RUNTIME = REPO_ROOT / "experiments" / "observed_map_graph" / "runtime"
+def _anchorworks_repo_root() -> Path:
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent if (parent / "src" / "AnchorWorks").exists() else parent / "Anchorworks"
+        if (candidate / "src" / "AnchorWorks").exists():
+            return candidate
+    raise RuntimeError("Anchorworks repo root not found")
+
+
+REPO_ROOT = _anchorworks_repo_root()
+TEST_DATA_ROOT = REPO_ROOT.parent / "test" / "test data"
+RUNNER = TEST_DATA_ROOT / "experiments" / "observed_map_graph" / "run.py"
+RUNTIME = TEST_DATA_ROOT / "experiments" / "observed_map_graph" / "runtime"
 
 
 class ObservedMapGraphExperimentTests(unittest.TestCase):

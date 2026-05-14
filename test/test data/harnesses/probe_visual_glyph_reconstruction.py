@@ -8,6 +8,9 @@ from AnchorWorks.visual_black_pixel_reconstruction import reconstruct_from_known
 from AnchorWorks.visual_glyph_lexicon import VisualGlyphLexicon
 
 
+TEST_DATA_ROOT = Path(__file__).resolve().parents[1]
+
+
 def glyph_record(display: str, pattern: list[str]) -> dict[str, object]:
     safe = {
         ".": "period",
@@ -61,7 +64,7 @@ def main() -> int:
         "count_eligible": reconstruction["count_eligible"],
         "memory_truth": reconstruction["memory_truth"],
     }
-    output_dir = Path("reports") / "truevision" / "visual_glyph_reconstruction"
+    output_dir = TEST_DATA_ROOT / "reports" / "truevision" / "visual_glyph_reconstruction"
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{run_id}.json"
     output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

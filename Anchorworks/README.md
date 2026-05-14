@@ -24,6 +24,14 @@ Then open:
 
 `http://127.0.0.1:8081`
 
+## Test Harness
+
+Test code and test-only harnesses live outside the app package:
+
+```bash
+python -m unittest discover -s "..\test\test data\tests"
+```
+
 ## What it serves
 
 - Lexicon explorer UI

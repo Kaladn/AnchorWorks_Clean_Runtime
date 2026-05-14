@@ -55,30 +55,30 @@ Keep the same runner and sandbox.
 V1 remains the default:
 
 ```powershell
-python experiments\toy_evidence_renderer\run.py build
-python experiments\toy_evidence_renderer\run.py eval
-python experiments\toy_evidence_renderer\run.py train
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" build
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" eval
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" train
 ```
 
 Add V2 difficulty:
 
 ```powershell
-python experiments\toy_evidence_renderer\run.py build --difficulty v2
-python experiments\toy_evidence_renderer\run.py eval --difficulty v2
-python experiments\toy_evidence_renderer\run.py train --difficulty v2
-python experiments\toy_evidence_renderer\run.py all --difficulty v2
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" build --difficulty v2
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" eval --difficulty v2
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" train --difficulty v2
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" all --difficulty v2
 ```
 
 Correct path:
 
 ```text
-experiments\toy_evidence_renderer\run.py
+..\test\test data\experiments\toy_evidence_renderer\run.py
 ```
 
 Do not use the typo path:
 
 ```text
-experiments\totoy_evidence_renderer\run.py
+..\test\test data\experiments\toy_evidence_renderer\run.py
 ```
 
 ## Sandbox
@@ -86,7 +86,7 @@ experiments\totoy_evidence_renderer\run.py
 All V2 runtime output stays under:
 
 ```text
-experiments/toy_evidence_renderer/runtime/
+../test/test data/experiments/toy_evidence_renderer/runtime/
   corpus/
   maps/
   awss/
@@ -394,9 +394,9 @@ Treat NPU as an inference backend, not the authoritative substrate.
 First V2 checkpoint:
 
 ```powershell
-python experiments\toy_evidence_renderer\run.py build --difficulty v2
-python experiments\toy_evidence_renderer\run.py eval --difficulty v2
-python -m unittest discover -s tests
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" build --difficulty v2
+python "..\test\test data\experiments\toy_evidence_renderer\run.py" eval --difficulty v2
+python -m unittest discover -s "..\test\test data\tests"
 ```
 
 Expected:
@@ -431,7 +431,7 @@ Do not treat deterministic exact-match as model intelligence.
 Implement `--difficulty v2` in:
 
 ```text
-experiments\toy_evidence_renderer\run.py
+..\test\test data\experiments\toy_evidence_renderer\run.py
 ```
 
 Then extend:

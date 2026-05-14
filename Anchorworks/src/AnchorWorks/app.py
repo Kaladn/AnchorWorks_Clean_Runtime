@@ -194,7 +194,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     assets_root = ui_root / "assets"
     store = LexiconStore(data_root or _default_data_root())
     awsg_viewer = ObservedMapGraphViewer([
-        app_root / "experiments" / "observed_map_graph" / "runtime" / "graph",
+        store.root / "test" / "test data" / "experiments" / "observed_map_graph" / "runtime" / "graph",
         store.anchor_maps_root / "source_graphs",
     ])
     tree_brain_controls = TreeBrainControls.load(app_root / "config" / "tree_brain_controls.json")

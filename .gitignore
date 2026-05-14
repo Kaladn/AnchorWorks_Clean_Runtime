@@ -3,6 +3,8 @@ openvino_env/
 Anchorworks/anchorworks-8081*.out.log
 Anchorworks/anchorworks-8081*.err.log
 Anchorworks/reports/**
+test/test data/experiments/toy_evidence_renderer/runtime/
+test/test data/experiments/observed_map_graph/runtime/
 
 # Reconstructed from payload_chunks/Spare_Slots/spare_slots.json.
 Spare_Slots/spare_slots.json

@@ -1,0 +1,2736 @@
+{
+  "schema_version": "anchorworks_truevision_dry_run_metadata@1",
+  "created_utc": "2026-05-12T01:11:28Z",
+  "folders": [
+    "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\How to Read and Follow Uploaded File Content_",
+    "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download"
+  ],
+  "write_policy": "metadata_only_no_films_no_frames_no_maps_no_counts",
+  "normalization_rule": "NEVER normalize before vision; all manipulation is post visual proofing.",
+  "input_file_count": 1806,
+  "extension_counts": {
+    ".csv": 25,
+    ".dart": 1,
+    ".docx": 9,
+    ".html": 13,
+    ".ico": 1,
+    ".ipynb": 1,
+    ".jpg": 72,
+    ".js": 1,
+    ".json": 20,
+    ".jsonl": 8,
+    ".md": 393,
+    ".mmd": 1,
+    ".pdf": 924,
+    ".png": 61,
+    ".ps1": 3,
+    ".py": 148,
+    ".sh": 7,
+    ".txt": 117,
+    ".xlsx": 1
+  },
+  "runs": [
+    {
+      "run_index": 1,
+      "limit": 1,
+      "files_considered": 1,
+      "ok_count": 1,
+      "error_count": 0,
+      "frame_count": 3,
+      "page_count": 8,
+      "elapsed_sec": 0.256495,
+      "files_per_sec": 3.898713,
+      "frames_per_sec": 11.696139,
+      "pages_per_sec": 31.189704,
+      "modes": {
+        "pdf_embedded_page_image_film_in_memory": 1
+      },
+      "errors": [],
+      "rows_preview": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\1702.06820v1.pdf",
+          "source_name": "1702.06820v1.pdf",
+          "extension": ".pdf",
+          "bytes": 779593,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 3,
+          "page_count": 8,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.256319
+        }
+      ]
+    },
+    {
+      "run_index": 2,
+      "limit": 5,
+      "files_considered": 5,
+      "ok_count": 2,
+      "error_count": 3,
+      "frame_count": 4,
+      "page_count": 9,
+      "elapsed_sec": 0.147994,
+      "files_per_sec": 33.785222,
+      "frames_per_sec": 27.028178,
+      "pages_per_sec": 60.813399,
+      "modes": {
+        "pdf_embedded_page_image_film_in_memory": 1,
+        "pdf_needs_render_adapter": 3,
+        "prepared_text_doc_per_frame_dry_run": 1
+      },
+      "errors": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.006339
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.004382
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.004311
+        }
+      ],
+      "rows_preview": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\1702.06820v1.pdf",
+          "source_name": "1702.06820v1.pdf",
+          "extension": ".pdf",
+          "bytes": 779593,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 3,
+          "page_count": 8,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.131218
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.006339
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.004382
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.csv",
+          "source_name": "34660750-Activision_Account-atvi-General.csv",
+          "extension": ".csv",
+          "bytes": 448,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 556,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00171
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.004311
+        }
+      ]
+    },
+    {
+      "run_index": 3,
+      "limit": 25,
+      "files_considered": 25,
+      "ok_count": 12,
+      "error_count": 13,
+      "frame_count": 14,
+      "page_count": 74,
+      "elapsed_sec": 1.233786,
+      "files_per_sec": 20.262841,
+      "frames_per_sec": 11.347191,
+      "pages_per_sec": 59.978011,
+      "modes": {
+        "pdf_embedded_page_image_film_in_memory": 2,
+        "pdf_needs_render_adapter": 13,
+        "prepared_text_doc_per_frame_dry_run": 10
+      },
+      "errors": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000917
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000736
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000786
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.pdf",
+          "source_name": "[Claude]_20260326_112109.pdf",
+          "extension": ".pdf",
+          "bytes": 15922,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.0107
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.pdf",
+          "source_name": "Advanced Swarm Intelligence Algorithm.pdf",
+          "extension": ".pdf",
+          "bytes": 9100,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.007246
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.pdf",
+          "source_name": "agharmonic_cortex.pdf",
+          "extension": ".pdf",
+          "bytes": 16279,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.013049
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.pdf",
+          "source_name": "agharmonic_cortex_1.pdf",
+          "extension": ".pdf",
+          "bytes": 16282,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.013248
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.pdf",
+          "source_name": "agharmonic_law_orchestrator.pdf",
+          "extension": ".pdf",
+          "bytes": 2905,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00488
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.pdf",
+          "source_name": "AI_Conversational_Audit_Report.pdf",
+          "extension": ".pdf",
+          "bytes": 2700,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.004307
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.pdf",
+          "source_name": "AI_Engine_Framework.pdf",
+          "extension": ".pdf",
+          "bytes": 49001,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.027907
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Use_Case_Prompts.pdf",
+          "source_name": "AI_Use_Case_Prompts.pdf",
+          "extension": ".pdf",
+          "bytes": 5076,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00611
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\American_Oxford_3000.pdf",
+          "source_name": "American_Oxford_3000.pdf",
+          "extension": ".pdf",
+          "bytes": 111301,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.196062
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\analyze_vectors_f1_guided.pdf",
+          "source_name": "analyze_vectors_f1_guided.pdf",
+          "extension": ".pdf",
+          "bytes": 1878,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.006253
+        }
+      ],
+      "rows_preview": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\1702.06820v1.pdf",
+          "source_name": "1702.06820v1.pdf",
+          "extension": ".pdf",
+          "bytes": 779593,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 3,
+          "page_count": 8,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.131483
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000917
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000736
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.csv",
+          "source_name": "34660750-Activision_Account-atvi-General.csv",
+          "extension": ".csv",
+          "bytes": 448,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 556,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00062
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000786
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\84669-pet-vocabulary-list.pdf",
+          "source_name": "84669-pet-vocabulary-list.pdf",
+          "extension": ".pdf",
+          "bytes": 639911,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 1,
+          "page_count": 56,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.698046
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.docx",
+          "source_name": "[Claude]_20260326_112109.docx",
+          "extension": ".docx",
+          "bytes": 20923,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "docx-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 22717,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.100816
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.pdf",
+          "source_name": "[Claude]_20260326_112109.pdf",
+          "extension": ".pdf",
+          "bytes": 15922,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.0107
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.pdf",
+          "source_name": "Advanced Swarm Intelligence Algorithm.pdf",
+          "extension": ".pdf",
+          "bytes": 9100,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.007246
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.txt",
+          "source_name": "Advanced Swarm Intelligence Algorithm.txt",
+          "extension": ".txt",
+          "bytes": 13917,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "plain-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 13917,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000416
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.html",
+          "source_name": "agharmonic_cortex.html",
+          "extension": ".html",
+          "bytes": 31918,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "html-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1142,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001194
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.pdf",
+          "source_name": "agharmonic_cortex.pdf",
+          "extension": ".pdf",
+          "bytes": 16279,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.013049
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.html",
+          "source_name": "agharmonic_cortex_1.html",
+          "extension": ".html",
+          "bytes": 31918,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "html-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1146,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001135
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.pdf",
+          "source_name": "agharmonic_cortex_1.pdf",
+          "extension": ".pdf",
+          "bytes": 16282,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.013248
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.pdf",
+          "source_name": "agharmonic_law_orchestrator.pdf",
+          "extension": ".pdf",
+          "bytes": 2905,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00488
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.py",
+          "source_name": "agharmonic_law_orchestrator.py",
+          "extension": ".py",
+          "bytes": 2557,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "plain-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 2557,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00031
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.csv",
+          "source_name": "AI_Conversational_Audit_Report.csv",
+          "extension": ".csv",
+          "bytes": 1159,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1302,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000485
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.pdf",
+          "source_name": "AI_Conversational_Audit_Report.pdf",
+          "extension": ".pdf",
+          "bytes": 2700,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.004307
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.csv",
+          "source_name": "AI_Engine_Framework.csv",
+          "extension": ".csv",
+          "bytes": 2964,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 2732,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.006201
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.pdf",
+          "source_name": "AI_Engine_Framework.pdf",
+          "extension": ".pdf",
+          "bytes": 49001,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.027907
+        }
+      ]
+    },
+    {
+      "run_index": 4,
+      "limit": 100,
+      "files_considered": 100,
+      "ok_count": 48,
+      "error_count": 52,
+      "frame_count": 50,
+      "page_count": 110,
+      "elapsed_sec": 17.361044,
+      "files_per_sec": 5.760022,
+      "frames_per_sec": 2.880011,
+      "pages_per_sec": 6.336024,
+      "modes": {
+        "native_image_frame_manifest_in_memory": 1,
+        "pdf_embedded_page_image_film_in_memory": 3,
+        "pdf_needs_render_adapter": 52,
+        "prepared_text_doc_per_frame_dry_run": 44
+      },
+      "errors": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000944
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000691
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00077
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.pdf",
+          "source_name": "[Claude]_20260326_112109.pdf",
+          "extension": ".pdf",
+          "bytes": 15922,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.005231
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.pdf",
+          "source_name": "Advanced Swarm Intelligence Algorithm.pdf",
+          "extension": ".pdf",
+          "bytes": 9100,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.003334
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.pdf",
+          "source_name": "agharmonic_cortex.pdf",
+          "extension": ".pdf",
+          "bytes": 16279,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.008306
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.pdf",
+          "source_name": "agharmonic_cortex_1.pdf",
+          "extension": ".pdf",
+          "bytes": 16282,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.008597
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.pdf",
+          "source_name": "agharmonic_law_orchestrator.pdf",
+          "extension": ".pdf",
+          "bytes": 2905,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001181
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.pdf",
+          "source_name": "AI_Conversational_Audit_Report.pdf",
+          "extension": ".pdf",
+          "bytes": 2700,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000829
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.pdf",
+          "source_name": "AI_Engine_Framework.pdf",
+          "extension": ".pdf",
+          "bytes": 49001,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.02379
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Use_Case_Prompts.pdf",
+          "source_name": "AI_Use_Case_Prompts.pdf",
+          "extension": ".pdf",
+          "bytes": 5076,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.002049
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\American_Oxford_3000.pdf",
+          "source_name": "American_Oxford_3000.pdf",
+          "extension": ".pdf",
+          "bytes": 111301,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.180088
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\analyze_vectors_f1_guided.pdf",
+          "source_name": "analyze_vectors_f1_guided.pdf",
+          "extension": ".pdf",
+          "bytes": 1878,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000903
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Aurtistica.pdf",
+          "source_name": "Aurtistica.pdf",
+          "extension": ".pdf",
+          "bytes": 65935,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.026836
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\automated_data_gathering_system.pdf",
+          "source_name": "automated_data_gathering_system.pdf",
+          "extension": ".pdf",
+          "bytes": 25417,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.016197
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Black_Ops_6_Overpowered_Bots_Research.pdf",
+          "source_name": "Black_Ops_6_Overpowered_Bots_Research.pdf",
+          "extension": ".pdf",
+          "bytes": 19039,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.010627
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_demo.pdf",
+          "source_name": "cascade_demo.pdf",
+          "extension": ".pdf",
+          "bytes": 11236,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00998
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Cascade_Tokenizer__Production-Ready_AI_with_Embedd.pdf",
+          "source_name": "Cascade_Tokenizer__Production-Ready_AI_with_Embedd.pdf",
+          "extension": ".pdf",
+          "bytes": 11814,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.009378
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Cascade_Tokenizer__Technical_Specification.pdf",
+          "source_name": "Cascade_Tokenizer__Technical_Specification.pdf",
+          "extension": ".pdf",
+          "bytes": 15329,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.01105
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (1) (1).pdf",
+          "source_name": "cascade_tokens (1) (1).pdf",
+          "extension": ".pdf",
+          "bytes": 31328,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.02315
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (1) (2).pdf",
+          "source_name": "cascade_tokens (1) (2).pdf",
+          "extension": ".pdf",
+          "bytes": 1673,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.005187
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (1).pdf",
+          "source_name": "cascade_tokens (1).pdf",
+          "extension": ".pdf",
+          "bytes": 31495,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.023548
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (2).pdf",
+          "source_name": "cascade_tokens (2).pdf",
+          "extension": ".pdf",
+          "bytes": 1425786,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.788838
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (3).pdf",
+          "source_name": "cascade_tokens (3).pdf",
+          "extension": ".pdf",
+          "bytes": 10642206,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 7.360462
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens.pdf",
+          "source_name": "cascade_tokens.pdf",
+          "extension": ".pdf",
+          "bytes": 31488,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.022643
+        }
+      ],
+      "rows_preview": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\1702.06820v1.pdf",
+          "source_name": "1702.06820v1.pdf",
+          "extension": ".pdf",
+          "bytes": 779593,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 3,
+          "page_count": 8,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.131083
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000944
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000691
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.csv",
+          "source_name": "34660750-Activision_Account-atvi-General.csv",
+          "extension": ".csv",
+          "bytes": 448,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 556,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000586
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00077
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\84669-pet-vocabulary-list.pdf",
+          "source_name": "84669-pet-vocabulary-list.pdf",
+          "extension": ".pdf",
+          "bytes": 639911,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 1,
+          "page_count": 56,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.703582
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.docx",
+          "source_name": "[Claude]_20260326_112109.docx",
+          "extension": ".docx",
+          "bytes": 20923,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "docx-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 22717,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.009858
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.pdf",
+          "source_name": "[Claude]_20260326_112109.pdf",
+          "extension": ".pdf",
+          "bytes": 15922,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.005231
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.pdf",
+          "source_name": "Advanced Swarm Intelligence Algorithm.pdf",
+          "extension": ".pdf",
+          "bytes": 9100,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.003334
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.txt",
+          "source_name": "Advanced Swarm Intelligence Algorithm.txt",
+          "extension": ".txt",
+          "bytes": 13917,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "plain-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 13917,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000348
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.html",
+          "source_name": "agharmonic_cortex.html",
+          "extension": ".html",
+          "bytes": 31918,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "html-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1142,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001005
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.pdf",
+          "source_name": "agharmonic_cortex.pdf",
+          "extension": ".pdf",
+          "bytes": 16279,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.008306
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.html",
+          "source_name": "agharmonic_cortex_1.html",
+          "extension": ".html",
+          "bytes": 31918,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "html-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1146,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001033
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.pdf",
+          "source_name": "agharmonic_cortex_1.pdf",
+          "extension": ".pdf",
+          "bytes": 16282,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.008597
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.pdf",
+          "source_name": "agharmonic_law_orchestrator.pdf",
+          "extension": ".pdf",
+          "bytes": 2905,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001181
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.py",
+          "source_name": "agharmonic_law_orchestrator.py",
+          "extension": ".py",
+          "bytes": 2557,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "plain-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 2557,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000253
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.csv",
+          "source_name": "AI_Conversational_Audit_Report.csv",
+          "extension": ".csv",
+          "bytes": 1159,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1302,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000346
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.pdf",
+          "source_name": "AI_Conversational_Audit_Report.pdf",
+          "extension": ".pdf",
+          "bytes": 2700,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000829
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.csv",
+          "source_name": "AI_Engine_Framework.csv",
+          "extension": ".csv",
+          "bytes": 2964,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 2732,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000595
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.pdf",
+          "source_name": "AI_Engine_Framework.pdf",
+          "extension": ".pdf",
+          "bytes": 49001,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.02379
+        }
+      ]
+    },
+    {
+      "run_index": 5,
+      "limit": "all",
+      "files_considered": 1806,
+      "ok_count": 1028,
+      "error_count": 778,
+      "frame_count": 1077,
+      "page_count": 1145,
+      "elapsed_sec": 117.245499,
+      "files_per_sec": 15.403576,
+      "frames_per_sec": 9.185854,
+      "pages_per_sec": 9.765833,
+      "modes": {
+        "native_image_frame_manifest_in_memory": 134,
+        "pdf_embedded_page_image_film_in_memory": 146,
+        "pdf_needs_render_adapter": 778,
+        "prepared_text_doc_per_frame_dry_run": 748
+      },
+      "errors": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000861
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000673
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000791
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.pdf",
+          "source_name": "[Claude]_20260326_112109.pdf",
+          "extension": ".pdf",
+          "bytes": 15922,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.005491
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.pdf",
+          "source_name": "Advanced Swarm Intelligence Algorithm.pdf",
+          "extension": ".pdf",
+          "bytes": 9100,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.003447
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.pdf",
+          "source_name": "agharmonic_cortex.pdf",
+          "extension": ".pdf",
+          "bytes": 16279,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.008437
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.pdf",
+          "source_name": "agharmonic_cortex_1.pdf",
+          "extension": ".pdf",
+          "bytes": 16282,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.009364
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.pdf",
+          "source_name": "agharmonic_law_orchestrator.pdf",
+          "extension": ".pdf",
+          "bytes": 2905,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001205
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.pdf",
+          "source_name": "AI_Conversational_Audit_Report.pdf",
+          "extension": ".pdf",
+          "bytes": 2700,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000817
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.pdf",
+          "source_name": "AI_Engine_Framework.pdf",
+          "extension": ".pdf",
+          "bytes": 49001,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.022977
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Use_Case_Prompts.pdf",
+          "source_name": "AI_Use_Case_Prompts.pdf",
+          "extension": ".pdf",
+          "bytes": 5076,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.002105
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\American_Oxford_3000.pdf",
+          "source_name": "American_Oxford_3000.pdf",
+          "extension": ".pdf",
+          "bytes": 111301,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.191426
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\analyze_vectors_f1_guided.pdf",
+          "source_name": "analyze_vectors_f1_guided.pdf",
+          "extension": ".pdf",
+          "bytes": 1878,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000955
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Aurtistica.pdf",
+          "source_name": "Aurtistica.pdf",
+          "extension": ".pdf",
+          "bytes": 65935,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.0209
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\automated_data_gathering_system.pdf",
+          "source_name": "automated_data_gathering_system.pdf",
+          "extension": ".pdf",
+          "bytes": 25417,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.011775
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Black_Ops_6_Overpowered_Bots_Research.pdf",
+          "source_name": "Black_Ops_6_Overpowered_Bots_Research.pdf",
+          "extension": ".pdf",
+          "bytes": 19039,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00647
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_demo.pdf",
+          "source_name": "cascade_demo.pdf",
+          "extension": ".pdf",
+          "bytes": 11236,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.005271
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Cascade_Tokenizer__Production-Ready_AI_with_Embedd.pdf",
+          "source_name": "Cascade_Tokenizer__Production-Ready_AI_with_Embedd.pdf",
+          "extension": ".pdf",
+          "bytes": 11814,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00498
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Cascade_Tokenizer__Technical_Specification.pdf",
+          "source_name": "Cascade_Tokenizer__Technical_Specification.pdf",
+          "extension": ".pdf",
+          "bytes": 15329,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.007115
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (1) (1).pdf",
+          "source_name": "cascade_tokens (1) (1).pdf",
+          "extension": ".pdf",
+          "bytes": 31328,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.018538
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (1) (2).pdf",
+          "source_name": "cascade_tokens (1) (2).pdf",
+          "extension": ".pdf",
+          "bytes": 1673,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000614
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (1).pdf",
+          "source_name": "cascade_tokens (1).pdf",
+          "extension": ".pdf",
+          "bytes": 31495,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.017564
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (2).pdf",
+          "source_name": "cascade_tokens (2).pdf",
+          "extension": ".pdf",
+          "bytes": 1425786,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.784179
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens (3).pdf",
+          "source_name": "cascade_tokens (3).pdf",
+          "extension": ".pdf",
+          "bytes": 10642206,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 7.319545
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\cascade_tokens.pdf",
+          "source_name": "cascade_tokens.pdf",
+          "extension": ".pdf",
+          "bytes": 31488,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.017006
+        }
+      ],
+      "rows_preview": [
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\1702.06820v1.pdf",
+          "source_name": "1702.06820v1.pdf",
+          "extension": ".pdf",
+          "bytes": 779593,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 3,
+          "page_count": 8,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.13117
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2257149.pdf",
+          "source_name": "2257149.pdf",
+          "extension": ".pdf",
+          "bytes": 2029,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000861
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\2264988.pdf",
+          "source_name": "2264988.pdf",
+          "extension": ".pdf",
+          "bytes": 2028,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000673
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.csv",
+          "source_name": "34660750-Activision_Account-atvi-General.csv",
+          "extension": ".csv",
+          "bytes": 448,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 556,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000561
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\34660750-Activision_Account-atvi-General.pdf",
+          "source_name": "34660750-Activision_Account-atvi-General.pdf",
+          "extension": ".pdf",
+          "bytes": 2243,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000791
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\84669-pet-vocabulary-list.pdf",
+          "source_name": "84669-pet-vocabulary-list.pdf",
+          "extension": ".pdf",
+          "bytes": 639911,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "pdf_embedded_page_image_film_in_memory",
+          "frame_count": 1,
+          "page_count": 56,
+          "region_status": "empty",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.738872
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.docx",
+          "source_name": "[Claude]_20260326_112109.docx",
+          "extension": ".docx",
+          "bytes": 20923,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "docx-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 22717,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.010223
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\[Claude]_20260326_112109.pdf",
+          "source_name": "[Claude]_20260326_112109.pdf",
+          "extension": ".pdf",
+          "bytes": 15922,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.005491
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.pdf",
+          "source_name": "Advanced Swarm Intelligence Algorithm.pdf",
+          "extension": ".pdf",
+          "bytes": 9100,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.003447
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\Advanced Swarm Intelligence Algorithm.txt",
+          "source_name": "Advanced Swarm Intelligence Algorithm.txt",
+          "extension": ".txt",
+          "bytes": 13917,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "plain-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 13917,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000392
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.html",
+          "source_name": "agharmonic_cortex.html",
+          "extension": ".html",
+          "bytes": 31918,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "html-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1142,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000987
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex.pdf",
+          "source_name": "agharmonic_cortex.pdf",
+          "extension": ".pdf",
+          "bytes": 16279,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.008437
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.html",
+          "source_name": "agharmonic_cortex_1.html",
+          "extension": ".html",
+          "bytes": 31918,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "html-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1146,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001063
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_cortex_1.pdf",
+          "source_name": "agharmonic_cortex_1.pdf",
+          "extension": ".pdf",
+          "bytes": 16282,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.009364
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.pdf",
+          "source_name": "agharmonic_law_orchestrator.pdf",
+          "extension": ".pdf",
+          "bytes": 2905,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.001205
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\agharmonic_law_orchestrator.py",
+          "source_name": "agharmonic_law_orchestrator.py",
+          "extension": ".py",
+          "bytes": 2557,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "plain-text",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 2557,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000275
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.csv",
+          "source_name": "AI_Conversational_Audit_Report.csv",
+          "extension": ".csv",
+          "bytes": 1159,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 1302,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000341
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Conversational_Audit_Report.pdf",
+          "source_name": "AI_Conversational_Audit_Report.pdf",
+          "extension": ".pdf",
+          "bytes": 2700,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.000817
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.csv",
+          "source_name": "AI_Engine_Framework.csv",
+          "extension": ".csv",
+          "bytes": 2964,
+          "writes": "metadata_only",
+          "ok": true,
+          "mode": "prepared_text_doc_per_frame_dry_run",
+          "converter": "delimited-table",
+          "frame_count": 1,
+          "page_count": 1,
+          "prepared_text_chars": 2732,
+          "region_status": "not_run",
+          "recognition_status": "not_run",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.00063
+        },
+        {
+          "source_path": "C:\\Users\\mydyi\\OneDrive\\Documents\\Desktop\\Download\\AI_Engine_Framework.pdf",
+          "source_name": "AI_Engine_Framework.pdf",
+          "extension": ".pdf",
+          "bytes": 49001,
+          "writes": "metadata_only",
+          "ok": false,
+          "mode": "pdf_needs_render_adapter",
+          "frame_count": 0,
+          "page_count": 0,
+          "error": "ValueError: PDF document film found no extractable page images",
+          "writes_allowed": {
+            "maps": false,
+            "counts": false,
+            "lifetime": false,
+            "lexicon": false
+          },
+          "elapsed_sec": 0.022977
+        }
+      ]
+    }
+  ],
+  "elapsed_sec_so_far": 136.317997,
+  "elapsed_sec": 136.319702
+}

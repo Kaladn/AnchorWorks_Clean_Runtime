@@ -14,6 +14,14 @@ def _write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _anchorworks_repo_root() -> Path:
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent if (parent / "src" / "AnchorWorks").exists() else parent / "Anchorworks"
+        if (candidate / "src" / "AnchorWorks").exists():
+            return candidate
+    raise RuntimeError("Anchorworks repo root not found")
+
+
 class AnchorWorksCliTests(unittest.TestCase):
     def test_symbolic_batch_intake_cli_runs_with_process_workers(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -50,7 +58,7 @@ class AnchorWorksCliTests(unittest.TestCase):
                     "--generation",
                     "17",
                 ],
-                cwd=Path(__file__).resolve().parents[1],
+                cwd=_anchorworks_repo_root(),
                 env=env,
                 check=True,
                 capture_output=True,

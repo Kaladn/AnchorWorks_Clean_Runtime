@@ -8,9 +8,18 @@ import unittest
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-RUNNER = REPO_ROOT / "experiments" / "toy_evidence_renderer" / "run.py"
-RUNTIME = REPO_ROOT / "experiments" / "toy_evidence_renderer" / "runtime"
+def _anchorworks_repo_root() -> Path:
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent if (parent / "src" / "AnchorWorks").exists() else parent / "Anchorworks"
+        if (candidate / "src" / "AnchorWorks").exists():
+            return candidate
+    raise RuntimeError("Anchorworks repo root not found")
+
+
+REPO_ROOT = _anchorworks_repo_root()
+TEST_DATA_ROOT = REPO_ROOT.parent / "test" / "test data"
+RUNNER = TEST_DATA_ROOT / "experiments" / "toy_evidence_renderer" / "run.py"
+RUNTIME = TEST_DATA_ROOT / "experiments" / "toy_evidence_renderer" / "runtime"
 
 
 class ToyEvidenceRendererExperimentTests(unittest.TestCase):

@@ -11,6 +11,9 @@ from typing import Any
 from AnchorWorks.store import LexiconStore
 
 
+TEST_DATA_ROOT = Path(__file__).resolve().parents[1]
+
+
 EXTENSION_MIX = [
     (".cnxml", 16),
     (".html", 12),
@@ -39,7 +42,7 @@ ANCHORS = [
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the 100-doc AWSM/JSON source-local symbol parity benchmark.")
-    parser.add_argument("--output", type=Path, default=Path("reports/benchmarks/awsm_parity_100.json"))
+    parser.add_argument("--output", type=Path, default=TEST_DATA_ROOT / "reports" / "benchmarks" / "awsm_parity_100.json")
     parser.add_argument("--keep-workdir", action="store_true")
     args = parser.parse_args()
 

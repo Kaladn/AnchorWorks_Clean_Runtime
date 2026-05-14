@@ -1,0 +1,205 @@
+{
+  "schema_version": "anchorworks_truevision_dataset_run@1",
+  "source_dir": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_",
+  "pdf_count": 17,
+  "ok_count": 2,
+  "failed_count": 15,
+  "total_frames": 34,
+  "elapsed_sec": 3.155375,
+  "rows": [
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\AI_Engine_Framework.pdf",
+      "source_name": "AI_Engine_Framework.pdf",
+      "bytes": 49001,
+      "ok": false,
+      "elapsed_sec": 0.156635,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\CALLOFDUTYRENDERINGPIPELINE_3DDATAACCESSIBILITYASSESSMENT.pdf",
+      "source_name": "CALLOFDUTYRENDERINGPIPELINE_3DDATAACCESSIBILITYASSESSMENT.pdf",
+      "bytes": 405345,
+      "ok": false,
+      "elapsed_sec": 0.133974,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\COD_FINAL_ARTICLE.pdf",
+      "source_name": "COD_FINAL_ARTICLE.pdf",
+      "bytes": 423481,
+      "ok": false,
+      "elapsed_sec": 0.205296,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\COD_INVESTIGATION_FINAL_DRAFT.pdf",
+      "source_name": "COD_INVESTIGATION_FINAL_DRAFT.pdf",
+      "bytes": 380954,
+      "ok": false,
+      "elapsed_sec": 0.134728,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\COD_NETWORKING_API_EXPOSURE_REPORT.pdf",
+      "source_name": "COD_NETWORKING_API_EXPOSURE_REPORT.pdf",
+      "bytes": 469158,
+      "ok": false,
+      "elapsed_sec": 0.230556,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\CODRENDERINGPIPELINERESEARCH.pdf",
+      "source_name": "CODRENDERINGPIPELINERESEARCH.pdf",
+      "bytes": 347676,
+      "ok": false,
+      "elapsed_sec": 0.0747,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\CompuCog_xAI_Pitch_Final.pdf",
+      "source_name": "CompuCog_xAI_Pitch_Final.pdf",
+      "bytes": 352303,
+      "ok": false,
+      "elapsed_sec": 0.064722,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\CompuCog_xAI_Pitch_LeeMercey_Final.pdf",
+      "source_name": "CompuCog_xAI_Pitch_LeeMercey_Final.pdf",
+      "bytes": 352303,
+      "ok": false,
+      "elapsed_sec": 0.061666,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\cortexos_arxiv_paper(1).pdf",
+      "source_name": "cortexos_arxiv_paper(1).pdf",
+      "bytes": 271490,
+      "ok": false,
+      "elapsed_sec": 0.018227,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\cortexos_breakthrough_press_release_short_1.pdf",
+      "source_name": "cortexos_breakthrough_press_release_short_1.pdf",
+      "bytes": 11828360,
+      "ok": true,
+      "elapsed_sec": 0.620063,
+      "schema_version": "anchorworks_document_film@1",
+      "source_page_count": 6,
+      "frame_count": 5,
+      "duplicate_frame_hash_count": 0,
+      "empty_region_frames": 5,
+      "empty_recognition_frames": 5,
+      "first_frame": {
+        "page_number": 1,
+        "frame_index": 0,
+        "frame_timestamp_ms": 0,
+        "visual_record_id": "visual_b7bb5dee16de2752",
+        "width": 1536,
+        "height": 1024,
+        "file_format": "PNG",
+        "color_mode": "RGB",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        }
+      },
+      "last_frame": {
+        "page_number": 5,
+        "frame_index": 4,
+        "frame_timestamp_ms": 4000,
+        "width": 1536,
+        "height": 1024,
+        "file_format": "PNG"
+      }
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\MY_COD_JOURNEY_EDITORIAL.pdf",
+      "source_name": "MY_COD_JOURNEY_EDITORIAL.pdf",
+      "bytes": 358638,
+      "ok": false,
+      "elapsed_sec": 0.115265,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\PHASE2_THERMAL_DEPTH_CAPTURE_COPILOT.pdf",
+      "source_name": "PHASE2_THERMAL_DEPTH_CAPTURE_COPILOT.pdf",
+      "bytes": 469562,
+      "ok": false,
+      "elapsed_sec": 0.362474,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\THEATRE_MODE_FINDINGS.pdf",
+      "source_name": "THEATRE_MODE_FINDINGS.pdf",
+      "bytes": 412331,
+      "ok": false,
+      "elapsed_sec": 0.10599,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\THERMAL_FIRST_EXECUTION_PLAN.pdf",
+      "source_name": "THERMAL_FIRST_EXECUTION_PLAN.pdf",
+      "bytes": 368437,
+      "ok": false,
+      "elapsed_sec": 0.080602,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\TrueVision_xAI_Pitch.pdf",
+      "source_name": "TrueVision_xAI_Pitch.pdf",
+      "bytes": 346486,
+      "ok": false,
+      "elapsed_sec": 0.056871,
+      "error": "ValueError: PDF document film found no extractable page images"
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\US20190091581A1.pdf",
+      "source_name": "US20190091581A1.pdf",
+      "bytes": 3717865,
+      "ok": true,
+      "elapsed_sec": 0.72023,
+      "schema_version": "anchorworks_document_film@1",
+      "source_page_count": 29,
+      "frame_count": 29,
+      "duplicate_frame_hash_count": 0,
+      "empty_region_frames": 29,
+      "empty_recognition_frames": 29,
+      "first_frame": {
+        "page_number": 1,
+        "frame_index": 0,
+        "frame_timestamp_ms": 0,
+        "visual_record_id": "visual_2de894ac6a3cddd4",
+        "width": 2560,
+        "height": 3300,
+        "file_format": "TIFF",
+        "color_mode": "1bit",
+        "writes_allowed": {
+          "maps": false,
+          "counts": false,
+          "lifetime": false,
+          "lexicon": false
+        }
+      },
+      "last_frame": {
+        "page_number": 29,
+        "frame_index": 28,
+        "frame_timestamp_ms": 28000,
+        "width": 2560,
+        "height": 3300,
+        "file_format": "TIFF"
+      }
+    },
+    {
+      "source_path": "C:\\Users\\mydyi\\Downloads\\How to Read and Follow Uploaded File Content_\\\ud83e\udde0_CortexOS_GPU_Architecture_Specification.pdf",
+      "source_name": "\ud83e\udde0_CortexOS_GPU_Architecture_Specification.pdf",
+      "bytes": 159311,
+      "ok": false,
+      "elapsed_sec": 0.013166,
+      "error": "ValueError: PDF document film could not read PDF"
+    }
+  ]
+}

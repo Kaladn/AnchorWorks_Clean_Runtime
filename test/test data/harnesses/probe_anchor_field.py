@@ -9,6 +9,9 @@ from pathlib import Path
 from AnchorWorks.anchor_field import build_anchor_field_from_observed_map, build_query_frame, choose_topk_with_lookahead, skim_three_level_cloud
 
 
+TEST_DATA_ROOT = Path(__file__).resolve().parents[1]
+
+
 def choose_seed(field) -> str:
     blocked = {"__NULL__", ".", ",", ":", ";", "(", ")", "-", "/", "the", "a", "an", "of", "to", "in", "as", "and"}
     counts = Counter(anchor for anchor in field.stream if anchor not in blocked and len(anchor) > 2)
@@ -42,7 +45,7 @@ def main() -> int:
         "cloud": cloud,
         "lookahead_decision": decision,
     }
-    output_dir = Path("reports") / "anchor_field"
+    output_dir = TEST_DATA_ROOT / "reports" / "anchor_field"
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"anchor_field_probe_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
     output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

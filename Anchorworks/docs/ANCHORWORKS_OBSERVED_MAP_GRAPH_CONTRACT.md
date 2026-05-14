@@ -398,7 +398,7 @@ AWSG = AnchorWorks Source Graph
 Initial placement for experiments:
 
 ```text
-experiments/observed_map_graph/runtime/
+../test/test data/experiments/observed_map_graph/runtime/
 ```
 
 Candidate production placement after proof:
@@ -691,7 +691,7 @@ visual refs
 Contract-first implementation target:
 
 ```text
-experiments/observed_map_graph/
+../test/test data/experiments/observed_map_graph/
   run.py
   runtime/
     input/
@@ -703,8 +703,8 @@ experiments/observed_map_graph/
 Commands:
 
 ```powershell
-python experiments\observed_map_graph\run.py build
-python experiments\observed_map_graph\run.py eval
+python "..\test\test data\experiments\observed_map_graph\run.py" build
+python "..\test\test data\experiments\observed_map_graph\run.py" eval
 ```
 
 Build should:

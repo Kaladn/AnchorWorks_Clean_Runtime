@@ -26,7 +26,15 @@ from AnchorWorks.symbol_count_native import (
 )
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+def _anchorworks_repo_root() -> Path:
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent if (parent / "src" / "AnchorWorks").exists() else parent / "Anchorworks"
+        if (candidate / "src" / "AnchorWorks").exists():
+            return candidate
+    raise RuntimeError("Anchorworks repo root not found")
+
+
+REPO_ROOT = _anchorworks_repo_root()
 NATIVE_ROOT = REPO_ROOT / "src" / "AnchorWorks" / "native" / "symbol_counts"
 BUILD_ROOT = REPO_ROOT / "build" / "native_symbol_counts_tests"
 VS_CMAKE = Path(

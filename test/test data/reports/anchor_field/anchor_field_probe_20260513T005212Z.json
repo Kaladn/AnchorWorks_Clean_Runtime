@@ -1,0 +1,673 @@
+{
+  "schema_version": "anchorworks_anchor_field_probe@1",
+  "created_utc": "2026-05-13T00:52:12.319552+00:00",
+  "map_path": "D:\\AnchorMaps\\observed_maps\\index-000bf8217a39.observed.json",
+  "source_name": "index.cnxml",
+  "anchor_count": 146,
+  "seed": "plants",
+  "cloud": {
+    "schema_version": "anchorworks_anchor_field_cloud@1",
+    "source_name": "index.cnxml",
+    "seed_anchors": [
+      "plants"
+    ],
+    "levels": {
+      "1": [
+        ".",
+        "the",
+        "soil",
+        "without",
+        "growing",
+        "is"
+      ],
+      "2": [
+        "of",
+        ",",
+        "to",
+        "botanists",
+        "grow",
+        "growth"
+      ],
+      "3": [
+        "are",
+        "world",
+        "becoming",
+        "careful",
+        "food",
+        "keep"
+      ]
+    },
+    "shape": {
+      "anchor_count": 18,
+      "null_count": 0,
+      "non_null_ratio": 1.0
+    },
+    "support": {
+      "resources": {
+        "plants": 1,
+        "the": 1,
+        "soil": 1,
+        "growing": 1,
+        "of": 1,
+        ",": 1
+      },
+      "of": {
+        "plants": 2,
+        ".": 1,
+        "the": 6,
+        "soil": 2,
+        "without": 1,
+        "growing": 2,
+        "is": 4,
+        ",": 3,
+        "to": 1,
+        "growth": 1
+      },
+      "fertile": {
+        "plants": 1,
+        "soil": 1,
+        "growing": 1,
+        "is": 1,
+        "of": 1,
+        ",": 1
+      },
+      "soil": {
+        "plants": 4,
+        ".": 3,
+        "the": 3,
+        "without": 2,
+        "growing": 2,
+        "is": 1,
+        "of": 2,
+        ",": 1,
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "for": {
+        "plants": 1,
+        ".": 1,
+        "soil": 1,
+        "growing": 1,
+        "is": 1,
+        "of": 1,
+        ",": 1
+      },
+      "growing": {
+        "plants": 2,
+        ".": 2,
+        "the": 1,
+        "soil": 2,
+        "without": 1,
+        "is": 2,
+        "of": 2,
+        ",": 1,
+        "to": 1
+      },
+      "is": {
+        "plants": 2,
+        ".": 2,
+        "the": 3,
+        "soil": 1,
+        "without": 1,
+        "growing": 2,
+        "of": 4,
+        ",": 1,
+        "growth": 2
+      },
+      "dwindling": {
+        "plants": 1,
+        ".": 1,
+        "soil": 1,
+        "growing": 1,
+        "is": 1,
+        "grow": 1
+      },
+      ".": {
+        "plants": 5,
+        "the": 7,
+        "soil": 3,
+        "without": 3,
+        "growing": 2,
+        "is": 2,
+        "of": 1,
+        ",": 2,
+        "to": 3,
+        "botanists": 3,
+        "grow": 3,
+        "growth": 2
+      },
+      "one": {
+        "plants": 2,
+        ".": 1,
+        "without": 1,
+        "growing": 1,
+        "is": 1,
+        "grow": 1
+      },
+      "possible": {
+        "plants": 2,
+        ".": 1,
+        "soil": 1,
+        "without": 1,
+        "growing": 1,
+        "is": 1,
+        "grow": 1
+      },
+      "solution": {
+        "plants": 2,
+        ".": 2,
+        "soil": 1,
+        "without": 1,
+        "is": 1,
+        "grow": 1
+      },
+      "\u2014": {
+        "plants": 1,
+        ".": 3,
+        "soil": 1,
+        "without": 1,
+        "is": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "grow": {
+        "plants": 1,
+        ".": 3,
+        "the": 1,
+        "soil": 1,
+        "without": 2,
+        ",": 1,
+        "to": 2,
+        "botanists": 2
+      },
+      "without": {
+        "plants": 3,
+        ".": 3,
+        "the": 3,
+        "soil": 2,
+        "growing": 1,
+        "is": 1,
+        "of": 1,
+        "to": 2,
+        "botanists": 2,
+        "grow": 2
+      },
+      "botanists": {
+        "plants": 1,
+        ".": 3,
+        "the": 4,
+        "soil": 1,
+        "without": 2,
+        ",": 1,
+        "to": 1,
+        "grow": 2,
+        "growth": 1
+      },
+      "around": {
+        "plants": 1,
+        ".": 1,
+        "the": 2,
+        "soil": 1,
+        "without": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "the": {
+        "plants": 5,
+        ".": 7,
+        "the": 8,
+        "soil": 3,
+        "without": 3,
+        "growing": 1,
+        "is": 3,
+        "of": 6,
+        ",": 6,
+        "to": 4,
+        "botanists": 4,
+        "grow": 1,
+        "growth": 2
+      },
+      "which": {
+        "plants": 1,
+        "the": 2,
+        "growing": 1,
+        "is": 1,
+        "of": 2,
+        ",": 1
+      },
+      "process": {
+        "plants": 1,
+        ".": 1,
+        "the": 1,
+        "soil": 1,
+        "without": 1,
+        "growing": 1,
+        "is": 1,
+        "of": 2,
+        ",": 1
+      },
+      "to": {
+        "plants": 2,
+        ".": 3,
+        "the": 4,
+        "soil": 1,
+        "without": 2,
+        "growing": 1,
+        "of": 1,
+        ",": 1,
+        "botanists": 1,
+        "grow": 2
+      },
+      "provide": {
+        "plants": 2,
+        ".": 1,
+        "the": 2,
+        "soil": 1,
+        "without": 1,
+        "growing": 1,
+        "to": 1
+      },
+      "with": {
+        "plants": 1,
+        ".": 1,
+        "the": 3,
+        "soil": 1,
+        ",": 1,
+        "to": 1
+      },
+      "nutrients": {
+        "plants": 1,
+        "the": 3,
+        ",": 1,
+        "to": 1,
+        "botanists": 1
+      },
+      "they": {
+        "plants": 1,
+        "the": 3,
+        ",": 1,
+        "botanists": 1
+      },
+      "need": {
+        "plants": 1,
+        "the": 3,
+        ",": 1,
+        "botanists": 1,
+        "growth": 1
+      },
+      ",": {
+        "plants": 1,
+        ".": 2,
+        "the": 6,
+        "soil": 1,
+        "growing": 1,
+        "is": 1,
+        "of": 3,
+        "to": 1,
+        "botanists": 1,
+        "grow": 1,
+        "growth": 1
+      },
+      "crops": {
+        ".": 1,
+        "without": 1,
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "land": {
+        ".": 1,
+        "without": 1,
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "(": {
+        ".": 1,
+        "without": 1,
+        "to": 1,
+        "grow": 1
+      },
+      "credit": {
+        ".": 1,
+        "without": 1,
+        "grow": 1
+      },
+      ":": {
+        ".": 1,
+        "without": 1
+      },
+      "\u201c": {
+        ".": 1,
+        "without": 1
+      },
+      "izhamwong": {
+        ".": 1
+      },
+      "\u201d": {
+        ".": 1,
+        "the": 1
+      },
+      "able": {
+        ".": 1,
+        "the": 1,
+        ",": 1,
+        "to": 1
+      },
+      "meet": {
+        ".": 1,
+        "the": 2,
+        "to": 1
+      },
+      "increasing": {
+        ".": 1,
+        "the": 2,
+        "to": 1
+      },
+      "demand": {
+        ".": 1,
+        "the": 2,
+        ",": 1,
+        "to": 1
+      },
+      "at": {
+        ".": 1,
+        "the": 2,
+        ",": 1,
+        "to": 1
+      },
+      "same": {
+        ".": 1,
+        "the": 2,
+        "of": 1,
+        ",": 1
+      },
+      "time": {
+        ".": 1,
+        "the": 1,
+        "soil": 1,
+        "of": 1,
+        ",": 1
+      },
+      "available": {
+        ".": 1,
+        "the": 1,
+        "soil": 1,
+        "growing": 1,
+        "of": 1,
+        ",": 1
+      },
+      "plants": {
+        ".": 5,
+        "the": 5,
+        "soil": 4,
+        "without": 3,
+        "growing": 2,
+        "is": 2,
+        "of": 2,
+        ",": 1,
+        "to": 2,
+        "botanists": 1,
+        "grow": 1
+      },
+      "world": {
+        ".": 1,
+        "the": 3,
+        "soil": 1,
+        "without": 1,
+        "of": 1,
+        ",": 1,
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "are": {
+        ".": 1,
+        "the": 3,
+        "soil": 1,
+        "of": 1,
+        ",": 2,
+        "to": 2,
+        "botanists": 1,
+        "grow": 1
+      },
+      "expanding": {
+        ".": 1,
+        "the": 2,
+        "of": 1,
+        ",": 1,
+        "botanists": 1
+      },
+      "keep": {
+        ".": 1,
+        "the": 1,
+        ",": 1,
+        "botanists": 1,
+        "growth": 2
+      },
+      "careful": {
+        ".": 1,
+        "the": 1,
+        "is": 1,
+        ",": 1,
+        "botanists": 1,
+        "growth": 2
+      },
+      "growth": {
+        ".": 2,
+        "the": 2,
+        "is": 2,
+        "of": 1,
+        ",": 1,
+        "botanists": 1,
+        "growth": 2
+      },
+      "records": {
+        ".": 1,
+        "the": 1,
+        "is": 1,
+        ",": 1,
+        "botanists": 1,
+        "growth": 2
+      },
+      "some": {
+        ".": 1,
+        "the": 1,
+        "is": 1,
+        "botanists": 1,
+        "growth": 2
+      },
+      "described": {
+        ".": 1,
+        "the": 1,
+        "is": 1,
+        "of": 1,
+        "growth": 2
+      },
+      "by": {
+        ".": 1,
+        "the": 1,
+        "is": 1,
+        "of": 1,
+        "growth": 1
+      },
+      "this": {
+        ".": 1,
+        "of": 1
+      },
+      "chapter": {
+        ".": 1
+      },
+      "exponential": {
+        ".": 1
+      },
+      "and": {
+        ".": 3,
+        ",": 2
+      },
+      "logarithmic": {
+        ".": 1
+      },
+      "you": {
+        ".": 1,
+        "the": 1,
+        "of": 1
+      },
+      "will": {
+        ".": 1,
+        "the": 1,
+        "of": 1,
+        ",": 1
+      },
+      "evaluate": {
+        ".": 1,
+        ",": 1
+      },
+      "graph": {
+        ".": 1,
+        ",": 1
+      },
+      "these": {
+        ".": 1,
+        ",": 1
+      },
+      "solve": {
+        ".": 1,
+        ",": 1
+      },
+      "equations": {
+        ".": 1,
+        ",": 1
+      },
+      "using": {
+        ".": 1,
+        ",": 1
+      },
+      "them": {
+        ".": 1,
+        ",": 1
+      },
+      "/": {
+        "the": 1
+      },
+      "wikimedia": {
+        "the": 1
+      },
+      "commons": {
+        "the": 1
+      },
+      ")": {
+        "the": 1,
+        "to": 1
+      },
+      "as": {
+        "the": 1,
+        "to": 1,
+        "grow": 1
+      },
+      "population": {
+        "the": 1,
+        ",": 1,
+        "to": 1,
+        "grow": 1
+      },
+      "continues": {
+        "the": 1,
+        ",": 1,
+        "to": 1,
+        "grow": 1
+      },
+      "becoming": {
+        "the": 1,
+        ",": 1,
+        "to": 2,
+        "grow": 1
+      },
+      "less": {
+        "the": 1,
+        ",": 1,
+        "to": 1,
+        "grow": 1
+      },
+      "potential": {
+        "the": 3,
+        "is": 1,
+        "of": 1,
+        ",": 1
+      },
+      "hydroponics": {
+        "the": 2,
+        "is": 1,
+        "of": 2,
+        ",": 1
+      },
+      "types": {
+        "the": 1,
+        "is": 1,
+        "of": 1,
+        "growth": 1
+      },
+      "functions": {
+        "the": 1,
+        "is": 1,
+        "of": 1,
+        ",": 1
+      },
+      "explore": {
+        "the": 1,
+        "of": 1
+      },
+      "systems": {
+        "without": 1,
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "allow": {
+        "without": 1,
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "in": {
+        "of": 1
+      },
+      "food": {
+        ",": 1,
+        "to": 2,
+        "grow": 1
+      },
+      "supplies": {
+        ",": 1,
+        "to": 2,
+        "grow": 1
+      },
+      "introduction": {
+        "to": 1,
+        "botanists": 1
+      },
+      "337fc98c-2c5c-4561-8541-3a3d428c430c": {
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "hydroponic": {
+        "to": 1,
+        "botanists": 1,
+        "grow": 1
+      },
+      "7": {
+        "botanists": 1
+      }
+    },
+    "stop_reason": "level_3_cap",
+    "runtime_surface": "in_memory_anchor_field",
+    "writes_allowed": {
+      "maps": false,
+      "counts": false,
+      "lifetime": false,
+      "lexicon": false
+    }
+  }
+}

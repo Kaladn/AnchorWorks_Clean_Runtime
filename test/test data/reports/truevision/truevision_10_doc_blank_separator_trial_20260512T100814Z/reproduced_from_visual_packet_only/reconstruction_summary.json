@@ -1,0 +1,91 @@
+{
+  "schema_version": "anchorworks_truevision_reconstruction_from_packet@1",
+  "source_report": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z.json",
+  "output_dir": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only",
+  "document_frames_seen": 10,
+  "files_written": 10,
+  "prose_reconstructed": 0,
+  "reconstruction_boundary": "metadata-only packet cannot reproduce original text without recognition candidates or source text",
+  "rows": [
+    {
+      "frame_id": "frame_00000",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00000_doc_001_m90376.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90376\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00002",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00002_doc_002_m90377.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90377\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00004",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00004_doc_003_m90378.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90378\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00006",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00006_doc_004_m90379.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90379\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00008",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00008_doc_005_m90380.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90380\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00010",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00010_doc_006_m90381.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90381\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00012",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00012_doc_007_m90382.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90382\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00014",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00014_doc_008_m90384.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90384\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00016",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00016_doc_009_m90386.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90386\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    },
+    {
+      "frame_id": "frame_00018",
+      "output": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\reports\\truevision\\truevision_10_doc_blank_separator_trial_20260512T100814Z\\reproduced_from_visual_packet_only\\frame_00018_doc_010_m90387.bmp.md",
+      "source_path_ref": "D:\\curated data\\markdown_openstax\\osbooks-american-government\\osbooks-american-government-main\\modules\\m90387\\index.cnxml.md",
+      "prose_reconstructed": false,
+      "region_count": 0,
+      "recognition_candidates": 0
+    }
+  ]
+}

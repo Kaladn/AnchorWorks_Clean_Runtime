@@ -254,7 +254,7 @@ Benchmarks are last measured proof, not live startup state.
 Current verification runner:
 
 ```text
-python -m unittest discover -s tests
+python -m unittest discover -s "..\test\test data\tests"
 ```
 
 Native build path:

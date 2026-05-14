@@ -11,7 +11,15 @@ from AnchorWorks.lexicon_genome_rebuild import build_lexicon_genome_rebuild, pro
 from AnchorWorks.symbol_genome_native import build_native_symbol_genome
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+def _anchorworks_repo_root() -> Path:
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent if (parent / "src" / "AnchorWorks").exists() else parent / "Anchorworks"
+        if (candidate / "src" / "AnchorWorks").exists():
+            return candidate
+    raise RuntimeError("Anchorworks repo root not found")
+
+
+REPO_ROOT = _anchorworks_repo_root()
 VS_CMAKE = Path(
     r"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
 )
