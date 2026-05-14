@@ -1,0 +1,28 @@
+[
+  {
+    "anchor": "żupan",
+    "display": "żupan",
+    "genome_symbol": "0x1000044D2E",
+    "genome_hex": "0x1000044D2E",
+    "genome_binary": "0001000000000000000001000100110100101110",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x9F337BC30D",
+    "source_old_symbol": "0x9F337BC30D"
+  },
+  {
+    "anchor": "życia",
+    "display": "życia",
+    "genome_symbol": "0x1000044D2F",
+    "genome_hex": "0x1000044D2F",
+    "genome_binary": "0001000000000000000001000100110100101111",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x79BC81E30D",
+    "source_old_symbol": "0x79BC81E30D"
+  }
+]

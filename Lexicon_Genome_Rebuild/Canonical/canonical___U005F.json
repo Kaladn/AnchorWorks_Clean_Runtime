@@ -1,0 +1,28 @@
+[
+  {
+    "anchor": "__EMOJI__",
+    "display": "__EMOJI__",
+    "genome_symbol": "0x100000004E",
+    "genome_hex": "0x100000004E",
+    "genome_binary": "0001000000000000000000000000000001001110",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x7F6EA659E8",
+    "source_old_symbol": "0x7F6EA659E8"
+  },
+  {
+    "anchor": "__init__.py",
+    "display": "__init__.py",
+    "genome_symbol": "0x100000004F",
+    "genome_hex": "0x100000004F",
+    "genome_binary": "0001000000000000000000000000000001001111",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x02ECA66AC8",
+    "source_old_symbol": "0x02ECA66AC8"
+  }
+]

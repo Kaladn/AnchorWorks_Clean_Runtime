@@ -1,0 +1,80 @@
+[
+  {
+    "anchor": "ádi",
+    "display": "ádi",
+    "genome_symbol": "0x1000044CEA",
+    "genome_hex": "0x1000044CEA",
+    "genome_binary": "0001000000000000000001000100110011101010",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x4B397E865B",
+    "source_old_symbol": "0x4B397E865B"
+  },
+  {
+    "anchor": "álvares",
+    "display": "álvares",
+    "genome_symbol": "0x1000044CEB",
+    "genome_hex": "0x1000044CEB",
+    "genome_binary": "0001000000000000000001000100110011101011",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x81B388C812",
+    "source_old_symbol": "0x81B388C812"
+  },
+  {
+    "anchor": "álvaro",
+    "display": "álvaro",
+    "genome_symbol": "0x1000044CEC",
+    "genome_hex": "0x1000044CEC",
+    "genome_binary": "0001000000000000000001000100110011101100",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xC35188C838",
+    "source_old_symbol": "0xC35188C838"
+  },
+  {
+    "anchor": "ángel",
+    "display": "ángel",
+    "genome_symbol": "0x1000044CED",
+    "genome_hex": "0x1000044CED",
+    "genome_binary": "0001000000000000000001000100110011101101",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xC96588C83C",
+    "source_old_symbol": "0xC96588C83C"
+  },
+  {
+    "anchor": "árbenz",
+    "display": "árbenz",
+    "genome_symbol": "0x1000044CEE",
+    "genome_hex": "0x1000044CEE",
+    "genome_binary": "0001000000000000000001000100110011101110",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xC808773AEA",
+    "source_old_symbol": "0xC808773AEA"
+  },
+  {
+    "anchor": "árbenz's",
+    "display": "árbenz's",
+    "genome_symbol": "0x1000044CEF",
+    "genome_hex": "0x1000044CEF",
+    "genome_binary": "0001000000000000000001000100110011101111",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x0210773A0A",
+    "source_old_symbol": "0x0210773A0A"
+  }
+]

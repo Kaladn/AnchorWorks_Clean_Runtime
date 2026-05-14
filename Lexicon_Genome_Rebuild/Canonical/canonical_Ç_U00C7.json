@@ -1,0 +1,28 @@
+[
+  {
+    "anchor": "çatalhöyük",
+    "display": "çatalhöyük",
+    "genome_symbol": "0x1000044CF4",
+    "genome_hex": "0x1000044CF4",
+    "genome_binary": "0001000000000000000001000100110011110100",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xFE32773AF2",
+    "source_old_symbol": "0xFE32773AF2"
+  },
+  {
+    "anchor": "çelebi",
+    "display": "çelebi",
+    "genome_symbol": "0x1000044CF5",
+    "genome_hex": "0x1000044CF5",
+    "genome_binary": "0001000000000000000001000100110011110101",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xC73188C9A6",
+    "source_old_symbol": "0xC73188C9A6"
+  }
+]

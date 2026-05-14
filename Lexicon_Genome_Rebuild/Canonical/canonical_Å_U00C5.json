@@ -1,0 +1,28 @@
+[
+  {
+    "anchor": "åge",
+    "display": "åge",
+    "genome_symbol": "0x1000044CF2",
+    "genome_hex": "0x1000044CF2",
+    "genome_binary": "0001000000000000000001000100110011110010",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xD56988C900",
+    "source_old_symbol": "0xD56988C900"
+  },
+  {
+    "anchor": "ångstroms",
+    "display": "ångstroms",
+    "genome_symbol": "0x1000044CF3",
+    "genome_hex": "0x1000044CF3",
+    "genome_binary": "0001000000000000000001000100110011110011",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xF3B27736A9",
+    "source_old_symbol": "0xF3B27736A9"
+  }
+]

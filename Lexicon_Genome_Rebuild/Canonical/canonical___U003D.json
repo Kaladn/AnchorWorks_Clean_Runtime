@@ -1,0 +1,41 @@
+[
+  {
+    "anchor": "================",
+    "display": "================",
+    "genome_symbol": "0x1000000047",
+    "genome_hex": "0x1000000047",
+    "genome_binary": "0001000000000000000000000000000001000111",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xAFC0A679B6",
+    "source_old_symbol": "0xAFC0A679B6"
+  },
+  {
+    "anchor": "=================",
+    "display": "=================",
+    "genome_symbol": "0x1000000048",
+    "genome_hex": "0x1000000048",
+    "genome_binary": "0001000000000000000000000000000001001000",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x70B0A66A59",
+    "source_old_symbol": "0x70B0A66A59"
+  },
+  {
+    "anchor": "==========================================",
+    "display": "==========================================",
+    "genome_symbol": "0x1000000049",
+    "genome_hex": "0x1000000049",
+    "genome_binary": "0001000000000000000000000000000001001001",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x758EA66BEC",
+    "source_old_symbol": "0x758EA66BEC"
+  }
+]

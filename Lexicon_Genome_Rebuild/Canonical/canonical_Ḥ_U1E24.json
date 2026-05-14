@@ -1,0 +1,15 @@
+[
+  {
+    "anchor": "ḥadīth",
+    "display": "ḥadīth",
+    "genome_symbol": "0x1000044D43",
+    "genome_hex": "0x1000044D43",
+    "genome_binary": "0001000000000000000001000100110101000011",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x224B7CE54E",
+    "source_old_symbol": "0x224B7CE54E"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "schema_version": "anchorworks_lexicon_genome_rebuild@1",
+  "created_at": "2026-05-14T01:15:53.049830+00:00",
+  "source_root": "D:\\AnchorWorks_Clean_Runtime",
+  "output_root": "D:\\AnchorWorks_Clean_Runtime\\Lexicon_Genome_Rebuild",
+  "generator": "native_cpp_symbol_genome_allocator",
+  "allocator_executable": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\build\\native_symbol_genome\\Release\\anchorworks-symbol-genome.exe",
+  "allocator_report": {
+    "ok": true,
+    "allocated": 282016,
+    "generator": "native_cpp_symbol_genome_allocator"
+  },
+  "source_rows": 284717,
+  "unique_rows": 282016,
+  "canonical_rows": 281948,
+  "structural_rows": 68,
+  "duplicate_anchor_count": 2701,
+  "duplicate_old_symbol_count": 953,
+  "original_sources_untouched": true,
+  "rebuilt_count_matches_allocated": true,
+  "rebuilt_rows": 282016,
+  "duplicate_genome_symbols": 0,
+  "duplicate_genome_hex": 0,
+  "hex_symbol_mismatch": 0,
+  "bad_binary_count": 0,
+  "extra_fields": [],
+  "tone_signature_absent": true,
+  "font_symbol_absent": true,
+  "bad_status_count": 0
+}

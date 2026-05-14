@@ -1,0 +1,28 @@
+[
+  {
+    "anchor": "?!?",
+    "display": "?!?",
+    "genome_symbol": "0x100000004A",
+    "genome_hex": "0x100000004A",
+    "genome_binary": "0001000000000000000000000000000001001010",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x1EE9598C19",
+    "source_old_symbol": "0x1EE9598C19"
+  },
+  {
+    "anchor": "???",
+    "display": "???",
+    "genome_symbol": "0x100000004B",
+    "genome_hex": "0x100000004B",
+    "genome_binary": "0001000000000000000000000000000001001011",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x5D5CA6744D",
+    "source_old_symbol": "0x5D5CA6744D"
+  }
+]

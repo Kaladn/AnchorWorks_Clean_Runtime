@@ -1,0 +1,15 @@
+[
+  {
+    "anchor": "##",
+    "display": "##",
+    "genome_symbol": "0x1000000002",
+    "genome_hex": "0x1000000002",
+    "genome_binary": "0001000000000000000000000000000000000010",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xB4455983F0",
+    "source_old_symbol": "0xB4455983F0"
+  }
+]

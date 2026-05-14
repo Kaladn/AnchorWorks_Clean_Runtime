@@ -1,0 +1,28 @@
+[
+  {
+    "anchor": "ägyptisches",
+    "display": "ägyptisches",
+    "genome_symbol": "0x1000044CF0",
+    "genome_hex": "0x1000044CF0",
+    "genome_binary": "0001000000000000000001000100110011110000",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xABC988C8E6",
+    "source_old_symbol": "0xABC988C8E6"
+  },
+  {
+    "anchor": "ältesten",
+    "display": "ältesten",
+    "genome_symbol": "0x1000044CF1",
+    "genome_hex": "0x1000044CF1",
+    "genome_binary": "0001000000000000000001000100110011110001",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xA9DE81E35B",
+    "source_old_symbol": "0xA9DE81E35B"
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "anchor": "[ERROR::CODE_0xDEADBEEF]",
+    "display": "[ERROR::CODE_0xDEADBEEF]",
+    "genome_symbol": "0x100000004C",
+    "genome_hex": "0x100000004C",
+    "genome_binary": "0001000000000000000000000000000001001100",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xF09F598FEA",
+    "source_old_symbol": "0xF09F598FEA"
+  },
+  {
+    "anchor": "[user@domain.com](mailto:user@domain.com)",
+    "display": "[user@domain.com](mailto:user@domain.com)",
+    "genome_symbol": "0x100000004D",
+    "genome_hex": "0x100000004D",
+    "genome_binary": "0001000000000000000000000000000001001101",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x53035990AB",
+    "source_old_symbol": "0x53035990AB"
+  }
+]

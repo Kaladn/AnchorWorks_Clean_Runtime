@@ -1,0 +1,41 @@
+[
+  {
+    "anchor": "μmol",
+    "display": "μmol",
+    "genome_symbol": "0x1000044D3D",
+    "genome_hex": "0x1000044D3D",
+    "genome_binary": "0001000000000000000001000100110100111101",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xE2DC885EEA",
+    "source_old_symbol": "0xE2DC885EEA"
+  },
+  {
+    "anchor": "μpa",
+    "display": "μpa",
+    "genome_symbol": "0x1000044D3E",
+    "genome_hex": "0x1000044D3E",
+    "genome_binary": "0001000000000000000001000100110100111110",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xC84C80D186",
+    "source_old_symbol": "0xC84C80D186"
+  },
+  {
+    "anchor": "μsa",
+    "display": "μsa",
+    "genome_symbol": "0x1000044D3F",
+    "genome_hex": "0x1000044D3F",
+    "genome_binary": "0001000000000000000001000100110100111111",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x427E8BA728",
+    "source_old_symbol": "0x427E8BA728"
+  }
+]

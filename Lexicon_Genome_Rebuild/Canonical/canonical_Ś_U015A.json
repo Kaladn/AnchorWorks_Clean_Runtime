@@ -1,0 +1,41 @@
+[
+  {
+    "anchor": "śamatha",
+    "display": "śamatha",
+    "genome_symbol": "0x1000044D27",
+    "genome_hex": "0x1000044D27",
+    "genome_binary": "0001000000000000000001000100110100100111",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xD7B28250D8",
+    "source_old_symbol": "0xD7B28250D8"
+  },
+  {
+    "anchor": "średniowiecza",
+    "display": "średniowiecza",
+    "genome_symbol": "0x1000044D28",
+    "genome_hex": "0x1000044D28",
+    "genome_binary": "0001000000000000000001000100110100101000",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0xC5A37B9E61",
+    "source_old_symbol": "0xC5A37B9E61"
+  },
+  {
+    "anchor": "świata",
+    "display": "świata",
+    "genome_symbol": "0x1000044D29",
+    "genome_hex": "0x1000044D29",
+    "genome_binary": "0001000000000000000001000100110100101001",
+    "status": "ASSIGNED",
+    "pack": "canonical",
+    "created_at": "2026-05-14T01:15:53.049830+00:00",
+    "category": "core",
+    "source_old_hex": "0x845A8215F4",
+    "source_old_symbol": "0x845A8215F4"
+  }
+]
