@@ -55,6 +55,7 @@ from .symbolic_map_binary import (
     write_symbolic_map_visual_sidecar,
     write_symbolic_map_binary,
 )
+from .symbol_genome_pool import SymbolGenomePool
 from .store_modules.admin import AdminStore
 from .store_modules.authority import AuthorityStore
 from .store_modules.evidence import EvidenceStore
@@ -201,6 +202,7 @@ class LexiconStore:
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
         self.symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
+        self.symbol_genome_pool_dir = self.state_dir / "symbol_genome_pool"
         self.symbol_streams_dir = self.state_dir / "symbol_streams"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
@@ -258,6 +260,7 @@ class LexiconStore:
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_symbol_counts_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
+        self.symbol_genome_pool_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_streams_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_occurrences_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_resonance_dir.mkdir(parents=True, exist_ok=True)
@@ -538,6 +541,36 @@ class LexiconStore:
                 "tone_signature": raw.get("tone_signature", ""),
             },
         }
+
+    def _phrase_previews(self) -> list[dict[str, Any]]:
+        previews: list[dict[str, Any]] = []
+        for entry in self.phrases.phrases():
+            hex_value = entry.get("hex") or entry.get("symbol") or ""
+            phrase = str(entry.get("phrase") or entry.get("display") or "").strip()
+            previews.append({
+                "word": phrase,
+                "display": entry.get("display") or phrase,
+                "status": entry.get("status", ""),
+                "frequency": int((entry.get("source_support") or {}).get("occurrences", 0) or 0),
+                "hex": hex_value,
+                "binary": entry.get("binary", ""),
+                "font_symbol": entry.get("font_symbol", ""),
+                "tone_label": entry.get("tone_label", ""),
+                "tone_profile": entry.get("tone_profile"),
+                "mapped_at": entry.get("mapped_at"),
+                "pack": "phrase",
+                "symbol": entry.get("symbol") or hex_value,
+                "phrase_type": entry.get("phrase_type", ""),
+                "anchor_sequence": entry.get("anchor_sequence") or [],
+                "payload": {
+                    "hex": hex_value,
+                    "binary": entry.get("binary", ""),
+                    "font_symbol": entry.get("font_symbol", ""),
+                    "tone_label": entry.get("tone_label", ""),
+                    "visual_rune": entry.get("visual_rune", ""),
+                },
+            })
+        return previews
 
     def _find_entry(self, word: str) -> tuple[dict[str, Any], str, Path] | None:
         target = self.normalize_anchor(word)
@@ -2840,15 +2873,54 @@ class LexiconStore:
             "domain_packs": {},
             "structural": structural,
             "spare_slots": spare,
+            "symbol_genome_pool": self.symbol_genome_status(),
             "letters": letters,
         }
+
+    def symbol_genome_status(self) -> dict[str, Any]:
+        return SymbolGenomePool(self.symbol_genome_pool_dir).status()
+
+    def allocate_symbol_genome_identity(
+        self,
+        label: str,
+        *,
+        authority: str,
+        category: str = "specialized",
+        priority: int = 2,
+    ) -> dict[str, Any]:
+        return SymbolGenomePool(self.symbol_genome_pool_dir).allocate(
+            label,
+            authority=authority,
+            category=category,
+            priority=priority,
+        )
+
+    def checkpoint_symbol_genome(self, reason: str = "") -> dict[str, Any]:
+        return SymbolGenomePool(self.symbol_genome_pool_dir).checkpoint(reason)
 
     def search(self, query: str, pack: str = "all", limit: int = 50) -> list[dict[str, Any]]:
         needle = self.normalize_word(query)
         if len(needle) < 2:
             return []
         results: list[dict[str, Any]] = []
+        if pack in {"all", "phrase"}:
+            for entry in self._phrase_previews():
+                haystacks = [
+                    self.normalize_word(entry.get("word", "")),
+                    self.normalize_word(entry.get("display", "")),
+                    self.normalize_word(entry.get("hex", "")),
+                    self.normalize_word(entry.get("binary", "")),
+                    self.normalize_word(entry.get("tone_label", "")),
+                    self.normalize_word(entry.get("status", "")),
+                    self.normalize_word(entry.get("phrase_type", "")),
+                ]
+                if any(needle in hay for hay in haystacks if hay):
+                    results.append(entry)
+                    if len(results) >= limit:
+                        return results
         for pack_name, path in self._pack_paths(pack):
+            if pack_name == "spare" and pack != "spare":
+                continue
             for entry in self._read_entries(path):
                 haystacks = [
                     self.normalize_word(entry.get("word", "")),
@@ -2868,6 +2940,13 @@ class LexiconStore:
         letter = (letter or "A").strip().upper()[:1]
         entries: list[dict[str, Any]] = []
         total = 0
+        if pack in {"all", "phrase"}:
+            phrase_entries = [
+                entry for entry in self._phrase_previews()
+                if self._letter_for_word(str(entry.get("word") or "")) == letter
+            ]
+            total += len(phrase_entries)
+            entries.extend(phrase_entries[: max(0, limit - len(entries))])
         if pack in {"all", "canonical"}:
             path = self.canonical_dir / f"canonical_{letter}.json"
             batch = self._read_entries(path)
@@ -2883,6 +2962,15 @@ class LexiconStore:
     def sample(self, count: int = 24, pack: str = "all") -> dict[str, Any]:
         chosen: list[dict[str, Any]] = []
         seen = 0
+        if pack in {"all", "phrase"}:
+            for preview in self._phrase_previews():
+                seen += 1
+                if len(chosen) < count:
+                    chosen.append(preview)
+                else:
+                    index = random.randint(0, seen - 1)
+                    if index < count:
+                        chosen[index] = preview
         for pack_name, path in self._pack_paths(pack):
             if pack_name == "spare" and pack != "spare":
                 continue
@@ -2899,6 +2987,8 @@ class LexiconStore:
 
     def top(self, count: int = 30, pack: str = "all") -> dict[str, Any]:
         ranked: list[dict[str, Any]] = []
+        if pack in {"all", "phrase"}:
+            ranked.extend(self._phrase_previews())
         for pack_name, path in self._pack_paths(pack):
             if pack_name == "spare" and pack != "spare":
                 continue

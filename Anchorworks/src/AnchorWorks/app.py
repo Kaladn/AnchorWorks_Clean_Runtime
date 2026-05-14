@@ -44,6 +44,17 @@ class RebuildReadinessBody(BaseModel):
     state_dir: str = ""
 
 
+class SymbolGenomeAllocateBody(BaseModel):
+    label: str
+    authority: str
+    category: str = "specialized"
+    priority: int = 2
+
+
+class SymbolGenomeCheckpointBody(BaseModel):
+    reason: str = ""
+
+
 class ResonanceBuildBody(BaseModel):
     observed_map_name: str
 
@@ -487,6 +498,26 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.get("/api/lexicon/distribution")
     def lexicon_distribution() -> dict[str, Any]:
         return store.distribution()
+
+    @app.get("/api/symbol-genome/status")
+    def symbol_genome_status() -> dict[str, Any]:
+        return store.symbol_genome_status()
+
+    @app.post("/api/symbol-genome/allocate")
+    def symbol_genome_allocate(body: SymbolGenomeAllocateBody) -> dict[str, Any]:
+        try:
+            return store.allocate_symbol_genome_identity(
+                body.label,
+                authority=body.authority,
+                category=body.category,
+                priority=body.priority,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/symbol-genome/checkpoint")
+    def symbol_genome_checkpoint(body: SymbolGenomeCheckpointBody) -> dict[str, Any]:
+        return store.checkpoint_symbol_genome(body.reason)
 
     @app.get("/api/lexicon/browse")
     def lexicon_browse(letter: str, limit: int = 50, pack: str = "all") -> dict[str, Any]:

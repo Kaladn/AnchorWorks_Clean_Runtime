@@ -71,6 +71,46 @@ tone_profile
 
 Phrase records remain external to Canonical and do not write counts.
 
+## Symbol Genome Pool
+
+Generated symbols are not a lexicon pack.
+
+The live pool is a checkpointed generator:
+
+```text
+State/symbol_genome_pool/manifest.json
+```
+
+Default capacity:
+
+```text
+15,000,000 symbols
+```
+
+The pool does not materialize 15 million JSON rows. The manifest cursor is
+authority:
+
+```text
+capacity
+next_index
+assigned_count
+checkpoints
+last_allocation
+```
+
+When a new identity is needed, the backend advances the cursor and generates
+one Symbol Genome identity. The generated identity may then be written into the
+proper authority lane, such as `Canonical` or `Phrase_Lexicon`.
+
+Law:
+
+```text
+Do not copy generated spares into a lexicon.
+Generate on need.
+Checkpoint the cursor.
+Authority records receive symbols after allocation.
+```
+
 ## Tone
 
 Legacy `tone_signature` is not TTS tone.

@@ -25,6 +25,16 @@ Symbol Genome allocation
 -> Lexicon Explorer Words | Phrases toggle
 ```
 
+Generator pool is now the replacement for copied spare lexicon rows:
+
+```text
+capacity = 15,000,000
+State/symbol_genome_pool/manifest.json
+generated on need
+checkpointed by cursor
+not browsed as a lexicon pack
+```
+
 ## Rules
 
 ```text
@@ -34,6 +44,7 @@ Do not overload status with phrase roles.
 Do not use tone_signature as TTS tone.
 Do preserve Symbol Genome byte structure.
 Do preserve 8x8 visual rune metadata.
+Do not materialize generated spares as lexicon entries.
 Human display is text.
 Internal authority is symbols.
 ```

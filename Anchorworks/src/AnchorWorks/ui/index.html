@@ -45,9 +45,9 @@
         <div class="stat-note">Assigned live word entries</div>
       </article>
       <article class="stat-card">
-        <div class="stat-label">Spare Slots</div>
+        <div class="stat-label">Symbol Genome</div>
         <div class="stat-value" id="stat-spare">0</div>
-        <div class="stat-note">Available addresses ready to assign</div>
+        <div class="stat-note">Generated identities remaining</div>
       </article>
       <article class="stat-card stat-card-wide">
         <div class="stat-label" id="result-meta-title">Current View</div>
@@ -70,11 +70,22 @@
           <button class="action-btn primary" id="search-btn">Search</button>
           <button class="action-btn" id="reset-btn">Reset</button>
         </div>
-        <div class="helper-text">Search looks across word, display, address, binary, tone signature, and status.</div>
+        <div class="helper-text">Search looks across word, display, address, binary, tone label, and status. Generated symbols are not a lexicon pack.</div>
         <div class="pack-pills">
           <button class="pill active" data-pack="all">All Packs</button>
           <button class="pill" data-pack="canonical">Canonical</button>
-          <button class="pill" data-pack="spare">Spare</button>
+          <button class="pill" data-pack="phrase">Phrases</button>
+        </div>
+        <div class="generator-panel">
+          <div>
+            <strong>Symbol Genome Generator</strong>
+            <div class="helper-text" id="symbol-genome-status">Loading generator status...</div>
+          </div>
+          <div class="search-row">
+            <input id="symbol-genome-label" class="form-control" type="text" placeholder="Generate preview label...">
+            <button class="action-btn" id="symbol-genome-generate-btn" type="button">Generate</button>
+            <button class="action-btn cool" id="symbol-genome-checkpoint-btn" type="button">Checkpoint</button>
+          </div>
         </div>
         <div class="shortcut-row">
           <button class="action-btn cool" id="random-btn">Random Sample</button>

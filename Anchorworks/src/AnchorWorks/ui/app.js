@@ -59,6 +59,10 @@ const lexApp = {
       statTotal: document.getElementById("stat-total"),
       statCanonical: document.getElementById("stat-canonical"),
       statSpare: document.getElementById("stat-spare"),
+      symbolGenomeStatus: document.getElementById("symbol-genome-status"),
+      symbolGenomeLabel: document.getElementById("symbol-genome-label"),
+      symbolGenomeGenerateBtn: document.getElementById("symbol-genome-generate-btn"),
+      symbolGenomeCheckpointBtn: document.getElementById("symbol-genome-checkpoint-btn"),
       resultMetaTitle: document.getElementById("result-meta-title"),
       resultMeta: document.getElementById("result-meta"),
       resultsTitle: document.getElementById("results-title"),
@@ -193,6 +197,8 @@ const lexApp = {
     });
     this.els.searchBtn.addEventListener("click", () => this.search());
     this.els.resetBtn.addEventListener("click", () => this.resetSearch());
+    this.els.symbolGenomeGenerateBtn.addEventListener("click", () => this.generateSymbolGenomePreview());
+    this.els.symbolGenomeCheckpointBtn.addEventListener("click", () => this.checkpointSymbolGenome());
     this.els.mappingBtn.addEventListener("click", () => this.runMappingBuild());
     this.els.observedMapsBtn.addEventListener("click", () => this.showSymbolicMaps());
     this.els.sourceGraphsBtn.addEventListener("click", () => this.showSourceGraphs());
@@ -568,11 +574,66 @@ const lexApp = {
 
   async refreshStats() {
     const data = await this.api("/api/lexicon/distribution");
+    const pool = data.symbol_genome_pool || {};
     this.els.statTotal.textContent = (data.total || 0).toLocaleString();
     this.els.statCanonical.textContent = (data.canonical || 0).toLocaleString();
-    this.els.statSpare.textContent = (data.spare_slots || 0).toLocaleString();
+    this.els.statSpare.textContent = Number(pool.remaining || 0).toLocaleString();
+    this.renderSymbolGenomeStatus(pool);
     this.renderChart(data.letters || {});
     await this.refreshQueues();
+  },
+
+  renderSymbolGenomeStatus(pool) {
+    const capacity = Number(pool.capacity || 0).toLocaleString();
+    const next = Number(pool.next_index || 0).toLocaleString();
+    const remaining = Number(pool.remaining || 0).toLocaleString();
+    this.els.symbolGenomeStatus.textContent = `Capacity ${capacity}; next ${next}; remaining ${remaining}; checkpoint ${pool.last_checkpoint_at || "none"}.`;
+  },
+
+  async generateSymbolGenomePreview() {
+    const label = this.els.symbolGenomeLabel.value.trim();
+    if (!label) {
+      this.setBanner("error", "Enter a label before generating a Symbol Genome identity.");
+      return;
+    }
+    try {
+      const identity = await this.api("/api/symbol-genome/allocate", {
+        method: "POST",
+        body: JSON.stringify({
+          label,
+          authority: "ui_preview",
+          category: "specialized",
+          priority: 2,
+        }),
+      });
+      await this.refreshStats();
+      this.renderEntryCards([{
+        word: identity.label,
+        display: identity.label,
+        pack: "symbol_genome",
+        status: "GENERATED",
+        frequency: 0,
+        hex: identity.hex,
+        binary: identity.binary,
+        tone_label: identity.tone_label || "",
+      }], `Generated Symbol Genome identity ${identity.hex}`);
+      this.setBanner("success", `Generated ${identity.hex} at index ${Number(identity.allocation_index || 0).toLocaleString()}.`);
+    } catch (error) {
+      this.setBanner("error", `Symbol generation failed: ${error.message}`);
+    }
+  },
+
+  async checkpointSymbolGenome() {
+    try {
+      const result = await this.api("/api/symbol-genome/checkpoint", {
+        method: "POST",
+        body: JSON.stringify({ reason: "ui checkpoint" }),
+      });
+      this.renderSymbolGenomeStatus(result);
+      this.setBanner("success", `Symbol Genome checkpoint saved at index ${Number(result.next_index || 0).toLocaleString()}.`);
+    } catch (error) {
+      this.setBanner("error", `Symbol Genome checkpoint failed: ${error.message}`);
+    }
   },
 
   async refreshChatMemory() {
