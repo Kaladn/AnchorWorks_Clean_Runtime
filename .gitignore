@@ -25,6 +25,7 @@ State/source_local_preview_counts/**
 State/source_local_symbol_counts/**
 State/symbol_counts_binary/**
 State/symbol_streams/**
+State/symbol_genome_pool/**
 State/source_local_occurrences/**
 State/source_local_resonance/**
 State/temp_lexicons/**
