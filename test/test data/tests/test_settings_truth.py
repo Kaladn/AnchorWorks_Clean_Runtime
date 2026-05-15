@@ -29,6 +29,21 @@ class SettingsTruthTests(unittest.TestCase):
         self.assertNotIn("Cockpit switches are now active", js)
         self.assertIn("diagnostic-only", js)
 
+    def test_ui2_invoked_surfaces_submit_from_chat_and_delegate_card_actions(self) -> None:
+        html = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/index.html").read_text(encoding="utf-8")
+        js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/assets/app.js").read_text(encoding="utf-8")
+
+        self.assertIn('id="invoked-card-panel"', html)
+        self.assertIn('id="dismiss-invoked-card"', html)
+        self.assertIn("CARD_RECIPES", js)
+        self.assertIn("matchInvokedSurface(message)", js)
+        self.assertIn("open system status", js)
+        self.assertIn("text === 'evidence'", js)
+        self.assertIn("requestSubmit()", js)
+        self.assertIn("event.key === 'Enter' && !event.shiftKey", js)
+        self.assertIn("event.target.closest('[data-action]')", js)
+        self.assertIn("runUiAction(button.dataset.action)", js)
+
     def test_settings_inventory_route_exposes_truth_labels(self) -> None:
         app = create_app(Path("D:/AnchorWorks_Clean_Runtime"))
         route = next(route for route in app.routes if getattr(route, "path", "") == "/api/settings/inventory")

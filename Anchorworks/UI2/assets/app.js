@@ -67,10 +67,10 @@ function buildInvocation(cardId, surfaceText, intent, context = {}) {
 
 function matchInvokedSurface(message) {
   const text = message.trim().toLowerCase();
-  if (/^(show|open|review)\s+(the\s+)?evidence\b/.test(text) || /why did (it|you|the system) choose/.test(text)) {
+  if (/^(evidence|show|open|review)\s*(the\s+)?evidence\b/.test(text) || text === 'evidence' || /why did (it|you|the system) choose/.test(text)) {
     return buildInvocation('evidence.trace.card', message, 'show_evidence');
   }
-  if (/^(system status|show system status|runtime status|what settings are real)\b/.test(text)) {
+  if (/^(status|system|system status|show system status|open system status|runtime status|what settings are real)\b/.test(text)) {
     return buildInvocation('system.status.card', message, 'system_status');
   }
   return null;
@@ -116,6 +116,18 @@ function dismissInvokedCard() {
   $('invoked-card-panel').hidden = true;
   $('invoked-card-body').innerHTML = '';
   document.querySelector('.chat-grid')?.classList.remove('card-open');
+}
+
+function runUiAction(action) {
+  if (action === 'evidence') switchTab('evidence');
+  if (action === 'lexicon') switchTab('lexicon');
+  if (action === 'system') switchTab('system');
+  if (action === 'stop') stopResponse();
+  if (action === 'counts') {
+    $('chat-mode').value = 'counts';
+    $('read-only-query').checked = true;
+    $('chat-input').focus();
+  }
 }
 
 async function openEvidenceTraceCard(invocation) {
@@ -350,19 +362,10 @@ async function boot() {
   document.querySelectorAll('.tab-button').forEach((button) => {
     button.addEventListener('click', () => switchTab(button.dataset.tab));
   });
-  document.querySelectorAll('[data-action]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const action = button.dataset.action;
-      if (action === 'evidence') switchTab('evidence');
-      if (action === 'lexicon') switchTab('lexicon');
-      if (action === 'system') switchTab('system');
-      if (action === 'stop') stopResponse();
-      if (action === 'counts') {
-        $('chat-mode').value = 'counts';
-        $('read-only-query').checked = true;
-        $('chat-input').focus();
-      }
-    });
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+    runUiAction(button.dataset.action);
   });
   document.querySelectorAll('[data-lex-pack]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -372,6 +375,12 @@ async function boot() {
   });
 
   $('chat-form').addEventListener('submit', sendChat);
+  $('chat-input').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      $('chat-form').requestSubmit();
+    }
+  });
   $('stop-response').addEventListener('click', stopResponse);
   $('refresh-chat').addEventListener('click', loadChat);
   $('lexicon-form').addEventListener('submit', searchLexicon);
