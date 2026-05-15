@@ -274,6 +274,13 @@ def build_active_cloud_frame(
             "source_support": min(1.0, float(row["raw_observations"]) / 10.0),
         }
         penalties = _candidate_penalties(anchor, row, clouds, frame)
+        if float(penalties.get("domain_drift_penalty", 0.0) or 0.0) >= 0.75:
+            rejected[anchor] = {
+                "anchor": anchor,
+                "reason": "domain_field_drift",
+                "observations": int(row["raw_observations"]),
+            }
+            continue
         score = (
             ACTIVE_SCORE_WEIGHTS["question_fit"] * score_parts["question_fit"]
             + ACTIVE_SCORE_WEIGHTS["rear_fit"] * score_parts["rear_fit"]
@@ -363,6 +370,25 @@ def choose_candidate_with_lookahead(
             max_future_glue_ratio=max_future_glue_ratio,
             max_future_null_ratio=max_future_null_ratio,
         )
+        query_coherence = _query_field_coherence(row, future, seed_set)
+        if not query_coherence["coherent"]:
+            future = {
+                **future,
+                "lookahead_score": round(float(future.get("lookahead_score", 0.0) or 0.0) - 0.75, 6),
+                "pattern_health": "anomalous",
+                "rejected_reason": "query_field_drift",
+            }
+        elif future.get("rejected_reason") in {"future_cloud_empty", "future_content_below_min"} and (
+            query_coherence.get("direct_seed_support") or query_coherence.get("answer_support")
+            or query_coherence.get("continuation_support")
+        ):
+            future = {
+                **future,
+                "lookahead_score": max(0.0, float(future.get("lookahead_score", 0.0) or 0.0)),
+                "pattern_health": "healthy",
+                "rejected_reason": "",
+                "terminal_candidate": True,
+            }
         current_score = float(row.get("score", row.get("selection_score", 0.0)) or 0.0)
         anomaly_penalty = 0.55 if future["pattern_health"] == "anomalous" else 0.0
         scored.append({
@@ -371,21 +397,24 @@ def choose_candidate_with_lookahead(
             "lookahead_score": future["lookahead_score"],
             "final_score": round(current_score + float(future["lookahead_score"]) - anomaly_penalty, 6),
             "anomaly_penalty": anomaly_penalty,
+            "query_field_coherence": query_coherence,
             **future,
         })
     scored.sort(key=lambda item: (-float(item["final_score"]), int(item.get("candidate_rank", 9999)), str(item.get("anchor") or "")))
-    chosen = next((row for row in scored if row.get("pattern_health") == "healthy"), scored[0] if scored else {})
+    chosen = next((row for row in scored if row.get("pattern_health") == "healthy"), {})
     return {
         "schema_version": "clearspeak_topk_lookahead@1",
         "chosen": chosen,
         "candidates": scored,
+        "path_health": "healthy" if chosen else "blocked",
+        "stop_reason": "" if chosen else "no_healthy_query_field_path",
         "lookahead": {
             "lookahead_k": lookahead_k,
             "min_future_content": min_future_content,
             "max_future_glue_ratio": max_future_glue_ratio,
             "max_future_null_ratio": max_future_null_ratio,
         },
-        "law": "A top-K anchor is chosen only if its future still has shape; fallback preserves current top-K when no healthy future exists.",
+        "law": "A top-K anchor is chosen only if its future still has shape and remains coherent with the active query field.",
     }
 
 
@@ -531,6 +560,14 @@ def _lookahead_health(
         or null_ratio > max_future_null_ratio
     )
     lookahead_score = (content_count / max(1, lookahead_k)) + (0.12 * backlink_support) - (0.6 * glue_ratio) - (0.8 * null_ratio)
+    rejected_reason = ""
+    if anomalous:
+        if glue_ratio > max_future_glue_ratio:
+            rejected_reason = "future_cloud_glue_heavy"
+        elif null_ratio > max_future_null_ratio:
+            rejected_reason = "future_cloud_null_heavy"
+        else:
+            rejected_reason = "future_content_below_min"
     return {
         "future_cloud": future_rows,
         "future_content_count": content_count,
@@ -539,7 +576,52 @@ def _lookahead_health(
         "backlink_support": backlink_support,
         "lookahead_score": round(lookahead_score, 6),
         "pattern_health": "anomalous" if anomalous else "healthy",
-        "rejected_reason": "future_cloud_null_or_glue_heavy" if anomalous else "",
+        "rejected_reason": rejected_reason,
+    }
+
+
+def _query_field_coherence(row: dict[str, Any], future: dict[str, Any], seed_set: set[str]) -> dict[str, Any]:
+    """Reject count-supported candidates that drift away from the active question field."""
+
+    clean_seeds = {str(anchor or "").strip().casefold() for anchor in seed_set if str(anchor or "").strip()}
+    if not clean_seeds:
+        return {
+            "coherent": True,
+            "reason": "no_seed_field_required",
+            "direct_seed_support": [],
+            "answer_support": [],
+            "backlink_support": int(future.get("backlink_support", 0) or 0),
+            "required_seed_support": 0,
+        }
+    supporting_context = set(_clean_list(row.get("supporting_context") or []))
+    cloud_support = row.get("cloud_support") if isinstance(row.get("cloud_support"), dict) else {}
+    question_support = set(_clean_list(cloud_support.get("question") or []))
+    rear_support = set(_clean_list(cloud_support.get("rear") or []))
+    answer_support = set(_clean_list(cloud_support.get("answer") or []))
+    continuation_support = answer_support | (rear_support - clean_seeds)
+    direct_support = sorted((supporting_context | question_support) & clean_seeds)
+    backlink_support = int(future.get("backlink_support", 0) or 0)
+    required = 1
+    coherent = (
+        len(direct_support) >= required
+        or (len(direct_support) >= 1 and backlink_support > 0)
+        or bool(continuation_support)
+    )
+    if coherent:
+        reason = "candidate_attached_to_query_field"
+    elif direct_support:
+        reason = "single_seed_support_without_backlink"
+    else:
+        reason = "no_query_seed_support"
+    return {
+        "coherent": coherent,
+        "reason": reason,
+        "direct_seed_support": direct_support,
+        "rear_support": sorted(rear_support),
+        "answer_support": sorted(answer_support),
+        "continuation_support": sorted(continuation_support),
+        "backlink_support": backlink_support,
+        "required_seed_support": required,
     }
 
 
@@ -732,8 +814,9 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
         penalties["repetition_penalty"] = 0.75
     if not row["cloud_support"]["question"] and not row["cloud_support"]["answer"]:
         penalties["unsupported_jump_penalty"] = 0.20
-    content = set(_clean_list(frame.get("content_anchors") or []))
     penalties["domain_drift_penalty"] = _phrase_field_drift_penalty(anchor, frame)
+    if not penalties["domain_drift_penalty"]:
+        penalties["domain_drift_penalty"] = _question_field_drift_penalty(anchor, frame)
     penalties["total"] = round(sum(penalties.values()), 6)
     return penalties
 
@@ -765,7 +848,17 @@ def _phrase_field_drift_penalty(anchor: str, frame: dict[str, Any]) -> float:
     if not sequence:
         return 0.0
     field_terms = sequence | set().union(*ANSWER_SLOT_KEYWORDS.values())
-    return 0.45 if str(anchor or "").strip().casefold() not in field_terms else 0.0
+    return 1.00 if str(anchor or "").strip().casefold() not in field_terms else 0.0
+
+
+def _question_field_drift_penalty(anchor: str, frame: dict[str, Any]) -> float:
+    if str(frame.get("frame_type") or "") != "question":
+        return 0.0
+    content = set(_clean_list(frame.get("content_anchors") or []))
+    if len(content) < 2:
+        return 0.0
+    field_terms = content | set().union(*ANSWER_SLOT_KEYWORDS.values())
+    return 0.75 if str(anchor or "").strip().casefold() not in field_terms else 0.0
 
 
 def _ordered_supporting_context(cloud_support: dict[str, set[str]], clouds: dict[str, list[str]]) -> list[str]:

@@ -446,6 +446,46 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(by_anchor["loud"]["pattern_health"], "anomalous")
         self.assertEqual(by_anchor["healthy"]["pattern_health"], "healthy")
 
+    def test_clearspeak_lookahead_rejects_query_field_drift(self) -> None:
+        count_index = {
+            "by_anchor": {
+                "laws": {
+                    "+1": Counter({"mothers": 12, "motion": 6}),
+                },
+                "physics": {
+                    "+1": Counter({"motion": 6}),
+                },
+                "mothers": {
+                    "+1": Counter({"children": 8, "american": 7, "however": 6}),
+                },
+                "motion": {
+                    "+1": Counter({"force": 8, "energy": 7, "physics": 3}),
+                },
+            }
+        }
+        active = build_active_cloud_frame(
+            count_index,
+            question_anchors=["why", "laws", "physics"],
+            rear_context=["laws", "physics"],
+            answer_so_far=[],
+            forward_context=[],
+            blocked={"laws", "physics"},
+            attention_frame=infer_attention_frame(["why", "laws", "physics"]),
+            top_k=6,
+        )
+
+        decision = choose_candidate_with_lookahead(
+            count_index,
+            active["candidates"],
+            seed_anchors=["laws", "physics"],
+            blocked={"laws", "physics"},
+            lookahead_k=3,
+        )
+
+        self.assertEqual(decision["chosen"]["anchor"], "motion")
+        rejected = {row["anchor"]: row for row in active["rejected_candidates"]}
+        self.assertEqual(rejected["mothers"]["reason"], "domain_field_drift")
+
     def test_clearspeak_answer_assembly_exposes_attention_frame(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"

@@ -196,7 +196,27 @@ def _walk_document_count_index(query_anchors: list[str], count_index: dict[str, 
             blocked=blocked | selected_anchors,
             lookahead_k=6,
         )
-        winner = lookahead_decision.get("chosen") or pool[0]
+        winner = lookahead_decision.get("chosen") or {}
+        if not winner:
+            trace.append({
+                "step": step + 1,
+                "chosen_anchor": "",
+                "stop_reason": lookahead_decision.get("stop_reason") or "no_healthy_query_field_path",
+                "lookahead_decision": lookahead_decision,
+                "candidate_preview": pool[:6],
+                "rejected_candidates": active_cloud.get("rejected_candidates") or [],
+            })
+            return {
+                "schema_version": "document_cloud_answer@1",
+                "seed_anchors": seeds,
+                "terms": selected,
+                "trace": trace,
+                "stop_reason": lookahead_decision.get("stop_reason") or "no_healthy_query_field_path",
+                "attention_frame": attention_frame,
+                "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
+                "attention_math": attention_math_contract(),
+                "count_source": str(count_index.get("count_source") or "source_local_document_cloud"),
+            }
         selected.append({**winner, "selection_step": step + 1})
         selected_anchors.add(winner["anchor"])
         before_rear = list(rear_context)
