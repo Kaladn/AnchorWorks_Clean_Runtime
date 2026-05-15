@@ -185,6 +185,28 @@ async function stopResponse() {
   }
 }
 
+async function runWorkbenchAction(actionId) {
+  const workflowId = state.lastWorkflow?.workflow_id || state.lastResult?.workflow?.workflow_id || "";
+  const responseId = state.lastAssistant?.message_uuid || "";
+  try {
+    const result = await api("/api/chat/action", {
+      method: "POST",
+      body: JSON.stringify({
+        action_id: actionId,
+        workflow_id: workflowId,
+        response_id: responseId,
+        payload: {},
+      }),
+    });
+    $("#chat-feed").insertAdjacentHTML(
+      "beforeend",
+      `<div class="card"><strong>${escapeHtml(result.status || actionId)}</strong><pre>${escapeHtml(result.message || "")}</pre></div>`
+    );
+  } catch (error) {
+    $("#chat-feed").insertAdjacentHTML("beforeend", `<div class="card error"><strong>Action failed</strong><pre>${escapeHtml(error.message)}</pre></div>`);
+  }
+}
+
 async function attachNote(messageId, day) {
   const text = prompt("Note for this block:");
   if (!text) return;
@@ -318,13 +340,15 @@ function wireEvents() {
   $("#chat-feed").addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
-    if (target.dataset.action === "continue_working") sendChat("Continue working.");
+    if (target.dataset.action === "continue_working") runWorkbenchAction("continue_working");
     if (target.dataset.action === "hide_evidence") {
       $("#evidence-toggle").checked = false;
+      runWorkbenchAction("hide_evidence");
       renderEvidence();
     }
     if (target.dataset.action === "show_evidence") {
       $("#evidence-toggle").checked = true;
+      runWorkbenchAction("show_evidence");
       renderEvidence();
     }
     if (target.dataset.note) attachNote(target.dataset.note, target.dataset.day || state.lastAssistant?.day || "");

@@ -38,7 +38,9 @@ class SettingsTruthTests(unittest.TestCase):
         self.assertIn("renderWorkbenchActions(result)", js)
         self.assertIn("data-action", js)
         self.assertIn("continue_working", js)
-        self.assertIn("sendChat(\"Continue working.\")", js)
+        self.assertIn("/api/chat/action", js)
+        self.assertIn("runWorkbenchAction(\"continue_working\")", js)
+        self.assertNotIn("sendChat(\"Continue working.\")", js)
         self.assertIn("target.dataset.action", js)
         self.assertNotIn("CARD_RECIPES", js)
 

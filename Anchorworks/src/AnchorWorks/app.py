@@ -133,6 +133,13 @@ class ChatStopBody(BaseModel):
     response_id: str = ""
 
 
+class ChatActionBody(BaseModel):
+    action_id: str
+    workflow_id: str = ""
+    response_id: str = ""
+    payload: dict[str, Any] = {}
+
+
 class ChatArchiveImportBody(BaseModel):
     archive_root: str
 
@@ -436,6 +443,47 @@ def create_app(data_root: Path | None = None) -> FastAPI:
             "response_id": response_id,
             "status": "interrupted",
             "writes_performed": False,
+        }
+
+    @app.post("/api/chat/action")
+    def chat_action(body: ChatActionBody | dict[str, Any]) -> dict[str, Any]:
+        if isinstance(body, dict):
+            action_id = str(body.get("action_id") or "")
+            workflow_id = str(body.get("workflow_id") or "")
+            response_id = str(body.get("response_id") or "")
+            payload = body.get("payload") if isinstance(body.get("payload"), dict) else {}
+        else:
+            action_id = body.action_id
+            workflow_id = body.workflow_id
+            response_id = body.response_id
+            payload = body.payload
+        allowed = {
+            "continue_working": {
+                "status": "awaiting_user_instruction",
+                "message": "Continue Working is ready. Enter the next instruction or choose another available control.",
+            },
+            "hide_evidence": {
+                "status": "evidence_hidden",
+                "message": "Evidence display hidden for this chat surface.",
+            },
+            "show_evidence": {
+                "status": "evidence_shown",
+                "message": "Evidence display shown for this chat surface.",
+            },
+        }
+        if action_id not in allowed:
+            raise HTTPException(status_code=400, detail=f"Unknown chat action: {action_id}")
+        result = allowed[action_id]
+        return {
+            "ok": True,
+            "action_id": action_id,
+            "workflow_id": workflow_id,
+            "response_id": response_id,
+            "payload": payload,
+            "status": result["status"],
+            "message": result["message"],
+            "writes_performed": False,
+            "chat_query_sent": False,
         }
 
     @app.post("/api/chat/archive/import")

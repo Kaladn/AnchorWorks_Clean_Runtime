@@ -1638,6 +1638,23 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result["status"], "interrupted")
             self.assertFalse(result["writes_performed"])
 
+    def test_chat_action_route_executes_continue_without_chat_query(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            app = create_app(Path(temp_dir) / "Lexical Data")
+            route = next(route for route in app.routes if getattr(route, "path", "") == "/api/chat/action")
+
+            result = route.endpoint({
+                "action_id": "continue_working",
+                "workflow_id": "chat_123",
+                "response_id": "resp_123",
+                "payload": {},
+            })
+
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["status"], "awaiting_user_instruction")
+            self.assertFalse(result["writes_performed"])
+            self.assertFalse(result["chat_query_sent"])
+
     def test_chat_ui_exposes_workbench_controls(self) -> None:
         ui_root = _anchorworks_repo_root() / "UI"
         index_html = (ui_root / "index.html").read_text(encoding="utf-8")
@@ -1649,6 +1666,8 @@ class MappingTests(unittest.TestCase):
         self.assertIn("Evidence", index_html)
         self.assertIn("continue_working", app_js)
         self.assertIn("/api/chat/stop", app_js)
+        self.assertIn("/api/chat/action", app_js)
+        self.assertNotIn('sendChat("Continue working.")', app_js)
         self.assertNotIn("/api/lexicon/symbolic-maps", app_js)
         self.assertNotIn("Symbolic Maps", index_html)
 
