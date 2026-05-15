@@ -1627,6 +1627,40 @@ class MappingTests(unittest.TestCase):
             self.assertFalse(assistant["model_identity"]["evidence_visible"])
             self.assertEqual(assistant["workbench"]["workflow"]["workflow_id"], result["workflow"]["workflow_id"])
 
+    def test_chat_send_treats_long_document_payload_as_intake_material_not_query(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            _write_json(root / "Canonical" / "canonical_H.json", [{"word": "here's", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "deal", "status": "ASSIGNED"}])
+            _write_json(root / "Canonical" / "canonical_E.json", [{"word": "energy", "status": "ASSIGNED"}])
+            _write_json(root / "Spare_Slots" / "spare_slots.json", self._shared_spares(10))
+            _write_json(root / "Structural" / "structural.json", [])
+            store = LexiconStore(root)
+            _write_count_read_fixture(
+                store,
+                [{"anchor": "here's", "offset": "+1", "neighbor": "energy", "observations": 99}],
+                observed_counts=Counter({"here's": 1, "energy": 1}),
+            )
+            app = create_app(root)
+            route = next(route for route in app.routes if getattr(route, "path", "") == "/api/chat/send")
+            payload = (
+                "Here's the deal. This is the story behind Lee and coding. "
+                "We do not split words. We use anchors. "
+                "No substitute lexicon. No fake lexicon. No hidden splitting. "
+                "No grammar logic. No stop-word logic. No crossing paragraph blocks.\n\n"
+                "```text\nanchors -> 6-1-6 windows -> counts -> context clouds\n```\n"
+            ) * 8
+
+            result = route.endpoint(ChatSendBody(message=payload, mode="clearspeak", branch="main"))
+
+            self.assertEqual(result["mode"], "document_payload")
+            self.assertIn("document-shaped payload", result["response"])
+            self.assertNotIn("energy", result["response"])
+            self.assertEqual(result["clearspeak"]["engine"], "chat_document_payload_guard")
+            self.assertTrue(result["clearspeak"]["contract"]["clearspeak_count_walk_skipped"])
+
     def test_chat_stop_route_marks_response_interrupted_without_writes(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             app = create_app(Path(temp_dir) / "Lexical Data")

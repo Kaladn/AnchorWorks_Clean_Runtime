@@ -235,7 +235,27 @@ class ChatMemorySystem:
         clearspeak_payload: dict[str, Any] | None = None
         model_api_payload: dict[str, Any] | None = None
         citations: list[dict[str, Any]] = []
-        if mode_name in {"counts", "count"}:
+        document_payload_shape = _document_payload_shape(clean_message)
+        if document_payload_shape["is_document_payload"] and mode_name not in {"api", "external", "model"}:
+            response = _document_payload_response(document_payload_shape)
+            clearspeak_payload = {
+                "schema_version": "anchorworks_chat_document_payload@1",
+                "response": response,
+                "evidence_mode": "document_payload",
+                "engine": "chat_document_payload_guard",
+                "document_payload_shape": document_payload_shape,
+                "contract": {
+                    "document_payload_is_not_query": True,
+                    "clearspeak_count_walk_skipped": True,
+                    "memory_writes": False,
+                    "intake_writes": False,
+                },
+            }
+            actor = "clearspeak"
+            engine = "chat_document_payload_guard"
+            provider = "anchorworks"
+            mode_name = "document_payload"
+        elif mode_name in {"counts", "count"}:
             clearspeak_result = self.clearspeak.query(clean_message)
             clearspeak_payload = clearspeak_result.to_dict()
             clearspeak_payload["evidence_mode"] = "counts"
@@ -767,6 +787,40 @@ def _search_terms(value: Any) -> list[str]:
         seen.add(term)
         terms.append(term)
     return terms
+
+
+def _document_payload_shape(message: str) -> dict[str, Any]:
+    text = str(message or "").strip()
+    lines = [line for line in text.splitlines() if line.strip()]
+    terms = _search_terms(text)
+    code_fences = text.count("```")
+    sentence_marks = sum(text.count(mark) for mark in [".", "?", "!"])
+    is_document = (
+        len(text) >= 1200
+        or len(lines) >= 12
+        or code_fences >= 2
+        or (len(text) >= 700 and sentence_marks >= 8 and len(terms) >= 80)
+    )
+    return {
+        "schema_version": "anchorworks_chat_document_payload_shape@1",
+        "is_document_payload": bool(is_document),
+        "char_count": len(text),
+        "line_count": len(lines),
+        "anchor_like_term_count": len(terms),
+        "code_fence_count": code_fences,
+        "sentence_mark_count": sentence_marks,
+        "law": "Document-shaped chat input is intake material, not a ClearSpeak query over the first anchors.",
+    }
+
+
+def _document_payload_response(shape: dict[str, Any]) -> str:
+    return (
+        "I recognized this as a document-shaped payload, not a question. "
+        "I did not run ClearSpeak over the first words. "
+        "Use the intake path to anchorize, map, and count it when you want it written into the substrate. "
+        f"Payload shape: {shape.get('char_count', 0)} chars, {shape.get('line_count', 0)} nonblank lines, "
+        f"{shape.get('anchor_like_term_count', 0)} anchor-like terms."
+    )
 
 
 def _utc_now() -> str:
