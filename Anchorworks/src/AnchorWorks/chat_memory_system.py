@@ -185,7 +185,7 @@ class ChatMemorySystem:
             engine = "clearspeak_counts"
             provider = "anchorworks"
             mode_name = "counts"
-        elif mode_name in {"clearspeak", "auto", "documents", "document", "maps", "mapped", "mapped_documents"}:
+        elif mode_name in {"auto", "documents", "document", "maps", "mapped", "mapped_documents"}:
             requested_documents = mode_name in {"documents", "document", "maps", "mapped", "mapped_documents"}
             document_result = self.document_answer.answer(clean_message)
             document_payload = document_result.to_dict()

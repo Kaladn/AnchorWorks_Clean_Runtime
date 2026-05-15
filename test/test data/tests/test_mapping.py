@@ -614,7 +614,7 @@ class MappingTests(unittest.TestCase):
 
             result = ClearSpeakService(store).query("alpha", limit=3)
 
-            self.assertEqual(result.speech, "beta gamma delta")
+            self.assertEqual(result.speech, "The active path connects alpha with beta, gamma, and delta.")
             self.assertEqual(result.evidence[0]["anchor"], "alpha")
             self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
             self.assertEqual(result.answer_assembly["trace"][0]["lookahead_decision"]["chosen"]["pattern_health"], "healthy")
@@ -657,7 +657,7 @@ class MappingTests(unittest.TestCase):
 
             result = ClearSpeakService(store).query("alpha", limit=2)
 
-            self.assertEqual(result.speech, "beta gamma")
+            self.assertEqual(result.speech, "The active path connects alpha with beta and gamma.")
             self.assertEqual(result.evidence[0]["anchor"], "alpha")
             self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
             self.assertTrue(result.answer_assembly["terms"])
@@ -1105,7 +1105,7 @@ class MappingTests(unittest.TestCase):
 
             self.assertEqual(result["represented_anchors"], ["stop"])
             self.assertEqual(result["missing_anchors"], ["mystery"])
-            self.assertEqual(result["speech"], "not")
+            self.assertEqual(result["speech"], "The active path connects stop with not.")
             self.assertEqual(result["citations"][0]["coord"], "clearspeak:lifetime:stop")
             self.assertIn("stop: not (4)", result["response"])
             self.assertEqual(before, after)
@@ -1156,8 +1156,8 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(len(history["messages"]), 2)
             self.assertEqual(history["messages"][0]["sender"], "user")
             self.assertEqual(history["messages"][1]["sender"], "assistant")
-            self.assertEqual(history["messages"][1]["content"], "not")
-            self.assertEqual(result.response, "not")
+            self.assertEqual(history["messages"][1]["content"], "The active path connects stop with not.")
+            self.assertEqual(result.response, "The active path connects stop with not.")
             self.assertEqual(status["chat_messages"], 2)
             self.assertEqual(status["citations"], 1)
             self.assertTrue(history["citations_by_block"])
@@ -1479,7 +1479,7 @@ class MappingTests(unittest.TestCase):
             assistant = history["messages"][-1]
 
             self.assertEqual(result.mode, "documents")
-            self.assertEqual(result.response, "requires shielding grounding")
+            self.assertEqual(result.response, "The active path connects emp and defense with requires, shielding, and grounding.")
             self.assertIn("The source document supports", result.clearspeak["response"])
             self.assertIn("block 1, line 3", result.clearspeak["response"])
             self.assertEqual(assistant["model_identity"]["evidence_mode"], "documents")
@@ -1520,7 +1520,7 @@ class MappingTests(unittest.TestCase):
             chat = ChatMemorySystem(root, ClearSpeakService(store))
             result = chat.send("emp defense", mode="documents", branch="main")
 
-            self.assertEqual(result.response, "requires shielding grounding")
+            self.assertEqual(result.response, "The active path connects emp and defense with requires, shielding, and grounding.")
             self.assertIn("block 1, line 3", result.clearspeak["response"])
             self.assertIn("figure vis_emp_graph", result.clearspeak["response"])
             self.assertEqual(result.clearspeak["answer_assembly"]["count_source"], "local_meta_overlay")
@@ -1547,7 +1547,7 @@ class MappingTests(unittest.TestCase):
             assistant = chat.history(branch="main")["messages"][-1]
 
             self.assertEqual(result.mode, "counts")
-            self.assertEqual(result.response, "not")
+            self.assertEqual(result.response, "The active path connects stop with not.")
             self.assertIn("stop: not (4)", result.clearspeak["response"])
             self.assertNotIn("Chat memory received", result.response)
             self.assertEqual(assistant["model_identity"]["evidence_mode"], "counts")
@@ -2446,4 +2446,5 @@ class MappingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 

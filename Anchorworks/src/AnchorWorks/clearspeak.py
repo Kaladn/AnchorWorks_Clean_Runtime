@@ -21,6 +21,7 @@ from .clearspeak_attention import (
     rank_attention_candidates,
     retrieve_from_count_index,
 )
+from .answer_surface import render_anchor_answer_surface
 from .intake import extract_anchors
 from .lifetime_symbol_mirror import load_lifetime_by_symbol_dir
 from .symbol_count_cells import read_symbol_cell
@@ -144,7 +145,12 @@ class ClearSpeakService:
             if isinstance(row, dict) and str(row.get("anchor") or "").strip()
         ]
         if terms:
-            return " ".join(terms)
+            return render_anchor_answer_surface(
+                represented,
+                answer_assembly,
+                fallback_subjects=represented,
+                source_label="count path",
+            )
         if represented:
             return "I recognize " + ", ".join(represented) + ", but I do not have count support yet."
         if missing:

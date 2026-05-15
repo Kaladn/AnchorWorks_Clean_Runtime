@@ -12,6 +12,7 @@ from .clearspeak_attention import (
     content_anchors,
     infer_attention_frame,
 )
+from .answer_surface import render_anchor_answer_surface
 from .intake import extract_anchors
 from .local_meta_overlay import query_local_overlay_cloud, renderer_cloud_input
 
@@ -66,7 +67,7 @@ class DocumentAnswerAssembler:
             if overlays
             else build_document_cloud_answer(focus_anchors, passages, limit=limit)
         )
-        speech = render_answer_assembly_speech(answer_assembly) or response
+        speech = render_answer_assembly_speech(focus_anchors, answer_assembly) or response
         return DocumentAnswerResult(
             ok=bool(passages),
             query=query_text,
@@ -233,13 +234,13 @@ def _walk_document_count_index(query_anchors: list[str], count_index: dict[str, 
     }
 
 
-def render_answer_assembly_speech(answer_assembly: dict[str, Any]) -> str:
-    terms = [
-        str(row.get("anchor") or "").strip()
-        for row in answer_assembly.get("terms", [])
-        if isinstance(row, dict) and str(row.get("anchor") or "").strip()
-    ]
-    return " ".join(terms)
+def render_answer_assembly_speech(query_anchors: list[str], answer_assembly: dict[str, Any]) -> str:
+    return render_anchor_answer_surface(
+        query_anchors,
+        answer_assembly,
+        fallback_subjects=query_anchors,
+        source_label="document cloud path",
+    )
 
 
 def _document_passage_count_index(passages: list[dict[str, Any]], *, window_radius: int = 6) -> dict[str, Any]:
