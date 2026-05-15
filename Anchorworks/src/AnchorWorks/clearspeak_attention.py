@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+from .question_frame_inducer import induce_question_frame
+
 
 ATTENTION_CONTRACT = "anchorworks_clearspeak_attention@1"
 ATTENTION_LAW = "Counts store weight; context clouds store neighborhood; attention chooses relevance."
@@ -647,6 +649,7 @@ def attention_math_contract() -> dict[str, Any]:
 def infer_attention_frame(anchors: list[str], phrase_field: dict[str, Any] | None = None) -> dict[str, Any]:
     observed = [str(anchor or "").strip().casefold() for anchor in anchors if str(anchor or "").strip()]
     frame_type = _frame_type(observed)
+    learned_frame = induce_question_frame(" ".join(observed)) if observed else {}
     content = content_anchors(observed)
     role_by_anchor: dict[str, str] = {}
     role_trace: list[dict[str, str]] = []
@@ -678,6 +681,7 @@ def infer_attention_frame(anchors: list[str], phrase_field: dict[str, Any] | Non
         "role_by_anchor": role_by_anchor,
         "role_trace": role_trace,
         "authority": "runtime_attention_shape",
+        "learned_question_frame": learned_frame,
         "writes_allowed": {
             "maps": False,
             "counts": False,

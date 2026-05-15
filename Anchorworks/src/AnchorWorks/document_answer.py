@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from collections import Counter
+import re
 from typing import Any
 
 from .clearspeak_attention import (
@@ -53,21 +54,17 @@ class DocumentAnswerAssembler:
             query_anchors=focus_anchors,
             max_files=4096,
         )
-        if not evidence.get("source_passages"):
-            evidence = self.store.search_observed_map_evidence(focus_anchors, query_anchors=focus_anchors, map_limit=12)
+        passage_limit = max(12, int(limit or 6) * 2)
         passages = [
             row for row in evidence.get("source_passages") or []
             if isinstance(row, dict) and str(row.get("text") or "").strip()
-        ][: max(1, int(limit or 6))]
-        citations = [_citation_for_passage(row) for row in passages[:3]]
-        response = render_document_passages(passages[:3])
+        ][:passage_limit]
         overlays = self._load_local_overlays(passages)
-        answer_assembly = (
-            build_document_overlay_answer(focus_anchors, overlays, limit=limit)
-            if overlays
-            else build_document_cloud_answer(focus_anchors, passages, limit=limit)
-        )
-        speech = render_answer_assembly_speech(focus_anchors, answer_assembly) or response
+        answer_assembly = build_document_grounded_answer(focus_anchors, passages, overlays, limit=limit)
+        evidence_passages = _evidence_passages_for_answer(passages, answer_assembly)
+        citations = [_citation_for_passage(row) for row in evidence_passages[:3]]
+        response = render_document_passages(evidence_passages[:3])
+        speech = render_grounded_document_answer(query_text, focus_anchors, passages, answer_assembly) or response
         return DocumentAnswerResult(
             ok=bool(passages),
             query=query_text,
@@ -149,6 +146,39 @@ def build_document_overlay_answer(query_anchors: list[str], overlays: list[dict[
     answer = _walk_document_count_index(query_anchors, count_index, limit=limit)
     answer["source_local_cloud"] = count_index.get("source_local_cloud") or {}
     answer["renderer_cloud_input"] = count_index.get("renderer_cloud_input") or {}
+    return answer
+
+
+def build_document_grounded_answer(
+    query_anchors: list[str],
+    passages: list[dict[str, Any]],
+    overlays: list[dict[str, Any]],
+    *,
+    limit: int = 6,
+) -> dict[str, Any]:
+    fact_count_index = _document_passage_count_index(passages)
+    overlay_count_index = _document_overlay_count_index(query_anchors, overlays) if overlays else {}
+    count_index = _merge_document_count_indexes(fact_count_index, overlay_count_index)
+    answer = _walk_document_count_index(query_anchors, count_index, limit=limit)
+    answer["count_source"] = "flat_fact_6_1_6_plus_local_overlay" if overlays else "flat_fact_6_1_6"
+    answer["source_local_cloud"] = overlay_count_index.get("source_local_cloud") or {}
+    answer["renderer_cloud_input"] = overlay_count_index.get("renderer_cloud_input") or {}
+    answer["gathered_fact_frame"] = _gathered_fact_frame(query_anchors, passages, answer)
+    answer["pipeline"] = [
+        "lexicon_anchor_verification",
+        "flat_document_fact_gathering",
+        "source_local_6_1_6_overlay",
+        "count_topk_answer_walk",
+        "human_rendered_text_at_edge",
+    ]
+    answer["contract"] = {
+        "flat_documents_gather_facts": True,
+        "observed_map_json_runtime_search": False,
+        "counts_assemble_final_path": True,
+        "topk_selection_not_random": True,
+        "speech_uses_gathered_fact_frame": True,
+        "memory_writes": False,
+    }
     return answer
 
 
@@ -263,6 +293,22 @@ def render_answer_assembly_speech(query_anchors: list[str], answer_assembly: dic
     )
 
 
+def render_grounded_document_answer(
+    query: str,
+    query_anchors: list[str],
+    passages: list[dict[str, Any]],
+    answer_assembly: dict[str, Any],
+) -> str:
+    frame = answer_assembly.get("gathered_fact_frame") if isinstance(answer_assembly.get("gathered_fact_frame"), dict) else {}
+    selected = frame.get("selected_fact") if isinstance(frame.get("selected_fact"), dict) else {}
+    text = str(selected.get("answer_text") or "").strip()
+    if not text:
+        text = _best_fact_text(query, query_anchors, passages, answer_assembly)
+    if not text:
+        return render_answer_assembly_speech(query_anchors, answer_assembly)
+    return _clean_fact_answer_text(text)
+
+
 def _document_passage_count_index(passages: list[dict[str, Any]], *, window_radius: int = 6) -> dict[str, Any]:
     by_anchor: dict[str, dict[str, Counter[str]]] = {}
     for row in passages:
@@ -315,6 +361,160 @@ def _document_overlay_count_index(query_anchors: list[str], overlays: list[dict[
     }
 
 
+def _merge_document_count_indexes(*indexes: dict[str, Any]) -> dict[str, Any]:
+    merged: dict[str, dict[str, Counter[str]]] = {}
+    sources: list[str] = []
+    for index in indexes:
+        if not isinstance(index, dict):
+            continue
+        source = str(index.get("count_source") or "").strip()
+        if source and source not in sources:
+            sources.append(source)
+        for anchor, offsets in (index.get("by_anchor") or {}).items():
+            clean_anchor = str(anchor or "").strip().casefold()
+            if not clean_anchor or not isinstance(offsets, dict):
+                continue
+            for offset, rows in offsets.items():
+                clean_offset = str(offset or "")
+                if not clean_offset:
+                    continue
+                for neighbor, count in Counter(rows or {}).items():
+                    clean_neighbor = str(neighbor or "").strip().casefold()
+                    value = int(count or 0)
+                    if clean_neighbor and value > 0:
+                        merged.setdefault(clean_anchor, {}).setdefault(clean_offset, Counter())[clean_neighbor] += value
+    return {
+        "by_anchor": merged,
+        "count_source": "+".join(sources) if sources else "flat_fact_6_1_6",
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
+def _gathered_fact_frame(
+    query_anchors: list[str],
+    passages: list[dict[str, Any]],
+    answer_assembly: dict[str, Any],
+) -> dict[str, Any]:
+    terms = [
+        str(row.get("anchor") or "").strip().casefold()
+        for row in answer_assembly.get("terms") or []
+        if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+    ]
+    candidates = _fact_candidates(query_anchors, passages, terms)
+    return {
+        "schema_version": "anchorworks_gathered_fact_frame@1",
+        "query_anchors": _ordered_unique([str(anchor or "").strip().casefold() for anchor in query_anchors if str(anchor or "").strip()]),
+        "answer_path_terms": _ordered_unique(terms),
+        "selected_fact": candidates[0] if candidates else {},
+        "candidate_facts": candidates[:6],
+        "law": "Flat documents gather source facts; counts/top-K choose the answer path inside that gathered field.",
+    }
+
+
+def _best_fact_text(
+    query: str,
+    query_anchors: list[str],
+    passages: list[dict[str, Any]],
+    answer_assembly: dict[str, Any],
+) -> str:
+    terms = [
+        str(row.get("anchor") or "").strip().casefold()
+        for row in answer_assembly.get("terms") or []
+        if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+    ]
+    candidates = _fact_candidates(query_anchors or extract_anchors(query), passages, terms)
+    if not candidates:
+        return ""
+    return str(candidates[0].get("answer_text") or "")
+
+
+def _fact_candidates(query_anchors: list[str], passages: list[dict[str, Any]], answer_terms: list[str]) -> list[dict[str, Any]]:
+    query_set = {
+        str(anchor or "").strip().casefold()
+        for anchor in query_anchors
+        if str(anchor or "").strip()
+    }
+    term_set = {
+        str(anchor or "").strip().casefold()
+        for anchor in answer_terms
+        if str(anchor or "").strip()
+    }
+    candidates: list[dict[str, Any]] = []
+    for passage_index, passage in enumerate(passages):
+        raw = str(passage.get("raw_block_text") or passage.get("text") or "").strip()
+        for answer_text, kind, score_text in _extract_fact_texts(raw):
+            anchors = set(extract_anchors(score_text or answer_text))
+            answer_anchors = set(extract_anchors(answer_text))
+            query_hits = anchors & query_set
+            term_hits = (anchors | answer_anchors) & term_set
+            score = (
+                len(query_hits) * 100.0
+                + len(term_hits) * 35.0
+                + float(passage.get("score", 0.0) or 0.0) / 10.0
+                + (75.0 if kind == "qa_answer" else 0.0)
+                + (40.0 if kind == "compact_answer" else 0.0)
+            )
+            if not anchors:
+                continue
+            candidates.append({
+                "answer_text": answer_text,
+                "kind": kind,
+                "score": round(score, 6),
+                "passage_index": passage_index,
+                "source_name": str(passage.get("source_name") or ""),
+                "block_id": int(passage.get("block_id", passage.get("paragraph_id", 0)) or 0),
+                "line_start": int(passage.get("line_start", 0) or 0),
+                "line_end": int(passage.get("line_end", 0) or 0),
+                "query_hits": sorted(query_hits),
+                "answer_path_hits": sorted(term_hits),
+            })
+    candidates.sort(key=lambda row: (-float(row["score"]), int(row["passage_index"]), int(row["block_id"]), str(row["answer_text"])))
+    return candidates
+
+
+def _extract_fact_texts(text: str) -> list[tuple[str, str, str]]:
+    clean = " ".join(str(text or "").split())
+    if not clean:
+        return []
+    out: list[tuple[str, str, str]] = []
+    for match in re.finditer(r"Question:\s*(.+?)\s+Answer:\s*(.+?)(?=(?:\s+Question:)|$)", clean):
+        question_text = _clean_fact_answer_text(match.group(1), max_chars=240)
+        answer = _clean_fact_answer_text(match.group(2))
+        if answer:
+            out.append((answer, "qa_answer", f"{question_text} {answer}"))
+    if "Compact Answer Field" in clean:
+        compact = clean.split("Compact Answer Field", 1)[-1]
+        compact = _clean_fact_answer_text(compact)
+        if compact:
+            out.append((compact, "compact_answer", compact))
+    if not out and not _heading_only_fact(clean):
+        block = _clean_fact_answer_text(clean)
+        out.append((block, "source_block", block))
+    return out
+
+
+def _heading_only_fact(text: str) -> bool:
+    clean = str(text or "").strip()
+    if not clean:
+        return True
+    lowered = clean.casefold().lstrip("# ").strip()
+    if clean.startswith("#") or lowered.startswith(("lesson ", "answered checks", "compact answer field")):
+        content_count = len([anchor for anchor in extract_anchors(clean) if any(char.isalpha() for char in anchor)])
+        return content_count <= 8
+    return False
+
+
+def _clean_fact_answer_text(text: str, max_chars: int = 420) -> str:
+    clean = " ".join(str(text or "").split())
+    clean = clean.replace("Question:", "").replace("Answer:", "").strip(" -")
+    if not clean:
+        return ""
+    if len(clean) <= max_chars:
+        return clean
+    cut = clean[:max_chars].rsplit(" ", 1)[0].rstrip(" ,;:")
+    return cut + "."
+
+
 def _passage_with_locator(row: dict[str, Any]) -> str:
     text = _clean_passage_sentence(str(row.get("text") or ""))
     if not text:
@@ -326,6 +526,36 @@ def _passage_with_locator(row: dict[str, Any]) -> str:
         line_label = f"line {line_start}" if line_start == line_end else f"lines {line_start}-{line_end}"
         return f"{text} (block {block_id}, {line_label}{_visual_ref_suffix(row)})"
     return f"{text} (block {block_id}{_visual_ref_suffix(row)})"
+
+
+def _evidence_passages_for_answer(
+    passages: list[dict[str, Any]],
+    answer_assembly: dict[str, Any],
+) -> list[dict[str, Any]]:
+    frame = answer_assembly.get("gathered_fact_frame") if isinstance(answer_assembly.get("gathered_fact_frame"), dict) else {}
+    ordered_indexes: list[int] = []
+    selected = frame.get("selected_fact") if isinstance(frame.get("selected_fact"), dict) else {}
+    if selected:
+        ordered_indexes.append(int(selected.get("passage_index", -1) or -1))
+    for candidate in frame.get("candidate_facts") or []:
+        if isinstance(candidate, dict):
+            ordered_indexes.append(int(candidate.get("passage_index", -1) or -1))
+    selected_passages: list[dict[str, Any]] = []
+    seen: set[int] = set()
+    for index in ordered_indexes:
+        if index < 0 or index >= len(passages) or index in seen:
+            continue
+        seen.add(index)
+        selected_passages.append(passages[index])
+    for index, passage in enumerate(passages):
+        if index in seen:
+            continue
+        raw = str(passage.get("raw_block_text") or passage.get("text") or "")
+        if _heading_only_fact(raw):
+            continue
+        seen.add(index)
+        selected_passages.append(passage)
+    return selected_passages or passages
 
 
 def _citation_for_passage(row: dict[str, Any]) -> dict[str, Any]:

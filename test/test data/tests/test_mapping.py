@@ -1525,16 +1525,19 @@ class MappingTests(unittest.TestCase):
             )
 
             store = LexiconStore(root)
-            store.build_observed_map(source_path)
+            observed = store.build_observed_map(source_path)
+            store.build_flat_runtime_from_observed_map(observed["saved_map_name"])
             chat = ChatMemorySystem(root, ClearSpeakService(store))
             result = chat.send("emp defense", mode="documents", branch="main")
             history = chat.history(branch="main")
             assistant = history["messages"][-1]
 
             self.assertEqual(result.mode, "documents")
-            self.assertEqual(result.response, "The active path connects emp and defense with requires, shielding, and grounding.")
+            self.assertEqual(result.response, "EMP defense requires shielding and grounding.")
             self.assertIn("The source document supports", result.clearspeak["response"])
             self.assertIn("block 1, line 3", result.clearspeak["response"])
+            self.assertEqual(result.clearspeak["answer_assembly"]["contract"]["flat_documents_gather_facts"], True)
+            self.assertEqual(result.clearspeak["answer_assembly"]["contract"]["counts_assemble_final_path"], True)
             self.assertEqual(assistant["model_identity"]["evidence_mode"], "documents")
             self.assertEqual(assistant["model_identity"]["evidence_engine"], "document_answer_assembler")
             self.assertEqual(result.citations[0]["citation_type"], "source_locator")
@@ -1573,10 +1576,10 @@ class MappingTests(unittest.TestCase):
             chat = ChatMemorySystem(root, ClearSpeakService(store))
             result = chat.send("emp defense", mode="documents", branch="main")
 
-            self.assertEqual(result.response, "The active path connects emp and defense with requires, shielding, and grounding.")
+            self.assertEqual(result.response, "EMP defense requires shielding and grounding.")
             self.assertIn("block 1, line 3", result.clearspeak["response"])
             self.assertIn("figure vis_emp_graph", result.clearspeak["response"])
-            self.assertEqual(result.clearspeak["answer_assembly"]["count_source"], "local_meta_overlay")
+            self.assertEqual(result.clearspeak["answer_assembly"]["count_source"], "flat_fact_6_1_6_plus_local_overlay")
             self.assertEqual(result.evidence["runtime_source"], "flat_symbolic_documents")
             self.assertEqual(result.citations[0]["source"], "flat_symbolic_document")
 

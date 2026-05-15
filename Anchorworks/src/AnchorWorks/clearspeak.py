@@ -365,10 +365,12 @@ class ClearSpeakService:
             )
             pool = active_cloud["candidates"]
             if not pool:
+                answer_path = _answer_path_from_trace(trace)
                 return {
                     "schema_version": "clearspeak_active_cloud_answer@1",
                     "seed_anchors": seeds,
                     "terms": selected,
+                    "answer_path": answer_path,
                     "trace": trace,
                     "stop_reason": "no_supported_candidate" if selected else "no_candidate_pool",
                     "attention_frame": attention_frame,
@@ -398,12 +400,15 @@ class ClearSpeakService:
                         "combined_cloud_formula": active_cloud["combined_cloud_formula"],
                     },
                     "candidate_preview": pool[:6],
+                    "topk_choices": _topk_choices(lookahead_decision),
                     "rejected_candidates": active_cloud.get("rejected_candidates") or [],
                 })
+                answer_path = _answer_path_from_trace(trace)
                 return {
                     "schema_version": "clearspeak_active_cloud_answer@1",
                     "seed_anchors": seeds,
                     "terms": selected,
+                    "answer_path": answer_path,
                     "trace": trace,
                     "stop_reason": lookahead_decision.get("stop_reason") or "no_healthy_query_field_path",
                     "length_policy": length_policy,
@@ -446,13 +451,16 @@ class ClearSpeakService:
                     "combined_cloud_formula": active_cloud["combined_cloud_formula"],
                 },
                 "candidate_preview": pool[:6],
+                "topk_choices": _topk_choices(lookahead_decision),
                 "rejected_candidates": active_cloud.get("rejected_candidates") or [],
             })
             if length_state["stop_allowed"] and length_state["reason"] == "stop_allowed":
+                answer_path = _answer_path_from_trace(trace)
                 return {
                     "schema_version": "clearspeak_active_cloud_answer@1",
                     "seed_anchors": seeds,
                     "terms": selected,
+                    "answer_path": answer_path,
                     "trace": trace,
                     "stop_reason": "frame_satisfied_after_target",
                     "length_policy": length_policy,
@@ -464,10 +472,12 @@ class ClearSpeakService:
                 }
 
         final_slot_state = answer_slot_state(attention_frame, seeds, answer_so_far)
+        answer_path = _answer_path_from_trace(trace)
         return {
             "schema_version": "clearspeak_active_cloud_answer@1",
             "seed_anchors": seeds,
             "terms": selected,
+            "answer_path": answer_path,
             "trace": trace,
             "stop_reason": "answer_limit_reached",
             "length_policy": length_policy,
@@ -512,6 +522,8 @@ def _answer_assembly_contract() -> dict[str, bool]:
         "question_rear_answer_forward_clouds": True,
         "trace_explains_speech": True,
         "topk_is_walked_not_displayed": True,
+        "speech_uses_answer_path": True,
+        "answer_path_preserves_topk_choices": True,
         "selected_terms_reenter_context": True,
         "punctuation_cannot_speak": True,
         "numbers_cannot_speak": True,
@@ -546,6 +558,12 @@ def _empty_answer_assembly(reason: str) -> dict[str, Any]:
         "schema_version": "clearspeak_active_cloud_answer@1",
         "seed_anchors": [],
         "terms": [],
+        "answer_path": {
+            "schema_version": "anchorworks_topk_answer_path@1",
+            "chosen_anchors": [],
+            "steps": [],
+            "law": "Speech renders the walked top-K answer path, not a flattened candidate pile.",
+        },
         "trace": [],
         "stop_reason": reason,
         "attention_frame": infer_attention_frame([]),
@@ -582,3 +600,46 @@ def _ordered_unique(values: list[str]) -> list[str]:
         seen.add(value)
         out.append(value)
     return out
+
+
+def _topk_choices(lookahead_decision: dict[str, Any], limit: int = 6) -> list[dict[str, Any]]:
+    choices: list[dict[str, Any]] = []
+    for row in lookahead_decision.get("candidates") or []:
+        if not isinstance(row, dict):
+            continue
+        anchor = str(row.get("anchor") or "").strip()
+        if not anchor:
+            continue
+        choices.append({
+            "anchor": anchor,
+            "candidate_rank": int(row.get("candidate_rank", len(choices) + 1) or len(choices) + 1),
+            "final_score": float(row.get("final_score", row.get("score", 0.0)) or 0.0),
+            "pattern_health": str(row.get("pattern_health") or ""),
+            "rejected_reason": str(row.get("rejected_reason") or ""),
+        })
+        if len(choices) >= max(1, int(limit or 6)):
+            break
+    return choices
+
+
+def _answer_path_from_trace(trace: list[dict[str, Any]]) -> dict[str, Any]:
+    steps: list[dict[str, Any]] = []
+    chosen: list[str] = []
+    for row in trace:
+        anchor = str(row.get("chosen_anchor") or row.get("selected_anchor") or "").strip()
+        if anchor:
+            chosen.append(anchor)
+        steps.append({
+            "step": int(row.get("step", len(steps) + 1) or len(steps) + 1),
+            "chosen_anchor": anchor,
+            "candidate_rank": int(row.get("candidate_rank", 0) or 0),
+            "topk_choices": row.get("topk_choices") or [],
+            "forward_context_after": row.get("forward_context_after") or [],
+            "rear_context_after": row.get("rear_context_after") or [],
+        })
+    return {
+        "schema_version": "anchorworks_topk_answer_path@1",
+        "chosen_anchors": chosen,
+        "steps": steps,
+        "law": "Speech renders the walked top-K answer path, not a flattened candidate pile.",
+    }
