@@ -15,6 +15,15 @@ SURFACE_GLUE = {
     "is", "are", "was", "were", "be", "being", "been", "do", "does", "did",
     "can", "could", "should", "would", "may", "might", "must",
 }
+SURFACE_CONNECTORS = {
+    "and", "or",
+    "of", "to", "for", "from", "in", "into", "on", "with", "within", "through", "between", "by", "as",
+}
+SUBJECT_BOUNDARY_CONNECTORS = {"about", "around", "regarding", "concerning"}
+SURFACE_AUXILIARY = {
+    "is", "are", "was", "were", "be", "being", "been", "do", "does", "did",
+    "can", "could", "should", "would", "may", "might", "must",
+}
 
 
 def render_anchor_answer_surface(
@@ -27,19 +36,19 @@ def render_anchor_answer_surface(
     """Render a chosen AnchorWorks answer path as speech without inventing facts."""
 
     observed = _clean_list(query_anchors)
-    subjects = _content_subjects(observed) or _content_subjects(fallback_subjects or [])
-    terms = _answer_terms(answer_assembly)
+    subjects = _subject_surface(observed) or _subject_surface(_clean_list(fallback_subjects or []))
+    terms = _answer_surface_terms(answer_assembly)
     if not terms:
         return ""
 
-    subject_text = _human_join(subjects[:3]) if subjects else "the query"
+    subject_text = subjects or "the query"
     term_text = _human_join(terms[:8])
     frame = _frame_type(observed)
 
     if frame == "why":
-        return f"For {subject_text}, the {source_label} points toward {term_text}."
+        return f"The answer path around {subject_text} points toward {term_text}."
     if frame == "how":
-        return f"For {subject_text}, the {source_label} moves through {term_text}."
+        return f"The answer path for {subject_text} moves through {term_text}."
     if frame == "what":
         return f"{subject_text.capitalize()} is most strongly connected with {term_text}."
     if frame == "agreement":
@@ -55,6 +64,16 @@ def _answer_terms(answer_assembly: dict[str, Any]) -> list[str]:
         if str(row.get("anchor") or "").strip()
     ]
     return _ordered_unique([term for term in terms if not _blocked_surface_anchor(term)])
+
+
+def _answer_surface_terms(answer_assembly: dict[str, Any]) -> list[str]:
+    rows = [row for row in answer_assembly.get("terms", []) if isinstance(row, dict)]
+    terms = [
+        str(row.get("anchor") or "").strip().casefold()
+        for row in rows
+        if str(row.get("anchor") or "").strip()
+    ]
+    return _ordered_unique([term for term in terms if not _blocked_answer_term(term)])
 
 
 def _frame_type(anchors: list[str]) -> str:
@@ -78,6 +97,48 @@ def _content_subjects(anchors: list[str]) -> list[str]:
         for anchor in _clean_list(anchors)
         if not _blocked_surface_anchor(anchor) and anchor not in QUESTION_DIRECTORS
     )
+
+
+def _subject_surface(anchors: list[str]) -> str:
+    observed = _clean_list(anchors)
+    if not observed:
+        return ""
+    for index, anchor in enumerate(observed):
+        if anchor in SUBJECT_BOUNDARY_CONNECTORS and index + 1 < len(observed):
+            candidate = _surface_phrase(observed[index + 1:])
+            if candidate:
+                return candidate if _contains_surface_connector(candidate) else _human_join(_content_subjects(observed[index + 1:])[:3])
+    candidate = _surface_phrase(observed)
+    return candidate if _contains_surface_connector(candidate) else _human_join(_content_subjects(observed)[:3])
+
+
+def _surface_phrase(anchors: list[str]) -> str:
+    out: list[str] = []
+    previous_content = False
+    for anchor in anchors:
+        clean = str(anchor or "").strip().casefold()
+        if not clean or clean in QUESTION_DIRECTORS or clean in SURFACE_AUXILIARY:
+            continue
+        if clean in {"?", ".", ",", ":", ";", "!", "(", ")", "[", "]", "{", "}", "\"", "'", "__null__"}:
+            continue
+        if any(char.isdigit() for char in clean):
+            continue
+        if clean in SUBJECT_BOUNDARY_CONNECTORS:
+            out = []
+            previous_content = False
+            continue
+        if clean in SURFACE_CONNECTORS:
+            if previous_content:
+                out.append(clean)
+                previous_content = False
+            continue
+        if clean in SURFACE_GLUE:
+            continue
+        out.append(clean)
+        previous_content = True
+    while out and out[-1] in SURFACE_CONNECTORS:
+        out.pop()
+    return " ".join(out[:8])
 
 
 def _clean_list(values: list[str] | tuple[str, ...]) -> list[str]:
@@ -104,6 +165,25 @@ def _blocked_surface_anchor(anchor: str) -> bool:
     if any(char.isdigit() for char in anchor):
         return True
     return False
+
+
+def _blocked_answer_term(anchor: str) -> bool:
+    if not anchor:
+        return True
+    if anchor in QUESTION_DIRECTORS:
+        return True
+    if anchor in {"?", ".", ",", ":", ";", "!", "(", ")", "[", "]", "{", "}", "\"", "'", "__null__"}:
+        return True
+    if any(char.isdigit() for char in anchor):
+        return True
+    if anchor in SURFACE_GLUE and anchor not in SURFACE_CONNECTORS:
+        return True
+    return False
+
+
+def _contains_surface_connector(text: str) -> bool:
+    words = set(str(text or "").split())
+    return bool(words & SURFACE_CONNECTORS)
 
 
 def _ordered_unique(values: list[str] | Any) -> list[str]:

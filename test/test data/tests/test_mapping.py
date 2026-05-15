@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from AnchorWorks.app import ChatSendBody, ClearSpeakQueryBody, IntakeEditBody, create_app, _default_data_root
+from AnchorWorks.answer_surface import render_anchor_answer_surface
 from AnchorWorks.chat_memory_system import ChatMemorySystem
 from AnchorWorks.anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from AnchorWorks.clearspeak_attention import build_active_cloud_frame, choose_candidate_with_lookahead, infer_attention_frame, rank_attention_candidates
@@ -485,6 +486,18 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(decision["chosen"]["anchor"], "motion")
         rejected = {row["anchor"]: row for row in active["rejected_candidates"]}
         self.assertEqual(rejected["mothers"]["reason"], "domain_field_drift")
+
+    def test_answer_surface_preserves_subject_connectors_without_promoting_glue(self) -> None:
+        speech = render_anchor_answer_surface(
+            ["why", "worry", "about", "laws", "of", "physics", "?"],
+            {"terms": [{"anchor": "motion"}, {"anchor": "law"}, {"anchor": "object"}, {"anchor": "acceleration"}]},
+        )
+
+        self.assertEqual(
+            speech,
+            "The answer path around laws of physics points toward motion, law, object, and acceleration.",
+        )
+        self.assertNotIn("worry, laws", speech)
 
     def test_clearspeak_answer_assembly_exposes_attention_frame(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
