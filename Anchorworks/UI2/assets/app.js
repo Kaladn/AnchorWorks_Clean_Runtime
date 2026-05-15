@@ -3,6 +3,7 @@ const state = {
   lastTrace: null,
   lexPack: 'all',
   lastInvocation: null,
+  sending: false,
 };
 
 const SETTINGS_TRUTH_LABEL = 'diagnostic-only';
@@ -91,6 +92,23 @@ function appendLocalChatRow(role, mode, content) {
   `;
   thread.appendChild(article);
   thread.scrollTop = thread.scrollHeight;
+}
+
+function setSending(isSending) {
+  state.sending = isSending;
+  $('send-chat').disabled = isSending;
+  $('send-chat').textContent = isSending ? 'Sending...' : 'Send';
+  $('chat-input').disabled = isSending;
+  $('chat-mode').disabled = isSending;
+  $('read-only-query').disabled = isSending;
+}
+
+function assistantTextFromPayload(payload) {
+  return payload.response
+    || payload.assistant_message?.content
+    || payload.answer
+    || payload.speech
+    || JSON.stringify(payload);
 }
 
 function showInvokedCard(invocation, bodyHtml) {
@@ -210,6 +228,7 @@ function renderChatRows(rows) {
       </article>
     `;
   }).join('');
+  thread.scrollTop = thread.scrollHeight;
 }
 
 async function loadChat() {
@@ -241,6 +260,7 @@ function setEvidence(payload) {
 
 async function sendChat(event) {
   event.preventDefault();
+  if (state.sending) return;
   const message = $('chat-input').value.trim();
   if (!message) return;
   const mode = $('chat-mode').value;
@@ -251,6 +271,9 @@ async function sendChat(event) {
       $('chat-input').value = '';
       return;
     }
+    setSending(true);
+    $('chat-input').value = '';
+    appendLocalChatRow('user', readOnly ? 'read-only' : mode, message);
     if (readOnly) {
       const queryMode = mode === 'counts' ? 'counts' : mode === 'documents' ? 'documents' : 'auto';
       const payload = await api('/api/clearspeak/query', {
@@ -258,21 +281,20 @@ async function sendChat(event) {
         body: JSON.stringify({ query: message, evidence_mode: queryMode }),
       });
       setEvidence(evidenceFromPayload(payload));
-      renderChatRows([
-        { role: 'user', mode: 'read-only', content: message, timestamp: new Date().toISOString() },
-        { role: 'assistant', mode: 'clearspeak-read-only', content: payload.answer || payload.speech || JSON.stringify(payload), timestamp: new Date().toISOString() },
-      ]);
+      appendLocalChatRow('assistant', 'clearspeak-read-only', assistantTextFromPayload(payload));
     } else {
       const payload = await api('/api/chat/send', {
         method: 'POST',
         body: JSON.stringify({ message, mode }),
       });
       setEvidence(evidenceFromPayload(payload));
-      await loadChat();
+      appendLocalChatRow('assistant', payload.mode || payload.assistant_message?.actor || 'anchorworks', assistantTextFromPayload(payload));
     }
-    $('chat-input').value = '';
   } catch (error) {
-    $('chat-thread').innerHTML = `<div class="empty-state error">Send failed: ${escapeHtml(error.message)}</div>`;
+    appendLocalChatRow('assistant', 'send-error', `Send failed: ${error.message}`);
+  } finally {
+    setSending(false);
+    $('chat-input').focus();
   }
 }
 

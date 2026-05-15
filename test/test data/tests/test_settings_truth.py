@@ -44,6 +44,19 @@ class SettingsTruthTests(unittest.TestCase):
         self.assertIn("event.target.closest('[data-action]')", js)
         self.assertIn("runUiAction(button.dataset.action)", js)
 
+    def test_ui2_chat_send_appends_response_without_history_reload_loop(self) -> None:
+        html = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/index.html").read_text(encoding="utf-8")
+        js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/assets/app.js").read_text(encoding="utf-8")
+
+        self.assertIn('id="send-chat"', html)
+        self.assertIn("if (state.sending) return", js)
+        self.assertIn("setSending(true)", js)
+        self.assertIn("setSending(false)", js)
+        self.assertIn("appendLocalChatRow('user'", js)
+        self.assertIn("appendLocalChatRow('assistant'", js)
+        self.assertIn("assistantTextFromPayload(payload)", js)
+        self.assertNotIn("await loadChat();", js)
+
     def test_settings_inventory_route_exposes_truth_labels(self) -> None:
         app = create_app(Path("D:/AnchorWorks_Clean_Runtime"))
         route = next(route for route in app.routes if getattr(route, "path", "") == "/api/settings/inventory")
