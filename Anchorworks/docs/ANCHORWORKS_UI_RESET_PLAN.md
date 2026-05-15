@@ -34,6 +34,27 @@ System tells the truth.
 If backend does not read it, UI does not show it as a control.
 ```
 
+## Non-Goal
+
+This reset does not redesign AnchorWorks architecture.
+This reset does not migrate runtime systems.
+This reset does not add new backend capability.
+This reset only changes the active UI surface and removes fake or stale controls from the served path.
+
+## Companion Docs
+
+Agent implementation and review guide:
+
+```text
+ANCHORWORKS_UI_RESET_AGENT_GUIDE.md
+```
+
+User command and phrase cheat sheet:
+
+```text
+ANCHORWORKS_USER_COMMAND_CHEATSHEET.md
+```
+
 ## Directory Shape
 
 Active path:
@@ -257,6 +278,7 @@ Phase 1 is complete only when:
 ```text
 server serves ui_current/
 no served route points to ui_legacy_locked/
+ui_current/ does not import, reference, or load files from ui_legacy_locked/
 no Windows Hello/auth gate appears unless auth.required is explicitly true
 Chat tab renders
 Evidence tab renders read-only
