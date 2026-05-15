@@ -2,6 +2,7 @@ const state = {
   activeTab: 'chat',
   lastTrace: null,
   lexPack: 'all',
+  lastInvocation: null,
 };
 
 const SETTINGS_TRUTH_LABEL = 'diagnostic-only';
@@ -33,6 +34,133 @@ async function api(path, options = {}) {
     throw new Error(data.detail || data.error || `HTTP ${response.status}`);
   }
   return data;
+}
+
+const CARD_RECIPES = {
+  'evidence.trace.card': {
+    title: 'Evidence Trace',
+    purpose: 'Show why the current answer or selected command was produced.',
+    risk: 'read',
+    requiredRoutes: [],
+  },
+  'system.status.card': {
+    title: 'System Status',
+    purpose: 'Show real runtime facts from backend status routes.',
+    risk: 'read',
+    requiredRoutes: ['/api/health', '/api/settings/inventory'],
+  },
+};
+
+function buildInvocation(cardId, surfaceText, intent, context = {}) {
+  return {
+    invocation_id: `inv_${Date.now().toString(36)}`,
+    card_id: cardId,
+    source: 'chat',
+    surface_text: surfaceText,
+    intent,
+    context,
+    risk: CARD_RECIPES[cardId]?.risk || 'read',
+    confirmation_state: 'not_required',
+    trace_id: `trace_${Date.now().toString(36)}`,
+  };
+}
+
+function matchInvokedSurface(message) {
+  const text = message.trim().toLowerCase();
+  if (/^(show|open|review)\s+(the\s+)?evidence\b/.test(text) || /why did (it|you|the system) choose/.test(text)) {
+    return buildInvocation('evidence.trace.card', message, 'show_evidence');
+  }
+  if (/^(system status|show system status|runtime status|what settings are real)\b/.test(text)) {
+    return buildInvocation('system.status.card', message, 'system_status');
+  }
+  return null;
+}
+
+function appendLocalChatRow(role, mode, content) {
+  const thread = $('chat-thread');
+  if (thread.querySelector('.empty-state')) thread.innerHTML = '';
+  const article = document.createElement('article');
+  article.className = `message ${role}`;
+  article.innerHTML = `
+    <div class="message-meta">
+      <span>${escapeHtml(role)}</span>
+      <span>${escapeHtml(mode)}</span>
+      <span>${escapeHtml(new Date().toISOString())}</span>
+    </div>
+    <div>${escapeHtml(content)}</div>
+  `;
+  thread.appendChild(article);
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function showInvokedCard(invocation, bodyHtml) {
+  const recipe = CARD_RECIPES[invocation.card_id];
+  state.lastInvocation = invocation;
+  $('invoked-card-title').textContent = recipe.title;
+  $('invoked-card-purpose').textContent = recipe.purpose;
+  $('invoked-card-body').innerHTML = `
+    <div class="invocation-meta">
+      <div><strong>intent:</strong> ${escapeHtml(invocation.intent)}</div>
+      <div><strong>risk:</strong> ${escapeHtml(invocation.risk)}</div>
+      <div><strong>trace:</strong> ${escapeHtml(invocation.trace_id)}</div>
+      <div><strong>source:</strong> ${escapeHtml(invocation.surface_text)}</div>
+    </div>
+    ${bodyHtml}
+  `;
+  $('invoked-card-panel').hidden = false;
+  document.querySelector('.chat-grid')?.classList.add('card-open');
+}
+
+function dismissInvokedCard() {
+  state.lastInvocation = null;
+  $('invoked-card-panel').hidden = true;
+  $('invoked-card-body').innerHTML = '';
+  document.querySelector('.chat-grid')?.classList.remove('card-open');
+}
+
+async function openEvidenceTraceCard(invocation) {
+  const trace = state.lastTrace || { message: 'No answer trace is active yet.', evidence_lanes: ['none'] };
+  showInvokedCard(invocation, `
+    <pre class="trace-box">${escapeHtml(JSON.stringify(trace, null, 2))}</pre>
+    <div class="card-action-row">
+      <button class="secondary-button" type="button" data-action="evidence">Open Evidence Home</button>
+    </div>
+  `);
+}
+
+async function openSystemStatusCard(invocation) {
+  try {
+    const [health, inventory] = await Promise.all([
+      api('/api/health'),
+      api('/api/settings/inventory').catch((error) => ({ settings: [], unavailable: error.message })),
+    ]);
+    const settings = inventory.settings || [];
+    showInvokedCard(invocation, `
+      <div class="fact-list">
+        <div class="fact"><strong>health</strong><span>${escapeHtml(health.ok ? 'ok' : 'not ok')}</span></div>
+        <div class="fact"><strong>version</strong><span>${escapeHtml(health.version || 'unknown')}</span></div>
+        <div class="fact"><strong>data_root</strong><span>${escapeHtml(health.data_root || 'unknown')}</span></div>
+        <div class="fact"><strong>served_ui</strong><span>UI2</span></div>
+        <div class="fact"><strong>runtime settings</strong><span>${escapeHtml(settings.filter((row) => row.runtime_active).map((row) => row.label || row.id).join(', ') || 'none')}</span></div>
+        <div class="fact"><strong>diagnostic-only</strong><span>${escapeHtml(settings.filter((row) => !row.runtime_active).map((row) => row.label || row.id).join(', ') || 'none')}</span></div>
+      </div>
+      <div class="card-action-row">
+        <button class="secondary-button" type="button" data-action="system">Open System Home</button>
+      </div>
+    `);
+  } catch (error) {
+    showInvokedCard(invocation, `<div class="empty-state error">System status unavailable: ${escapeHtml(error.message)}</div>`);
+  }
+}
+
+async function handleInvokedSurface(message) {
+  const invocation = matchInvokedSurface(message);
+  if (!invocation) return false;
+  appendLocalChatRow('user', 'surface-request', message);
+  if (invocation.card_id === 'evidence.trace.card') await openEvidenceTraceCard(invocation);
+  if (invocation.card_id === 'system.status.card') await openSystemStatusCard(invocation);
+  appendLocalChatRow('assistant', 'surface-card', `Opened ${CARD_RECIPES[invocation.card_id].title}.`);
+  return true;
 }
 
 function switchTab(tab) {
@@ -107,6 +235,10 @@ async function sendChat(event) {
   const readOnly = $('read-only-query').checked;
 
   try {
+    if (await handleInvokedSurface(message)) {
+      $('chat-input').value = '';
+      return;
+    }
     if (readOnly) {
       const queryMode = mode === 'counts' ? 'counts' : mode === 'documents' ? 'documents' : 'auto';
       const payload = await api('/api/clearspeak/query', {
@@ -223,6 +355,7 @@ async function boot() {
       const action = button.dataset.action;
       if (action === 'evidence') switchTab('evidence');
       if (action === 'lexicon') switchTab('lexicon');
+      if (action === 'system') switchTab('system');
       if (action === 'stop') stopResponse();
       if (action === 'counts') {
         $('chat-mode').value = 'counts';
@@ -247,6 +380,7 @@ async function boot() {
   $('copy-trace').addEventListener('click', async () => {
     if (state.lastTrace) await navigator.clipboard.writeText(JSON.stringify(state.lastTrace, null, 2));
   });
+  $('dismiss-invoked-card').addEventListener('click', dismissInvokedCard);
 
   try {
     const health = await api('/api/health');

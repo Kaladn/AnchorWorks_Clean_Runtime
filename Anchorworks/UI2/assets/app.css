@@ -188,7 +188,14 @@ h3 {
   gap: 16px;
 }
 
-.chat-grid,
+.chat-grid {
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.chat-grid.card-open {
+  grid-template-columns: minmax(0, 1fr) 300px 360px;
+}
+
 .lexicon-grid,
 .system-grid {
   grid-template-columns: minmax(0, 1fr) 360px;
@@ -378,6 +385,26 @@ select {
 
 .error {
   color: var(--red);
+}
+
+.invoked-card-panel {
+  border-color: var(--blue);
+}
+
+.invocation-meta {
+  border: 1px solid var(--border);
+  background: #0f141d;
+  padding: 10px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.card-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 @media (max-width: 980px) {
