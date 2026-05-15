@@ -47,15 +47,36 @@ class SettingsTruthTests(unittest.TestCase):
     def test_ui2_chat_send_appends_response_without_history_reload_loop(self) -> None:
         html = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/index.html").read_text(encoding="utf-8")
         js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/assets/app.js").read_text(encoding="utf-8")
+        css = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/assets/app.css").read_text(encoding="utf-8")
 
         self.assertIn('id="send-chat"', html)
+        self.assertIn('data-action="send"', html)
+        self.assertIn('/assets/app.css?v=ui2-backend-wire1', html)
+        self.assertIn('/assets/app.js?v=ui2-backend-wire6', html)
         self.assertIn("if (state.sending) return", js)
         self.assertIn("setSending(true)", js)
         self.assertIn("setSending(false)", js)
+        self.assertIn("$('send-chat').addEventListener('pointerdown', submitChatFromButton)", js)
+        self.assertIn("$('send-chat').addEventListener('click', submitChatFromButton)", js)
+        self.assertIn("if (action === 'send') submitChatFromButton", js)
         self.assertIn("appendLocalChatRow('user'", js)
         self.assertIn("appendLocalChatRow('assistant'", js)
         self.assertIn("assistantTextFromPayload(payload)", js)
         self.assertNotIn("await loadChat();", js)
+        self.assertIn('grid-template-columns: minmax(150px, 1fr) auto auto', css)
+        self.assertIn('grid-column: 1 / -1', css)
+
+    def test_ui2_chat_surface_uses_backend_workbench_contract(self) -> None:
+        js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/assets/app.js").read_text(encoding="utf-8")
+
+        self.assertIn("/api/chat/status", js)
+        self.assertIn("if (state.sending || state.lastWorkflow) return", js)
+        self.assertIn("renderWorkbench(payload)", js)
+        self.assertIn("payload.actions", js)
+        self.assertIn("payload.workflow", js)
+        self.assertIn("evidence_visible: $('show-evidence').checked", js)
+        self.assertIn("data-workbench-action", js)
+        self.assertIn("toggle_evidence", js)
 
     def test_settings_inventory_route_exposes_truth_labels(self) -> None:
         app = create_app(Path("D:/AnchorWorks_Clean_Runtime"))

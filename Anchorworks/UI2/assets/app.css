@@ -288,7 +288,7 @@ select {
 
 .composer-row {
   display: grid;
-  grid-template-columns: 180px 160px 160px minmax(220px, auto);
+  grid-template-columns: minmax(150px, 1fr) auto auto;
   gap: 10px;
   align-items: end;
 }
@@ -305,8 +305,10 @@ select {
 }
 
 .composer-actions {
+  grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
 }
 

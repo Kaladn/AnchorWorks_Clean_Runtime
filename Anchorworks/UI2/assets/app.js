@@ -3,6 +3,7 @@ const state = {
   lastTrace: null,
   lexPack: 'all',
   lastInvocation: null,
+  lastWorkflow: null,
   sending: false,
 };
 
@@ -111,6 +112,64 @@ function assistantTextFromPayload(payload) {
     || JSON.stringify(payload);
 }
 
+function renderWorkbench(payload = {}) {
+  const stack = $('action-stack');
+  const workflow = payload.workflow || payload.assistant_message?.workbench?.workflow || null;
+  const actions = payload.actions || payload.assistant_message?.workbench?.actions || [];
+  const statusLine = workflow
+    ? `${workflow.step_id || 'workflow'} · ${workflow.status || 'unknown'}`
+    : 'Backend chat services connected.';
+  const actionButtons = actions.length
+    ? actions.map((action) => `
+      <button type="button"
+        data-workbench-action="${escapeHtml(action.id || '')}"
+        data-action-kind="${escapeHtml(action.kind || '')}"
+        data-evidence-visible="${escapeHtml(action.payload?.evidence_visible)}">
+        ${escapeHtml(action.label || action.id || 'Action')}
+      </button>
+    `).join('')
+    : `
+      <button type="button" data-action="continue">Continue Working</button>
+      <button type="button" data-action="evidence">Review Evidence</button>
+      <button type="button" data-action="lexicon">Open Lexicon</button>
+      <button type="button" data-action="counts">Run Counts Query</button>
+      <button type="button" data-action="stop">Stop</button>
+    `;
+  stack.innerHTML = `
+    <div class="muted">${escapeHtml(statusLine)}</div>
+    ${actionButtons}
+  `;
+}
+
+function runWorkbenchAction(button) {
+  const kind = button.dataset.actionKind;
+  if (kind === 'toggle_evidence') {
+    const next = button.dataset.evidenceVisible === 'true';
+    $('show-evidence').checked = next;
+    if (!next) setEvidence(null);
+    renderWorkbench({
+      workflow: state.lastWorkflow,
+      actions: [{
+        id: next ? 'hide_evidence' : 'show_evidence',
+        label: next ? 'Hide Evidence' : 'Show Evidence',
+        kind: 'toggle_evidence',
+        payload: { evidence_visible: !next },
+      }, {
+        id: 'continue_working',
+        label: 'Continue Working',
+        kind: 'continue_workflow',
+        payload: {},
+      }],
+    });
+  }
+  if (kind === 'continue_workflow') {
+    $('chat-input').focus();
+  }
+  if (kind === 'open_evidence') {
+    switchTab('evidence');
+  }
+}
+
 function showInvokedCard(invocation, bodyHtml) {
   const recipe = CARD_RECIPES[invocation.card_id];
   state.lastInvocation = invocation;
@@ -137,6 +196,7 @@ function dismissInvokedCard() {
 }
 
 function runUiAction(action) {
+  if (action === 'send') submitChatFromButton({ preventDefault() {}, stopPropagation() {} });
   if (action === 'evidence') switchTab('evidence');
   if (action === 'lexicon') switchTab('lexicon');
   if (action === 'system') switchTab('system');
@@ -241,6 +301,32 @@ async function loadChat() {
   }
 }
 
+async function loadChatStatus() {
+  try {
+    const payload = await api('/api/chat/status');
+    if (state.sending || state.lastWorkflow) return;
+    renderWorkbench({
+      workflow: {
+        step_id: 'chat_backend',
+        status: `${payload.chat_messages || 0} messages · ${payload.chat_days || 0} days`,
+      },
+      actions: [{
+        id: 'review_evidence',
+        label: 'Review Evidence',
+        kind: 'open_evidence',
+        payload: {},
+      }, {
+        id: 'continue_working',
+        label: 'Continue Working',
+        kind: 'continue_workflow',
+        payload: {},
+      }],
+    });
+  } catch (error) {
+    $('action-stack').innerHTML = `<div class="empty-state error">Chat backend status unavailable: ${escapeHtml(error.message)}</div>`;
+  }
+}
+
 function evidenceFromPayload(payload) {
   if (!payload) return null;
   return payload.clearspeak || payload.response?.clearspeak || payload;
@@ -285,9 +371,11 @@ async function sendChat(event) {
     } else {
       const payload = await api('/api/chat/send', {
         method: 'POST',
-        body: JSON.stringify({ message, mode }),
+        body: JSON.stringify({ message, mode, evidence_visible: $('show-evidence').checked }),
       });
       setEvidence(evidenceFromPayload(payload));
+      state.lastWorkflow = payload.workflow || null;
+      renderWorkbench(payload);
       appendLocalChatRow('assistant', payload.mode || payload.assistant_message?.actor || 'anchorworks', assistantTextFromPayload(payload));
     }
   } catch (error) {
@@ -296,6 +384,12 @@ async function sendChat(event) {
     setSending(false);
     $('chat-input').focus();
   }
+}
+
+function submitChatFromButton(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  sendChat({ preventDefault() {} });
 }
 
 async function stopResponse() {
@@ -385,6 +479,11 @@ async function boot() {
     button.addEventListener('click', () => switchTab(button.dataset.tab));
   });
   document.addEventListener('click', (event) => {
+    const workbenchButton = event.target.closest('[data-workbench-action]');
+    if (workbenchButton) {
+      runWorkbenchAction(workbenchButton);
+      return;
+    }
     const button = event.target.closest('[data-action]');
     if (!button) return;
     runUiAction(button.dataset.action);
@@ -397,6 +496,8 @@ async function boot() {
   });
 
   $('chat-form').addEventListener('submit', sendChat);
+  $('send-chat').addEventListener('pointerdown', submitChatFromButton);
+  $('send-chat').addEventListener('click', submitChatFromButton);
   $('chat-input').addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -420,7 +521,7 @@ async function boot() {
     setStatus(false, `Runtime unavailable: ${error.message}`);
   }
   setEvidence(null);
-  await Promise.all([loadChat(), loadGenome()]);
+  await Promise.all([loadChat(), loadChatStatus(), loadGenome()]);
 }
 
 document.addEventListener('DOMContentLoaded', boot);
