@@ -110,11 +110,36 @@ label { color: var(--muted); font-size: 0.85rem; display: grid; gap: 0.35rem; }
   min-width: 0;
 }
 
+.chat-search {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 130px auto auto;
+  gap: 0.55rem;
+  align-items: center;
+  margin: 0.8rem 0;
+}
+
+.search-results {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 0.8rem;
+}
+
+.search-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+  max-height: 330px;
+  overflow: auto;
+}
+
 .panel { display: none; height: calc(100vh - 2.4rem); }
 .panel.active {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 1rem;
+}
+#panel-chat.active {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
 }
 #panel-evidence.active,
 #panel-lexicon.active,
@@ -296,5 +321,6 @@ pre {
   .panel-head { flex-direction: column; }
   .composer-controls,
   .composer-row,
+  .chat-search,
   .lookup-bar { grid-template-columns: 1fr; }
 }

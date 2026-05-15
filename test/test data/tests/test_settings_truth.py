@@ -34,9 +34,11 @@ class SettingsTruthTests(unittest.TestCase):
         js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI/assets/app.js").read_text(encoding="utf-8")
 
         self.assertIn('id="chat-feed"', html)
+        self.assertIn('id="chat-search-form"', html)
         self.assertIn('id="evidence-view"', html)
         self.assertIn("renderWorkbenchActions(result)", js)
         self.assertIn("data-action", js)
+        self.assertIn("/api/chat/search", js)
         self.assertIn("continue_working", js)
         self.assertIn("/api/chat/action", js)
         self.assertIn("runWorkbenchAction(\"continue_working\")", js)

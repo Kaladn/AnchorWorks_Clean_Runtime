@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
@@ -100,6 +101,71 @@ class ChatMemorySystem:
             "messages": limited,
             "citations_by_block": self._load_sidecar_by_block(self._citation_path(target_day)),
             "notes_by_block": self._load_sidecar_by_block(self._note_path(target_day)),
+        }
+
+    def search_history(
+        self,
+        query: str,
+        *,
+        day: str | None = None,
+        branch: str = "main",
+        limit: int = 50,
+        match: str = "all",
+    ) -> dict[str, Any]:
+        terms = _search_terms(query)
+        if not terms:
+            return {
+                "ok": True,
+                "query": query,
+                "terms": [],
+                "match": "all",
+                "branch": branch or "all",
+                "days_scanned": [],
+                "messages_scanned": 0,
+                "matches": [],
+            }
+        match_mode = "any" if str(match or "").casefold() == "any" else "all"
+        paths = [self._day_path(day)] if day else sorted(self.chats_dir.glob("*.jsonl"), reverse=True)
+        matches: list[dict[str, Any]] = []
+        scanned = 0
+        scanned_days: list[str] = []
+        for path in paths:
+            if not path.exists():
+                continue
+            scanned_days.append(path.stem)
+            for row in self._read_jsonl(path):
+                if branch and branch != "all" and str(row.get("branch") or "main") != branch:
+                    continue
+                scanned += 1
+                content = str(row.get("content") or "")
+                haystack = _search_terms(content)
+                hayset = set(haystack)
+                if match_mode == "all":
+                    hit_terms = [term for term in terms if term in hayset]
+                    if len(hit_terms) != len(terms):
+                        continue
+                else:
+                    hit_terms = [term for term in terms if term in hayset]
+                    if not hit_terms:
+                        continue
+                score = (len(hit_terms) * 100) + min(50, len(hit_terms)) - min(25, max(0, len(haystack) - len(hit_terms)) // 12)
+                matches.append({
+                    "score": int(score),
+                    "hit_terms": hit_terms,
+                    "missing_terms": [term for term in terms if term not in hayset],
+                    "message": row,
+                })
+        matches.sort(key=lambda item: (-int(item["score"]), str(item["message"].get("timestamp") or "")), reverse=False)
+        return {
+            "ok": True,
+            "query": query,
+            "terms": terms,
+            "match": match_mode,
+            "branch": branch or "all",
+            "days_scanned": scanned_days,
+            "messages_scanned": scanned,
+            "matches": matches[: max(1, int(limit or 50))],
+            "law": "Full-history search matches all requested terms in the same message by default; it does not merge unrelated rows.",
         }
 
     def preview_finalize(self, day: str | None = None, branch: str = "main") -> dict[str, Any]:
@@ -687,6 +753,20 @@ def _today() -> str:
 def _recent_days(days: int) -> list[str]:
     today = datetime.now(timezone.utc).date()
     return [(today - timedelta(days=index)).isoformat() for index in range(max(1, int(days or 1)))]
+
+
+def _search_terms(value: Any) -> list[str]:
+    terms: list[str] = []
+    seen: set[str] = set()
+    for raw in re.findall(r"[a-z0-9]+(?:'[a-z0-9]+)?", str(value or "").casefold()):
+        term = raw.strip("'")
+        if len(term) > 3 and term.endswith("s"):
+            term = term[:-1]
+        if not term or term in seen:
+            continue
+        seen.add(term)
+        terms.append(term)
+    return terms
 
 
 def _utc_now() -> str:

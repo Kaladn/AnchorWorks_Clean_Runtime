@@ -47,6 +47,17 @@
             </div>
           </header>
 
+          <form id="chat-search-form" class="chat-search">
+            <input id="chat-search-query" type="search" placeholder="Search full chat history, all terms in the same message" />
+            <select id="chat-search-match" aria-label="Search match mode">
+              <option value="all">All terms</option>
+              <option value="any">Any term</option>
+            </select>
+            <button class="secondary" type="submit">Search</button>
+            <button id="clear-chat-search" class="ghost" type="button">Clear</button>
+          </form>
+          <div id="chat-search-results" class="search-results"></div>
+
           <div id="chat-feed" class="chat-feed" aria-live="polite"></div>
 
           <form id="chat-form" class="composer">

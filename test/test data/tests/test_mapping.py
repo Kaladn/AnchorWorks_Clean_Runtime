@@ -1655,11 +1655,34 @@ class MappingTests(unittest.TestCase):
             self.assertFalse(result["writes_performed"])
             self.assertFalse(result["chat_query_sent"])
 
+    def test_chat_search_requires_all_terms_in_same_message_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            app = create_app(root)
+            chats = root / "State" / "chat_memory" / "chats"
+            chats.mkdir(parents=True, exist_ok=True)
+            (chats / "2026-05-15.jsonl").write_text(
+                "\n".join([
+                    json.dumps({"id": 1, "sender": "assistant", "branch": "main", "content": "mothers children family", "message_uuid": "m1"}),
+                    json.dumps({"id": 2, "sender": "assistant", "branch": "main", "content": "laws of physics motion", "message_uuid": "p1"}),
+                ]) + "\n",
+                encoding="utf-8",
+            )
+            route = next(route for route in app.routes if getattr(route, "path", "") == "/api/chat/search")
+
+            strict = route.endpoint(query="mother physics law", branch="main")
+            loose = route.endpoint(query="mother physics law", branch="main", match="any")
+
+            self.assertEqual(strict["matches"], [])
+            self.assertEqual(strict["law"], "Full-history search matches all requested terms in the same message by default; it does not merge unrelated rows.")
+            self.assertEqual(len(loose["matches"]), 2)
+
     def test_chat_ui_exposes_workbench_controls(self) -> None:
         ui_root = _anchorworks_repo_root() / "UI"
         index_html = (ui_root / "index.html").read_text(encoding="utf-8")
         app_js = (ui_root / "assets" / "app.js").read_text(encoding="utf-8")
 
+        self.assertIn('id="chat-search-form"', index_html)
         self.assertIn('id="evidence-toggle"', index_html)
         self.assertIn('id="stop-response"', index_html)
         self.assertIn("Chat Workbench", index_html)
@@ -1667,6 +1690,7 @@ class MappingTests(unittest.TestCase):
         self.assertIn("continue_working", app_js)
         self.assertIn("/api/chat/stop", app_js)
         self.assertIn("/api/chat/action", app_js)
+        self.assertIn("/api/chat/search", app_js)
         self.assertNotIn('sendChat("Continue working.")', app_js)
         self.assertNotIn("/api/lexicon/symbolic-maps", app_js)
         self.assertNotIn("Symbolic Maps", index_html)

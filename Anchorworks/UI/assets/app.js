@@ -103,6 +103,43 @@ async function loadHistory() {
   }
 }
 
+function renderSearchResults(payload) {
+  const target = $("#chat-search-results");
+  const matches = payload?.matches || [];
+  if (!payload?.terms?.length) {
+    target.innerHTML = "";
+    return;
+  }
+  const summary = `${matches.length} result${matches.length === 1 ? "" : "s"} · ${escapeHtml(payload.match || "all")} terms · scanned ${payload.messages_scanned || 0}`;
+  if (!matches.length) {
+    target.innerHTML = `<div class="card"><strong>${summary}</strong><p>No single chat row matched every requested term.</p></div>`;
+    return;
+  }
+  target.innerHTML = `
+    <div class="card">
+      <strong>${summary}</strong>
+      <div class="search-list">
+        ${matches.map((item) => messageRecordHtml(item.message || {})).join("")}
+      </div>
+    </div>
+  `;
+}
+
+async function searchChatHistory(event) {
+  event.preventDefault();
+  const query = $("#chat-search-query").value.trim();
+  if (!query) {
+    $("#chat-search-results").innerHTML = "";
+    return;
+  }
+  try {
+    const payload = await api(`/api/chat/search?query=${encodeURIComponent(query)}&branch=${encodeURIComponent(state.branch)}&match=${encodeURIComponent($("#chat-search-match").value)}&limit=50`);
+    renderSearchResults(payload);
+  } catch (error) {
+    showError($("#chat-search-results"), error.message);
+  }
+}
+
 function renderWorkbenchActions(result) {
   const actions = result?.actions || result?.workbench?.actions || [];
   if (!actions.length) return "";
@@ -332,6 +369,11 @@ function wireEvents() {
   $("#chat-form").addEventListener("submit", (event) => {
     event.preventDefault();
     sendChat();
+  });
+  $("#chat-search-form").addEventListener("submit", searchChatHistory);
+  $("#clear-chat-search").addEventListener("click", () => {
+    $("#chat-search-query").value = "";
+    $("#chat-search-results").innerHTML = "";
   });
   $("#refresh-history").addEventListener("click", loadHistory);
   $("#stop-response").addEventListener("click", stopResponse);

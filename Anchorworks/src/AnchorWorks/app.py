@@ -416,6 +416,16 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     def chat_history(day: str | None = None, branch: str = "main", limit: int = 200) -> dict[str, Any]:
         return chat_memory.history(day=day, branch=branch, limit=limit)
 
+    @app.get("/api/chat/search")
+    def chat_search(
+        query: str,
+        day: str | None = None,
+        branch: str = "main",
+        limit: int = 50,
+        match: str = "all",
+    ) -> dict[str, Any]:
+        return chat_memory.search_history(query, day=day, branch=branch, limit=limit, match=match)
+
     @app.post("/api/chat/send")
     def chat_send(body: ChatSendBody) -> dict[str, Any]:
         try:
