@@ -53,7 +53,7 @@ Rules:
 Verification must prove:
 
 ```text
-ui_current/ does not import, reference, or load ui_legacy_locked/
+UI2/ does not import, reference, or load ui_legacy_locked/
 ```
 
 ## Active UI Root
@@ -61,7 +61,7 @@ ui_current/ does not import, reference, or load ui_legacy_locked/
 The only served UI root should be:
 
 ```text
-ui_current/
+UI2/
 ```
 
 If server code points to any other UI root, the reset is not complete.
@@ -164,10 +164,10 @@ These are intentionally out of Phase 1:
 Before completing any UI reset work:
 
 ```text
-server serves ui_current/
+server serves UI2/
 legacy is preserved under ui_legacy_locked/
 no served route points to ui_legacy_locked/
-ui_current does not import legacy files
+UI2 does not import legacy files
 no fake auth gate appears
 Phase 1 tabs render
 Chat can send or honestly reports backend unavailable

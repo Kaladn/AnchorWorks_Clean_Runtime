@@ -60,7 +60,7 @@ ANCHORWORKS_USER_COMMAND_CHEATSHEET.md
 Active path:
 
 ```text
-ui_current/
+UI2/
 ```
 
 This is the only served UI root. It should be small, direct, and readable.
@@ -260,7 +260,7 @@ Expected behavior:
 - Nothing is deleted.
 - No route serves `ui_legacy_locked/`.
 - No new active UI imports scripts from `ui_legacy_locked/` by accident.
-- Any legacy behavior copied forward must be inspected, renamed if needed, and owned by `ui_current/`.
+- Any legacy behavior copied forward must be inspected, renamed if needed, and owned by `UI2/`.
 
 ## Forbidden Moves
 
@@ -276,9 +276,9 @@ Expected behavior:
 Phase 1 is complete only when:
 
 ```text
-server serves ui_current/
+server serves UI2/
 no served route points to ui_legacy_locked/
-ui_current/ does not import, reference, or load files from ui_legacy_locked/
+UI2/ does not import, reference, or load files from ui_legacy_locked/
 no Windows Hello/auth gate appears unless auth.required is explicitly true
 Chat tab renders
 Evidence tab renders read-only
@@ -292,8 +292,8 @@ git tree clean
 ## Implementation Order
 
 1. Move existing UI files to `ui_legacy_locked/` without deletion.
-2. Create `ui_current/` with a minimal shell.
-3. Wire server static serving to `ui_current/`.
+2. Create `UI2/` with a minimal shell.
+3. Wire server static serving to `UI2/`.
 4. Build Chat tab.
 5. Build Evidence tab.
 6. Build Lexicon tab.

@@ -190,12 +190,8 @@ def _default_data_root() -> Path:
 def create_app(data_root: Path | None = None) -> FastAPI:
     package_root = Path(__file__).resolve().parent
     app_root = package_root.parents[1]
-    ui_root = app_root / "ui"
-    css_root = ui_root / "css"
-    js_root = ui_root / "js"
-    img_root = ui_root / "img"
-    panels_root = ui_root / "panels"
-    vendor_root = ui_root / "vendor"
+    ui_root = app_root / "UI2"
+    assets_root = ui_root / "assets"
     store = LexiconStore(data_root or _default_data_root())
     awsg_viewer = ObservedMapGraphViewer([
         store.root / "test" / "test data" / "experiments" / "observed_map_graph" / "runtime" / "graph",
@@ -221,20 +217,15 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.mount("/css", StaticFiles(directory=css_root), name="css")
-    app.mount("/js", StaticFiles(directory=js_root), name="js")
-    app.mount("/img", StaticFiles(directory=img_root), name="img")
-    app.mount("/icons", StaticFiles(directory=img_root), name="icons")
-    app.mount("/panels", StaticFiles(directory=panels_root), name="panels")
-    app.mount("/vendor", StaticFiles(directory=vendor_root), name="vendor")
+    app.mount("/assets", StaticFiles(directory=assets_root), name="ui2-assets")
 
     @app.get("/")
     def index() -> FileResponse:
-        return FileResponse(ui_root / "anchorworks_production.html")
+        return FileResponse(ui_root / "index.html")
 
     @app.get("/favicon.ico")
     def favicon() -> FileResponse:
-        return FileResponse(ui_root / "favicon.ico")
+        return FileResponse(assets_root / "icon-256.png")
 
     @app.get("/manifest.webmanifest")
     def manifest() -> FileResponse:

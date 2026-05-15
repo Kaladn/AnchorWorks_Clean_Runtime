@@ -21,11 +21,11 @@ class SettingsTruthTests(unittest.TestCase):
         self.assertTrue(by_id["symbol_genome_pool"]["runtime_active"])
 
     def test_ui_labels_unwired_controls_as_diagnostic_only(self) -> None:
-        html = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/src/AnchorWorks/ui/index.html").read_text(encoding="utf-8")
-        js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/src/AnchorWorks/ui/app.js").read_text(encoding="utf-8")
+        html = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/index.html").read_text(encoding="utf-8")
+        js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI2/assets/app.js").read_text(encoding="utf-8")
 
-        self.assertIn("Settings + Diagnostics", html)
-        self.assertIn("Diagnostic-only", html)
+        self.assertIn("System", html)
+        self.assertIn("diagnostic-only", html)
         self.assertNotIn("Cockpit switches are now active", js)
         self.assertIn("diagnostic-only", js)
 

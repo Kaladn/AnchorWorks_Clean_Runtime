@@ -121,15 +121,15 @@ class ObservedMapGraphExperimentTests(unittest.TestCase):
         self.assertIn("document", {node["node_type"] for node in graph_slice["nodes"]})
 
     def test_viewer_ui_exposes_source_graph_workbench(self) -> None:
-        ui_root = REPO_ROOT / "src" / "AnchorWorks" / "ui"
+        ui_root = REPO_ROOT / "UI2"
         index_html = (ui_root / "index.html").read_text(encoding="utf-8")
-        app_js = (ui_root / "app.js").read_text(encoding="utf-8")
+        app_js = (ui_root / "assets" / "app.js").read_text(encoding="utf-8")
 
-        self.assertIn("Source Graphs", index_html)
-        self.assertIn('id="source-graphs-btn"', index_html)
-        self.assertIn("/api/awsg/graphs", app_js)
-        self.assertIn("/api/awsg/graph/", app_js)
-        self.assertIn("renderSourceGraphSlice", app_js)
+        self.assertNotIn("Source Graphs", index_html)
+        self.assertNotIn('id="source-graphs-btn"', index_html)
+        self.assertNotIn("/api/awsg/graphs", app_js)
+        self.assertNotIn("/api/awsg/graph/", app_js)
+        self.assertIn("Evidence", index_html)
 
 
 def _read_json(path: Path) -> dict[str, object]:

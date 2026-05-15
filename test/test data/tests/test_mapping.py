@@ -1599,18 +1599,18 @@ class MappingTests(unittest.TestCase):
             self.assertFalse(result["writes_performed"])
 
     def test_chat_ui_exposes_workbench_controls(self) -> None:
-        ui_root = _anchorworks_repo_root() / "src" / "AnchorWorks" / "ui"
+        ui_root = _anchorworks_repo_root() / "UI2"
         index_html = (ui_root / "index.html").read_text(encoding="utf-8")
-        app_js = (ui_root / "app.js").read_text(encoding="utf-8")
+        app_js = (ui_root / "assets" / "app.js").read_text(encoding="utf-8")
 
-        self.assertIn('id="chat-evidence-toggle"', index_html)
-        self.assertIn('id="chat-stop-btn"', index_html)
-        self.assertIn("renderWorkbenchActions", app_js)
+        self.assertIn('id="show-evidence"', index_html)
+        self.assertIn('id="stop-response"', index_html)
+        self.assertIn("Continue Working", index_html)
+        self.assertIn("Review Evidence", index_html)
         self.assertIn("/api/chat/stop", app_js)
-        self.assertIn("/api/lexicon/symbolic-maps", app_js)
-        self.assertIn("/api/lexicon/symbolic-map/", app_js)
-        self.assertIn("/api/binary-substrate/status", app_js)
-        self.assertIn("Symbolic Maps", index_html)
+        self.assertNotIn("/api/lexicon/symbolic-maps", app_js)
+        self.assertNotIn("/api/binary-substrate/status", app_js)
+        self.assertNotIn("Symbolic Maps", index_html)
 
     def test_default_data_root_prefers_clean_runtime_from_repo(self) -> None:
         root = _default_data_root()
