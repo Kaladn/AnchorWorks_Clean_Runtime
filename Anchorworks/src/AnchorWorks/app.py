@@ -225,7 +225,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     @app.get("/favicon.ico")
     def favicon() -> FileResponse:
-        return FileResponse(assets_root / "icon.svg")
+        return FileResponse(assets_root / "favicon.ico")
 
     @app.get("/manifest.webmanifest")
     def manifest() -> FileResponse:

@@ -8,7 +8,7 @@ $appRoot = Join-Path $workspaceRoot "Anchorworks"
 $launcher = Join-Path $workspaceRoot "launch_anchorworks.ps1"
 $port = 8081
 $url = "http://127.0.0.1:$port"
-$iconPath = Join-Path $appRoot "ui\favicon.ico"
+$iconPath = Join-Path $appRoot "UI\assets\favicon.ico"
 
 function Get-AnchorWorksProcess {
     Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
