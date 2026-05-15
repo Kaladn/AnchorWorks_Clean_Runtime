@@ -190,7 +190,7 @@ def _default_data_root() -> Path:
 def create_app(data_root: Path | None = None) -> FastAPI:
     package_root = Path(__file__).resolve().parent
     app_root = package_root.parents[1]
-    ui_root = app_root / "UI2"
+    ui_root = app_root / "UI"
     assets_root = ui_root / "assets"
     store = LexiconStore(data_root or _default_data_root())
     awsg_viewer = ObservedMapGraphViewer([
@@ -217,7 +217,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.mount("/assets", StaticFiles(directory=assets_root), name="ui2-assets")
+    app.mount("/assets", StaticFiles(directory=assets_root), name="ui-assets")
 
     @app.get("/")
     def index() -> FileResponse:
@@ -225,7 +225,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     @app.get("/favicon.ico")
     def favicon() -> FileResponse:
-        return FileResponse(assets_root / "icon-256.png")
+        return FileResponse(assets_root / "icon.svg")
 
     @app.get("/manifest.webmanifest")
     def manifest() -> FileResponse:

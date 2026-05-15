@@ -121,7 +121,7 @@ class ObservedMapGraphExperimentTests(unittest.TestCase):
         self.assertIn("document", {node["node_type"] for node in graph_slice["nodes"]})
 
     def test_viewer_ui_exposes_source_graph_workbench(self) -> None:
-        ui_root = REPO_ROOT / "UI2"
+        ui_root = REPO_ROOT / "UI"
         index_html = (ui_root / "index.html").read_text(encoding="utf-8")
         app_js = (ui_root / "assets" / "app.js").read_text(encoding="utf-8")
 

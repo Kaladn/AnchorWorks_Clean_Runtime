@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AnchorWorks</title>
+    <link rel="icon" href="/assets/icon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="rail" aria-label="AnchorWorks navigation">
+        <div class="brand">
+          <img src="/assets/icon.svg" alt="" />
+          <div>
+            <strong>AnchorWorks</strong>
+            <span id="server-pill">checking</span>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Primary">
+          <button class="tab active" data-tab="chat" type="button">Chat</button>
+          <button class="tab" data-tab="evidence" type="button">Evidence</button>
+          <button class="tab" data-tab="lexicon" type="button">Lexicon</button>
+          <button class="tab" data-tab="system" type="button">System</button>
+        </nav>
+        <div class="rail-note">
+          <span>Runtime-only controls.</span>
+          <span>No auth gate. No dead cockpit.</span>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section class="panel active" id="panel-chat" aria-labelledby="chat-title">
+          <header class="panel-head">
+            <div>
+              <h1 id="chat-title">Chat Workbench</h1>
+              <p>AnchorWorks local, document evidence, count walk, or one configured external API lane.</p>
+            </div>
+            <div class="toolbar">
+              <label class="toggle">
+                <input id="evidence-toggle" type="checkbox" checked />
+                <span>Evidence</span>
+              </label>
+              <button id="refresh-history" class="secondary" type="button">Refresh</button>
+              <button id="stop-response" class="danger" type="button">Stop</button>
+            </div>
+          </header>
+
+          <div id="chat-feed" class="chat-feed" aria-live="polite"></div>
+
+          <form id="chat-form" class="composer">
+            <div class="composer-controls">
+              <label>
+                Mode
+                <select id="chat-mode">
+                  <option value="clearspeak">AnchorWorks</option>
+                  <option value="documents">Documents</option>
+                  <option value="counts">Counts Only</option>
+                  <option value="api">External API</option>
+                </select>
+              </label>
+              <label>
+                Model
+                <input id="chat-model" type="text" placeholder="external model override" />
+              </label>
+            </div>
+            <div class="composer-row">
+              <textarea id="chat-input" rows="3" placeholder="Ask AnchorWorks..." required></textarea>
+              <button type="submit">Send</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel" id="panel-evidence" aria-labelledby="evidence-title">
+          <header class="panel-head">
+            <div>
+              <h1 id="evidence-title">Evidence</h1>
+              <p>Read-only trace from the last answer. Counts may shape speech; citations prove source.</p>
+            </div>
+          </header>
+          <div id="evidence-view" class="evidence-grid"></div>
+        </section>
+
+        <section class="panel" id="panel-lexicon" aria-labelledby="lexicon-title">
+          <header class="panel-head">
+            <div>
+              <h1 id="lexicon-title">Lexicon</h1>
+              <p>Authority inspection only. No mutation controls.</p>
+            </div>
+          </header>
+          <form id="lexicon-form" class="lookup-bar">
+            <input id="lexicon-query" type="search" placeholder="word or symbol" required />
+            <select id="lexicon-pack">
+              <option value="all">all packs</option>
+              <option value="canonical">canonical</option>
+              <option value="structural">structural</option>
+              <option value="phrases">phrases</option>
+            </select>
+            <button type="submit">Lookup</button>
+          </form>
+          <div id="lexicon-results" class="table-wrap"></div>
+        </section>
+
+        <section class="panel" id="panel-system" aria-labelledby="system-title">
+          <header class="panel-head">
+            <div>
+              <h1 id="system-title">System</h1>
+              <p>Real runtime facts from existing backend routes.</p>
+            </div>
+            <button id="refresh-system" class="secondary" type="button">Refresh</button>
+          </header>
+          <div id="system-view" class="status-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="empty-state-template">
+      <div class="empty-state">No data returned yet.</div>
+    </template>
+    <script src="/assets/app.js" type="module"></script>
+  </body>
+</html>

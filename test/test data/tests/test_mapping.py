@@ -1599,17 +1599,17 @@ class MappingTests(unittest.TestCase):
             self.assertFalse(result["writes_performed"])
 
     def test_chat_ui_exposes_workbench_controls(self) -> None:
-        ui_root = _anchorworks_repo_root() / "UI2"
+        ui_root = _anchorworks_repo_root() / "UI"
         index_html = (ui_root / "index.html").read_text(encoding="utf-8")
         app_js = (ui_root / "assets" / "app.js").read_text(encoding="utf-8")
 
-        self.assertIn('id="show-evidence"', index_html)
+        self.assertIn('id="evidence-toggle"', index_html)
         self.assertIn('id="stop-response"', index_html)
-        self.assertIn("Continue Working", index_html)
-        self.assertIn("Review Evidence", index_html)
+        self.assertIn("Chat Workbench", index_html)
+        self.assertIn("Evidence", index_html)
+        self.assertIn("continue_working", app_js)
         self.assertIn("/api/chat/stop", app_js)
         self.assertNotIn("/api/lexicon/symbolic-maps", app_js)
-        self.assertNotIn("/api/binary-substrate/status", app_js)
         self.assertNotIn("Symbolic Maps", index_html)
 
     def test_default_data_root_prefers_clean_runtime_from_repo(self) -> None:
