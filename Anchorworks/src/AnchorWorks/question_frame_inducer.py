@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import csv
+import json
 import re
-from collections import Counter
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -67,11 +67,11 @@ def induce_question_frame(
 
 
 def default_reasoning_frame_corpus() -> Path:
-    return Path(r"D:\AnchorWorks_Data_Curation\reasoning_frame_pack\plain_text\general_education_reasoning_frames.txt")
+    return Path(r"D:\AnchorWorks_Data_Curation\frame_cloud_rules\frame_cloud_rules.json")
 
 
 def _build_patterns(corpus_path: str | Path | None) -> list[FramePattern]:
-    support = _corpus_support(corpus_path)
+    support = _frame_cloud_support(corpus_path)
     return [
         FramePattern(
             "why_causal",
@@ -211,38 +211,59 @@ def _support_rows(pattern: FramePattern, support_stats: dict[str, Any]) -> list[
             "source_examples": int(pattern.support_count),
             "confidence_source": "reasoning_frame_corpus_pattern_count",
             "example_questions": examples,
+            "source_artifact": str(support_stats.get("source_artifact") or ""),
+            "scan_source_corpus_live": bool(support_stats.get("scan_source_corpus_live", False)),
         }
     ]
 
 
 def _corpus_support(corpus_path: str | Path | None) -> dict[str, Any]:
-    path = Path(corpus_path) if corpus_path else default_reasoning_frame_corpus()
+    return _frame_cloud_support(corpus_path)
+
+
+@lru_cache(maxsize=8)
+def _cached_frame_cloud_support(path_text: str) -> dict[str, Any]:
+    path = Path(path_text)
     if not path.exists():
         return {}
-    rows = _load_plain_frame_rows(path) if path.suffix.lower() == ".txt" else _load_csv_frame_rows(path)
-    counts: Counter[str] = Counter()
-    examples: dict[str, list[str]] = {}
-    for row in rows:
-        question = _clean(row.get("question") or "")
-        if not question:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    support: dict[str, Any] = {}
+    for rule in payload.get("rules") or []:
+        cloud_key = str(rule.get("cloud_key") or "")
+        if not cloud_key:
             continue
-        key = _pattern_key(question)
-        counts[key] += 1
-        examples.setdefault(f"examples:{key}", [])
-        if len(examples[f"examples:{key}"]) < 3:
-            examples[f"examples:{key}"].append(question)
-    payload: dict[str, Any] = dict(counts)
-    payload.update(examples)
-    return payload
+        support[cloud_key] = int(rule.get("source_examples") or 0)
+        support[f"examples:{cloud_key}"] = [
+            str(item.get("question") or "")
+            for item in (rule.get("example_pairs") or [])[:3]
+            if isinstance(item, dict) and str(item.get("question") or "")
+        ]
+        support[f"rule:{cloud_key}"] = rule
+    support["source_artifact"] = str(path)
+    support["scan_source_corpus_live"] = False
+    return support
+
+
+def _frame_cloud_support(corpus_path: str | Path | None) -> dict[str, Any]:
+    path = Path(corpus_path) if corpus_path else default_reasoning_frame_corpus()
+    return _cached_frame_cloud_support(str(path))
+
+
+def _corpus_support(corpus_path: str | Path | None) -> dict[str, Any]:
+    return _frame_cloud_support(corpus_path)
 
 
 def _load_csv_frame_rows(path: Path) -> list[dict[str, str]]:
+    # Retained only for offline tooling compatibility. Runtime uses frame_cloud_rules.json.
+    import csv
+
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
         return [{"question": row.get("Question", ""), "frame": row.get("Answer_Frame", "")} for row in reader]
 
 
 def _load_plain_frame_rows(path: Path) -> list[dict[str, str]]:
+    # Retained only for offline tooling compatibility. Runtime uses frame_cloud_rules.json.
     rows: list[dict[str, str]] = []
     current: dict[str, str] = {}
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():

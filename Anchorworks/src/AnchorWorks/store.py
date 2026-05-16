@@ -1015,6 +1015,12 @@ class LexiconStore:
             return False
         return True
 
+    def _should_decompose_unknown_string(self, anchor: str) -> bool:
+        value = self.normalize_anchor(anchor)
+        if len(value) < 2:
+            return False
+        return any(char.isalnum() for char in value)
+
     def _precompute_spell_suggestions(
         self,
         missing_counts: Counter[str],
@@ -3168,7 +3174,22 @@ class LexiconStore:
 
         corrections: list[dict[str, Any]] = []
         additions: list[dict[str, Any]] = []
-        unresolved_counts: Counter[str] = Counter(missing_counts)
+        decomposed_string_counts: Counter[str] = Counter({
+            anchor: count
+            for anchor, count in missing_counts.items()
+            if self._should_decompose_unknown_string(anchor)
+        })
+        unresolved_counts: Counter[str] = Counter({
+            anchor: count
+            for anchor, count in missing_counts.items()
+            if anchor not in decomposed_string_counts
+        })
+        for anchor in decomposed_string_counts:
+            row = review_index.get(anchor)
+            if row is not None:
+                row["ingest_action"] = "character_decomposed"
+                row["resolved_to"] = list(anchor)
+                row["character_decomposed"] = True
 
         unresolved_anchor_count = len(unresolved_counts)
         temp_symbol_map, temp_entries = self._build_temp_symbol_entries(source_path, unresolved_counts)
@@ -3192,6 +3213,7 @@ class LexiconStore:
             window_radius=DEFAULT_WINDOW_RADIUS,
             resolved_anchors=resolution_map,
             null_anchors=null_anchor_set,
+            decompose_anchors=set(decomposed_string_counts),
         )
         line_locators = self._paragraph_line_locators({
             "source_path": str(source_path),
@@ -3288,6 +3310,8 @@ class LexiconStore:
             "known_anchor_observations": int(sum(known_counts.values())),
             "companion_anchor_observations": int(sum(companion_counts.values())),
             "missing_anchor_observations": int(sum(missing_counts.values())),
+            "character_decomposed_anchor_count": len(decomposed_string_counts),
+            "character_decomposed_anchor_observations": int(sum(decomposed_string_counts.values())),
             "null_anchor_observations": int(sum(observed_counts.get(anchor, 0) for anchor in null_anchor_set)),
             "raw_missing_anchor_count": len(raw_missing_counts),
             "raw_missing_anchor_observations": int(sum(raw_missing_counts.values())),
@@ -3302,6 +3326,7 @@ class LexiconStore:
             "known_anchors": self._anchor_rows(known_counts),
             "companion_authority_anchors": self._anchor_rows(companion_counts),
             "missing_anchors": self._anchor_rows(missing_counts),
+            "character_decomposed_anchors": self._anchor_rows(decomposed_string_counts),
             "null_anchors": self._anchor_rows(Counter({
                 anchor: observed_counts[anchor]
                 for anchor in null_anchor_set
@@ -3464,13 +3489,17 @@ class LexiconStore:
             "known_anchor_observations": payload["known_anchor_observations"],
             "companion_anchor_observations": payload["companion_anchor_observations"],
             "missing_anchor_observations": payload["missing_anchor_observations"],
+            "character_decomposed_anchor_count": payload["character_decomposed_anchor_count"],
+            "character_decomposed_anchor_observations": payload["character_decomposed_anchor_observations"],
             "null_anchor_observations": payload["null_anchor_observations"],
             "raw_missing_anchor_count": payload["raw_missing_anchor_count"],
             "raw_missing_anchor_observations": payload["raw_missing_anchor_observations"],
-            "registered_missing_anchors": len(missing_counts),
+            "registered_missing_anchors": len(unresolved_counts),
             "known_anchors_preview": payload["known_anchors"][:25],
             "companion_authority_anchors_preview": payload["companion_authority_anchors"][:25],
             "missing_anchors_preview": payload["missing_anchors"][:25],
+            "character_decomposed_anchors": payload["character_decomposed_anchors"],
+            "character_decomposed_anchors_preview": payload["character_decomposed_anchors"][:25],
             "null_anchors": payload["null_anchors"],
             "null_anchors_preview": payload["null_anchors"][:25],
             "null_index_preview": payload["null_index"][:25],

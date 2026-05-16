@@ -118,7 +118,10 @@ class SymbolRelationCountsTests(unittest.TestCase):
             store = LexiconStore(temp_root)
             store.canonical_dir.mkdir(parents=True, exist_ok=True)
             (store.canonical_dir / "canonical_A.json").write_text(
-                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"}]',
+                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"},'
+                '{"word":"m","hex":"0x0000000003"},{"word":"y","hex":"0x0000000004"},'
+                '{"word":"s","hex":"0x0000000005"},{"word":"t","hex":"0x0000000006"},'
+                '{"word":"e","hex":"0x0000000007"},{"word":"r","hex":"0x0000000008"}]',
                 encoding="utf-8",
             )
             observed_path = store.observed_maps_dir / "sample.observed.json"
@@ -162,7 +165,10 @@ class SymbolRelationCountsTests(unittest.TestCase):
             store = LexiconStore(temp_root)
             store.canonical_dir.mkdir(parents=True, exist_ok=True)
             (store.canonical_dir / "canonical_A.json").write_text(
-                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"}]',
+                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"},'
+                '{"word":"m","hex":"0x0000000003"},{"word":"y","hex":"0x0000000004"},'
+                '{"word":"s","hex":"0x0000000005"},{"word":"t","hex":"0x0000000006"},'
+                '{"word":"e","hex":"0x0000000007"},{"word":"r","hex":"0x0000000008"}]',
                 encoding="utf-8",
             )
             source = Path(temp_root) / "sample.txt"
@@ -174,8 +180,8 @@ class SymbolRelationCountsTests(unittest.TestCase):
 
             self.assertTrue(result["ok"])
             self.assertEqual(result["source_format"], "awsm")
-            self.assertEqual(result["canonical_symbol_count"], 2)
-            self.assertEqual(result["source_local_symbol_count"], 1)
+            self.assertEqual(result["canonical_symbol_count"], 8)
+            self.assertEqual(result["source_local_symbol_count"], 0)
             self.assertGreater(result["unique_symbol_relations"], 0)
             self.assertEqual(result["writes_allowed"]["lifetime"], False)
 
@@ -184,7 +190,10 @@ class SymbolRelationCountsTests(unittest.TestCase):
             store = LexiconStore(temp_root)
             store.canonical_dir.mkdir(parents=True, exist_ok=True)
             (store.canonical_dir / "canonical_A.json").write_text(
-                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"}]',
+                '[{"word":"alpha","hex":"0x0000000001"},{"word":"beta","hex":"0x0000000002"},'
+                '{"word":"m","hex":"0x0000000003"},{"word":"y","hex":"0x0000000004"},'
+                '{"word":"s","hex":"0x0000000005"},{"word":"t","hex":"0x0000000006"},'
+                '{"word":"e","hex":"0x0000000007"},{"word":"r","hex":"0x0000000008"}]',
                 encoding="utf-8",
             )
             source = Path(temp_root) / "sample.txt"
@@ -199,7 +208,7 @@ class SymbolRelationCountsTests(unittest.TestCase):
 
             self.assertEqual(awsm_result["source_format"], "awsm")
             self.assertEqual(json_result["source_format"], "observed_json")
-            self.assertEqual(awsm_result["source_local_symbol_count"], 1)
+            self.assertEqual(awsm_result["source_local_symbol_count"], 0)
             self.assertEqual(awsm_artifact["symbol_authority"], json_artifact["symbol_authority"])
             self.assertEqual(awsm_artifact["symbol_relation_counts"], json_artifact["symbol_relation_counts"])
             self.assertEqual(awsm_artifact["relation_fates"], json_artifact["relation_fates"])

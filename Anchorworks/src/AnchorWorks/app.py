@@ -22,6 +22,7 @@ from .settings_inventory import build_settings_inventory
 from .store import LexiconStore
 from .symbol_policy import SymbolPolicy
 from .tree_brain_controls import TreeBrainControls
+from aw_inference_kernel import solve_formula_question
 
 
 class WordBody(BaseModel):
@@ -325,6 +326,9 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.post("/api/clearspeak/query")
     def clearspeak_query(body: ClearSpeakQueryBody) -> dict[str, Any]:
         evidence_mode = (body.evidence_mode or "auto").strip().lower()
+        formula_payload = solve_formula_question(body.query)
+        if formula_payload and evidence_mode in {"auto", "counts", "count", "documents", "document", "maps", "mapped", "mapped_documents"}:
+            return formula_payload
         if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents", "auto"}:
             document_result = chat_memory.document_answer.answer(body.query, limit=body.limit).to_dict()
             if document_result.get("ok"):

@@ -41,26 +41,33 @@ def compose_anchor_stream(anchor: str) -> list[str]:
     if anchor == EMOJI_ANCHOR:
         return [EMOJI_ANCHOR]
 
-    anchor = _normalize_anchor_identity(anchor)
-    if _is_string_literal_surface(anchor):
-        return list(anchor)
+    surface = str(anchor or "").replace("\u2018", "'").replace("\u2019", "'")
+    if _is_acronym_alpha_run(surface):
+        return [_normalize_anchor_identity(char) for char in str(anchor)]
+
+    if _is_string_literal_surface(surface):
+        return list(_normalize_anchor_identity(surface))
 
     parts: list[str] = []
     index = 0
-    while index < len(anchor):
-        char = anchor[index]
-        if char.isalpha() or _is_surface_inline_apostrophe(anchor, index):
+    while index < len(surface):
+        char = surface[index]
+        if char.isalpha() or _is_surface_inline_apostrophe(surface, index):
             start = index
             index += 1
-            while index < len(anchor) and (anchor[index].isalpha() or _is_surface_inline_apostrophe(anchor, index)):
+            while index < len(surface) and (surface[index].isalpha() or _is_surface_inline_apostrophe(surface, index)):
                 index += 1
-            parts.append(anchor[start:index])
+            chunk = surface[start:index]
+            if _is_acronym_alpha_run(chunk):
+                parts.extend(_normalize_anchor_identity(letter) for letter in chunk)
+            else:
+                parts.append(_normalize_anchor_identity(chunk))
             continue
 
-        parts.append(char)
+        parts.append(_normalize_anchor_identity(char))
         index += 1
 
-    return parts or [anchor]
+    return parts or [_normalize_anchor_identity(surface)]
 
 
 def count_observed_anchors(text: str) -> Counter[str]:
@@ -104,7 +111,11 @@ def _decompose_non_whitespace_run(surface: str, surface_start: int) -> list[dict
                 index += 1
             chunk = surface[start:index]
             if not _is_apostrophe_only_run(chunk):
-                rows.append(_anchor_row(chunk, chunk, surface_start + start, surface_start + index))
+                if _is_acronym_alpha_run(chunk):
+                    for offset, letter in enumerate(chunk):
+                        rows.append(_anchor_row(letter, letter, surface_start + start + offset, surface_start + start + offset + 1))
+                else:
+                    rows.append(_anchor_row(chunk, chunk, surface_start + start, surface_start + index))
             continue
 
         if char not in _JOINED_APOSTROPHES:
@@ -136,6 +147,15 @@ def _is_string_literal_surface(surface: str) -> bool:
     return has_alpha and has_digit
 
 
+def _is_acronym_alpha_run(surface: str) -> bool:
+    value = str(surface or "")
+    if len(value) < 2:
+        return False
+    if not all(char.isalpha() for char in value):
+        return False
+    return value.upper() == value and any(char.isalpha() for char in value)
+
+
 def _normalize_anchor_identity(anchor: str) -> str:
     if anchor == EMOJI_ANCHOR:
         return EMOJI_ANCHOR
@@ -147,9 +167,11 @@ def build_anchor_map(
     window_radius: int = DEFAULT_WINDOW_RADIUS,
     resolved_anchors: Mapping[str, str] | None = None,
     null_anchors: set[str] | None = None,
+    decompose_anchors: set[str] | None = None,
 ) -> dict[str, Any]:
     anchor_aliases = resolved_anchors or {}
     null_anchor_set = {str(anchor or "").lower() for anchor in (null_anchors or set()) if str(anchor or "")}
+    decompose_anchor_set = {str(anchor or "").lower() for anchor in (decompose_anchors or set()) if str(anchor or "")}
     paragraphs = split_paragraphs(text)
     paragraph_rows: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
@@ -157,7 +179,7 @@ def build_anchor_map(
     observed_counts: Counter[str] = Counter()
 
     for paragraph_id, paragraph in enumerate(paragraphs):
-        anchor_rows = extract_anchor_rows(paragraph)
+        anchor_rows = _apply_decomposed_anchor_fallbacks(extract_anchor_rows(paragraph), decompose_anchor_set)
         anchors = [row["anchor"] for row in anchor_rows]
         count_eligible = [
             bool(row.get("count_eligible", True)) and row["anchor"] not in null_anchor_set
@@ -259,6 +281,31 @@ def build_anchor_map(
             "total_relation_observations": total_relation_observations,
         },
     }
+
+
+def _apply_decomposed_anchor_fallbacks(rows: list[dict[str, Any]], decompose_anchors: set[str]) -> list[dict[str, Any]]:
+    if not decompose_anchors:
+        return rows
+
+    expanded: list[dict[str, Any]] = []
+    for row in rows:
+        anchor = str(row.get("anchor") or "")
+        if anchor in decompose_anchors and row.get("kind", "anchor") == "anchor":
+            atomic_rows = _decompose_anchor_row_to_atomic_rows(row)
+            expanded.extend(atomic_rows or [row])
+        else:
+            expanded.append(row)
+    return expanded
+
+
+def _decompose_anchor_row_to_atomic_rows(row: Mapping[str, Any]) -> list[dict[str, Any]]:
+    surface = str(row.get("surface") or "")
+    start = int(row.get("start", 0) or 0)
+    atomic_rows: list[dict[str, Any]] = []
+    for offset, char in enumerate(surface):
+        if char.isalnum():
+            atomic_rows.append(_anchor_row(char, char, start + offset, start + offset + 1))
+    return atomic_rows
 
 
 def build_context_views(

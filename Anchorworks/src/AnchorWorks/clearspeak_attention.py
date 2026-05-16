@@ -276,6 +276,7 @@ def build_active_cloud_frame(
             "source_support": min(1.0, float(row["raw_observations"]) / 10.0),
         }
         penalties = _candidate_penalties(anchor, row, clouds, frame)
+        frame_guidance = _learned_frame_candidate_guidance(anchor, row, clouds, frame)
         if float(penalties.get("domain_drift_penalty", 0.0) or 0.0) >= 0.75:
             rejected[anchor] = {
                 "anchor": anchor,
@@ -292,6 +293,8 @@ def build_active_cloud_frame(
             + min(0.25, float(row["weighted_observations"]) / 100.0)
             - penalties["total"]
         )
+        score += float(frame_guidance.get("boost", 0.0) or 0.0)
+        score -= float(frame_guidance.get("penalty", 0.0) or 0.0)
         supporting_context = _ordered_supporting_context(row["cloud_support"], clouds)
         role_fit = _role_fit(frame, supporting_context)
         score += min(0.10, float(role_fit["score"]) / 100.0)
@@ -302,6 +305,7 @@ def build_active_cloud_frame(
             "selection_score": round(score, 6),
             "score_parts": {key: round(value, 6) for key, value in score_parts.items()},
             "penalties": penalties,
+            "learned_frame_guidance": frame_guidance,
             "raw_observations": int(row["raw_observations"]),
             "weighted_observations": round(float(row["weighted_observations"]), 6),
             "supporting_context": supporting_context,
@@ -322,6 +326,7 @@ def build_active_cloud_frame(
             "why_chosen": [
                 "candidate_in_active_cloud",
                 "Q/R/A/F_score_parts",
+                "learned_frame_slot_guidance",
                 "gates_passed_before_score",
                 "path_trace_required",
             ],
@@ -823,6 +828,79 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
         penalties["domain_drift_penalty"] = _question_field_drift_penalty(anchor, frame)
     penalties["total"] = round(sum(penalties.values()), 6)
     return penalties
+
+
+def _learned_frame_candidate_guidance(
+    anchor: str,
+    row: dict[str, Any],
+    clouds: dict[str, list[str]],
+    frame: dict[str, Any],
+) -> dict[str, Any]:
+    learned = frame.get("learned_question_frame") if isinstance(frame.get("learned_question_frame"), dict) else {}
+    frame_type = str(learned.get("frame_type") or "")
+    slots = learned.get("slots") if isinstance(learned.get("slots"), dict) else {}
+    subject_terms = set(_clean_list(str(slots.get("subject") or "").split()))
+    question_terms = set(_clean_list(clouds.get("question") or []))
+    answer_terms = set(_clean_list(clouds.get("answer") or []))
+    support_terms: set[str] = set()
+    cloud_support = row.get("cloud_support") if isinstance(row.get("cloud_support"), dict) else {}
+    for values in cloud_support.values():
+        support_terms.update(_clean_list(list(values)))
+
+    anchor_text = str(anchor or "").casefold()
+    reasons: list[str] = []
+    boost = 0.0
+    penalty = 0.0
+    if not learned:
+        return {
+            "schema_version": "anchorworks_learned_frame_candidate_guidance@1",
+            "active": False,
+            "boost": 0.0,
+            "penalty": 0.0,
+            "reasons": [],
+        }
+
+    if anchor_text in subject_terms:
+        boost += 0.08
+        reasons.append("candidate_matches_learned_subject_slot")
+    if support_terms & subject_terms:
+        boost += 0.06
+        reasons.append("candidate_supported_by_subject_slot_terms")
+    if support_terms & question_terms:
+        boost += 0.04
+        reasons.append("candidate_supported_by_question_terms")
+
+    if frame_type in {"causal_explanation", "process_explanation"}:
+        if anchor_text in {"because", "cause", "causes", "caused", "force", "forces", "change", "changes", "affect", "depends"}:
+            boost += 0.07
+            reasons.append("candidate_fits_explanation_frame")
+    if frame_type == "definition":
+        if anchor_text in {"is", "are", "means", "called", "known", "type", "kind", "category"}:
+            boost += 0.06
+            reasons.append("candidate_fits_definition_frame")
+    if frame_type == "comparison":
+        if anchor_text in {"similar", "different", "same", "both", "than", "whereas", "compare", "contrast"}:
+            boost += 0.07
+            reasons.append("candidate_fits_comparison_frame")
+    if frame_type == "selection_check":
+        if anchor_text in {"true", "best", "correct", "statement", "choice", "fits"}:
+            boost += 0.06
+            reasons.append("candidate_fits_selection_frame")
+
+    if frame_type != "open_educational_frame" and not ((support_terms | {anchor_text}) & (subject_terms | question_terms | answer_terms)):
+        penalty += 0.05
+        reasons.append("candidate_weakly_connected_to_learned_frame")
+
+    return {
+        "schema_version": "anchorworks_learned_frame_candidate_guidance@1",
+        "active": True,
+        "frame_type": frame_type,
+        "boost": round(boost, 6),
+        "penalty": round(penalty, 6),
+        "subject_terms": sorted(subject_terms),
+        "reasons": reasons,
+        "fact_answer_authority": False,
+    }
 
 
 def _phrase_field_payload(phrase_field: dict[str, Any] | None) -> dict[str, Any] | None:

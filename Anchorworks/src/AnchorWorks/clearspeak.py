@@ -22,6 +22,7 @@ from .clearspeak_attention import (
     retrieve_from_count_index,
 )
 from .answer_surface import render_anchor_answer_surface
+from .inference import run_inference
 from .intake import extract_anchors
 from .lifetime_symbol_mirror import load_lifetime_by_symbol_dir
 from .symbol_count_cells import read_symbol_cell
@@ -70,6 +71,26 @@ class ClearSpeakService:
         unique = recognition["query_anchors"]
         represented = recognition["represented_anchors"]
         missing = recognition["missing_anchors"]
+        represented_content = _strict_content_anchors(represented)
+        missing_content = _strict_content_anchors(missing)
+        if missing_content and (not represented_content or _missing_entity_name_part_blocks_walk(unique, missing_content)):
+            answer_assembly = _empty_answer_assembly("missing_content_anchor")
+            answer_assembly["missing_content_anchors"] = missing_content
+            answer_assembly["contract"]["question_glue_cannot_seed_counts"] = True
+            speech = self._compose_speech(represented, missing, answer_assembly)
+            response = self._compose_response(query_text, represented, missing, [], answer_assembly)
+            return ClearSpeakResult(
+                query=query_text,
+                query_anchors=unique,
+                represented_anchors=represented,
+                missing_anchors=missing,
+                lexicon_recognition=recognition,
+                speech=speech,
+                response=response,
+                evidence=[],
+                citations=[],
+                answer_assembly=answer_assembly,
+            )
         count_index = self._load_count_index(represented)
 
         evidence: list[dict[str, Any]] = []
@@ -101,6 +122,7 @@ class ClearSpeakService:
             target_anchors=target_anchors,
             max_anchors=max_anchors,
         )
+        answer_assembly["inference_plan"] = run_inference(query_text, unique, answer_assembly, mode="counts")
         speech = self._compose_speech(represented, missing, answer_assembly)
         response = self._compose_response(query_text, represented, missing, evidence, answer_assembly)
         return ClearSpeakResult(
@@ -145,12 +167,22 @@ class ClearSpeakService:
             if isinstance(row, dict) and str(row.get("anchor") or "").strip()
         ]
         if terms:
-            return render_anchor_answer_surface(
+            rendered = render_anchor_answer_surface(
                 represented,
                 answer_assembly,
                 fallback_subjects=represented,
                 source_label="count path",
             )
+            if rendered:
+                return rendered
+            plan = answer_assembly.get("inference_plan")
+            if isinstance(plan, dict) and plan.get("accepted_candidates") == []:
+                return "I found count candidates, but the inference kernel did not admit a lawful answer path yet."
+            return rendered
+        if str(answer_assembly.get("stop_reason") or "") == "missing_content_anchor":
+            missing_content = answer_assembly.get("missing_content_anchors") or _strict_content_anchors(missing)
+            if missing_content:
+                return "I do not recognize " + ", ".join(missing_content) + " in the lexicon/count path yet."
         if represented:
             return "I recognize " + ", ".join(represented) + ", but I do not have count support yet."
         if missing:
@@ -571,6 +603,21 @@ def _empty_answer_assembly(reason: str) -> dict[str, Any]:
         "attention_math": attention_math_contract(),
         "contract": _answer_assembly_contract(),
     }
+
+
+def _strict_content_anchors(anchors: list[str]) -> list[str]:
+    return [
+        str(anchor or "").strip().casefold()
+        for anchor in anchors
+        if str(anchor or "").strip() and not blocked_answer_anchor(str(anchor or "").strip())
+    ]
+
+
+def _missing_entity_name_part_blocks_walk(query_anchors: list[str], missing_content: list[str]) -> bool:
+    observed = [str(anchor or "").strip().casefold() for anchor in query_anchors if str(anchor or "").strip()]
+    if not observed or observed[0] != "who":
+        return False
+    return bool(missing_content)
 
 
 def _symbol_bytes_to_hex(symbol: bytes) -> str:

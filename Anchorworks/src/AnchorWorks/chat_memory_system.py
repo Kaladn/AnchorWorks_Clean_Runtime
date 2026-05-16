@@ -14,6 +14,7 @@ from .anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from .clearspeak import ClearSpeakService
 from .document_answer import DocumentAnswerAssembler
 from .model_api_client import ModelApiClient
+from aw_inference_kernel import solve_formula_question
 
 
 @dataclass
@@ -236,6 +237,7 @@ class ChatMemorySystem:
         model_api_payload: dict[str, Any] | None = None
         citations: list[dict[str, Any]] = []
         document_payload_shape = _document_payload_shape(clean_message)
+        formula_payload = solve_formula_question(clean_message)
         if document_payload_shape["is_document_payload"] and mode_name not in {"api", "external", "model"}:
             response = _document_payload_response(document_payload_shape)
             clearspeak_payload = {
@@ -255,6 +257,14 @@ class ChatMemorySystem:
             engine = "chat_document_payload_guard"
             provider = "anchorworks"
             mode_name = "document_payload"
+        elif formula_payload and mode_name not in {"api", "external", "model"}:
+            clearspeak_payload = formula_payload
+            response = str(formula_payload["response"])
+            citations = []
+            actor = "clearspeak"
+            engine = "aw_inference_formula_solver"
+            provider = "anchorworks"
+            mode_name = "formula"
         elif mode_name in {"counts", "count"}:
             clearspeak_result = self.clearspeak.query(clean_message)
             clearspeak_payload = clearspeak_result.to_dict()

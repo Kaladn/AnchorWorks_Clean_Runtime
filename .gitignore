@@ -35,6 +35,7 @@ State/source_local_occurrences/**
 State/source_local_resonance/**
 State/temp_lexicons/**
 State/ingest_staging/**
+State/user/ingest_staging/**
 State/visual_intake/**
 State/misspelled_reviews/**
 State/chat_memory/chats/**

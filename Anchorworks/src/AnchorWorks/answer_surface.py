@@ -49,6 +49,9 @@ def render_anchor_answer_surface(
         return f"The answer path around {subject_text} points toward {term_text}."
     if frame == "how":
         return f"The answer path for {subject_text} moves through {term_text}."
+    if frame == "who":
+        subject_text = subject_text.replace(" and ", " ")
+        return f"{subject_text.capitalize()} is represented as an entity count field connected with {term_text}."
     if frame == "what":
         return f"{subject_text.capitalize()} is most strongly connected with {term_text}."
     if frame == "agreement":
@@ -67,6 +70,19 @@ def _answer_terms(answer_assembly: dict[str, Any]) -> list[str]:
 
 
 def _answer_surface_terms(answer_assembly: dict[str, Any]) -> list[str]:
+    plan = answer_assembly.get("inference_plan")
+    if isinstance(plan, dict):
+        accepted = plan.get("accepted_candidates")
+        if isinstance(accepted, list):
+            planned_terms = [
+                str(row.get("symbol") or row.get("anchor") or "").strip().casefold()
+                for row in accepted
+                if isinstance(row, dict) and str(row.get("symbol") or row.get("anchor") or "").strip()
+            ]
+            if planned_terms:
+                return _ordered_unique([term for term in planned_terms if not _blocked_answer_term(term)])
+            return []
+
     rows = [row for row in answer_assembly.get("terms", []) if isinstance(row, dict)]
     terms = [
         str(row.get("anchor") or "").strip().casefold()
@@ -84,6 +100,8 @@ def _frame_type(anchors: list[str]) -> str:
         return "why"
     if observed[0] == "how":
         return "how"
+    if observed[0] == "who":
+        return "who"
     if observed[0] in {"what", "which", "who", "where", "when"}:
         return "what"
     if any(anchor in {"agree", "agreement"} for anchor in observed):

@@ -268,6 +268,13 @@ class MappingTests(unittest.TestCase):
             ["earth's", "orbit", "and", "women's", "votes"],
         )
 
+    def test_acronyms_decompose_to_existing_letter_and_digit_anchors(self) -> None:
+        self.assertEqual(extract_anchors("AWSC v1.1 B70"), ["a", "w", "s", "c", "v", "1", ".", "1", "b", "7", "0"])
+
+        mapping = build_anchor_map("AWSC")
+        self.assertEqual(mapping["paragraphs"][0]["anchors"], ["a", "w", "s", "c"])
+        self.assertEqual(mapping["paragraphs"][0]["composed_anchor_stream"], ["a", "w", "s", "c"])
+
     def test_build_anchor_map_respects_paragraph_boundaries(self) -> None:
         text = "do not.\n\nstop now!"
         mapping = build_anchor_map(text)
@@ -746,7 +753,7 @@ class MappingTests(unittest.TestCase):
 
     def test_extract_anchors_preserves_fused_numeric_and_symbol_strings(self) -> None:
         anchors = extract_anchors("1997 876-RT54TX-67%% stop .")
-        self.assertEqual(anchors, ["1", "9", "9", "7", "8", "7", "6", "-", "rt", "5", "4", "tx", "-", "6", "7", "%", "%", "stop", "."])
+        self.assertEqual(anchors, ["1", "9", "9", "7", "8", "7", "6", "-", "r", "t", "5", "4", "t", "x", "-", "6", "7", "%", "%", "stop", "."])
 
     def test_punctuation_inside_non_whitespace_runs_becomes_own_anchor(self) -> None:
         self.assertEqual(extract_anchors("high-accuracy"), ["high", "-", "accuracy"])
@@ -759,11 +766,11 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(compose_anchor_stream("1997"), ["1", "9", "9", "7"])
         self.assertEqual(
             compose_anchor_stream("876-RT54TX-67%%"),
-            ["8", "7", "6", "-", "rt", "5", "4", "tx", "-", "6", "7", "%", "%"],
+            ["8", "7", "6", "-", "r", "t", "5", "4", "t", "x", "-", "6", "7", "%", "%"],
         )
         self.assertEqual(compose_anchor_stream("dontpanic"), ["dontpanic"])
         self.assertEqual(compose_anchor_stream("don't"), ["don't"])
-        self.assertEqual(compose_anchor_stream("NASA"), ["nasa"])
+        self.assertEqual(compose_anchor_stream("NASA"), ["n", "a", "s", "a"])
 
     def test_long_mixed_export_ids_become_one_non_counting_string_literal(self) -> None:
         export_id = (
@@ -1230,7 +1237,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
             source_path = Path(temp_dir) / "emp_notes.txt"
             source_path.write_text(
-                "unrelated opening.\n\nEMP defense requires shielding and grounding.\n\nunrelated closing.",
+                "unrelated opening.\n\nemp defense requires shielding and grounding.\n\nunrelated closing.",
                 encoding="utf-8",
             )
 
@@ -1244,7 +1251,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(passages[0]["block_id"], 1)
             self.assertEqual(passages[0]["line_start"], 3)
             self.assertEqual(passages[0]["line_end"], 3)
-            self.assertIn("EMP defense requires", passages[0]["text"])
+            self.assertIn("emp defense requires", passages[0]["text"])
 
     def test_document_answer_uses_topic_anchors_not_source_query_wrapper(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1307,7 +1314,7 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
             source_path = Path(temp_dir) / "emp_notes.txt"
             source_path.write_text(
-                "title line\n\nEMP defense requires shielding and grounding.",
+                "title line\n\nemp defense requires shielding and grounding.",
                 encoding="utf-8",
             )
 
@@ -2154,12 +2161,41 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(bundle["source_format"], "awsm_bundle")
             self.assertEqual(bundle["symbolic_map_name"], result["symbolic_map_name"])
 
-    def test_ingest_uses_source_local_temp_symbols_for_unresolved_anchors(self) -> None:
+    def test_ingest_decomposes_unresolved_strings_before_temp_symbols(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
-            _write_json(root / "Canonical" / "canonical_D.json", [{"word": "do", "status": "ASSIGNED"}])
+            _write_json(
+                root / "Canonical" / "canonical_D.json",
+                [{"word": "do", "status": "ASSIGNED"}],
+            )
+            _write_json(
+                root / "Canonical" / "canonical_E.json",
+                [{"word": "e", "status": "ASSIGNED"}],
+            )
+            _write_json(
+                root / "Canonical" / "canonical_M.json",
+                [{"word": "m", "status": "ASSIGNED"}],
+            )
+            _write_json(
+                root / "Canonical" / "canonical_R.json",
+                [{"word": "r", "status": "ASSIGNED"}],
+            )
+            _write_json(
+                root / "Canonical" / "canonical_S.json",
+                [{"word": "s", "status": "ASSIGNED"}],
+            )
+            _write_json(
+                root / "Canonical" / "canonical_T.json",
+                [{"word": "t", "status": "ASSIGNED"}],
+            )
+            _write_json(
+                root / "Canonical" / "canonical_Y.json",
+                [{"word": "y", "status": "ASSIGNED"}],
+            )
             for letter in "ABCEFGHIJKLMOPQRSTUVWXYZ":
-                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+                path = root / "Canonical" / f"canonical_{letter}.json"
+                if not path.exists():
+                    _write_json(path, [])
             _write_json(root / "Spare_Slots" / "spare_slots.json", [])
             _write_json(root / "Structural" / "structural.json", [{"word": ".", "status": "STRUCTURAL"}])
 
@@ -2174,9 +2210,11 @@ class MappingTests(unittest.TestCase):
 
             self.assertEqual(before_payload, after_payload)
             self.assertTrue(Path(result["saved_map_path"]).is_file())
-            self.assertTrue(Path(result["temp_lexicon_path"]).is_file())
             self.assertEqual(result["missing_anchor_count"], 1)
-            self.assertEqual(result["temp_symbol_count"], 1)
+            self.assertEqual(result["character_decomposed_anchor_count"], 1)
+            self.assertEqual(result["character_decomposed_anchors"][0]["anchor"], "mystery")
+            self.assertEqual(result["temp_symbol_count"], 0)
+            self.assertEqual(result["temp_lexicon_path"], "")
             self.assertEqual(result["count_write"]["lifetime_write_skipped"], True)
             self.assertEqual(result["count_paths"], [])
             reviews = store.misspelled_review_files()["files"]
@@ -2184,15 +2222,13 @@ class MappingTests(unittest.TestCase):
             review = store.load_misspelled_review(reviews[0]["name"])
             self.assertEqual(review["review_count"], 1)
             self.assertEqual(review["rows_preview"][0]["anchor"], "mystery")
-            self.assertEqual(review["rows_preview"][0]["ingest_action"], "temp_symbolized")
-            self.assertTrue(str(review["rows_preview"][0]["resolved_to"]).startswith("U"))
-            map_payload = store.load_observed_map(result["saved_map_name"])
-            self.assertEqual(map_payload["temp_symbol_count"], 1)
-            temp_payload = json.loads(Path(result["temp_lexicon_path"]).read_text(encoding="utf-8"))
-            self.assertEqual(temp_payload["entries"][0]["word"], "mystery")
-            self.assertTrue(temp_payload["entries"][0]["symbol"].startswith("U"))
-            self.assertEqual(len(temp_payload["entries"][0]["symbol"]), 12)
-            self.assertEqual(temp_payload["entries"][0]["lifetime_eligible"], False)
+            self.assertEqual(review["rows_preview"][0]["ingest_action"], "character_decomposed")
+            self.assertEqual(review["rows_preview"][0]["resolved_to"], list("mystery"))
+            map_payload = json.loads(Path(result["saved_map_path"]).read_text(encoding="utf-8"))
+            self.assertEqual(map_payload["temp_symbol_count"], 0)
+            paragraph = map_payload["paragraphs"][0]
+            self.assertEqual(paragraph["anchors"], ["do", "m", "y", "s", "t", "e", "r", "y", "."])
+            self.assertEqual(paragraph["composed_anchor_stream"], ["do", "m", "y", "s", "t", "e", "r", "y", "."])
 
     def test_structural_companion_anchors_do_not_block_canonical_lifetime_counts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -2216,7 +2252,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result["count_paths"], [])
             self.assertFalse(store.lifetime_counts_path.exists())
 
-    def test_missing_anchor_registry_can_seed_review_queue_without_promoting_counts(self) -> None:
+    def test_decomposed_unknown_strings_do_not_seed_missing_anchor_registry(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
             _write_json(root / "Canonical" / "canonical_D.json", [{"word": "do", "status": "ASSIGNED"}])
@@ -2233,18 +2269,17 @@ class MappingTests(unittest.TestCase):
             result = store.build_observed_map(source_path)
 
             review = store.missing_anchor_review_queue(limit=5)
-            self.assertEqual(review["total_registry_anchors"], 1)
-            self.assertEqual(review["entries"][0]["anchor"], "mystery")
-            self.assertEqual(review["entries"][0]["observations"], 2)
-            self.assertEqual(review["entries"][0]["review_status"], "unreviewed")
+            self.assertEqual(review["total_registry_anchors"], 0)
+            self.assertEqual(review["entries"], [])
 
             sync = store.sync_missing_anchor_review_queue(limit=5)
             after_lifetime = store._read_json(store.lifetime_counts_path, {})
 
             self.assertEqual(before_lifetime, after_lifetime)
-            self.assertEqual(sync["moved_to_unmatched"], 1)
-            self.assertEqual(sync["entries"][0]["word"], "mystery")
-            self.assertEqual(store.unmatched(limit=5)["entries"][0]["word"], "mystery")
+            self.assertEqual(sync["moved_to_unmatched"], 0)
+            self.assertEqual(sync["entries"], [])
+            self.assertEqual(store.unmatched(limit=5)["entries"], [])
+            self.assertEqual(result["character_decomposed_anchor_count"], 1)
             self.assertEqual(result["count_write"]["lifetime_write_skipped"], True)
 
     def test_missing_anchor_registry_classification_splits_markup_from_words_without_writes(self) -> None:

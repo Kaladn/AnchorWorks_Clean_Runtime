@@ -64,6 +64,13 @@ class SettingsTruthTests(unittest.TestCase):
         self.assertIn('grid-template-columns: minmax(0, 1fr) 110px', css)
         self.assertIn('grid-template-columns: 1fr', css)
 
+    def test_ui_defaults_to_anchorworks_auto_not_raw_clearspeak(self) -> None:
+        html = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI/index.html").read_text(encoding="utf-8")
+
+        self.assertIn('<option value="auto" selected>AnchorWorks Auto</option>', html)
+        self.assertIn('<option value="clearspeak">ClearSpeak Raw</option>', html)
+        self.assertNotIn('<option value="clearspeak">AnchorWorks</option>', html)
+
     def test_ui_chat_surface_uses_backend_workbench_contract(self) -> None:
         js = Path("D:/AnchorWorks_Clean_Runtime/Anchorworks/UI/assets/app.js").read_text(encoding="utf-8")
 

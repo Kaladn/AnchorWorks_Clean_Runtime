@@ -11,6 +11,7 @@ from .clearspeak_attention import (
     build_active_cloud_frame,
     choose_candidate_with_lookahead,
     content_anchors,
+    blocked_answer_anchor,
     infer_attention_frame,
 )
 from .answer_surface import render_anchor_answer_surface
@@ -434,6 +435,7 @@ def _fact_candidates(query_anchors: list[str], passages: list[dict[str, Any]], a
         for anchor in query_anchors
         if str(anchor or "").strip()
     }
+    query_content_set = {anchor for anchor in query_set if not blocked_answer_anchor(anchor)}
     term_set = {
         str(anchor or "").strip().casefold()
         for anchor in answer_terms
@@ -446,6 +448,9 @@ def _fact_candidates(query_anchors: list[str], passages: list[dict[str, Any]], a
             anchors = set(extract_anchors(score_text or answer_text))
             answer_anchors = set(extract_anchors(answer_text))
             query_hits = anchors & query_set
+            content_query_hits = anchors & query_content_set
+            if query_content_set and not content_query_hits:
+                continue
             term_hits = (anchors | answer_anchors) & term_set
             score = (
                 len(query_hits) * 100.0
@@ -466,6 +471,7 @@ def _fact_candidates(query_anchors: list[str], passages: list[dict[str, Any]], a
                 "line_start": int(passage.get("line_start", 0) or 0),
                 "line_end": int(passage.get("line_end", 0) or 0),
                 "query_hits": sorted(query_hits),
+                "content_query_hits": sorted(content_query_hits),
                 "answer_path_hits": sorted(term_hits),
             })
     candidates.sort(key=lambda row: (-float(row["score"]), int(row["passage_index"]), int(row["block_id"]), str(row["answer_text"])))
@@ -487,10 +493,20 @@ def _extract_fact_texts(text: str) -> list[tuple[str, str, str]]:
         compact = _clean_fact_answer_text(compact)
         if compact:
             out.append((compact, "compact_answer", compact))
-    if not out and not _heading_only_fact(clean):
+    if not out and not _heading_only_fact(clean) and not _non_fact_code_block(clean):
         block = _clean_fact_answer_text(clean)
         out.append((block, "source_block", block))
     return out
+
+
+def _non_fact_code_block(text: str) -> bool:
+    clean = str(text or "").strip()
+    if not clean.startswith("```"):
+        return False
+    lowered = clean.casefold()
+    if "answer:" in lowered or "compact answer field" in lowered:
+        return False
+    return True
 
 
 def _heading_only_fact(text: str) -> bool:
@@ -501,6 +517,9 @@ def _heading_only_fact(text: str) -> bool:
     if clean.startswith("#") or lowered.startswith(("lesson ", "answered checks", "compact answer field")):
         content_count = len([anchor for anchor in extract_anchors(clean) if any(char.isalpha() for char in anchor)])
         return content_count <= 8
+    if lowered.endswith(":"):
+        content_count = len([anchor for anchor in extract_anchors(clean) if any(char.isalpha() for char in anchor)])
+        return content_count <= 4
     return False
 
 
