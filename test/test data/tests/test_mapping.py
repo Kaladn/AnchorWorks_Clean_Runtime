@@ -679,7 +679,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
             self.assertEqual(result.answer_assembly["trace"][0]["lookahead_decision"]["chosen"]["pattern_health"], "healthy")
 
-    def test_clearspeak_reads_old_awsc_cells_through_genome_mapping(self) -> None:
+    def test_clearspeak_does_not_read_old_awsc_cells_through_genome_mapping(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
             for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
@@ -717,10 +717,10 @@ class MappingTests(unittest.TestCase):
 
             result = ClearSpeakService(store).query("alpha", limit=2)
 
-            self.assertEqual(result.speech, "The active path connects alpha with beta and gamma.")
-            self.assertEqual(result.evidence[0]["anchor"], "alpha")
-            self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
-            self.assertTrue(result.answer_assembly["terms"])
+            self.assertEqual(result.speech, "I recognize alpha, but I do not have count support yet.")
+            self.assertEqual(result.evidence, [])
+            self.assertEqual(result.answer_assembly["terms"], [])
+            self.assertEqual(result.answer_assembly["contract"]["memory_writes"], False)
 
     def test_anchor_rows_preserve_surface_and_fused_boundaries(self) -> None:
         fused_rows = extract_anchor_rows("state-of-the-art")
