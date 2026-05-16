@@ -466,15 +466,15 @@ class LexiconStore:
                 return char.upper()
         return "A"
 
-    def _legacy_spare_paths(self) -> list[Path]:
+    def _archived_spare_paths(self) -> list[Path]:
         return [path for path in (self.spare_dir / f"pool_{letter}.json" for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ") if path.exists()]
 
     def _active_spare_paths(self) -> list[Path]:
         if self.spare_slots_path.exists():
             return [self.spare_slots_path]
-        legacy_paths = self._legacy_spare_paths()
-        if legacy_paths:
-            return legacy_paths
+        archived_paths = self._archived_spare_paths()
+        if archived_paths:
+            return archived_paths
         return [self.spare_slots_path]
 
     def _spare_entries_cache_signature(self, paths: list[Path]) -> tuple[tuple[str, int | None, int | None], ...]:
@@ -1556,7 +1556,7 @@ class LexiconStore:
             "symbol_stream_path": str(stream_path),
             "symbol_stream_exists": stream_path.exists(),
             "cell_count": len(cell_paths),
-            "legacy_json_counts_removed": True,
+            "json_counts_removed": True,
             "ingest_events": 0,
             "unique_relations": 0,
             "total_relation_observations": 0,
@@ -3255,12 +3255,12 @@ class LexiconStore:
             window_radius=DEFAULT_WINDOW_RADIUS,
         )
         if count_target not in {"binary_source_local", "user_chat_preview"}:
-            raise ValueError("legacy JSON count targets are removed on the binary spine branch")
+            raise ValueError("JSON count targets are removed on the binary spine branch")
         count_write = {
             "count_target": count_target,
             "count_paths": [],
             "lifetime_write_skipped": True,
-            "legacy_json_counts_removed": True,
+            "json_counts_removed": True,
             "binary_counts_required": True,
             "reason": "observed_map_only_binary_symbol_counts_post_step_required",
         }
@@ -3992,3 +3992,4 @@ def _query_centered_snippet(text: str, anchor_rows: list[dict[str, Any]], query_
     if right < len(text):
         snippet = snippet + " ..."
     return snippet
+

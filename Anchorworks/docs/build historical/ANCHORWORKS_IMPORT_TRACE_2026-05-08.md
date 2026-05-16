@@ -61,7 +61,7 @@ Ran 32 tests in 0.616s
 OK
 ``
 
-## Remaining Legacy Name Hits
+## Remaining Archived Name Hits
 
 These are source-history prose documents only, not active code/import/runtime paths.
 

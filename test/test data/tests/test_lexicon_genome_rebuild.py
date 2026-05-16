@@ -139,8 +139,6 @@ class LexiconGenomeRebuildTests(unittest.TestCase):
                 "pack",
                 "created_at",
                 "category",
-                "source_old_hex",
-                "source_old_symbol",
             }
             genome_symbols = set()
             genome_hexes = set()
@@ -157,10 +155,6 @@ class LexiconGenomeRebuildTests(unittest.TestCase):
 
             self.assertEqual(len(genome_symbols), 5)
             self.assertEqual(len(genome_hexes), 5)
-
-            duplicate_report = json.loads((out_root / "reports" / "duplicate_old_symbols.json").read_text(encoding="utf-8"))
-            self.assertEqual(duplicate_report["duplicate_old_symbol_count"], 1)
-            self.assertEqual(duplicate_report["duplicates"][0]["old_symbol"], "0xAAAAAAAAAA")
 
             manifest = json.loads((out_root / "reports" / "rebuild_manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["generator"], "native_cpp_symbol_genome_allocator")
@@ -207,8 +201,6 @@ class LexiconGenomeRebuildTests(unittest.TestCase):
                 "pack": "canonical",
                 "created_at": "2026-05-14T00:00:00+00:00",
                 "category": "core",
-                "source_old_hex": "0xAAAAAAAAAA",
-                "source_old_symbol": "0xAAAAAAAAAA",
             }]), encoding="utf-8")
             (rebuild_root / "Structural" / "structural.json").write_text(json.dumps([{
                 "anchor": "0",
@@ -220,8 +212,6 @@ class LexiconGenomeRebuildTests(unittest.TestCase):
                 "pack": "structural",
                 "created_at": "2026-05-14T00:00:00+00:00",
                 "category": "core",
-                "source_old_hex": "0xBBBBBBBBBB",
-                "source_old_symbol": "0xBBBBBBBBBB",
             }]), encoding="utf-8")
             (rebuild_root / "reports" / "rebuild_manifest.json").write_text(json.dumps({"ok": True}), encoding="utf-8")
 

@@ -679,7 +679,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result.evidence[0]["neighbors"][0]["anchor"], "beta")
             self.assertEqual(result.answer_assembly["trace"][0]["lookahead_decision"]["chosen"]["pattern_health"], "healthy")
 
-    def test_clearspeak_does_not_read_old_awsc_cells_through_genome_mapping(self) -> None:
+    def test_clearspeak_requires_genome_native_awsc_cells(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
             for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
@@ -688,19 +688,6 @@ class MappingTests(unittest.TestCase):
             _write_json(root / "Canonical" / "canonical_B.json", [{"word": "beta", "symbol": "0x1000000002"}])
             _write_json(root / "Canonical" / "canonical_G.json", [{"word": "gamma", "symbol": "0x1000000003"}])
             _write_json(root / "Structural" / "structural.json", [])
-            mapping_path = root / "Lexicon_Genome_Rebuild" / "mappings" / "old_symbol_to_genome_symbol.jsonl"
-            mapping_path.parent.mkdir(parents=True, exist_ok=True)
-            mapping_path.write_text(
-                "\n".join(
-                    json.dumps(row)
-                    for row in [
-                        {"anchor": "alpha", "old_symbol": "0x0000000001", "genome_symbol": "0x1000000001", "pack": "canonical"},
-                        {"anchor": "beta", "old_symbol": "0x0000000002", "genome_symbol": "0x1000000002", "pack": "canonical"},
-                        {"anchor": "gamma", "old_symbol": "0x0000000003", "genome_symbol": "0x1000000003", "pack": "canonical"},
-                    ]
-                ),
-                encoding="utf-8",
-            )
             store = LexiconStore(root)
             write_symbol_cell(
                 store.symbol_counts_binary_dir / "cells" / "00" / "0000000001.cell",
@@ -1130,7 +1117,7 @@ class MappingTests(unittest.TestCase):
             after = snapshot()
 
             self.assertTrue(status["ok"])
-            self.assertTrue(status["legacy_json_counts_removed"])
+            self.assertTrue(status["json_counts_removed"])
             self.assertEqual(status["runtime"], "awsc_v1_1_binary_cells")
             self.assertEqual(before, after)
             self.assertEqual(list((root / "State" / "chat_memory" / "chats").glob("*.jsonl")), [])
@@ -1896,7 +1883,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(lifetime, before_lifetime)
             self.assertEqual(user_counts, before_user_counts)
             self.assertEqual(chat_counts, before_chat_counts)
-            self.assertTrue(final["count_write"]["legacy_json_counts_removed"])
+            self.assertTrue(final["count_write"]["json_counts_removed"])
             self.assertTrue(final["count_write"]["binary_counts_required"])
             self.assertEqual(final["chat_message_count"], 2)
 
@@ -1967,7 +1954,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(context["total_windows"], 0)
             self.assertEqual(context["center_observations"], 0)
 
-    def test_observed_maps_feed_binary_symbol_counts_without_legacy_lifetime_counts(self) -> None:
+    def test_observed_maps_feed_binary_symbol_counts_without_Archived_lifetime_counts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
             _write_json(root / "Canonical" / "canonical_D.json", [{"word": "do", "status": "ASSIGNED"}])
@@ -2248,7 +2235,7 @@ class MappingTests(unittest.TestCase):
             self.assertEqual(result["temp_symbol_count"], 0)
             self.assertEqual(result["companion_anchor_count"], 1)
             self.assertEqual(result["count_write"]["lifetime_write_skipped"], True)
-            self.assertTrue(result["count_write"]["legacy_json_counts_removed"])
+            self.assertTrue(result["count_write"]["json_counts_removed"])
             self.assertEqual(result["count_paths"], [])
             self.assertFalse(store.lifetime_counts_path.exists())
 
@@ -2614,5 +2601,6 @@ class MappingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
 

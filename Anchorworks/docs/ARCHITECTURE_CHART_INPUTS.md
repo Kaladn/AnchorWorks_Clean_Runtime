@@ -1,160 +1,75 @@
 # Architecture Chart Inputs
 
-Date: 2026-05-14
+This file feeds the current architecture chart. A box may be marked active only when an actual traced path proves it is connected.
 
-This file distills `ARCHITECTURE_PATH_TRACE.md` into chartable boxes and arrows. Only active or explicitly staged traced paths should appear.
-
-## Legend
+## Status Colors
 
 ```text
-green  = active connected runtime
-yellow = partial/staged
-orange = active compatibility bridge or known mismatch
-blue   = external/future contract shell
-red    = legacy/excluded
-gray   = planned/docs only
+green = active and connected
+yellow = active but incomplete
+blue = staged contract/proof
+red = excluded from runtime authority
+gray = parked/planned only
 ```
 
-## Boxes
-
-### Active Runtime Boxes
+## Active Green
 
 ```text
-Source Intake
-Canonical Lexicon Recognition
-Genome Allocator
-AWSM Symbolic Maps
-AWSL Locator Sidecars
-AWSN NULL Sidecars
-AWSV Visual Sidecars
-Source-Local Symbol Count Artifacts
-AWSS Relation Stream
-C++ Native Symbol Counts
-AWSC Binary Count Cells
-ClearSpeak Symbol Walk
-Q/R/A/F Active Cloud
-Top-K Lookahead
-Verification Harness
+Canonical genome lexicon
+Symbol genome allocator
+AWSM symbolic map hot path
+AWSS symbol stream format
+C++ native symbol-count spine
+AWSC v1.1 genome-native count cells
+ClearSpeak counts path
+AW inference kernel
+Formula lane for narrow deterministic formula questions
+Chat memory ledger
 ```
 
-### Partial/Staged Boxes
+## Yellow
 
 ```text
-Document Evidence Mode
-Local Meta-Count Overlays
-AWSG Source Graph
-Phrase Authority
-User/Workspace Lexicon
+Counts-mode renderer quality
+System-doc lane separation
+Settings truth cleanup
+Store.py ownership split
 ```
 
-### Compatibility/Warning Boxes
+## Blue
 
 ```text
-Genome/Legacy Count Bridge
-AWSC Tiny-Cell Fanout
+Local meta-count overlays
+AWSG graph proof
+TrueVision preservation packets
+Phrase authority shell
 ```
 
-### Planned/External Boxes
+## Red
 
 ```text
-V2 Boundary Brain
-Invoked UI Recipes
-GPU/Sparse Matrix Scoring
-Packed AWSC Shards
+Spare_Slots as symbol authority
+Runtime identity aliases
+Python bulk count-cell processing
+Raw top-K as assistant speech
 ```
 
-### Legacy/Excluded Boxes
+## Gray
 
 ```text
-Spare_Slots Legacy Pool
-Legacy JSON Lifetime Monolith
-Old Lexicon Identity Fields
+V2
+Invoked UI
+GPU sparse scoring
+Auto mode
+TrueVision glyph recognition
 ```
 
-## Primary Arrows
+## Current Runtime Law
 
 ```text
-Source Files
-  -> document_prep/intake
-  -> Canonical/Structural recognition
-  -> observed map debug JSON
-  -> AWSM/AWSL/AWSN/AWSV
-  -> source-local symbol count artifacts
-  -> AWSS stream
-  -> C++ merge-stream
-  -> AWSC cells
-  -> ClearSpeak count index
-  -> Q/R/A/F active cloud
-  -> Top-K lookahead
-  -> rendered text at edge
+Genome symbols are the only live identity.
+Genome-native AWSC is required.
+Python orchestrates.
+C++ performs bulk symbol/count work.
+Renderer speaks accepted answer plans only.
 ```
-
-## Identity Arrows
-
-```text
-Canonical rows word -> genome symbol
-Genome allocator -> State/symbol_genome_pool/manifest.json
-Lexicon_Genome_Rebuild mappings -> ClearSpeak old-symbol bridge
-Legacy AWSC symbols -> bridge -> anchor display
-```
-
-## Evidence Arrows
-
-```text
-AWSL locators -> citation/address support
-AWSN NULL sidecars -> exclusion audit
-AWSV visual sidecars -> page/frame visual evidence
-AWSG proof graph -> topology/debug export only today
-Local overlays -> compact source-local cloud support
-```
-
-## Renderer Arrows
-
-```text
-query text
-  -> lexicon recognition
-  -> represented/missing anchors
-  -> phrase match, if any
-  -> count index load
-  -> active cloud C_t = wq Q + wr R + wa A_t + wf F_t
-  -> candidate scoring
-  -> lookahead health check
-  -> answer path trace
-```
-
-## Warning Callouts
-
-```text
-GENOME <-> LEGACY AWSC COUNT IDENTITY BRIDGE NEEDED/ACTIVE
-Phrase authority exists but has zero live rows.
-AWSG production graph root is empty; proof graph exists under test data.
-V2 is a contract destination, not active runtime.
-Spare_Slots remains referenced in code but is not intended authority.
-AWSC tiny-cell fanout is active and verified, but storage needs packed shard/index future.
-```
-
-## Chart Labels
-
-```text
-Source Intake: active
-Lexicon Recognition: active
-Genome Allocator: active
-Canonical Authority: active
-User Lexicon: staged
-Phrase Authority: staged empty
-AWSM/AWSL/AWSN/AWSV: active
-AWSS: active with legacy identity warning
-AWSC: active with fanout warning
-Genome/Legacy Count Bridge: active compatibility
-ClearSpeak: active
-Q/R/A/F Cloud: active
-Top-K Lookahead: active
-Document Evidence: partial
-AWSG: proof/staged
-Native Commands: active V1 / staged V2
-V2 Contracts: external staged
-Invoked UI: planned
-Legacy Spare Pool: legacy/excluded
-Tests: active
-```
-

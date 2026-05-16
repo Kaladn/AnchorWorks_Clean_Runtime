@@ -1,38 +1,33 @@
 # AnchorWorks Lockdown TODO
 
-Purpose: align V1 with what is needed now. No nice-to-have work. No broad rewrites. No V2. No UI expansion. No Python bulk-processing of count/symbol memory.
+Purpose: keep V1 aligned with the system we are actually building. No museum pieces. No scaffold paths. No runtime scaffold layers.
 
 Core law:
 
 ```text
-Python may orchestrate.
-C++ does bulk symbol/count work.
-Runtime speaks genome authority only.
-Legacy artifacts may be archived or used as read-only reference, never runtime authority.
+Genome symbols are the only live identity.
+Genome-native AWSC is required.
+Python may orchestrate only.
+C++ performs bulk symbol/count work.
+Final systems do not carry scaffolding.
 ```
 
-## Completed In This Lockdown Pass
+## Completed
 
-### Runtime legacy count bridge removed
+### ClearSpeak identity path
 
-ClearSpeak no longer reads `Lexicon_Genome_Rebuild/mappings/old_symbol_to_genome_symbol.jsonl` to translate genome anchors into old AWSC cells at runtime.
-
-Expected behavior:
+Current runtime rule:
 
 ```text
-word -> genome symbol -> genome-native AWSC cell
+word -> genome symbol -> genome-native AWSC cell -> renderer
 ```
 
-Forbidden behavior:
+ClearSpeak does not translate count identity through removed build scaffolds. If genome-native cells are absent, ClearSpeak reports missing count support instead of crossing identity lanes.
 
-```text
-word -> genome symbol -> old-symbol bridge -> legacy AWSC cell
-```
+Receipts:
 
-Receipt target:
-
-```text
-rg "_load_genome_legacy_count_bridge|old_symbol_to_genome_symbol|awsc_binary_symbol_cells_genome_legacy_bridge" Anchorworks/src/AnchorWorks/clearspeak.py
+```powershell
+rg "alias|fallback|translation" Anchorworks/src/AnchorWorks/clearspeak.py
 ```
 
 Expected:
@@ -43,20 +38,9 @@ no matches
 
 ## Finish-Line Items
 
-### 1. Restore counts through native rebuild, not transfer
+### 1. Rebuild counts natively from source-local symbolic material
 
 Status: required.
-
-Current truth:
-
-```text
-Live lexicon is genome.
-Existing AWSC cells may still be old-symbol artifacts.
-ClearSpeak now refuses the old runtime bridge.
-```
-
-Do not migrate millions of tiny cells in Python.
-Do not transfer counts cell-by-cell in Python.
 
 Correct path:
 
@@ -69,28 +53,32 @@ source-local symbolic material
 -> ClearSpeak reads genome-native cells directly
 ```
 
+Hard rules:
+
+```text
+Do not bulk-process count cells in Python.
+Do not transfer count cells.
+Do not create runtime identity aliases.
+Do not add identity fallback.
+```
+
 Acceptance:
 
 ```text
 native command writes genome-native AWSC
 native verify ok
-ClearSpeak count query returns support without legacy bridge
-rg confirms no old-symbol bridge in runtime
+ClearSpeak count query returns support from genome-native cells
 ```
 
 ### 2. Remove live Spare_Slots authority path
 
 Status: required.
 
-Problem:
-
-`store.py` still contains live spare-slot read/write helpers.
-
-Lock:
+Rule:
 
 ```text
-Spare_Slots is historical/reference only.
 Genome allocator is symbol authority.
+Spare_Slots is not runtime authority.
 ```
 
 Required work:
@@ -98,32 +86,19 @@ Required work:
 ```text
 disable runtime assignment from Spare_Slots
 remove Spare_Slots from active status as available authority
-preserve old files untouched outside active authority
+preserve curated files outside active authority if needed
 update tests from spare-assignment expectations to genome-allocation expectations
 ```
-
-Acceptance:
-
-```text
-rg "Spare_Slots|spare_slots|_read_spare_entries|_write_spare_entries" Anchorworks/src/AnchorWorks/store.py
-```
-
-Allowed only if explicitly labeled legacy/archive/read-only.
 
 ### 3. Collapse duplicate inference facade files
 
 Status: required.
 
-Problem:
-
-`AnchorWorks/inference/` contains a facade plus stale duplicate implementation files. Runtime should use `aw_inference_kernel`.
-
-Required work:
+Rule:
 
 ```text
-keep AnchorWorks.inference as compatibility import facade only
-remove stale duplicate implementation files
-tests import through facade and external package
+aw_inference_kernel owns inference implementation.
+AnchorWorks.inference is import facade only.
 ```
 
 Acceptance:
@@ -137,57 +112,32 @@ Both return the same kernel contract.
 
 ### 4. Settings truth cleanup
 
-Status: required before any serious UI work.
+Status: required before serious UI work.
 
-Problem:
-
-Tree-Brain/settings endpoints expose controls that diagnostics admit are not wired into active ClearSpeak/count-walk runtime.
-
-Required work:
-
-```text
-main settings shows runtime-active only
-diagnostic-only controls are labeled diagnostic-only or removed from main surface
-no fake cockpit switches
-```
-
-Acceptance:
+Rule:
 
 ```text
 Every visible setting either changes runtime or clearly says diagnostic-only.
 ```
 
+No fake cockpit.
+
 ### 5. System-doc lane separation
 
 Status: required for answer quality.
 
-Problem:
-
-System/self docs can pollute education answers with terms like:
+Rule:
 
 ```text
-text, frame, question, answer, induction
-```
-
-Required work:
-
-```text
-system docs count into system-self lane only
-education/general questions do not use system-self counts unless requested
-```
-
-Acceptance:
-
-```text
-"who is Isaac Newton" cannot answer from system-frame docs.
-"what is AnchorWorks rendering" may use system-self lane.
+system-self docs answer system-self questions only
+education/general questions use education/general count lanes only
 ```
 
 ### 6. Counts-mode renderer hardening
 
 Status: current active algorithmic focus.
 
-Required work:
+Required path:
 
 ```text
 counts propose top-K
@@ -206,7 +156,7 @@ why worry about laws of physics?
 A 2 kg object is accelerating at 3 m/s^2. What net force is acting on it?
 ```
 
-Required:
+Required behavior:
 
 ```text
 no raw top-K word salad
@@ -235,3 +185,4 @@ Tiny law:
 ```text
 Finish the runtime spine before adding more body parts.
 ```
+

@@ -35,7 +35,7 @@ class _ArchiveLayout:
     memory_dir: Path
     maps_dir: Path
     chat_packs_dir: Path
-    clearspeak_legacy_chats_dir: Path
+    clearspeak_archived_chats_dir: Path
     citation_db_path: Path
 
 
@@ -66,7 +66,7 @@ def prepare_anchorworks_chat_archive(root_path: Path) -> ChatArchivePrepared:
         "chat_maps": 0,
         "citation_db_rows": 0,
         "chat_pack_files": 0,
-        "clearspeak_legacy_chat_files": 0,
+        "clearspeak_archived_chat_files": 0,
         "structural_memory_files": 0,
     }
     source_files: list[Path] = []
@@ -166,14 +166,14 @@ def prepare_anchorworks_chat_archive(root_path: Path) -> ChatArchivePrepared:
     source_files.extend(pack_files)
 
     lake_text, lake_count, lake_files = _render_text_tree(
-        layout.clearspeak_legacy_chats_dir,
-        section_name="CLEARSPEAK_LEGACY_CHAT_INDEX",
-        record_name="CLEARSPEAK_LEGACY_CHAT_FILE",
+        layout.clearspeak_archived_chats_dir,
+        section_name="CLEARSPEAK_ARCHIVED_CHAT_INDEX",
+        record_name="CLEARSPEAK_ARCHIVED_CHAT_FILE",
         patterns=("*.json", "*.jsonl", "*.txt", "*.md"),
         warnings=warnings,
     )
     sections.extend(lake_text)
-    stats["clearspeak_legacy_chat_files"] += lake_count
+    stats["clearspeak_archived_chat_files"] += lake_count
     source_files.extend(lake_files)
 
     prepared_text = "\n\n".join(section for section in sections if section.strip()).strip() + "\n"
@@ -212,7 +212,7 @@ def _detect_layout(root: Path) -> _ArchiveLayout:
         memory_dir=data_root / "memory",
         maps_dir=data_root / "maps",
         chat_packs_dir=data_root / "chat_packs",
-        clearspeak_legacy_chats_dir=data_root / "indexes" / ("lake" + "speak") / "index" / "chunks" / "chats",
+        clearspeak_archived_chats_dir=data_root / "indexes" / ("lake" + "speak") / "index" / "chunks" / "chats",
         citation_db_path=data_root / "citations.db",
     )
 
@@ -644,3 +644,4 @@ def _one_line(value: Any) -> str:
 
 def _clean_multiline(value: Any) -> str:
     return "\n".join(line.rstrip() for line in str(value or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")).strip()
+

@@ -56,4 +56,5 @@ tone_label = ""
 tone_profile = null
 ```
 
-Legacy `tone_signature` should be retired or migrated only through an explicit, tested step.
+Retired `tone_signature` should be retired or migrated only through an explicit, tested step.
+

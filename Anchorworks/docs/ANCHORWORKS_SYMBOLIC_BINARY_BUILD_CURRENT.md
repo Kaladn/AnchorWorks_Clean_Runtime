@@ -193,7 +193,7 @@ These are completed on the active branch:
 ~~Native AWSC inspect command~~
 ~~Native AWSC score command~~
 ~~Python wrapper for native scoring~~
-~~Legacy JSON count ingest/write path removed~~
+~~JSON count ingest/write path removed~~
 ~~Observed maps moved out of runtime State path~~
 ~~New maps route to external AnchorMaps root~~
 ~~Grouped symbolic batch intake primitive~~
@@ -351,7 +351,7 @@ Verify errors: 0
 Finding:
 
 ```text
-Large structured data files can still explode the compatibility JSON observed-map path.
+Large structured data files can still explode the debug JSON observed-map path.
 AWSM/AWSS/AWSC are the path out.
 ```
 
@@ -649,7 +649,7 @@ GET /api/lexicon/observed-maps
 GET /api/lexicon/observed-map/{name}
 ```
 
-But those routes are compatibility/debug surfaces, not the primary UI path.
+But those routes are debug surfaces, not the primary UI path.
 
 Root selection:
 
@@ -839,3 +839,5 @@ Do not delete JSON debug maps until optional debug mode and no-JSON rebuild proo
 Do not route renderer speech through evidence labels.
 Do not let one top-k choice decide alone.
 ```
+
+

@@ -459,7 +459,7 @@ data/staging
 Classification:
 
 ```text
-legacy/library/chat/citation data lane
+Archived/library/chat/citation data lane
 not the same as State/chat_memory
 must be inventoried separately before migration
 ```
@@ -548,7 +548,7 @@ Seed inventory:
 | `Canonical/structural.json` | structural lexicon payload | structural lexicon authority candidate | do-not-touch | pending | unreviewed | Candidate replacement for old `Structural/structural.json` paths. |
 | `Spare_Slots/` | spare symbol pools | spare-slot authority candidate | do-not-touch | pending | unreviewed | Decide pool files vs monolith authority. |
 | `State/` | runtime state/counts/maps/chat memory | runtime authority candidate | do-not-touch | pending | unreviewed | Contains machine state; must not be committed blindly. |
-| `data/` | old chat/citation/library lane | legacy data authority candidate | unknown | pending | unreviewed | Must be inventoried separately from `State/`. |
+| `data/` | old chat/citation/library lane | Archived data authority candidate | unknown | pending | unreviewed | Must be inventoried separately from `State/`. |
 | `config/` | outer config payloads | config boundary | unknown | pending | unreviewed | Empty or inactive until proven otherwise. |
 | `runtime/` | runtime support | runtime boundary | unknown | pending | unreviewed | Empty or inactive until proven otherwise. |
 | `openvino_env/` | Python/OpenVINO environment | local environment | quarantine | pending | unreviewed | Runtime support only; not source. |
@@ -614,3 +614,4 @@ Code can be combined.
 Runtime authority must be decided.
 Memory/counts/maps must not be merged blindly.
 ```
+

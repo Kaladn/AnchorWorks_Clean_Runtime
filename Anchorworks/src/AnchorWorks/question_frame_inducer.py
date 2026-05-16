@@ -254,7 +254,7 @@ def _corpus_support(corpus_path: str | Path | None) -> dict[str, Any]:
 
 
 def _load_csv_frame_rows(path: Path) -> list[dict[str, str]]:
-    # Retained only for offline tooling compatibility. Runtime uses frame_cloud_rules.json.
+    # Retained only for offline tooling use. Runtime uses frame_cloud_rules.json.
     import csv
 
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -263,7 +263,7 @@ def _load_csv_frame_rows(path: Path) -> list[dict[str, str]]:
 
 
 def _load_plain_frame_rows(path: Path) -> list[dict[str, str]]:
-    # Retained only for offline tooling compatibility. Runtime uses frame_cloud_rules.json.
+    # Retained only for offline tooling use. Runtime uses frame_cloud_rules.json.
     rows: list[dict[str, str]] = []
     current: dict[str, str] = {}
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
@@ -291,3 +291,4 @@ def _pattern_key(question: str) -> str:
 
 def _clean(value: str) -> str:
     return re.sub(r"\s+", " ", str(value or "").strip())
+

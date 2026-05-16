@@ -113,7 +113,7 @@ Authority records receive symbols after allocation.
 
 ## Tone
 
-Legacy `tone_signature` is not TTS tone.
+Retired `tone_signature` is not TTS tone.
 
 New authority records start with:
 
@@ -125,3 +125,4 @@ New authority records start with:
 ```
 
 Real tone labels must be added later through explicit TTS/rendering work.
+

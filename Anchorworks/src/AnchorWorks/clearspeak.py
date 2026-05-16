@@ -312,7 +312,7 @@ class ClearSpeakService:
             "symbolic_runtime": True,
             "display_decoded_at_edge": True,
             "genome_authority": True,
-            "legacy_symbol_bridge": False,
+            "genome_native_counts_required": True,
         }
 
     def _assemble_answer_terms(

@@ -4,7 +4,7 @@ Status: shelved until AWSC v1.1 and the native binary count spine are constructe
 
 ## Purpose
 
-`store.py` and `chat_memory_system.py` are allowed to remain compatibility facades while the binary count spine is being built. They must not keep absorbing new behavior after the binary spine is stable.
+`store.py` and `chat_memory_system.py` are allowed to remain import facades while the binary count spine is being built. They must not keep absorbing new behavior after the binary spine is stable.
 
 The refactor is intentionally postponed because the binary storage path needs stable integration points first.
 
@@ -174,3 +174,4 @@ Split ownership before changing behavior.
 Bridges stay dumb.
 Counts move last.
 ```
+

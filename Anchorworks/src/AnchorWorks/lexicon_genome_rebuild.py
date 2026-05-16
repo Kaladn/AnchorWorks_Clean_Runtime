@@ -22,8 +22,6 @@ ALLOWED_REBUILT_FIELDS = {
     "pack",
     "created_at",
     "category",
-    "source_old_hex",
-    "source_old_symbol",
 }
 
 
@@ -49,7 +47,6 @@ def build_lexicon_genome_rebuild(
     unique_rows, duplicate_anchor_rows = _dedupe_by_anchor(source_rows)
     if limit is not None:
         unique_rows = unique_rows[: int(limit)]
-    duplicate_old_symbols = _duplicate_old_symbol_report(source_rows)
 
     allocator_input = out / "working" / "allocator_input.tsv"
     allocator_output = out / "working" / "allocator_output.tsv"
@@ -83,8 +80,6 @@ def build_lexicon_genome_rebuild(
             "pack": row["pack"],
             "created_at": created_at,
             "category": "core",
-            "source_old_hex": row.get("source_old_hex", ""),
-            "source_old_symbol": row.get("source_old_symbol", ""),
         })
 
     canonical_rows = [row for row in rebuilt_rows if row["pack"] == "canonical"]
@@ -92,7 +87,6 @@ def build_lexicon_genome_rebuild(
     _write_canonical_packs(out / "Canonical", canonical_rows)
     _write_json(out / "Structural" / "structural.json", structural_rows)
     _write_mappings(out / "mappings", rebuilt_rows)
-    _write_json(out / "reports" / "duplicate_old_symbols.json", duplicate_old_symbols)
     _write_json(out / "reports" / "duplicate_anchors.json", {
         "duplicate_anchor_count": len(duplicate_anchor_rows),
         "duplicates": duplicate_anchor_rows,
@@ -116,7 +110,6 @@ def build_lexicon_genome_rebuild(
         "canonical_rows": len(canonical_rows),
         "structural_rows": len(structural_rows),
         "duplicate_anchor_count": len(duplicate_anchor_rows),
-        "duplicate_old_symbol_count": duplicate_old_symbols["duplicate_old_symbol_count"],
         "original_sources_untouched": source_untouched,
         "rebuilt_count_matches_allocated": rebuilt_count_matches,
         **verification,
@@ -387,8 +380,6 @@ def _read_pack_file(path: Path, pack: str) -> list[dict[str, Any]]:
             "display": str(row.get("display") or anchor).strip(),
             "pack": pack,
             "source_file": str(path),
-            "source_old_hex": str(row.get("hex") or "").strip(),
-            "source_old_symbol": str(row.get("symbol") or row.get("hex") or "").strip(),
         })
     return rows
 
@@ -405,33 +396,8 @@ def _dedupe_by_anchor(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]],
             "anchor": row["anchor"],
             "kept_pack": by_anchor[key]["pack"],
             "duplicate_pack": row["pack"],
-            "kept_old_symbol": by_anchor[key].get("source_old_symbol", ""),
-            "duplicate_old_symbol": row.get("source_old_symbol", ""),
         })
     return sorted(by_anchor.values(), key=lambda item: (item["pack"], item["anchor"].casefold(), item["anchor"])), duplicates
-
-
-def _duplicate_old_symbol_report(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    groups: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for row in rows:
-        old_symbol = str(row.get("source_old_symbol") or row.get("source_old_hex") or "").strip()
-        if not old_symbol:
-            continue
-        groups[old_symbol].append({
-            "anchor": row["anchor"],
-            "display": row["display"],
-            "pack": row["pack"],
-            "source_file": row["source_file"],
-        })
-    duplicates = [
-        {"old_symbol": symbol, "rows": members, "count": len(members)}
-        for symbol, members in sorted(groups.items())
-        if len(members) > 1
-    ]
-    return {
-        "duplicate_old_symbol_count": len(duplicates),
-        "duplicates": duplicates,
-    }
 
 
 def _read_allocations(path: Path) -> list[dict[str, Any]]:
@@ -471,22 +437,6 @@ def _write_mappings(root: Path, rows: list[dict[str, Any]]) -> None:
             handle.write(json.dumps({
                 "anchor": row["anchor"],
                 "genome_symbol": row["genome_symbol"],
-                "pack": row["pack"],
-            }, ensure_ascii=False) + "\n")
-    with (root / "old_symbol_to_genome_symbol.jsonl").open("w", encoding="utf-8") as handle:
-        for row in rows:
-            handle.write(json.dumps({
-                "old_symbol": row["source_old_symbol"],
-                "genome_symbol": row["genome_symbol"],
-                "anchor": row["anchor"],
-                "pack": row["pack"],
-            }, ensure_ascii=False) + "\n")
-    with (root / "old_hex_to_genome_hex.jsonl").open("w", encoding="utf-8") as handle:
-        for row in rows:
-            handle.write(json.dumps({
-                "old_hex": row["source_old_hex"],
-                "genome_hex": row["genome_hex"],
-                "anchor": row["anchor"],
                 "pack": row["pack"],
             }, ensure_ascii=False) + "\n")
 

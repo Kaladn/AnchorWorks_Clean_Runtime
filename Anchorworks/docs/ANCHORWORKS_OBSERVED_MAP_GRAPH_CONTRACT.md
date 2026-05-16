@@ -670,7 +670,7 @@ Export target:
 observed-map-debug-export.json
 ```
 
-The export does not need to be byte-for-byte identical to the legacy JSON map.
+The export does not need to be byte-for-byte identical to the archived JSON map.
 
 It must preserve:
 
@@ -765,3 +765,4 @@ Graph becomes topology.
 Binary remains substrate.
 Evidence frames decide speech.
 ```
+

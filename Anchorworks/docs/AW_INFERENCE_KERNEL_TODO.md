@@ -24,7 +24,7 @@ The kernel only decides whether candidate answer paths are lawful.
 ## Finish Line
 
 - [x] External package exists at `src/aw_inference_kernel`.
-- [x] `AnchorWorks.inference` remains as a compatibility facade only.
+- [x] `AnchorWorks.inference` remains as a import facade only.
 - [x] Kernel output always includes `fact_authority: false`.
 - [x] Kernel output always includes trace steps for frame creation and candidate admission/rejection.
 - [x] Renderer cannot fall back to raw top-K speech when the kernel rejects all candidates.
@@ -53,3 +53,4 @@ The kernel only decides whether candidate answer paths are lawful.
 - No lexicon mutation.
 - No document ingestion.
 - No neural training.
+

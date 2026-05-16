@@ -18,7 +18,7 @@ The previous active UI root was `UI2`, but that folder has been removed from the
 The strongest remaining visual candidate is:
 
 ```text
-D:\AnchorWorks_Clean_Runtime\Anchorworks\ui_legacy_locked\production_shell\anchorworks_production.html
+D:\AnchorWorks_Clean_Runtime\Anchorworks\ui_archived_locked\production_shell\anchorworks_production.html
 ```
 
 That file is a ClearBox-style production cockpit. It can be mined for layout ideas, but it must not be treated as already supported AnchorWorks runtime.
@@ -492,7 +492,7 @@ Required checks:
 ```text
 Only one UI root is served.
 No served route points to deleted UI2.
-No served route points into locked legacy unless intentionally chosen as the new active root.
+No served route points into locked archived UI unless intentionally chosen as the new active root.
 No active UI imports files from inactive UI folders.
 No auth gate appears.
 Chat send works.
@@ -527,3 +527,4 @@ Evidence proves.
 Lexicon governs.
 System tells the truth.
 ```
+
