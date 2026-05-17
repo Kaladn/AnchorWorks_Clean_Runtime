@@ -195,6 +195,73 @@ class InferenceKernelTests(unittest.TestCase):
 
         self.assertEqual(rendered, "")
 
+    def test_renderer_uses_walked_topk_path_filtered_by_inference_admission(self) -> None:
+        assembly = {
+            "terms": [
+                {"anchor": "mass", "score": 0.9},
+                {"anchor": "force", "score": 0.8},
+                {"anchor": "acceleration", "score": 0.7},
+            ],
+            "answer_path": {
+                "schema_version": "anchorworks_topk_answer_path@1",
+                "chosen_anchors": ["mass", "force", "acceleration"],
+                "steps": [
+                    {"step": 1, "chosen_anchor": "mass"},
+                    {"step": 2, "chosen_anchor": "force"},
+                    {"step": 3, "chosen_anchor": "acceleration"},
+                ],
+            },
+            "inference_plan": {
+                "accepted_candidates": [
+                    {"symbol": "acceleration", "candidate_rank": 1},
+                    {"symbol": "mass", "candidate_rank": 2},
+                    {"symbol": "force", "candidate_rank": 3},
+                    {"symbol": "second", "candidate_rank": 4},
+                ],
+                "rejected_candidates": [
+                    {"symbol": "mothers", "reason": "off_frame_domain"},
+                ],
+                "render_shape": "short_explanation",
+                "fact_authority": False,
+            },
+        }
+
+        rendered = render_anchor_answer_surface(["what", "newton", "laws", "motion"], assembly)
+
+        self.assertIn("mass, force, and acceleration", rendered)
+        self.assertNotIn("acceleration, mass, and force", rendered)
+        self.assertNotIn("second", rendered)
+        self.assertNotIn("mothers", rendered)
+
+    def test_renderer_makes_count_walk_sentence_instead_of_explaining_connection_strength(self) -> None:
+        assembly = {
+            "terms": [
+                {"anchor": "acceleration", "score": 0.9},
+                {"anchor": "mass", "score": 0.8},
+                {"anchor": "force", "score": 0.7},
+            ],
+            "answer_path": {
+                "schema_version": "anchorworks_topk_answer_path@1",
+                "chosen_anchors": ["acceleration", "mass", "force"],
+            },
+            "inference_plan": {
+                "accepted_candidates": [
+                    {"symbol": "acceleration"},
+                    {"symbol": "mass"},
+                    {"symbol": "force"},
+                ],
+                "rejected_candidates": [],
+                "render_shape": "short_explanation",
+                "fact_authority": False,
+            },
+        }
+
+        rendered = render_anchor_answer_surface(["what", "is", "inertia"], assembly)
+
+        self.assertEqual(rendered, "Inertia involves acceleration, mass, and force.")
+        self.assertNotIn("most strongly connected", rendered)
+        self.assertNotIn("points toward", rendered)
+
     def test_clearspeak_response_uses_inference_plan_terms(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "Lexical Data"
@@ -226,6 +293,49 @@ class InferenceKernelTests(unittest.TestCase):
             self.assertIn("inference_plan", result.answer_assembly)
             self.assertNotIn("mothers", result.speech)
             self.assertIn("motion", result.speech)
+
+    def test_clearspeak_first_law_frame_rejects_second_as_content_without_banning_topk(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "Lexical Data"
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [])
+            for letter, words in {
+                "A": ["acceleration"],
+                "F": ["first", "force"],
+                "I": ["is"],
+                "L": ["law"],
+                "M": ["motion", "mass"],
+                "S": ["second"],
+                "W": ["what"],
+            }.items():
+                _write_json(root / "Canonical" / f"canonical_{letter}.json", [{"word": word, "status": "ASSIGNED"} for word in words])
+            _write_json(root / "Structural" / "structural.json", [{"word": "?", "status": "STRUCTURAL"}])
+            store = LexiconStore(root)
+            _write_count_read_fixture(
+                store,
+                [
+                    {"anchor": "first", "offset": "+1", "neighbor": "second", "observations": 20},
+                    {"anchor": "first", "offset": "+2", "neighbor": "force", "observations": 10},
+                    {"anchor": "law", "offset": "+1", "neighbor": "force", "observations": 10},
+                    {"anchor": "motion", "offset": "+1", "neighbor": "mass", "observations": 8},
+                    {"anchor": "force", "offset": "+1", "neighbor": "acceleration", "observations": 7},
+                ],
+                observed_counts=Counter({"first": 1, "law": 1, "motion": 1}),
+            )
+
+            result = ClearSpeakService(store).query("what is first law motion?")
+
+            self.assertNotIn("second", [row["anchor"] for row in result.answer_assembly["terms"]])
+            self.assertNotIn("second", result.speech)
+            rejected = [
+                row
+                for step in result.answer_assembly["trace"]
+                for row in step.get("rejected_candidates", [])
+            ]
+            self.assertTrue(
+                any(row.get("anchor") == "second" and row.get("reason") == "contradictory_ordinal" for row in rejected)
+            )
+            self.assertTrue(result.answer_assembly["contract"]["topk_lookahead_future_shape"])
 
     def test_clearspeak_does_not_walk_counts_from_question_glue_when_subject_is_missing(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -325,9 +435,9 @@ class InferenceKernelTests(unittest.TestCase):
 
             result = ClearSpeakService(store).query("who is isaac newton")
 
-            self.assertIn("entity count field", result.speech)
             self.assertIn("isaac newton", result.speech.casefold())
             self.assertIn("motion", result.speech)
+            self.assertNotIn("entity count field", result.speech)
 
     def test_document_fact_candidates_ignore_question_list_code_blocks_as_answers(self) -> None:
         passages = [

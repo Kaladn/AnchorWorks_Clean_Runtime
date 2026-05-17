@@ -276,6 +276,13 @@ def build_active_cloud_frame(
             "source_support": min(1.0, float(row["raw_observations"]) / 10.0),
         }
         penalties = _candidate_penalties(anchor, row, clouds, frame)
+        if float(penalties.get("contradiction_penalty", 0.0) or 0.0) >= 1.0:
+            rejected[(anchor, "contradictory_ordinal")] = {
+                "anchor": anchor,
+                "reason": "contradictory_ordinal",
+                "observations": int(row["raw_observations"]),
+            }
+            continue
         frame_guidance = _learned_frame_candidate_guidance(anchor, row, clouds, frame)
         if float(penalties.get("domain_drift_penalty", 0.0) or 0.0) >= 0.75:
             rejected[anchor] = {
@@ -821,6 +828,7 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
         penalties["query_echo_penalty"] = 0.50
     if clouds["answer"] and anchor in set(clouds["answer"]):
         penalties["repetition_penalty"] = 0.75
+    penalties["contradiction_penalty"] = _ordinal_contradiction_penalty(anchor, clouds)
     if not row["cloud_support"]["question"] and not row["cloud_support"]["answer"]:
         penalties["unsupported_jump_penalty"] = 0.20
     penalties["domain_drift_penalty"] = _phrase_field_drift_penalty(anchor, frame)
@@ -828,6 +836,18 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
         penalties["domain_drift_penalty"] = _question_field_drift_penalty(anchor, frame)
     penalties["total"] = round(sum(penalties.values()), 6)
     return penalties
+
+
+def _ordinal_contradiction_penalty(anchor: str, clouds: dict[str, list[str]]) -> float:
+    clean = str(anchor or "").strip().casefold()
+    question_terms = set(_clean_list(clouds.get("question") or []))
+    if "first" in question_terms and clean == "second":
+        return 1.25
+    if "second" in question_terms and clean == "first":
+        return 1.25
+    if "third" in question_terms and clean in {"first", "second"}:
+        return 1.25
+    return 0.0
 
 
 def _learned_frame_candidate_guidance(

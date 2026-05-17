@@ -46,17 +46,17 @@ def render_anchor_answer_surface(
     frame = _frame_type(observed)
 
     if frame == "why":
-        return f"The answer path around {subject_text} points toward {term_text}."
+        return f"{subject_text.capitalize()} involves {term_text}."
     if frame == "how":
-        return f"The answer path for {subject_text} moves through {term_text}."
+        return f"{subject_text.capitalize()} uses {term_text}."
     if frame == "who":
         subject_text = subject_text.replace(" and ", " ")
-        return f"{subject_text.capitalize()} is represented as an entity count field connected with {term_text}."
+        return f"{subject_text.capitalize()} is represented through {term_text}."
     if frame == "what":
-        return f"{subject_text.capitalize()} is most strongly connected with {term_text}."
+        return f"{subject_text.capitalize()} involves {term_text}."
     if frame == "agreement":
         return f"The active path around {subject_text} supports {term_text}."
-    return f"The active path connects {subject_text} with {term_text}."
+    return f"{subject_text.capitalize()} involves {term_text}."
 
 
 def _answer_terms(answer_assembly: dict[str, Any]) -> list[str]:
@@ -74,14 +74,27 @@ def _answer_surface_terms(answer_assembly: dict[str, Any]) -> list[str]:
     if isinstance(plan, dict):
         accepted = plan.get("accepted_candidates")
         if isinstance(accepted, list):
-            planned_terms = [
+            admitted_terms = [
                 str(row.get("symbol") or row.get("anchor") or "").strip().casefold()
                 for row in accepted
                 if isinstance(row, dict) and str(row.get("symbol") or row.get("anchor") or "").strip()
             ]
-            if planned_terms:
-                return _ordered_unique([term for term in planned_terms if not _blocked_answer_term(term)])
+            if admitted_terms:
+                admitted = set(admitted_terms)
+                walked_terms = _walked_answer_terms(answer_assembly)
+                walked_admitted = [
+                    term
+                    for term in walked_terms
+                    if term in admitted and not _blocked_answer_term(term)
+                ]
+                if walked_admitted:
+                    return _ordered_unique(walked_admitted)
+                return _ordered_unique([term for term in admitted_terms if not _blocked_answer_term(term)])
             return []
+
+    walked_terms = _walked_answer_terms(answer_assembly)
+    if walked_terms:
+        return _ordered_unique([term for term in walked_terms if not _blocked_answer_term(term)])
 
     rows = [row for row in answer_assembly.get("terms", []) if isinstance(row, dict)]
     terms = [
@@ -90,6 +103,33 @@ def _answer_surface_terms(answer_assembly: dict[str, Any]) -> list[str]:
         if str(row.get("anchor") or "").strip()
     ]
     return _ordered_unique([term for term in terms if not _blocked_answer_term(term)])
+
+
+def _walked_answer_terms(answer_assembly: dict[str, Any]) -> list[str]:
+    path = answer_assembly.get("answer_path")
+    if isinstance(path, dict):
+        chosen = [
+            str(anchor or "").strip().casefold()
+            for anchor in path.get("chosen_anchors") or []
+            if str(anchor or "").strip()
+        ]
+        if chosen:
+            return chosen
+        steps = path.get("steps")
+        if isinstance(steps, list):
+            stepped = [
+                str(row.get("chosen_anchor") or row.get("selected_anchor") or "").strip().casefold()
+                for row in steps
+                if isinstance(row, dict) and str(row.get("chosen_anchor") or row.get("selected_anchor") or "").strip()
+            ]
+            if stepped:
+                return stepped
+    rows = [row for row in answer_assembly.get("terms", []) if isinstance(row, dict)]
+    return [
+        str(row.get("anchor") or "").strip().casefold()
+        for row in rows
+        if str(row.get("anchor") or "").strip()
+    ]
 
 
 def _frame_type(anchors: list[str]) -> str:
