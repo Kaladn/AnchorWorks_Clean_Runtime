@@ -49,6 +49,7 @@ scripts/
   truevision_state_replay.py
   truevision_state_scene_generator.py
   truevision_full_power_frame.py
+  truevision_path_tracer.py
 
 modules/
   screen_grid_mapper.py
@@ -63,6 +64,7 @@ tests/
   test_video_cell_state.py
   test_screen_grid_mapper_dimensions.py
   test_screen_resonance_rectangular.py
+  test_truevision_path_tracer.py
 
 reports/
   person_field_walk_5s_state_media_formula_report.md
@@ -71,6 +73,7 @@ reports/
   DATA_USAGE_AND_RECORDING_MATH.md
   STATE_LANGUAGE_NEXT_STEPS.md
   FPS_OPTIMIZATION_SMOKE_REPORT.md
+  PATH_TRACING_LANE_REPORT.md
 
 manifests/
   captured and generated run manifests, summaries, and replay reports

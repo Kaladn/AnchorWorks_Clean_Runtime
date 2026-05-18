@@ -693,6 +693,7 @@
             <div class="state-cell"><strong>Linear</strong><span id="linearState">camera matrix</span></div>
             <div class="state-cell"><strong>Physics</strong><span id="physicsState">wind + damping</span></div>
             <div class="state-cell"><strong>Electronics</strong><span id="electronicsState">oscillator drive</span></div>
+            <div class="state-cell"><strong>Path</strong><span id="renderState">4 spp, 3 bounces</span></div>
             <div class="state-cell"><strong>CV</strong><span id="cvState">edge + flow</span></div>
           </div>
         </div>
@@ -784,6 +785,16 @@
         </section>
 
         <section class="section">
+          <div class="section-title">Path Tracing</div>
+          <div class="field-grid">
+            <label>Samples<input id="ptSamples" type="number" value="4" min="1" max="128" step="1"></label>
+            <label>Bounces<input id="ptBounces" type="number" value="3" min="1" max="12" step="1"></label>
+            <label>Roughness<input id="ptRoughness" type="number" value="0.22" min="0" max="1" step="0.01"></label>
+            <label>Exposure<input id="ptExposure" type="number" value="1.00" min="0.1" max="5" step="0.05"></label>
+          </div>
+        </section>
+
+        <section class="section">
           <div class="section-title">Computer Vision</div>
           <div class="check-grid">
             <label class="check"><input id="edgeMap" type="checkbox" checked> Edge map</label>
@@ -820,6 +831,7 @@
       files: [
         { name: "state_script.json", kind: "state formula", size: "draft" },
         { name: "geometry_sidecar.json", kind: "geometry", size: "draft" },
+        { name: "path_trace_report.md", kind: "renderer proof", size: "draft" },
         { name: "cv_state_manifest.json", kind: "cv", size: "draft" },
         { name: "replay_report.md", kind: "central writer", size: "draft" }
       ]
@@ -906,6 +918,15 @@
           noise_floor: number("noiseFloor"),
           low_pass: number("lowPass")
         },
+        path_tracing: {
+          renderer: "cpu_path_tracer",
+          samples_per_pixel: number("ptSamples"),
+          max_bounces: number("ptBounces"),
+          material_roughness: number("ptRoughness"),
+          exposure: number("ptExposure"),
+          gpu_acceleration_used: false,
+          writes_truevision_cell_state: true
+        },
         computer_vision: {
           lane: $("cvLane").value,
           edge_map: checked("edgeMap"),
@@ -928,6 +949,7 @@
       const wind = req.physics.wind;
       const parallax = req.linear_algebra.parallax;
       const depth = req.geometry.depth_scale;
+      const exposure = req.path_tracing.exposure;
       const cvPressure = [
         req.computer_vision.edge_map,
         req.computer_vision.optical_flow,
@@ -936,7 +958,7 @@
       ].filter(Boolean).length / 4;
 
       const sky = ctx.createLinearGradient(0, 0, 0, horizon);
-      sky.addColorStop(0, "#315e93");
+      sky.addColorStop(0, exposure > 1.2 ? "#4272a2" : "#315e93");
       sky.addColorStop(1, "#b8d2df");
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, width, horizon);
@@ -998,7 +1020,7 @@
       ctx.scale(req.linear_algebra.scale, req.linear_algebra.scale);
       ctx.transform(1, 0, req.linear_algebra.shear_x, 1, 0, 0);
 
-      ctx.fillStyle = "rgba(0,0,0,0.28)";
+      ctx.fillStyle = `rgba(0,0,0,${Math.max(0.18, 0.46 - req.path_tracing.material_roughness * 0.22)})`;
       ctx.beginPath();
       ctx.ellipse(28, ground + 10, 82, 16, -0.08, 0, Math.PI * 2);
       ctx.fill();
@@ -1086,6 +1108,7 @@
       $("linearState").textContent = `Rz ${$("rotZ").value}, S ${$("scale").value}`;
       $("physicsState").textContent = `wind ${$("wind").value}, drag ${$("drag").value}`;
       $("electronicsState").textContent = `osc ${$("oscHz").value}Hz`;
+      $("renderState").textContent = `${$("ptSamples").value} spp, ${$("ptBounces").value} bounces`;
       $("cvState").textContent = $("cvLane").value.replaceAll("_", " ");
     }
 
@@ -1113,6 +1136,7 @@
       state.files = [
         { name: "truevision_state_script.json", kind: `${req.capture_shape.grid_width}x${req.capture_shape.grid_height} state`, size: `${req.capture_shape.duration_seconds}s` },
         { name: "geometry_sidecar.json", kind: "camera/actor/depth", size: "required" },
+        { name: "path_trace_report.md", kind: "cpu path tracer", size: `${req.path_tracing.samples_per_pixel}spp/${req.path_tracing.max_bounces}b` },
         { name: "motion_field_sidecar.npz", kind: "flow + gait phase", size: "planned" },
         { name: "cv_state_manifest.json", kind: req.computer_vision.lane, size: "planned" },
         { name: "state_replay_lossless_ffv1.mkv", kind: "video artifact", size: "planned" },
