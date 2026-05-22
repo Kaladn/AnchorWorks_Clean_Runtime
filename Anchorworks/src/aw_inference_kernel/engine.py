@@ -4,9 +4,8 @@ from typing import Any
 
 from .answer_plan import build_answer_plan as _build_answer_plan
 from .candidate_collector import collect_candidates
-from .cloud_scoring import score_candidate_cloud
+from .candidate_walker import walk_candidates
 from .frame_builder import build_frame
-from .rules import apply_rule_gates
 
 
 def run_inference(
@@ -18,8 +17,6 @@ def run_inference(
 ) -> dict[str, Any]:
     frame = build_frame(user_text, query_anchors, mode=mode)
     candidates = collect_candidates(answer_assembly)
-    accepted: list[dict[str, Any]] = []
-    rejected: list[dict[str, Any]] = []
     inference_steps: list[dict[str, Any]] = [
         {
             "rule_id": "R_FRAME_FROM_INPUT_SHAPE",
@@ -29,27 +26,8 @@ def run_inference(
             "evidence_refs": [],
         }
     ]
-
-    for candidate in candidates:
-        cloud_match = score_candidate_cloud(candidate)
-        passed, reason, steps = apply_rule_gates(candidate, frame)
-        inference_steps.extend(steps)
-        shaped = {
-            "symbol": candidate["symbol"],
-            "anchor": candidate["anchor"],
-            "lane": candidate["lane"],
-            "role": candidate["role"],
-            "support_score": candidate["support_score"],
-            "candidate_rank": candidate["candidate_rank"],
-            "status": "accepted" if passed else "rejected",
-            "reason": reason,
-            "evidence": candidate.get("evidence") or {},
-            "cloud_match": cloud_match,
-        }
-        if passed:
-            accepted.append(shaped)
-        else:
-            rejected.append(shaped)
+    accepted, rejected, walk_steps = walk_candidates(candidates, frame)
+    inference_steps.extend(walk_steps)
 
     return _build_answer_plan(
         frame=frame,

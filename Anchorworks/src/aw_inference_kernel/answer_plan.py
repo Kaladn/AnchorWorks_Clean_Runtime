@@ -43,6 +43,7 @@ def build_answer_plan(
             "renderer_speaks": True,
             "facts_require_evidence": True,
             "no_raw_topk_fallback": True,
+            "topk_walked": True,
         },
     }
 

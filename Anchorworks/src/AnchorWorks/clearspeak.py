@@ -21,8 +21,10 @@ from .clearspeak_attention import (
     retrieve_from_count_index,
 )
 from .answer_surface import render_anchor_answer_surface
+from .anchor_field import build_query_frame
 from .inference import run_inference
 from .intake import extract_anchors
+from .language_state_replay import build_language_state_replay
 from .lifetime_symbol_mirror import load_lifetime_by_symbol_dir
 from .symbol_count_cells import read_symbol_cell
 
@@ -70,14 +72,13 @@ class ClearSpeakService:
         unique = recognition["query_anchors"]
         represented = recognition["represented_anchors"]
         missing = recognition["missing_anchors"]
-        represented_content = _strict_content_anchors(represented)
-        missing_content = _strict_content_anchors(missing)
-        if missing_content and (not represented_content or _missing_entity_name_part_blocks_walk(unique, missing_content)):
-            answer_assembly = _empty_answer_assembly("missing_content_anchor")
-            answer_assembly["missing_content_anchors"] = missing_content
-            answer_assembly["contract"]["question_glue_cannot_seed_counts"] = True
-            speech = self._compose_speech(represented, missing, answer_assembly)
-            response = self._compose_response(query_text, represented, missing, [], answer_assembly)
+        represented_content = recognition.get("represented_content_anchors") or _strict_content_anchors(represented)
+        missing_content = recognition.get("missing_content_anchors") or _strict_content_anchors(missing)
+        if recognition.get("input_kind") == "conversation" and not represented_content and not missing_content:
+            answer_assembly = _empty_answer_assembly("conversational_input")
+            answer_assembly["state_replay"] = build_language_state_replay([], answer_assembly)
+            speech = "I am here. Give me a subject, task, or question when you want me to work the counts."
+            response = "ClearSpeak treated this as conversational input, not a count query."
             return ClearSpeakResult(
                 query=query_text,
                 query_anchors=unique,
@@ -90,11 +91,30 @@ class ClearSpeakService:
                 citations=[],
                 answer_assembly=answer_assembly,
             )
-        count_index = self._load_count_index(represented)
+        if missing_content and (not represented_content or _missing_entity_name_part_blocks_walk(unique, missing_content)):
+            answer_assembly = _empty_answer_assembly("missing_content_anchor")
+            answer_assembly["missing_content_anchors"] = missing_content
+            answer_assembly["contract"]["question_glue_cannot_seed_counts"] = True
+            answer_assembly["state_replay"] = build_language_state_replay(represented_content, answer_assembly)
+            speech = self._compose_speech(represented_content, missing_content, answer_assembly)
+            response = self._compose_response(query_text, represented_content, missing_content, [], answer_assembly)
+            return ClearSpeakResult(
+                query=query_text,
+                query_anchors=unique,
+                represented_anchors=represented,
+                missing_anchors=missing,
+                lexicon_recognition=recognition,
+                speech=speech,
+                response=response,
+                evidence=[],
+                citations=[],
+                answer_assembly=answer_assembly,
+            )
+        count_index = self._load_count_index(represented_content)
 
         evidence: list[dict[str, Any]] = []
         citation_rows: list[dict[str, Any]] = []
-        for anchor in represented:
+        for anchor in represented_content:
             retrieved = retrieve_from_count_index(count_index, anchor, limit=limit)
             if int(retrieved.get("total_neighbor_observations", 0) or 0) <= 0:
                 continue
@@ -122,8 +142,9 @@ class ClearSpeakService:
             max_anchors=max_anchors,
         )
         answer_assembly["inference_plan"] = run_inference(query_text, unique, answer_assembly, mode="counts")
-        speech = self._compose_speech(represented, missing, answer_assembly)
-        response = self._compose_response(query_text, represented, missing, evidence, answer_assembly)
+        answer_assembly["state_replay"] = build_language_state_replay(represented_content, answer_assembly)
+        speech = self._compose_speech(represented_content, missing_content, answer_assembly)
+        response = self._compose_response(query_text, represented_content, missing_content, evidence, answer_assembly)
         return ClearSpeakResult(
             query=query_text,
             query_anchors=unique,
@@ -142,15 +163,42 @@ class ClearSpeakService:
             return self.store.recognize_query_anchors(query)
         observed = extract_anchors(query)
         unique = _ordered_unique(observed)
+        query_frame = build_query_frame(unique)
+        punctuation = [
+            row["anchor"]
+            for row in query_frame.get("director_anchors", [])
+            if isinstance(row, dict) and row.get("role") == "punctuation"
+        ]
+        punctuation_set = set(punctuation)
+        query_anchors = [anchor for anchor in unique if anchor not in punctuation_set]
+        content = [
+            str(anchor or "").strip().casefold()
+            for anchor in query_frame.get("content_seeds", [])
+            if str(anchor or "").strip()
+        ]
+        direction_anchors = [
+            str(row.get("anchor") or "").strip().casefold()
+            for row in query_frame.get("director_anchors", [])
+            if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+        ]
         known = set(self.store._all_known_anchors())
         return {
             "schema_version": "anchorworks_lexicon_recognition@1",
             "query": str(query or ""),
-            "query_anchors": unique,
-            "represented_anchors": [anchor for anchor in unique if anchor in known],
-            "missing_anchors": [anchor for anchor in unique if anchor not in known],
+            "observed_anchors": unique,
+            "query_anchors": query_anchors,
+            "content_anchors": content,
+            "direction_anchors": direction_anchors,
+            "punctuation_anchors": punctuation,
+            "input_kind": "question" if "?" in punctuation or (query_frame.get("frame") in {"question", "method_question"}) else "statement",
+            "query_frame": query_frame,
+            "represented_anchors": [anchor for anchor in query_anchors if anchor in known],
+            "missing_anchors": [anchor for anchor in query_anchors if anchor not in known],
+            "represented_content_anchors": [anchor for anchor in content if anchor in known],
+            "missing_content_anchors": [anchor for anchor in content if anchor not in known],
             "recognition_layer": "lexicon",
             "lexicon_first": True,
+            "direction_only_anchors": sorted(set(direction_anchors + punctuation)),
             "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
 
@@ -183,6 +231,9 @@ class ClearSpeakService:
             if missing_content:
                 return "I do not recognize " + ", ".join(missing_content) + " in the lexicon/count path yet."
         if represented:
+            replay = answer_assembly.get("state_replay") if isinstance(answer_assembly.get("state_replay"), dict) else {}
+            if replay.get("status") == "missing_state":
+                return "I recognize " + ", ".join(represented) + ", but I do not have replayable count state yet."
             return "I recognize " + ", ".join(represented) + ", but I do not have count support yet."
         if missing:
             return "I do not recognize " + ", ".join(missing) + " in the lexicon yet."

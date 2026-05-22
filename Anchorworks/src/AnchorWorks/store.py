@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from .anchorworks_chat_archive import prepare_anchorworks_chat_archive
+from .anchor_field import build_query_frame
 from .anchor_classification import classify_unknown_anchor_rows, write_classified_unknown_report, write_math_lexicon
 from .document_prep import prepare_bytes, prepare_file
 from .intake import (
@@ -73,9 +74,22 @@ TEMP_SYMBOL_PREFIX = "U"
 TEMP_SYMBOL_HEX_LENGTH = 11
 COMPANION_AUTHORITY_LANES = {"math_terms_or_symbols", "math_markup", "domain_notation_anchors", "structural_source_anchors"}
 NULL_SYMBOL_LANES = {"null_symbol_anchors", "source_id_artifacts"}
+CONVERSATIONAL_ANCHORS = {"hello", "hi", "hey", "thanks", "thank", "morning", "good", "yo"}
 
 def _anchor_maps_root_for(data_root: Path) -> Path:
     return anchor_maps_root_for(data_root)
+
+
+def _query_input_kind(observed: list[str], query_frame: dict[str, Any]) -> str:
+    frame = str(query_frame.get("frame") or "").strip().casefold()
+    observed_set = {str(anchor or "").strip().casefold() for anchor in observed if str(anchor or "").strip()}
+    if "?" in observed_set or frame in {"question", "method_question"}:
+        return "question"
+    if observed_set and observed_set <= CONVERSATIONAL_ANCHORS:
+        return "conversation"
+    if observed_set & CONVERSATIONAL_ANCHORS and len(observed_set) <= 3:
+        return "conversation"
+    return "statement"
 
 
 def _utc_now() -> str:
@@ -607,17 +621,46 @@ class LexiconStore:
 
     def recognize_query_anchors(self, text: str) -> dict[str, Any]:
         observed = _ordered_unique(row["anchor"] for row in extract_anchor_rows(str(text or "")) if row.get("anchor"))
+        query_frame = build_query_frame(observed)
+        punctuation = [
+            row["anchor"]
+            for row in query_frame.get("director_anchors", [])
+            if isinstance(row, dict) and row.get("role") == "punctuation"
+        ]
+        punctuation_set = set(punctuation)
+        query_anchors = [anchor for anchor in observed if anchor not in punctuation_set]
+        direction_anchors = [
+            str(row.get("anchor") or "").strip().casefold()
+            for row in query_frame.get("director_anchors", [])
+            if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+        ]
+        content = [
+            str(anchor or "").strip().casefold()
+            for anchor in query_frame.get("content_seeds", [])
+            if str(anchor or "").strip()
+        ]
         known = self._all_known_anchors()
-        represented = [anchor for anchor in observed if anchor in known]
-        missing = [anchor for anchor in observed if anchor not in known]
+        represented = [anchor for anchor in query_anchors if anchor in known]
+        missing = [anchor for anchor in query_anchors if anchor not in known]
+        represented_content = [anchor for anchor in content if anchor in known]
+        missing_content = [anchor for anchor in content if anchor not in known]
         return {
             "schema_version": "anchorworks_lexicon_recognition@1",
             "query": str(text or ""),
-            "query_anchors": observed,
+            "observed_anchors": observed,
+            "query_anchors": query_anchors,
+            "content_anchors": content,
+            "direction_anchors": direction_anchors,
+            "punctuation_anchors": punctuation,
+            "input_kind": _query_input_kind(observed, query_frame),
+            "query_frame": query_frame,
             "represented_anchors": represented,
             "missing_anchors": missing,
+            "represented_content_anchors": represented_content,
+            "missing_content_anchors": missing_content,
             "recognition_layer": "lexicon",
             "lexicon_first": True,
+            "direction_only_anchors": sorted(set(direction_anchors + punctuation)),
             "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
 

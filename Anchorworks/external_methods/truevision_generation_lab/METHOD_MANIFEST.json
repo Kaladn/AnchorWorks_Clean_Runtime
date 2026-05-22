@@ -1,0 +1,105 @@
+{
+  "schema_version": "anchorworks_external_method_manifest@1",
+  "method_name": "TrueVision Generation Lab",
+  "authority": "reference_method_only",
+  "generated_media_excluded": true,
+  "anchorworks_runtime_imports_disallowed": true,
+  "method_chain": [
+    "capture observed state from live screen/video",
+    "write compact .tvcells state chunks",
+    "build SegmentField A-to-B transition",
+    "render high-FPS replay from stored state"
+  ],
+  "anchorworks_translation": [
+    "visual page/frame becomes glyph-state capture",
+    ".tvcells becomes language/glyph state chunks",
+    "SegmentField becomes LanguageSegmentField",
+    "video replay becomes reverse-state language rendering"
+  ],
+  "copied_sources": [
+    {
+      "path": "native_rust_exact_copy/src/main.rs",
+      "source": "D:/TrueVision_Generation_Lab/native/truevision_capture_rs/src/main.rs",
+      "use": "read_only_reference",
+      "role": "native state capture truth source"
+    },
+    {
+      "path": "native_rust_exact_copy/src/bin/trueframegen_stream_rs.rs",
+      "source": "D:/TrueVision_Generation_Lab/native/truevision_capture_rs/src/bin/trueframegen_stream_rs.rs",
+      "use": "read_only_reference",
+      "role": "SegmentField streaming state renderer"
+    },
+    {
+      "path": "scripts_exact_copy/trueframegen_stream_upsample.py",
+      "source": "D:/TrueVision_Generation_Lab/scripts/trueframegen_stream_upsample.py",
+      "use": "read_only_reference",
+      "role": "Rust stream renderer launcher"
+    },
+    {
+      "path": "scripts_exact_copy/trueframegen_live_pipeline.py",
+      "source": "D:/TrueVision_Generation_Lab/scripts/trueframegen_live_pipeline.py",
+      "use": "read_only_reference",
+      "role": "capture-to-render live pipeline reference"
+    },
+    {
+      "path": "trueframegen_exact_copy/frame_upsampler.py",
+      "source": "D:/TrueVision_Generation_Lab/trueframegen/frame_upsampler.py",
+      "use": "read_only_reference",
+      "role": "Python upsample reference"
+    },
+    {
+      "path": "trueframegen_exact_copy/live_upsampler.py",
+      "source": "D:/TrueVision_Generation_Lab/trueframegen/live_upsampler.py",
+      "use": "read_only_reference",
+      "role": "live chunk reader reference"
+    },
+    {
+      "path": "trueframegen_exact_copy/temporal_616.py",
+      "source": "D:/TrueVision_Generation_Lab/trueframegen/temporal_616.py",
+      "use": "read_only_reference",
+      "role": "temporal neighborhood reference"
+    },
+    {
+      "path": "trueframegen_exact_copy/causal_cell_map.py",
+      "source": "D:/TrueVision_Generation_Lab/trueframegen/causal_cell_map.py",
+      "use": "read_only_reference",
+      "role": "per-cell cause/effect reference"
+    },
+    {
+      "path": "trueframegen_exact_copy/state_interpolator.py",
+      "source": "D:/TrueVision_Generation_Lab/trueframegen/state_interpolator.py",
+      "use": "read_only_reference",
+      "role": "missing state interpolation reference"
+    },
+    {
+      "path": "trueframegen_exact_copy/frame_gap_filler.py",
+      "source": "D:/TrueVision_Generation_Lab/trueframegen/frame_gap_filler.py",
+      "use": "read_only_reference",
+      "role": "early frame-gap fill reference"
+    },
+    {
+      "path": "trueframegen_exact_copy/verify_replay_continuity.py",
+      "source": "D:/TrueVision_Generation_Lab/trueframegen/verify_replay_continuity.py",
+      "use": "read_only_reference",
+      "role": "replay continuity verifier reference"
+    },
+    {
+      "path": "docs_exact_copy/TECHNICAL_OVERVIEW.md",
+      "source": "D:/TrueVision_Generation_Lab/docs/TECHNICAL_OVERVIEW.md",
+      "use": "read_only_reference",
+      "role": "technical method summary"
+    },
+    {
+      "path": "docs_exact_copy/PLAIN_ENGLISH_OVERVIEW.md",
+      "source": "D:/TrueVision_Generation_Lab/docs/PLAIN_ENGLISH_OVERVIEW.md",
+      "use": "read_only_reference",
+      "role": "plain-language method summary"
+    },
+    {
+      "path": "docs_exact_copy/README.md",
+      "source": "D:/TrueVision_Generation_Lab/README.md",
+      "use": "read_only_reference",
+      "role": "lab usage and boundary reference"
+    }
+  ]
+}
