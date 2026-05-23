@@ -13,3 +13,4 @@ experiments/observed_map_graph/runtime/
 ../State/flat_documents/local_overlays/
 ../State/jobs/
 ../State/phrase_candidates/
+State/code_lexicon_mirror/
