@@ -12,6 +12,11 @@ from .occular_cloud import (
     evaluate_trailing_count_status,
 )
 from .occular_cloud_accel import build_occular_cloud_counts_accelerated, probe_occular_cloud_backends
+from .occular_tensor_index import (
+    build_occular_shard_index,
+    load_occular_shard_index,
+    query_occular_tensor_cloud,
+)
 from .occular_tensor_store import (
     build_occular_counts_from_tensor_shard,
     default_tensor_brain_root,
@@ -30,11 +35,14 @@ __all__ = [
     "build_occular_cloud_counts",
     "build_occular_cloud_counts_accelerated",
     "build_occular_counts_from_tensor_shard",
+    "build_occular_shard_index",
     "build_video_modality_switch",
     "default_tensor_brain_root",
     "evaluate_trailing_count_status",
+    "load_occular_shard_index",
     "load_occular_tensor_shard",
     "probe_occular_cloud_backends",
+    "query_occular_tensor_cloud",
     "write_occular_tensor_shard",
     "apply_language_transform_rules",
 ]
