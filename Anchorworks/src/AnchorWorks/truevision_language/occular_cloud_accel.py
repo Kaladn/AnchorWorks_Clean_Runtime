@@ -239,6 +239,7 @@ def _build_with_tensor_lane(
     return {
         "schema_version": "anchorworks_occular_cloud_counts@1",
         "config": config.to_dict(),
+        "window_contract": config.count_window_contract().to_dict(),
         "block_count": block_count,
         "record_count": len(records),
         "unique_center_count": len(counts),

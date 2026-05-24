@@ -53,6 +53,7 @@ def write_occular_tensor_shard(
         "tensor_path": str(tensor_path),
         "tensor_sha256": tensor_hash,
         "config": cfg.to_dict(),
+        "window_contract": cfg.count_window_contract().to_dict(),
         "backend": str(backend),
         "symbol_table": packed["symbol_table"],
         "block_metadata": packed["block_metadata"],
@@ -172,6 +173,7 @@ def build_occular_counts_from_tensor_shard(shard: dict[str, Any]) -> dict[str, A
     symbol_table = list(manifest["symbol_table"])
     block_metadata = list(manifest["block_metadata"])
     config = manifest["config"]
+    window_contract = manifest.get("window_contract") or {}
     records: list[dict[str, Any]] = []
     counts: dict[str, dict[str, Any]] = {}
 
@@ -216,6 +218,7 @@ def build_occular_counts_from_tensor_shard(shard: dict[str, Any]) -> dict[str, A
     return {
         "schema_version": "anchorworks_occular_cloud_counts@1",
         "config": config,
+        "window_contract": window_contract,
         "block_count": len(block_metadata),
         "record_count": len(records),
         "unique_center_count": len(counts),

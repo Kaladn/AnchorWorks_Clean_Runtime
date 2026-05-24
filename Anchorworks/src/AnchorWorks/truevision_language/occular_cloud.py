@@ -4,6 +4,8 @@ import hashlib
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from AnchorWorks.count_window import CountWindowConfig, count_window_preset
+
 
 OCCULAR_CLOUD_SCHEMA_VERSION = "anchorworks_occular_cloud_counts@1"
 DEFAULT_BLOCKED_SYMBOLS = {"__NULL__", "visual_unknown_glyph"}
@@ -16,6 +18,26 @@ class OccularCloudConfig:
     center_size: int = 4
     max_lag_seconds: float = 15.0
     max_retries: int = 3
+
+    @classmethod
+    def from_window_contract(
+        cls,
+        contract: CountWindowConfig,
+        *,
+        max_lag_seconds: float = 15.0,
+        max_retries: int = 3,
+    ) -> "OccularCloudConfig":
+        return cls(
+            context_clouds_each_side=contract.left_context_units,
+            context_cloud_size=contract.unit_size,
+            center_size=contract.center_units,
+            max_lag_seconds=max_lag_seconds,
+            max_retries=max_retries,
+        )
+
+    @classmethod
+    def default(cls) -> "OccularCloudConfig":
+        return cls.from_window_contract(count_window_preset("occular_6x4_4_6x4"))
 
     @property
     def window_shape(self) -> str:
@@ -31,6 +53,16 @@ class OccularCloudConfig:
         row["context_span_each_side"] = self.context_span_each_side
         return row
 
+    def count_window_contract(self) -> CountWindowConfig:
+        return CountWindowConfig(
+            left_context_units=self.context_clouds_each_side,
+            center_units=self.center_size,
+            right_context_units=self.context_clouds_each_side,
+            unit_size=self.context_cloud_size,
+            lane="occular",
+            name=self.window_shape,
+        )
+
 
 def build_occular_cloud_counts(
     *,
@@ -40,7 +72,7 @@ def build_occular_cloud_counts(
 ) -> dict[str, Any]:
     """Build visual-local 6x4-4-6x4 symbolic count records."""
 
-    cfg = config or OccularCloudConfig()
+    cfg = config or OccularCloudConfig.default()
     blocked = set(DEFAULT_BLOCKED_SYMBOLS)
     blocked.update(str(symbol) for symbol in (blocked_symbols or set()) if str(symbol))
 
@@ -99,6 +131,7 @@ def build_occular_cloud_counts(
     return {
         "schema_version": OCCULAR_CLOUD_SCHEMA_VERSION,
         "config": cfg.to_dict(),
+        "window_contract": cfg.count_window_contract().to_dict(),
         "block_count": block_count,
         "record_count": len(records),
         "unique_center_count": len(counts),
