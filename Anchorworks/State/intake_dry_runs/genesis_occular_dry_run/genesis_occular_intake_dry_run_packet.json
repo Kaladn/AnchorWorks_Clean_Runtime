@@ -1,0 +1,5305 @@
+{
+  "schema_version": "anchorworks_genesis_occular_intake_dry_run@2",
+  "created_at_utc": "2026-05-25T00:50:25.225961+00:00",
+  "mode": "dry_run_only",
+  "source": {
+    "name": "ANCHORWORKS_GENESIS_SOURCE.md",
+    "path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\docs\\ANCHORWORKS_GENESIS_SOURCE.md",
+    "sha256": "343917ca68749c305b596fb99179ae867c5a3c7f17ea0fdd957793515362c148",
+    "bytes": 5591
+  },
+  "source_pointers": [
+    {
+      "path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\docs\\ANCHORWORKS_OPERATIONAL_TRUTH_LOCK.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\docs\\ANCHORWORKS_COMPLETE_TEXT_DOCUMENTATION.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\docs\\ANCHORWORKS_FULL_INTAKE_ALIGNMENT_CURRENT.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\docs\\SYMBOL_GENOME_PROTOCOL_CONTRACT.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\SecureCore_Workspace\\SecureCore\\docs\\security\\SECURECORE_OPERATIONAL_TRUTH_LOCK.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\SecureCore_Workspace\\SecureCore\\SECURECORE_AW_TOOLBOX_FINALIZATION_MAP.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\TrueVision_Generation_Lab\\docs\\TRUEVISION_GENERATION_OPERATIONAL_TRUTH_LOCK.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\TrueVision_Generation_Lab\\docs\\TECHNICAL_OVERVIEW.md",
+      "exists": true
+    },
+    {
+      "path": "D:\\arc_solver_clean\\arc_core.py",
+      "exists": true
+    },
+    {
+      "path": "D:\\arc_solver_clean\\engines\\transform_library.py",
+      "exists": true
+    },
+    {
+      "path": "D:\\arc_solver_clean\\engines\\base_engine.py",
+      "exists": true
+    },
+    {
+      "path": "D:\\arc_solver_clean\\engines\\shape_engine.py",
+      "exists": true
+    },
+    {
+      "path": "D:\\arc_solver_clean\\engines\\rel_engine_v2.py",
+      "exists": true
+    },
+    {
+      "path": "G:\\arc_production_solver\\cod_616\\modules\\fusion_616_engine.py",
+      "exists": true
+    },
+    {
+      "path": "E:\\anchorworks historical disaster backup\\Lexical Data\\docs\\616_COMPLETE_DATAFLOW.md",
+      "exists": true
+    },
+    {
+      "path": "E:\\anchorworks historical disaster backup\\Lexical Data\\docs\\DATA_FLOW_MAP.md",
+      "exists": true
+    },
+    {
+      "path": "E:\\anchorworks historical disaster backup\\Lexical Data\\docs\\CLEARBOX_STATUS_AND_NEXT_STEPS.md",
+      "exists": true
+    },
+    {
+      "path": "G:\\CompuCog\\core\\frame_to_grid.py",
+      "exists": true
+    },
+    {
+      "path": "G:\\CompuCog\\event_system\\event_manager.py",
+      "exists": true
+    },
+    {
+      "path": "G:\\CompuCog\\event_system\\chronos_manager.py",
+      "exists": true
+    }
+  ],
+  "pipeline": [
+    "lexicon recognition",
+    "missing anchor review classification",
+    "junk/string-literal exclusion",
+    "dry temp symbolization for ungranted anchors",
+    "OC 4x6-4-4x6 grouping",
+    "accelerated parity check",
+    "tensor roundtrip parity check",
+    "receipt packet only"
+  ],
+  "preview_summary": {
+    "paragraph_count": 43,
+    "total_anchor_observations": 1561,
+    "unique_anchor_count": 310,
+    "known_anchor_count": 0,
+    "missing_anchor_count": 310,
+    "known_anchor_observations": 0,
+    "missing_anchor_observations": 1561
+  },
+  "recognition": {
+    "live_lexicon_known_unique": 0,
+    "live_lexicon_known_observations": 0,
+    "missing_unique": 296,
+    "missing_observations": 1128,
+    "junk_unique": 9,
+    "junk_observations": 428,
+    "string_literal_count": 5,
+    "dry_temp_symbol_count": 296,
+    "missing_anchor_review_preview": [
+      {
+        "anchor": "e",
+        "observations": 49,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_3F79BB7B435B0532"
+      },
+      {
+        "anchor": "o",
+        "observations": 48,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_65C74C15A686187B"
+      },
+      {
+        "anchor": "a",
+        "observations": 43,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_CA978112CA1BBDCA"
+      },
+      {
+        "anchor": "r",
+        "observations": 41,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_454349E422F05297"
+      },
+      {
+        "anchor": "t",
+        "observations": 40,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_E3B98A4DA31A127D"
+      },
+      {
+        "anchor": "c",
+        "observations": 33,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_2E7D2C03A9507AE2"
+      },
+      {
+        "anchor": "anchorworks",
+        "observations": 30,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_95238C2609EA772A"
+      },
+      {
+        "anchor": "d",
+        "observations": 30,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_18AC3E7343F01689"
+      },
+      {
+        "anchor": "n",
+        "observations": 27,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_1B16B1DF538BA12D"
+      },
+      {
+        "anchor": "i",
+        "observations": 26,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_DE7D1B721A1E0632"
+      },
+      {
+        "anchor": "s",
+        "observations": 21,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_043A718774C572BD"
+      },
+      {
+        "anchor": "l",
+        "observations": 21,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_ACAC86C0E609CA90"
+      },
+      {
+        "anchor": "the",
+        "observations": 18,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_B9776D7DDF459C9A"
+      },
+      {
+        "anchor": "u",
+        "observations": 18,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_0BFE935E70C321C7"
+      },
+      {
+        "anchor": "md",
+        "observations": 16,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_21262A3CB5337627"
+      },
+      {
+        "anchor": "is",
+        "observations": 15,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_FA51FD49ABF67705"
+      },
+      {
+        "anchor": "and",
+        "observations": 15,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_6201111B83A0CB5B"
+      },
+      {
+        "anchor": "securecore",
+        "observations": 13,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_C773B4EECCED0161"
+      },
+      {
+        "anchor": "truevision",
+        "observations": 12,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_DD68D84F1B2698D5"
+      },
+      {
+        "anchor": "text",
+        "observations": 12,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_982D9E3EB996F559"
+      },
+      {
+        "anchor": "docs",
+        "observations": 12,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_46B42B4229CD7A39"
+      },
+      {
+        "anchor": "py",
+        "observations": 12,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_6E491C02882AC36E"
+      },
+      {
+        "anchor": "clean",
+        "observations": 11,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_3B066804F6D1D077"
+      },
+      {
+        "anchor": "h",
+        "observations": 11,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_AAA9402664F1A41F"
+      },
+      {
+        "anchor": "p",
+        "observations": 11,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_148DE9C5A7A44D19"
+      },
+      {
+        "anchor": "through",
+        "observations": 10,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_9C6725DC269A48CE"
+      },
+      {
+        "anchor": "state",
+        "observations": 10,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_4BA69735CA53765E"
+      },
+      {
+        "anchor": "g",
+        "observations": 10,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_CD0AA9856147B6C5"
+      },
+      {
+        "anchor": "w",
+        "observations": 9,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_50E721E49C013F00"
+      },
+      {
+        "anchor": "it",
+        "observations": 8,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_2AD8A7049D7C5511"
+      },
+      {
+        "anchor": "historical",
+        "observations": 8,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_F5DBF9FE930C4F49"
+      },
+      {
+        "anchor": "not",
+        "observations": 8,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_254BB97B57F12E16"
+      },
+      {
+        "anchor": "generation",
+        "observations": 8,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_E661F4C935E8A5A8"
+      },
+      {
+        "anchor": "k",
+        "observations": 8,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_8254C329A92850F6"
+      },
+      {
+        "anchor": "m",
+        "observations": 8,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_62C66A7A5DD70C31"
+      },
+      {
+        "anchor": "source",
+        "observations": 7,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_41CF6794BA4200B8"
+      },
+      {
+        "anchor": "what",
+        "observations": 7,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_749AB2C0D06C42AE"
+      },
+      {
+        "anchor": "runtime",
+        "observations": 7,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_D92C6A81B2FF5009"
+      },
+      {
+        "anchor": "counts",
+        "observations": 6,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_CDD93696B72B3DE3"
+      },
+      {
+        "anchor": "x",
+        "observations": 6,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_2D711642B726B044"
+      },
+      {
+        "anchor": "arc",
+        "observations": 6,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_404FCFB394D23199"
+      },
+      {
+        "anchor": "compucog",
+        "observations": 6,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_2D73E65F453EFEB2"
+      },
+      {
+        "anchor": "to",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_663EA1BFFFE5038F"
+      },
+      {
+        "anchor": "receipts",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_3619A1D05B1FE41A"
+      },
+      {
+        "anchor": "language",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_A4EF304BA42A200B"
+      },
+      {
+        "anchor": "clouds",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_15FA97B5A4885427"
+      },
+      {
+        "anchor": "system",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_BBC5E661E106C6DC"
+      },
+      {
+        "anchor": "write",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_10FD874B68DAD080"
+      },
+      {
+        "anchor": "truth",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_C5C4BAD89EE44B4D"
+      },
+      {
+        "anchor": "b",
+        "observations": 5,
+        "dry_run_action": "review_required_no_live_counts",
+        "proposed_dry_temp_symbol": "DRYOC_3E23E8160039594A"
+      }
+    ],
+    "junk_preview": [
+      {
+        "anchor": "\\",
+        "observations": 102,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": "_",
+        "observations": 98,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": "`",
+        "observations": 66,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": ".",
+        "observations": 54,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": ":",
+        "observations": 41,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": ",",
+        "observations": 39,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": "#",
+        "observations": 15,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": "-",
+        "observations": 12,
+        "dry_run_action": "junk_or_direction_no_counts"
+      },
+      {
+        "anchor": "/",
+        "observations": 1,
+        "dry_run_action": "junk_or_direction_no_counts"
+      }
+    ],
+    "string_literal_preview": [
+      {
+        "anchor": "d:\\arc_solver_clean\\engines\\rel_engine_v2.py",
+        "surface": "D:\\arc_solver_clean\\engines\\rel_engine_v2.py",
+        "literal_stream_preview": [
+          "d",
+          ":",
+          "\\",
+          "a",
+          "r",
+          "c",
+          "_",
+          "s",
+          "o",
+          "l",
+          "v",
+          "e",
+          "r",
+          "_",
+          "c",
+          "l",
+          "e",
+          "a",
+          "n",
+          "\\",
+          "e",
+          "n",
+          "g",
+          "i",
+          "n",
+          "e",
+          "s",
+          "\\",
+          "r",
+          "e",
+          "l",
+          "_"
+        ],
+        "reason": "long mixed no-space string is source-local display/state, not live count memory"
+      },
+      {
+        "anchor": "g:\\arc_production_solver\\cod_616\\modules\\fusion_616_engine.py",
+        "surface": "G:\\arc_production_solver\\cod_616\\modules\\fusion_616_engine.py",
+        "literal_stream_preview": [
+          "g",
+          ":",
+          "\\",
+          "a",
+          "r",
+          "c",
+          "_",
+          "p",
+          "r",
+          "o",
+          "d",
+          "u",
+          "c",
+          "t",
+          "i",
+          "o",
+          "n",
+          "_",
+          "s",
+          "o",
+          "l",
+          "v",
+          "e",
+          "r",
+          "\\",
+          "c",
+          "o",
+          "d",
+          "_",
+          "6",
+          "1",
+          "6"
+        ],
+        "reason": "long mixed no-space string is source-local display/state, not live count memory"
+      },
+      {
+        "anchor": "data\\docs\\616_complete_dataflow.md",
+        "surface": "Data\\docs\\616_COMPLETE_DATAFLOW.md",
+        "literal_stream_preview": [
+          "d",
+          "a",
+          "t",
+          "a",
+          "\\",
+          "d",
+          "o",
+          "c",
+          "s",
+          "\\",
+          "6",
+          "1",
+          "6",
+          "_",
+          "c",
+          "o",
+          "m",
+          "p",
+          "l",
+          "e",
+          "t",
+          "e",
+          "_",
+          "d",
+          "a",
+          "t",
+          "a",
+          "f",
+          "l",
+          "o",
+          "w",
+          "."
+        ],
+        "reason": "long mixed no-space string is source-local display/state, not live count memory"
+      },
+      {
+        "anchor": "g:\\_backups\\compucog_20260130_071835\\compucog_visual_v2_possible_keeper\\contract_atlas.md",
+        "surface": "G:\\_BACKUPS\\CompuCog_20260130_071835\\CompuCog_Visual_v2_POSSIBLE_KEEPER\\CONTRACT_ATLAS.md",
+        "literal_stream_preview": [
+          "g",
+          ":",
+          "\\",
+          "_",
+          "b",
+          "a",
+          "c",
+          "k",
+          "u",
+          "p",
+          "s",
+          "\\",
+          "c",
+          "o",
+          "m",
+          "p",
+          "u",
+          "c",
+          "o",
+          "g",
+          "_",
+          "2",
+          "0",
+          "2",
+          "6",
+          "0",
+          "1",
+          "3",
+          "0",
+          "_",
+          "0",
+          "7"
+        ],
+        "reason": "long mixed no-space string is source-local display/state, not live count memory"
+      },
+      {
+        "anchor": "g:\\_backups\\compucog_20260130_071835\\compucog_visual_v2_possible_keeper\\stable_state.md",
+        "surface": "G:\\_BACKUPS\\CompuCog_20260130_071835\\CompuCog_Visual_v2_POSSIBLE_KEEPER\\STABLE_STATE.md",
+        "literal_stream_preview": [
+          "g",
+          ":",
+          "\\",
+          "_",
+          "b",
+          "a",
+          "c",
+          "k",
+          "u",
+          "p",
+          "s",
+          "\\",
+          "c",
+          "o",
+          "m",
+          "p",
+          "u",
+          "c",
+          "o",
+          "g",
+          "_",
+          "2",
+          "0",
+          "2",
+          "6",
+          "0",
+          "1",
+          "3",
+          "0",
+          "_",
+          "0",
+          "7"
+        ],
+        "reason": "long mixed no-space string is source-local display/state, not live count memory"
+      }
+    ],
+    "admission_preview": [
+      {
+        "index": 0,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 1,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 2,
+        "anchor": "genesis",
+        "surface": "Genesis",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_AEEBAD4A796FCC2E",
+        "anchor_stream": [
+          "genesis"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 3,
+        "anchor": "source",
+        "surface": "Source",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_41CF6794BA4200B8",
+        "anchor_stream": [
+          "source"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 4,
+        "anchor": "this",
+        "surface": "This",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1EB79602411EF02C",
+        "anchor_stream": [
+          "this"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 5,
+        "anchor": "file",
+        "surface": "file",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3B9C358F36F0A31B",
+        "anchor_stream": [
+          "file"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 6,
+        "anchor": "is",
+        "surface": "is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 7,
+        "anchor": "a",
+        "surface": "a",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_CA978112CA1BBDCA",
+        "anchor_stream": [
+          "a"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 8,
+        "anchor": "first",
+        "surface": "first",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A7937B64B8CAA58F",
+        "anchor_stream": [
+          "first"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 9,
+        "anchor": "dry",
+        "surface": "dry",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B755CB248C3C4A7D",
+        "anchor_stream": [
+          "dry"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 10,
+        "anchor": "-",
+        "surface": "-",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "-"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 11,
+        "anchor": "run",
+        "surface": "run",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_ACBA25512100F80B",
+        "anchor_stream": [
+          "run"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 12,
+        "anchor": "source",
+        "surface": "source",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_41CF6794BA4200B8",
+        "anchor_stream": [
+          "source"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 13,
+        "anchor": "for",
+        "surface": "for",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_10C22BCF4C768B51",
+        "anchor_stream": [
+          "for"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 14,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 15,
+        "anchor": "self",
+        "surface": "self",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_06C604B332B386B6",
+        "anchor_stream": [
+          "self"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 16,
+        "anchor": "-",
+        "surface": "-",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "-"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 17,
+        "anchor": "intake",
+        "surface": "intake",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4736BC313525A831",
+        "anchor_stream": [
+          "intake"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 18,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 19,
+        "anchor": "it",
+        "surface": "It",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2AD8A7049D7C5511",
+        "anchor_stream": [
+          "it"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 20,
+        "anchor": "tells",
+        "surface": "tells",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_D9403E3CDB1F24C7",
+        "anchor_stream": [
+          "tells"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 21,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 22,
+        "anchor": "machine",
+        "surface": "machine",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BC020A35B7F9CB13",
+        "anchor_stream": [
+          "machine"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 23,
+        "anchor": "what",
+        "surface": "what",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_749AB2C0D06C42AE",
+        "anchor_stream": [
+          "what"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 24,
+        "anchor": "it",
+        "surface": "it",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2AD8A7049D7C5511",
+        "anchor_stream": [
+          "it"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 25,
+        "anchor": "is",
+        "surface": "is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 26,
+        "anchor": "without",
+        "surface": "without",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1216B2A88975F9D3",
+        "anchor_stream": [
+          "without"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 27,
+        "anchor": "pretending",
+        "surface": "pretending",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_476598B8E1039023",
+        "anchor_stream": [
+          "pretending"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 28,
+        "anchor": "to",
+        "surface": "to",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_663EA1BFFFE5038F",
+        "anchor_stream": [
+          "to"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 29,
+        "anchor": "be",
+        "surface": "be",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_46599C5BB5C33101",
+        "anchor_stream": [
+          "be"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 30,
+        "anchor": "final",
+        "surface": "final",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2443630B4620165C",
+        "anchor_stream": [
+          "final"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 31,
+        "anchor": "authority",
+        "surface": "authority",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_8F76FD501BB68EF7",
+        "anchor_stream": [
+          "authority"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 32,
+        "anchor": "over",
+        "surface": "over",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_5FB6A47E368E12E5",
+        "anchor_stream": [
+          "over"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 33,
+        "anchor": "every",
+        "surface": "every",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_66A424A9A958B152",
+        "anchor_stream": [
+          "every"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 34,
+        "anchor": "historical",
+        "surface": "historical",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_F5DBF9FE930C4F49",
+        "anchor_stream": [
+          "historical"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 35,
+        "anchor": "file",
+        "surface": "file",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3B9C358F36F0A31B",
+        "anchor_stream": [
+          "file"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 36,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 37,
+        "anchor": "the",
+        "surface": "The",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 38,
+        "anchor": "real",
+        "surface": "real",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_AA33996D60E89311",
+        "anchor_stream": [
+          "real"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 39,
+        "anchor": "authority",
+        "surface": "authority",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_8F76FD501BB68EF7",
+        "anchor_stream": [
+          "authority"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 40,
+        "anchor": "remains",
+        "surface": "remains",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_D3410732409BCFF6",
+        "anchor_stream": [
+          "remains"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 41,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 42,
+        "anchor": "linked",
+        "surface": "linked",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2272BEA616A05AE1",
+        "anchor_stream": [
+          "linked"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 43,
+        "anchor": "source",
+        "surface": "source",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_41CF6794BA4200B8",
+        "anchor_stream": [
+          "source"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 44,
+        "anchor": "files",
+        "surface": "files",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3D7DB37D08F9140F",
+        "anchor_stream": [
+          "files"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 45,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 46,
+        "anchor": "code",
+        "surface": "code",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_5694D08A2E53FFCA",
+        "anchor_stream": [
+          "code"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 47,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 48,
+        "anchor": "tests",
+        "surface": "tests",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_59830EBC3A418411",
+        "anchor_stream": [
+          "tests"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 49,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 50,
+        "anchor": "receipts",
+        "surface": "receipts",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3619A1D05B1FE41A",
+        "anchor_stream": [
+          "receipts"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 51,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 52,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 53,
+        "anchor": "runtime",
+        "surface": "runtime",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_D92C6A81B2FF5009",
+        "anchor_stream": [
+          "runtime"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 54,
+        "anchor": "artifacts",
+        "surface": "artifacts",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_0F50505CE224077F",
+        "anchor_stream": [
+          "artifacts"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 55,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 56,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 57,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 58,
+        "anchor": "what",
+        "surface": "What",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_749AB2C0D06C42AE",
+        "anchor_stream": [
+          "what"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 59,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 60,
+        "anchor": "is",
+        "surface": "Is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 61,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 62,
+        "anchor": "is",
+        "surface": "is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 63,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 64,
+        "anchor": "face",
+        "surface": "face",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_0282D9B79F42C74C",
+        "anchor_stream": [
+          "face"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 65,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 66,
+        "anchor": "language",
+        "surface": "language",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A4EF304BA42A200B",
+        "anchor_stream": [
+          "language"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 67,
+        "anchor": "-",
+        "surface": "-",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "-"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 68,
+        "anchor": "count",
+        "surface": "count",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6C35493A2B937829",
+        "anchor_stream": [
+          "count"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 69,
+        "anchor": "brain",
+        "surface": "brain",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BBBF7A6412D6D3E8",
+        "anchor_stream": [
+          "brain"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 70,
+        "anchor": "of",
+        "surface": "of",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_28391D3BC64EC15C",
+        "anchor_stream": [
+          "of"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 71,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 72,
+        "anchor": "cortexevolved",
+        "surface": "CortexEvolved",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_E2C9F219A60EECE6",
+        "anchor_stream": [
+          "cortexevolved"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 73,
+        "anchor": "bench",
+        "surface": "bench",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1B32C28CB38C0548",
+        "anchor_stream": [
+          "bench"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 74,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 75,
+        "anchor": "it",
+        "surface": "It",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2AD8A7049D7C5511",
+        "anchor_stream": [
+          "it"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 76,
+        "anchor": "recognizes",
+        "surface": "recognizes",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3214FACA50A776CB",
+        "anchor_stream": [
+          "recognizes"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 77,
+        "anchor": "anchors",
+        "surface": "anchors",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_197129AEC34BCD18",
+        "anchor_stream": [
+          "anchors"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 78,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 79,
+        "anchor": "lexicon",
+        "surface": "lexicon",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_239AEC50C94B6EA3",
+        "anchor_stream": [
+          "lexicon"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 80,
+        "anchor": "authority",
+        "surface": "authority",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_8F76FD501BB68EF7",
+        "anchor_stream": [
+          "authority"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 81,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 82,
+        "anchor": "maps",
+        "surface": "maps",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_325392E8DD2826A5",
+        "anchor_stream": [
+          "maps"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 83,
+        "anchor": "language",
+        "surface": "language",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A4EF304BA42A200B",
+        "anchor_stream": [
+          "language"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 84,
+        "anchor": "into",
+        "surface": "into",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6B847A0ED0B2C484",
+        "anchor_stream": [
+          "into"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 85,
+        "anchor": "symbols",
+        "surface": "symbols",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1EA50A8CAF608504",
+        "anchor_stream": [
+          "symbols"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 86,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 87,
+        "anchor": "weighs",
+        "surface": "weighs",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_294977CEFAA2743E",
+        "anchor_stream": [
+          "weighs"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 88,
+        "anchor": "relationships",
+        "surface": "relationships",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_8346862A9C870A53",
+        "anchor_stream": [
+          "relationships"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 89,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 90,
+        "anchor": "counts",
+        "surface": "counts",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_CDD93696B72B3DE3",
+        "anchor_stream": [
+          "counts"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 91,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 92,
+        "anchor": "shapes",
+        "surface": "shapes",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_E729E8617F159DF1",
+        "anchor_stream": [
+          "shapes"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 93,
+        "anchor": "clouds",
+        "surface": "clouds",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_15FA97B5A4885427",
+        "anchor_stream": [
+          "clouds"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 94,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 95,
+        "anchor": "context",
+        "surface": "context",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_EA7792A26F405E2A",
+        "anchor_stream": [
+          "context"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 96,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 97,
+        "anchor": "admits",
+        "surface": "admits",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_94E8220B7036CCA2",
+        "anchor_stream": [
+          "admits"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 98,
+        "anchor": "candidates",
+        "surface": "candidates",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BA159DBF9D2F740F",
+        "anchor_stream": [
+          "candidates"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 99,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 100,
+        "anchor": "inference",
+        "surface": "inference",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_925733DAFD743699",
+        "anchor_stream": [
+          "inference"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 101,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 102,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 103,
+        "anchor": "speaks",
+        "surface": "speaks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_D036316DA91141D5",
+        "anchor_stream": [
+          "speaks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 104,
+        "anchor": "only",
+        "surface": "only",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_F905B19542ED08C9",
+        "anchor_stream": [
+          "only"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 105,
+        "anchor": "what",
+        "surface": "what",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_749AB2C0D06C42AE",
+        "anchor_stream": [
+          "what"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 106,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 107,
+        "anchor": "walked",
+        "surface": "walked",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2C158582949F34C9",
+        "anchor_stream": [
+          "walked"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 108,
+        "anchor": "path",
+        "surface": "path",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A0AF9F865BF637E6",
+        "anchor_stream": [
+          "path"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 109,
+        "anchor": "supports",
+        "surface": "supports",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_66312E5E57EBD0B4",
+        "anchor_stream": [
+          "supports"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 110,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 111,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 112,
+        "anchor": "is",
+        "surface": "is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 113,
+        "anchor": "not",
+        "surface": "not",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_254BB97B57F12E16",
+        "anchor_stream": [
+          "not"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 114,
+        "anchor": "a",
+        "surface": "a",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_CA978112CA1BBDCA",
+        "anchor_stream": [
+          "a"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 115,
+        "anchor": "normal",
+        "surface": "normal",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_317B32C143692B99",
+        "anchor_stream": [
+          "normal"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 116,
+        "anchor": "chatbot",
+        "surface": "chatbot",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_386EBC0EFD04339A",
+        "anchor_stream": [
+          "chatbot"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 117,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 118,
+        "anchor": "it",
+        "surface": "It",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2AD8A7049D7C5511",
+        "anchor_stream": [
+          "it"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 119,
+        "anchor": "is",
+        "surface": "is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 120,
+        "anchor": "a",
+        "surface": "a",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_CA978112CA1BBDCA",
+        "anchor_stream": [
+          "a"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 121,
+        "anchor": "symbolic",
+        "surface": "symbolic",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_21E2DB94D100D899",
+        "anchor_stream": [
+          "symbolic"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 122,
+        "anchor": "language",
+        "surface": "language",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A4EF304BA42A200B",
+        "anchor_stream": [
+          "language"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 123,
+        "anchor": "machine",
+        "surface": "machine",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BC020A35B7F9CB13",
+        "anchor_stream": [
+          "machine"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 124,
+        "anchor": "built",
+        "surface": "built",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_586A866F990AB55E",
+        "anchor_stream": [
+          "built"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 125,
+        "anchor": "from",
+        "surface": "from",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_75857A45899985BE",
+        "anchor_stream": [
+          "from"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 126,
+        "anchor": "observed",
+        "surface": "observed",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_604CEE807F644AF4",
+        "anchor_stream": [
+          "observed"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 127,
+        "anchor": "intake",
+        "surface": "intake",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4736BC313525A831",
+        "anchor_stream": [
+          "intake"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 128,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 129,
+        "anchor": "lexicon",
+        "surface": "lexicon",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_239AEC50C94B6EA3",
+        "anchor_stream": [
+          "lexicon"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 130,
+        "anchor": "identity",
+        "surface": "identity",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_689F6A627384C7DC",
+        "anchor_stream": [
+          "identity"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 131,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 132,
+        "anchor": "positional",
+        "surface": "positional",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_F013C3393A9F9E11",
+        "anchor_stream": [
+          "positional"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 133,
+        "anchor": "relationships",
+        "surface": "relationships",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_8346862A9C870A53",
+        "anchor_stream": [
+          "relationships"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 134,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 135,
+        "anchor": "source",
+        "surface": "source",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_41CF6794BA4200B8",
+        "anchor_stream": [
+          "source"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 136,
+        "anchor": "-",
+        "surface": "-",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "-"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 137,
+        "anchor": "local",
+        "surface": "local",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_25BF8E1A2393F110",
+        "anchor_stream": [
+          "local"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 138,
+        "anchor": "evidence",
+        "surface": "evidence",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_EE8250FB76E094B3",
+        "anchor_stream": [
+          "evidence"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 139,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 140,
+        "anchor": "count",
+        "surface": "count",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6C35493A2B937829",
+        "anchor_stream": [
+          "count"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 141,
+        "anchor": "pressure",
+        "surface": "pressure",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B667446E6EB2552F",
+        "anchor_stream": [
+          "pressure"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 142,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 143,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 144,
+        "anchor": "receipts",
+        "surface": "receipts",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3619A1D05B1FE41A",
+        "anchor_stream": [
+          "receipts"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 145,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 146,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 147,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 148,
+        "anchor": "what",
+        "surface": "What",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_749AB2C0D06C42AE",
+        "anchor_stream": [
+          "what"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 149,
+        "anchor": "securecore",
+        "surface": "SecureCore",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_C773B4EECCED0161",
+        "anchor_stream": [
+          "securecore"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 150,
+        "anchor": "is",
+        "surface": "Is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 151,
+        "anchor": "securecore",
+        "surface": "SecureCore",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_C773B4EECCED0161",
+        "anchor_stream": [
+          "securecore"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 152,
+        "anchor": "is",
+        "surface": "is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 153,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 154,
+        "anchor": "local",
+        "surface": "local",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_25BF8E1A2393F110",
+        "anchor_stream": [
+          "local"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 155,
+        "anchor": "safety",
+        "surface": "safety",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_856E8BD358ECE398",
+        "anchor_stream": [
+          "safety"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 156,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 157,
+        "anchor": "policy",
+        "surface": "policy",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_823412D1EACB6795",
+        "anchor_stream": [
+          "policy"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 158,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 159,
+        "anchor": "logging",
+        "surface": "logging",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_0A149844A7C9F4CF",
+        "anchor_stream": [
+          "logging"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 160,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 161,
+        "anchor": "receipt",
+        "surface": "receipt",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6F32860910CA0FB2",
+        "anchor_stream": [
+          "receipt"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 162,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 163,
+        "anchor": "worker",
+        "surface": "worker",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_87EBA76E7F316453",
+        "anchor_stream": [
+          "worker"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 164,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 165,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 166,
+        "anchor": "agent",
+        "surface": "agent",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_D4F0BC5A29DE06B5",
+        "anchor_stream": [
+          "agent"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 167,
+        "anchor": "backend",
+        "surface": "backend",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_10E08A419E850EBA",
+        "anchor_stream": [
+          "backend"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 168,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 169,
+        "anchor": "it",
+        "surface": "It",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2AD8A7049D7C5511",
+        "anchor_stream": [
+          "it"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 170,
+        "anchor": "observes",
+        "surface": "observes",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A5E3D5B8895A8B1E",
+        "anchor_stream": [
+          "observes"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 171,
+        "anchor": "operational",
+        "surface": "operational",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_D5E4F7F12F0E5315",
+        "anchor_stream": [
+          "operational"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 172,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 173,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 174,
+        "anchor": "orders",
+        "surface": "orders",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1C168ADB00D208E4",
+        "anchor_stream": [
+          "orders"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 175,
+        "anchor": "events",
+        "surface": "events",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_862417B9E7C3720B",
+        "anchor_stream": [
+          "events"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 176,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 177,
+        "anchor": "forge",
+        "surface": "Forge",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_71B41D6DD48DC58E",
+        "anchor_stream": [
+          "forge"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 178,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 179,
+        "anchor": "compresses",
+        "surface": "compresses",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_822BA04E9449674B",
+        "anchor_stream": [
+          "compresses"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 180,
+        "anchor": "temporal",
+        "surface": "temporal",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_E4540A7C8404B1BE",
+        "anchor_stream": [
+          "temporal"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 181,
+        "anchor": "windows",
+        "surface": "windows",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_340D600392818DF2",
+        "anchor_stream": [
+          "windows"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 182,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 183,
+        "anchor": "fusion",
+        "surface": "fusion",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_F5D36C673CEA1D80",
+        "anchor_stream": [
+          "fusion"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 184,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 185,
+        "anchor": "gates",
+        "surface": "gates",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_7A3B3573CAC24BF3",
+        "anchor_stream": [
+          "gates"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 186,
+        "anchor": "actions",
+        "surface": "actions",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2B0DCDD40016096B",
+        "anchor_stream": [
+          "actions"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 187,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 188,
+        "anchor": "policy",
+        "surface": "policy",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_823412D1EACB6795",
+        "anchor_stream": [
+          "policy"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 189,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 190,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 191,
+        "anchor": "reports",
+        "surface": "reports",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_7F26104F77A7CE47",
+        "anchor_stream": [
+          "reports"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 192,
+        "anchor": "facts",
+        "surface": "facts",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_0694AACB66D62E74",
+        "anchor_stream": [
+          "facts"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 193,
+        "anchor": "through",
+        "surface": "through",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_9C6725DC269A48CE",
+        "anchor_stream": [
+          "through"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 194,
+        "anchor": "central",
+        "surface": "Central",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_8CB6279A8E1B12A9",
+        "anchor_stream": [
+          "central"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 195,
+        "anchor": "writer",
+        "surface": "Writer",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B93006774CBDD4B2",
+        "anchor_stream": [
+          "writer"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 196,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 197,
+        "anchor": "securecore",
+        "surface": "SecureCore",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_C773B4EECCED0161",
+        "anchor_stream": [
+          "securecore"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 198,
+        "anchor": "does",
+        "surface": "does",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_961EB43699731759",
+        "anchor_stream": [
+          "does"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 199,
+        "anchor": "not",
+        "surface": "not",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_254BB97B57F12E16",
+        "anchor_stream": [
+          "not"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 200,
+        "anchor": "replace",
+        "surface": "replace",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_7AB3778776CDE4FA",
+        "anchor_stream": [
+          "replace"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 201,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 202,
+        "anchor": "as",
+        "surface": "as",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_F4BF9F7FCBEDABA0",
+        "anchor_stream": [
+          "as"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 203,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 204,
+        "anchor": "face",
+        "surface": "face",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_0282D9B79F42C74C",
+        "anchor_stream": [
+          "face"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 205,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 206,
+        "anchor": "securecore",
+        "surface": "SecureCore",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_C773B4EECCED0161",
+        "anchor_stream": [
+          "securecore"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 207,
+        "anchor": "supports",
+        "surface": "supports",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_66312E5E57EBD0B4",
+        "anchor_stream": [
+          "supports"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 208,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 209,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 210,
+        "anchor": "protects",
+        "surface": "protects",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1EFA692602BBDCDD",
+        "anchor_stream": [
+          "protects"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 211,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 212,
+        "anchor": "local",
+        "surface": "local",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_25BF8E1A2393F110",
+        "anchor_stream": [
+          "local"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 213,
+        "anchor": "system",
+        "surface": "system",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BBC5E661E106C6DC",
+        "anchor_stream": [
+          "system"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 214,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 215,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 216,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 217,
+        "anchor": "what",
+        "surface": "What",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_749AB2C0D06C42AE",
+        "anchor_stream": [
+          "what"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 218,
+        "anchor": "truevision",
+        "surface": "TrueVision",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_DD68D84F1B2698D5",
+        "anchor_stream": [
+          "truevision"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 219,
+        "anchor": "generation",
+        "surface": "Generation",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_E661F4C935E8A5A8",
+        "anchor_stream": [
+          "generation"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 220,
+        "anchor": "is",
+        "surface": "Is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 221,
+        "anchor": "truevision",
+        "surface": "TrueVision",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_DD68D84F1B2698D5",
+        "anchor_stream": [
+          "truevision"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 222,
+        "anchor": "generation",
+        "surface": "Generation",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_E661F4C935E8A5A8",
+        "anchor_stream": [
+          "generation"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 223,
+        "anchor": "is",
+        "surface": "is",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_FA51FD49ABF67705",
+        "anchor_stream": [
+          "is"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 224,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 225,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 226,
+        "anchor": "-",
+        "surface": "-",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "-"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 227,
+        "anchor": "media",
+        "surface": "media",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_721C9525ADE2EA89",
+        "anchor_stream": [
+          "media"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 228,
+        "anchor": "laboratory",
+        "surface": "laboratory",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_512738161B2A7913",
+        "anchor_stream": [
+          "laboratory"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 229,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 230,
+        "anchor": "it",
+        "surface": "It",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_2AD8A7049D7C5511",
+        "anchor_stream": [
+          "it"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 231,
+        "anchor": "records",
+        "surface": "records",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A94E7BCFCBED3C84",
+        "anchor_stream": [
+          "records"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 232,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 233,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 234,
+        "anchor": "plans",
+        "surface": "plans",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_C404DC69B55C0692",
+        "anchor_stream": [
+          "plans"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 235,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 236,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 237,
+        "anchor": "transforms",
+        "surface": "transforms",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_C762C37928CACCDC",
+        "anchor_stream": [
+          "transforms"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 238,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 239,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 240,
+        "anchor": "renders",
+        "surface": "renders",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_813F9C1BDF2BB72A",
+        "anchor_stream": [
+          "renders"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 241,
+        "anchor": "pixels",
+        "surface": "pixels",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6EC9C2B0EB140107",
+        "anchor_stream": [
+          "pixels"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 242,
+        "anchor": "last",
+        "surface": "last",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3547CB112AC4489A",
+        "anchor_stream": [
+          "last"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 243,
+        "anchor": ",",
+        "surface": ",",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ","
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 244,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 245,
+        "anchor": "proves",
+        "surface": "proves",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1853AC3EF763440E",
+        "anchor_stream": [
+          "proves"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 246,
+        "anchor": "runs",
+        "surface": "runs",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1F64FFF08D787E73",
+        "anchor_stream": [
+          "runs"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 247,
+        "anchor": "with",
+        "surface": "with",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_0695B563ACDE461F",
+        "anchor_stream": [
+          "with"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 248,
+        "anchor": "manifests",
+        "surface": "manifests",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_C7AF7C7A948DB880",
+        "anchor_stream": [
+          "manifests"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 249,
+        "anchor": "and",
+        "surface": "and",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6201111B83A0CB5B",
+        "anchor_stream": [
+          "and"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 250,
+        "anchor": "receipts",
+        "surface": "receipts",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_3619A1D05B1FE41A",
+        "anchor_stream": [
+          "receipts"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 251,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 252,
+        "anchor": "truevision",
+        "surface": "TrueVision",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_DD68D84F1B2698D5",
+        "anchor_stream": [
+          "truevision"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 253,
+        "anchor": "taught",
+        "surface": "taught",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_E29EF4CB40CF73A5",
+        "anchor_stream": [
+          "taught"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 254,
+        "anchor": "the",
+        "surface": "the",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_B9776D7DDF459C9A",
+        "anchor_stream": [
+          "the"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 255,
+        "anchor": "shared",
+        "surface": "shared",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A4D26868017C0CCF",
+        "anchor_stream": [
+          "shared"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 256,
+        "anchor": "method",
+        "surface": "method",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_5B7E6BF2DC4A32A6",
+        "anchor_stream": [
+          "method"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 257,
+        "anchor": ":",
+        "surface": ":",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          ":"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 258,
+        "anchor": "`",
+        "surface": "`",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "`"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 259,
+        "anchor": "`",
+        "surface": "`",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "`"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 260,
+        "anchor": "`",
+        "surface": "`",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "`"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 261,
+        "anchor": "text",
+        "surface": "text",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_982D9E3EB996F559",
+        "anchor_stream": [
+          "text"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 262,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 263,
+        "anchor": "first",
+        "surface": "first",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A7937B64B8CAA58F",
+        "anchor_stream": [
+          "first"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 264,
+        "anchor": "render",
+        "surface": "render",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_887270D0CBC560AF",
+        "anchor_stream": [
+          "render"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 265,
+        "anchor": "later",
+        "surface": "later",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_1D9283D848EA941A",
+        "anchor_stream": [
+          "later"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 266,
+        "anchor": "receipt",
+        "surface": "receipt",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_6F32860910CA0FB2",
+        "anchor_stream": [
+          "receipt"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 267,
+        "anchor": "every",
+        "surface": "every",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_66A424A9A958B152",
+        "anchor_stream": [
+          "every"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 268,
+        "anchor": "write",
+        "surface": "write",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_10FD874B68DAD080",
+        "anchor_stream": [
+          "write"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 269,
+        "anchor": "do",
+        "surface": "do",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_AC0B52A2AE6EF999",
+        "anchor_stream": [
+          "do"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 270,
+        "anchor": "not",
+        "surface": "not",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_254BB97B57F12E16",
+        "anchor_stream": [
+          "not"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 271,
+        "anchor": "claim",
+        "surface": "claim",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_DD1B3C312CF7D816",
+        "anchor_stream": [
+          "claim"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 272,
+        "anchor": "what",
+        "surface": "what",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_749AB2C0D06C42AE",
+        "anchor_stream": [
+          "what"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 273,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 274,
+        "anchor": "does",
+        "surface": "does",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_961EB43699731759",
+        "anchor_stream": [
+          "does"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 275,
+        "anchor": "not",
+        "surface": "not",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_254BB97B57F12E16",
+        "anchor_stream": [
+          "not"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 276,
+        "anchor": "prove",
+        "surface": "prove",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_52DABEC3560592B3",
+        "anchor_stream": [
+          "prove"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 277,
+        "anchor": "`",
+        "surface": "`",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "`"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 278,
+        "anchor": "`",
+        "surface": "`",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "`"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 279,
+        "anchor": "`",
+        "surface": "`",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "`"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 280,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 281,
+        "anchor": "#",
+        "surface": "#",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "#"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 282,
+        "anchor": "what",
+        "surface": "What",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_749AB2C0D06C42AE",
+        "anchor_stream": [
+          "what"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 283,
+        "anchor": "occular",
+        "surface": "Occular",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_63A15C29A00EC691",
+        "anchor_stream": [
+          "occular"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 284,
+        "anchor": "clouds",
+        "surface": "Clouds",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_15FA97B5A4885427",
+        "anchor_stream": [
+          "clouds"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 285,
+        "anchor": "are",
+        "surface": "Are",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BA78973DDCF98D4E",
+        "anchor_stream": [
+          "are"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 286,
+        "anchor": "occular",
+        "surface": "Occular",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_63A15C29A00EC691",
+        "anchor_stream": [
+          "occular"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 287,
+        "anchor": "clouds",
+        "surface": "Clouds",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_15FA97B5A4885427",
+        "anchor_stream": [
+          "clouds"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 288,
+        "anchor": "are",
+        "surface": "are",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BA78973DDCF98D4E",
+        "anchor_stream": [
+          "are"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 289,
+        "anchor": "visual",
+        "surface": "visual",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_A5961F3F5AC8A594",
+        "anchor_stream": [
+          "visual"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 290,
+        "anchor": "-",
+        "surface": "-",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "-"
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 291,
+        "anchor": "state",
+        "surface": "state",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_4BA69735CA53765E",
+        "anchor_stream": [
+          "state"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 292,
+        "anchor": "symbolic",
+        "surface": "symbolic",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_21E2DB94D100D899",
+        "anchor_stream": [
+          "symbolic"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 293,
+        "anchor": "cloud",
+        "surface": "cloud",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_56681010B753E1AB",
+        "anchor_stream": [
+          "cloud"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 294,
+        "anchor": "counts",
+        "surface": "counts",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_CDD93696B72B3DE3",
+        "anchor_stream": [
+          "counts"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 295,
+        "anchor": ".",
+        "surface": ".",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "",
+        "anchor_stream": [
+          "."
+        ],
+        "disposition": "junk_or_direction_blocked",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": false
+      },
+      {
+        "index": 296,
+        "anchor": "they",
+        "surface": "They",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_151E58A831306903",
+        "anchor_stream": [
+          "they"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 297,
+        "anchor": "are",
+        "surface": "are",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_BA78973DDCF98D4E",
+        "anchor_stream": [
+          "are"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 298,
+        "anchor": "not",
+        "surface": "not",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_254BB97B57F12E16",
+        "anchor_stream": [
+          "not"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      },
+      {
+        "index": 299,
+        "anchor": "anchorworks",
+        "surface": "AnchorWorks",
+        "kind": "anchor",
+        "represented": false,
+        "symbol": "",
+        "dry_temp_symbol": "DRYOC_95238C2609EA772A",
+        "anchor_stream": [
+          "anchorworks"
+        ],
+        "disposition": "missing_anchor_review_required_dry_temp_symbolized",
+        "count_eligible_live": false,
+        "count_eligible_dry_temp_oc": true
+      }
+    ]
+  },
+  "oc": {
+    "symbol_authority": "dry_run_temp_symbols_not_canonical",
+    "window_shape": "4x6-4-4x6",
+    "window_contract": {
+      "left_context_units": 4,
+      "center_units": 4,
+      "right_context_units": 4,
+      "unit_size": 6,
+      "lane": "occular",
+      "name": "4x6-4-4x6",
+      "schema_version": "anchorworks_count_window_config@1",
+      "window_shape": "4x6-4-4x6",
+      "context_span_each_side": 24,
+      "total_window_symbols": 52,
+      "configurable": true
+    },
+    "canonical_symbol_stream_length": 0,
+    "dry_temp_symbol_stream_length": 1128,
+    "record_count": 1077,
+    "unique_center_count": 884,
+    "first_record": {
+      "schema_version": "anchorworks_occular_cloud_record@1",
+      "window_shape": "4x6-4-4x6",
+      "center_key": "DRYOC_663EA1BFFFE5038F DRYOC_46599C5BB5C33101 DRYOC_2443630B4620165C DRYOC_8F76FD501BB68EF7",
+      "center_hash": "occular_center_4cf9fdfb981531e58a755d24",
+      "center_symbols": [
+        "DRYOC_663EA1BFFFE5038F",
+        "DRYOC_46599C5BB5C33101",
+        "DRYOC_2443630B4620165C",
+        "DRYOC_8F76FD501BB68EF7"
+      ],
+      "left_context_clouds": [
+        [
+          "DRYOC_95238C2609EA772A",
+          "DRYOC_AEEBAD4A796FCC2E",
+          "DRYOC_41CF6794BA4200B8",
+          "DRYOC_1EB79602411EF02C",
+          "DRYOC_3B9C358F36F0A31B",
+          "DRYOC_FA51FD49ABF67705"
+        ],
+        [
+          "DRYOC_CA978112CA1BBDCA",
+          "DRYOC_A7937B64B8CAA58F",
+          "DRYOC_B755CB248C3C4A7D",
+          "DRYOC_ACBA25512100F80B",
+          "DRYOC_41CF6794BA4200B8",
+          "DRYOC_10C22BCF4C768B51"
+        ],
+        [
+          "DRYOC_95238C2609EA772A",
+          "DRYOC_06C604B332B386B6",
+          "DRYOC_4736BC313525A831",
+          "DRYOC_2AD8A7049D7C5511",
+          "DRYOC_D9403E3CDB1F24C7",
+          "DRYOC_B9776D7DDF459C9A"
+        ],
+        [
+          "DRYOC_BC020A35B7F9CB13",
+          "DRYOC_749AB2C0D06C42AE",
+          "DRYOC_2AD8A7049D7C5511",
+          "DRYOC_FA51FD49ABF67705",
+          "DRYOC_1216B2A88975F9D3",
+          "DRYOC_476598B8E1039023"
+        ]
+      ],
+      "right_context_clouds": [
+        [
+          "DRYOC_5FB6A47E368E12E5",
+          "DRYOC_66A424A9A958B152",
+          "DRYOC_F5DBF9FE930C4F49",
+          "DRYOC_3B9C358F36F0A31B",
+          "DRYOC_B9776D7DDF459C9A",
+          "DRYOC_AA33996D60E89311"
+        ],
+        [
+          "DRYOC_8F76FD501BB68EF7",
+          "DRYOC_D3410732409BCFF6",
+          "DRYOC_B9776D7DDF459C9A",
+          "DRYOC_2272BEA616A05AE1",
+          "DRYOC_41CF6794BA4200B8",
+          "DRYOC_3D7DB37D08F9140F"
+        ],
+        [
+          "DRYOC_5694D08A2E53FFCA",
+          "DRYOC_59830EBC3A418411",
+          "DRYOC_3619A1D05B1FE41A",
+          "DRYOC_6201111B83A0CB5B",
+          "DRYOC_D92C6A81B2FF5009",
+          "DRYOC_0F50505CE224077F"
+        ],
+        [
+          "DRYOC_749AB2C0D06C42AE",
+          "DRYOC_95238C2609EA772A",
+          "DRYOC_FA51FD49ABF67705",
+          "DRYOC_95238C2609EA772A",
+          "DRYOC_FA51FD49ABF67705",
+          "DRYOC_B9776D7DDF459C9A"
+        ]
+      ],
+      "block_id": "genesis-doc-dry-temp-symbol-stream-1",
+      "source_ref": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\docs\\ANCHORWORKS_GENESIS_SOURCE.md",
+      "visual_ref": {
+        "mode": "dry_run_textual_ocular_source",
+        "source_sha256": "343917ca68749c305b596fb99179ae867c5a3c7f17ea0fdd957793515362c148",
+        "symbol_authority": "dry_run_temp_symbols_not_canonical"
+      }
+    },
+    "accelerated_backend": "openvino",
+    "accelerated_fallback": false,
+    "accelerated_matches_cpu": true,
+    "tensor_manifest_path": "D:\\AnchorWorks_Clean_Runtime\\Anchorworks\\State\\intake_dry_runs\\genesis_occular_dry_run\\tensor_brain_preview\\occular_cloud\\shards\\genesis-oc-4x6-dry-run\\genesis-oc-4x6-dry-run.occular_tensor_manifest.json",
+    "tensor_matches_cpu": true
+  },
+  "writes_allowed": {
+    "canonical": false,
+    "structural": false,
+    "lexicon": false,
+    "lifetime_counts": false,
+    "global_counts": false,
+    "maps": false
+  },
+  "writes_performed": [
+    "genesis_source_doc",
+    "dry_run_packet",
+    "dry_run_tensor_preview"
+  ],
+  "forbidden_live_updates": [
+    "missing_anchor_registry",
+    "unmatched_words",
+    "canonical",
+    "structural",
+    "lifetime_counts",
+    "global_aw_counts"
+  ],
+  "packet_sha256": "849b4da80aef14f61bc85a593b9fe239423f5d287b801ebb0b24500f5221d6de"
+}

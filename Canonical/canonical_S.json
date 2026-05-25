@@ -8188,6 +8188,10 @@
     "symbol": "0x100003883D"
   },
   {
+    "word": "securecore",
+    "symbol": "0x2800044DA0"
+  },
+  {
     "word": "secured",
     "symbol": "0x100003883E"
   },
@@ -8678,6 +8682,10 @@
   {
     "word": "segmented",
     "symbol": "0x10000388B8"
+  },
+  {
+    "word": "segmentfield",
+    "symbol": "0x2800044DAB"
   },
   {
     "word": "segmenting",
@@ -24750,6 +24758,10 @@
   {
     "word": "sonicboom",
     "symbol": "0x100003986A"
+  },
+  {
+    "word": "sonification",
+    "symbol": "0x2800044DAD"
   },
   {
     "word": "sonin",

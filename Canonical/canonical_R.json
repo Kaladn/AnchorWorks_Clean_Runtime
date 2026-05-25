@@ -24092,6 +24092,10 @@
     "symbol": "0x10000361B5"
   },
   {
+    "word": "remap",
+    "symbol": "0x2800044DA4"
+  },
+  {
     "word": "remark",
     "symbol": "0x10000361B6"
   },
@@ -27194,6 +27198,10 @@
   {
     "word": "replay's",
     "symbol": "0x10000364BD"
+  },
+  {
+    "word": "replayable",
+    "symbol": "0x2800044DAC"
   },
   {
     "word": "replayed",

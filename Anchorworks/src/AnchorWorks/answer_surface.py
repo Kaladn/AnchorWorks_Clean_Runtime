@@ -44,19 +44,69 @@ def render_anchor_answer_surface(
     subject_text = subjects or "the query"
     term_text = _human_join(terms[:8])
     frame = _frame_type(observed)
+    if frame == "open":
+        frame = _assembly_frame_type(answer_assembly)
 
     if frame == "why":
-        return f"{subject_text.capitalize()} involves {term_text}."
+        return f"{subject_text.capitalize()} is shaped by {term_text}."
     if frame == "how":
         return f"{subject_text.capitalize()} uses {term_text}."
     if frame == "who":
         subject_text = subject_text.replace(" and ", " ")
         return f"{subject_text.capitalize()} is represented through {term_text}."
     if frame == "what":
-        return f"{subject_text.capitalize()} involves {term_text}."
+        return _render_what_surface(subject_text, terms)
     if frame == "agreement":
         return f"The active path around {subject_text} supports {term_text}."
-    return f"{subject_text.capitalize()} involves {term_text}."
+    return _render_open_surface(subject_text, terms)
+
+
+def _assembly_frame_type(answer_assembly: dict[str, Any]) -> str:
+    attention_frame = answer_assembly.get("attention_frame")
+    if isinstance(attention_frame, dict):
+        learned = attention_frame.get("learned_question_frame")
+        if isinstance(learned, dict):
+            learned_type = str(learned.get("frame_type") or "").strip().casefold()
+            if learned_type in {"definition", "description"}:
+                return "what"
+            if learned_type in {"process", "method"}:
+                return "how"
+            if learned_type in {"causal_explanation", "why"}:
+                return "why"
+        frame_type = str(attention_frame.get("frame_type") or "").strip().casefold()
+        if frame_type in {"question", "definition"}:
+            return "what"
+    plan = answer_assembly.get("inference_plan")
+    if isinstance(plan, dict):
+        frame = str(plan.get("frame") or "").strip().casefold()
+        if frame in {"definition", "description"}:
+            return "what"
+        if frame in {"process", "method"}:
+            return "how"
+        if frame in {"causal_explanation", "why"}:
+            return "why"
+    return "open"
+
+
+def _render_what_surface(subject_text: str, terms: list[str]) -> str:
+    subject = subject_text.capitalize()
+    term_set = set(terms)
+    if {"state", "visual"} <= term_set:
+        preserved = [term for term in terms if term in {"glyph", "document", "documents", "text", "frame", "media"}]
+        if "preserves" in term_set and preserved:
+            return f"{subject} is a visual state path that preserves {_human_join(preserved[:4])} as state."
+        return f"{subject} is a visual state path connected to {_human_join(terms[:6])}."
+    if "state" in term_set:
+        return f"{subject} is state-shaped through {_human_join(terms[:6])}."
+    return f"{subject} is count-shaped through {_human_join(terms[:6])}."
+
+
+def _render_open_surface(subject_text: str, terms: list[str]) -> str:
+    subject = subject_text.capitalize()
+    term_set = set(terms)
+    if {"state", "visual"} <= term_set:
+        return _render_what_surface(subject_text, terms)
+    return f"{subject} has a count path shaped by {_human_join(terms[:6])}."
 
 
 def _answer_terms(answer_assembly: dict[str, Any]) -> list[str]:

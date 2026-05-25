@@ -14,3 +14,8 @@ experiments/observed_map_graph/runtime/
 ../State/jobs/
 ../State/phrase_candidates/
 State/code_lexicon_mirror/
+State/ignored_words.json
+State/missing_anchor_registry.json
+State/pending_words.json
+State/unmatched_words.json
+State/user/

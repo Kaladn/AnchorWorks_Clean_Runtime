@@ -892,49 +892,30 @@ class LexiconStore:
 
                 requested.append(anchor)
 
-            pool_entries = self._read_spare_entries()
-            available_indexes = [
-                index
-                for index, item in enumerate(pool_entries)
-                if str(item.get("status", "")).upper() == "AVAILABLE"
-            ]
-            slots_available = len(available_indexes)
-            if len(available_indexes) < len(requested):
-                failed.extend(
-                    {
-                        "anchor": anchor,
-                        "reason": f"not enough available spare slots ({len(available_indexes)} available for {len(requested)} requested)",
-                    }
-                    for anchor in requested
-                )
-                requested = []
-
             canonical_by_letter: dict[str, list[dict[str, Any]]] = {}
             changed_letters: set[str] = set()
-            pool_remove_indexes: list[int] = []
             timestamp = _utc_now()
+            genome_pool = SymbolGenomePool(self.symbol_genome_pool_dir)
 
-            for anchor, slot_index in zip(requested, available_indexes):
-
-                slot = pool_entries[slot_index]
-                pool_remove_indexes.append(slot_index)
+            for anchor in requested:
                 letter = self._letter_for_word(anchor)
                 canonical_path = self.canonical_dir / f"canonical_{letter}.json"
                 if letter not in canonical_by_letter:
                     canonical_by_letter[letter] = self._read_entries(canonical_path)
+                try:
+                    allocation = genome_pool.allocate(
+                        anchor,
+                        authority="canonical",
+                        category="specialized",
+                        priority=2,
+                    )
+                except ValueError as exc:
+                    failed.append({"anchor": anchor, "reason": str(exc)})
+                    continue
 
                 new_entry = {
-                    "binary": slot.get("binary", ""),
-                    "hex": slot.get("hex") or slot.get("symbol", ""),
-                    "font_symbol": slot.get("font_symbol", ""),
-                    "tone_signature": slot.get("tone_signature", ""),
-                    "status": "ASSIGNED",
                     "word": anchor,
-                    "display": anchor,
-                    "symbol": slot.get("hex") or slot.get("symbol", ""),
-                    "mapped_at": timestamp,
-                    "pack": "canonical",
-                    "frequency": int(frequency_map.get(anchor, 0) or 0),
+                    "symbol": allocation["symbol"],
                 }
                 canonical_by_letter[letter].append(new_entry)
                 changed_letters.add(letter)
@@ -942,25 +923,23 @@ class LexiconStore:
                 approved.append({
                     "ok": True,
                     "word": anchor,
-                    "hex": new_entry["hex"],
+                    "hex": allocation["hex"],
                     "symbol": new_entry["symbol"],
+                    "mapped_at": timestamp,
+                    "frequency": int(frequency_map.get(anchor, 0) or 0),
                 })
 
             if approved:
-                remove_set = set(pool_remove_indexes)
-                pool_entries = [entry for index, entry in enumerate(pool_entries) if index not in remove_set]
                 for letter in sorted(changed_letters):
                     canonical_path = self.canonical_dir / f"canonical_{letter}.json"
                     canonical_entries = canonical_by_letter[letter]
                     canonical_entries.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
                     self._write_entries(canonical_path, canonical_entries)
                     lexicon_files_written += 1
-                self._write_spare_entries(pool_entries)
-                spare_pool_writes = 1
                 self._invalidate_known_anchor_index()
                 self._all_known_anchors()
                 index_reloads = 1
-            slots_available = len(available_indexes) - len(pool_remove_indexes)
+            slots_available = genome_pool.status()["remaining"]
 
         return {
             "ok": not failed,
@@ -975,6 +954,7 @@ class LexiconStore:
             "approved": approved,
             "skipped": skipped,
             "failed": failed,
+            "symbol_genome_pool": self.symbol_genome_status(),
             "real_lexicon_path": str(self.root),
         }
 
