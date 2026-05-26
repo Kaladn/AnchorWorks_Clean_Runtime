@@ -54724,6 +54724,10 @@
     "symbol": "0x100003DFD8"
   },
   {
+    "word": "truedepth",
+    "symbol": "0x2800044DAE"
+  },
+  {
     "word": "truediv",
     "symbol": "0x100003DFD9"
   },

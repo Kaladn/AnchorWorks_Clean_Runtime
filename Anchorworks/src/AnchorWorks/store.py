@@ -75,6 +75,22 @@ TEMP_SYMBOL_HEX_LENGTH = 11
 COMPANION_AUTHORITY_LANES = {"math_terms_or_symbols", "math_markup", "domain_notation_anchors", "structural_source_anchors"}
 NULL_SYMBOL_LANES = {"null_symbol_anchors", "source_id_artifacts"}
 CONVERSATIONAL_ANCHORS = {"hello", "hi", "hey", "thanks", "thank", "morning", "good", "yo"}
+INFO_TRANSFER_ANCHORS = {
+    "remember",
+    "consider",
+    "context",
+    "note",
+    "keep",
+    "mind",
+    "means",
+    "meaning",
+    "type",
+    "flow",
+    "rules",
+    "engagement",
+}
+CORRECTION_ANCHORS = {"no", "not", "wrong", "correct", "correction", "actually", "instead"}
+PLANNING_ANCHORS = {"plan", "next", "later", "tomorrow", "todo", "build", "need", "needs"}
 
 def _anchor_maps_root_for(data_root: Path) -> Path:
     return anchor_maps_root_for(data_root)
@@ -89,7 +105,49 @@ def _query_input_kind(observed: list[str], query_frame: dict[str, Any]) -> str:
         return "conversation"
     if observed_set & CONVERSATIONAL_ANCHORS and len(observed_set) <= 3:
         return "conversation"
+    if _is_correction_input(observed_set):
+        return "correction"
+    if _is_planning_input(observed_set):
+        return "planning_note"
+    if _is_info_transfer_input(observed_set):
+        return "info_transfer"
     return "statement"
+
+
+def _is_correction_input(observed_set: set[str]) -> bool:
+    if not observed_set:
+        return False
+    if {"not", "correct"} <= observed_set:
+        return True
+    if {"wrong"} & observed_set:
+        return True
+    if "actually" in observed_set and len(observed_set) >= 3:
+        return True
+    return False
+
+
+def _is_planning_input(observed_set: set[str]) -> bool:
+    if not observed_set:
+        return False
+    if "plan" in observed_set or "todo" in observed_set:
+        return True
+    if "next" in observed_set and (observed_set & {"build", "need", "needs", "later", "tomorrow"}):
+        return True
+    return False
+
+
+def _is_info_transfer_input(observed_set: set[str]) -> bool:
+    if not observed_set:
+        return False
+    if {"keep", "mind"} <= observed_set:
+        return True
+    if {"not", "everything", "question"} <= observed_set:
+        return True
+    if "remember" in observed_set or "consider" in observed_set:
+        return True
+    if len(observed_set & INFO_TRANSFER_ANCHORS) >= 2:
+        return True
+    return False
 
 
 def _utc_now() -> str:

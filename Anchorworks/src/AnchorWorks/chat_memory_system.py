@@ -414,10 +414,7 @@ class ChatMemorySystem:
         messages: list[dict[str, str]] = [
             {
                 "role": "system",
-                "content": (
-                    "You are the AnchorWorks external model lane. Answer the user clearly. "
-                    "Do not claim to update the lexicon, counts, citations, notes, or ingestion state."
-                ),
+                "content": _agent_first_prompt(),
             }
         ]
         summaries = memory_context.get("summaries") or []
@@ -778,6 +775,30 @@ class ChatMemorySystem:
 
 def _today() -> str:
     return datetime.now(timezone.utc).date().isoformat()
+
+
+def _agent_first_prompt() -> str:
+    primer_path = Path(__file__).resolve().parents[2] / "docs" / "ANCHORWORKS_AGENT_FIRST_PROMPT.md"
+    try:
+        primer = primer_path.read_text(encoding="utf-8").strip()
+    except OSError:
+        primer = (
+            "Read this first before intake or answer generation.\n\n"
+            "Lexicon recognizes.\n"
+            "Counts propose.\n"
+            "Frames aim.\n"
+            "Inference admits.\n"
+            "Renderer speaks.\n"
+            "Top-K is walked, not dumped.\n"
+            "No raw candidates as speech.\n"
+            "Normal conversation is not always a question."
+        )
+    return (
+        f"{primer}\n\n"
+        "External model lane boundary:\n"
+        "Answer the user clearly, but do not claim to update the lexicon, counts, "
+        "citations, notes, ingestion state, source maps, or lifetime authority."
+    )
 
 
 def _recent_days(days: int) -> list[str]:

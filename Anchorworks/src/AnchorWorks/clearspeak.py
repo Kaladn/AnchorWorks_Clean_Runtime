@@ -91,6 +91,28 @@ class ClearSpeakService:
                 citations=[],
                 answer_assembly=answer_assembly,
             )
+        if recognition.get("input_kind") in {"info_transfer", "correction", "planning_note"}:
+            kind = str(recognition.get("input_kind") or "info_transfer")
+            answer_assembly = _empty_answer_assembly(kind)
+            answer_assembly["input_kind"] = kind
+            answer_assembly["context_anchors"] = represented_content
+            answer_assembly["missing_content_anchors"] = missing_content
+            answer_assembly["contract"]["non_question_input_does_not_force_count_answer"] = True
+            answer_assembly["state_replay"] = build_language_state_replay(represented_content, answer_assembly)
+            speech = _conversation_flow_speech(kind)
+            response = _conversation_flow_response(kind, represented_content, missing_content)
+            return ClearSpeakResult(
+                query=query_text,
+                query_anchors=unique,
+                represented_anchors=represented,
+                missing_anchors=missing,
+                lexicon_recognition=recognition,
+                speech=speech,
+                response=response,
+                evidence=[],
+                citations=[],
+                answer_assembly=answer_assembly,
+            )
         if missing_content and (not represented_content or _missing_entity_name_part_blocks_walk(unique, missing_content)):
             answer_assembly = _empty_answer_assembly("missing_content_anchor")
             answer_assembly["missing_content_anchors"] = missing_content
@@ -616,6 +638,28 @@ def _empty_answer_assembly(reason: str) -> dict[str, Any]:
         "attention_math": attention_math_contract(),
         "contract": _answer_assembly_contract(),
     }
+
+
+def _conversation_flow_speech(kind: str) -> str:
+    if kind == "correction":
+        return "I will treat that as a correction and update the working context before answering."
+    if kind == "planning_note":
+        return "I will hold that as planning context, not a count-answer request."
+    return "I will hold that as context for the conversation, not force it into a count answer."
+
+
+def _conversation_flow_response(kind: str, represented: list[str], missing: list[str]) -> str:
+    label = {
+        "correction": "correction",
+        "planning_note": "planning note",
+    }.get(kind, "information transfer")
+    lines = [f"ClearSpeak classified this as {label}, not a question."]
+    if represented:
+        lines.append("Context anchors: " + ", ".join(represented))
+    if missing:
+        lines.append("Unrecognized context anchors: " + ", ".join(missing))
+    lines.append("No count walk was started.")
+    return "\n".join(lines)
 
 
 def _strict_content_anchors(anchors: list[str]) -> list[str]:
