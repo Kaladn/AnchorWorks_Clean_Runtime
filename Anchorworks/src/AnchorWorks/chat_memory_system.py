@@ -11,6 +11,7 @@ from typing import Any
 from uuid import uuid4
 
 from .anchorworks_chat_archive import prepare_anchorworks_chat_archive
+from .chatlog_reader import ChatLogReader, verify_chat_entry
 from .clearspeak import ClearSpeakService
 from .document_answer import DocumentAnswerAssembler
 from .grounded_mode import build_grounded_evidence_packet, render_grounded_result
@@ -37,6 +38,10 @@ class ChatSendResult:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+class ImmutabilityError(RuntimeError):
+    pass
 
 
 class ChatMemorySystem:
@@ -90,17 +95,14 @@ class ChatMemorySystem:
 
     def history(self, day: str | None = None, branch: str = "main", limit: int = 200) -> dict[str, Any]:
         target_day = day or _today()
-        rows = self._read_jsonl(self._day_path(target_day))
-        filtered = [
-            row for row in rows
-            if not branch or branch == "all" or str(row.get("branch") or "main") == branch
-        ]
-        limited = filtered[-max(1, int(limit or 200)):]
+        read = ChatLogReader(self.root.parents[1]).get_conversation(day=target_day, branch=branch, limit=limit)
+        limited = read["entries"]
         return {
             "ok": True,
             "day": target_day,
             "branch": branch or "all",
             "messages": limited,
+            "quarantine": read["quarantine"],
             "citations_by_block": self._load_sidecar_by_block(self._citation_path(target_day)),
             "notes_by_block": self._load_sidecar_by_block(self._note_path(target_day)),
         }
@@ -195,13 +197,19 @@ class ChatMemorySystem:
         result = self.store.build_intake_mapping(
             source_name=source_name,
             content=content,
-            count_target="user_chat_preview",
+            count_target="binary_source_local",
+        )
+        symbol_counts = self.store.build_source_local_symbol_counts(str(result["saved_map_name"]))
+        binary = self.store.build_binary_symbol_counts_from_source_local(
+            artifact_names=[str(symbol_counts["symbol_counts_name"])]
         )
         self.add_reasoning(
             event="chat_finalize",
-            summary=f"Prepared chat day {target_day} branch {branch or 'main'} as an observed map for binary count processing.",
-            refs=[result.get("saved_map_name", "")],
+            summary=f"Finalized chat day {target_day} branch {branch or 'main'} into permanent JSONL-backed map and binary source-local counts.",
+            refs=[result.get("saved_map_name", ""), symbol_counts.get("symbol_counts_name", "")],
         )
+        result["symbol_counts"] = symbol_counts
+        result["binary_counts"] = binary
         result["chat_day"] = target_day
         result["chat_branch"] = branch or "main"
         result["chat_message_count"] = message_count
@@ -498,6 +506,7 @@ class ChatMemorySystem:
                 f"[SEAT: {_one_line(message.get('seat'))}]",
                 f"[KIND: {_one_line(message.get('kind'))}]",
                 f"[TIME: {_one_line(message.get('timestamp'))}]",
+                f"[SPEAKER_IDENTITY: {_json_line(message.get('speaker_identity') or {})}]",
                 "",
                 "[CONTENT_START]",
                 _clean_multiline(message.get("content") or ""),
@@ -517,10 +526,12 @@ class ChatMemorySystem:
         kind: str = "CHAT",
         model_identity: dict[str, Any] | None = None,
         workbench: dict[str, Any] | None = None,
+        input_timing: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         day = _today()
         path = self._day_path(day)
         rows = self._read_jsonl(path)
+        self._assert_l1_append_allowed(rows)
         next_id = 1 + max([int(row.get("id", 0) or 0) for row in rows] or [0])
         timestamp = _utc_now()
         message_uuid = str(uuid4())
@@ -541,12 +552,38 @@ class ChatMemorySystem:
         }
         if model_identity:
             record["model_identity"] = model_identity
+        record["speaker_identity"] = _speaker_identity(
+            sender=sender,
+            actor=actor or sender,
+            seat=seat or "",
+            content=content,
+            timestamp=timestamp,
+            model_identity=model_identity,
+            input_timing=input_timing,
+        )
         if workbench:
             record["workbench"] = workbench
         record["hash"] = _short_hash(record)
         record["integrity_hash"] = _full_hash(record)
         self._append_jsonl(path, record)
         return record
+
+    def _assert_l1_append_allowed(self, rows: list[Any]) -> None:
+        seen_ids: set[int] = set()
+        seen_uuids: set[str] = set()
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            reason = verify_chat_entry(row)
+            if reason:
+                continue
+            row_id = int(row.get("id", 0) or 0)
+            row_uuid = str(row.get("message_uuid") or "")
+            if row_id in seen_ids or (row_uuid and row_uuid in seen_uuids):
+                raise ImmutabilityError("duplicate L1 chat id or message_uuid detected")
+            seen_ids.add(row_id)
+            if row_uuid:
+                seen_uuids.add(row_uuid)
 
     def memory_context(self, days: int = 7) -> dict[str, Any]:
         summaries = self._recent_summary_rows(days)
@@ -914,7 +951,142 @@ def _workbench_actions(*, evidence_visible: bool) -> list[dict[str, Any]]:
             "payload": {},
             "requires_confirmation": False,
         },
+        {
+            "id": "copy_message",
+            "label": "Copy Message",
+            "kind": "copy_message",
+            "payload": {"scope": "assistant_message"},
+            "requires_confirmation": False,
+        },
+        {
+            "id": "share_message",
+            "label": "Share Message",
+            "kind": "share_message",
+            "payload": {"scope": "assistant_message"},
+            "requires_confirmation": False,
+        },
+        {
+            "id": "retry_message",
+            "label": "Retry",
+            "kind": "retry_message",
+            "payload": {"scope": "parent_user_message"},
+            "requires_confirmation": False,
+        },
+        {
+            "id": "wipe_message",
+            "label": "Wipe Message",
+            "kind": "wipe_message",
+            "payload": {"scope": "assistant_message", "l1_source_preserved": True},
+            "requires_confirmation": True,
+        },
     ]
+
+
+def _speaker_identity(
+    *,
+    sender: str,
+    actor: str,
+    seat: str,
+    content: str,
+    timestamp: str,
+    model_identity: dict[str, Any] | None,
+    input_timing: dict[str, Any] | None,
+) -> dict[str, Any]:
+    sender_name = str(sender or "").strip().lower()
+    actor_name = str(actor or sender or "").strip() or sender_name
+    seat_name = str(seat or "").strip()
+    base = {
+        "schema_version": "anchorworks_speaker_identity@1",
+        "sender": sender_name or str(sender or ""),
+        "actor": actor_name,
+        "seat": seat_name,
+        "logged_at_utc": timestamp,
+    }
+    if sender_name == "user":
+        speaker_id = "operator.local" if seat_name == "operator" or actor_name == "user" else f"{_safe_name(actor_name)}.local"
+        return {
+            **base,
+            "speaker_id": speaker_id,
+            "speaker_kind": "human",
+            "input_origin": _classify_input_origin(content, input_timing=input_timing),
+        }
+    if sender_name == "assistant":
+        provider = str((model_identity or {}).get("provider") or "anchorworks").strip() or "anchorworks"
+        engine = str((model_identity or {}).get("engine") or actor_name or "assistant").strip()
+        return {
+            **base,
+            "speaker_id": f"{provider}:{engine}",
+            "speaker_kind": "ai",
+            "output_origin": {
+                "classification": "ai_generated_output",
+                "provider": provider,
+                "engine": engine,
+                "model_identity": model_identity or {},
+            },
+        }
+    return {
+        **base,
+        "speaker_id": f"system:{_safe_name(actor_name or sender_name or 'unknown')}",
+        "speaker_kind": "system",
+        "output_origin": {"classification": "system_generated_output"},
+    }
+
+
+def _classify_input_origin(content: str, *, input_timing: dict[str, Any] | None = None) -> dict[str, Any]:
+    text = str(content or "")
+    nonblank_lines = [line for line in text.splitlines() if line.strip()]
+    char_count = len(text)
+    signals: list[str] = []
+    ai_shaped = _looks_like_ai_formatted_text(text)
+    if ai_shaped:
+        signals.append("ai_shaped_format")
+    typing_speed: dict[str, Any] = {}
+    if input_timing:
+        duration_ms = max(0, int(float(input_timing.get("duration_ms", 0) or 0)))
+        if duration_ms > 0:
+            chars_per_second = char_count / (duration_ms / 1000)
+            typing_speed = {
+                "duration_ms": duration_ms,
+                "chars_per_second": round(chars_per_second, 3),
+            }
+            if chars_per_second > 30 and char_count > 200:
+                signals.append("humanly_impossible_typing_speed")
+    elif char_count > 1200 or len(nonblank_lines) > 24:
+        signals.append("humanly_unlikely_wall_without_typing_timing")
+
+    if "humanly_impossible_typing_speed" in signals or "humanly_unlikely_wall_without_typing_timing" in signals:
+        classification = "operator_ai_pasted_text" if ai_shaped else "operator_pasted_text"
+    else:
+        classification = "human_language_input"
+    return {
+        "classification": classification,
+        "content_source": "operator",
+        "char_count": char_count,
+        "line_count": len(nonblank_lines),
+        "signals": signals,
+        "typing_speed": typing_speed,
+        "raw_keystrokes_logged": False,
+    }
+
+
+def _looks_like_ai_formatted_text(text: str) -> bool:
+    lowered = text.casefold()
+    markers = [
+        "```",
+        "implementation plan",
+        "here is",
+        "summary",
+        "key points",
+        "step 1",
+        "acceptance criteria",
+        "test plan",
+        "hard law",
+        "core law",
+    ]
+    hits = sum(1 for marker in markers if marker in lowered)
+    numbered_lines = sum(1 for line in text.splitlines() if re.match(r"\s*\d+[\).\s-]", line))
+    bullet_lines = sum(1 for line in text.splitlines() if re.match(r"\s*[-*]\s+", line))
+    return hits >= 2 or numbered_lines >= 3 or bullet_lines >= 5
 
 
 def _safe_name(value: str) -> str:
@@ -924,6 +1096,10 @@ def _safe_name(value: str) -> str:
 
 def _one_line(value: Any) -> str:
     return str(value or "").replace("\r", " ").replace("\n", " ").strip()
+
+
+def _json_line(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def _clean_multiline(value: Any) -> str:
