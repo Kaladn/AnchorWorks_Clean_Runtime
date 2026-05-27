@@ -13,6 +13,7 @@ from uuid import uuid4
 from .anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from .clearspeak import ClearSpeakService
 from .document_answer import DocumentAnswerAssembler
+from .grounded_mode import build_grounded_evidence_packet, render_grounded_result
 from .model_api_client import ModelApiClient
 from aw_inference_kernel import solve_formula_question
 
@@ -281,6 +282,36 @@ class ChatMemorySystem:
             engine = "clearspeak_counts"
             provider = "anchorworks"
             mode_name = "counts"
+        elif mode_name == "grounded":
+            count_payload = self.clearspeak.query(clean_message).to_dict()
+            document_payload = self.document_answer.answer(clean_message).to_dict()
+            packet = build_grounded_evidence_packet(
+                query=clean_message,
+                clearspeak_payload=count_payload,
+                document_payload=document_payload,
+            )
+            grounded = render_grounded_result(packet)
+            clearspeak_payload = {
+                "schema_version": "anchorworks_chat_grounded_mode@1",
+                "response": grounded["response"],
+                "speech": grounded["grounded_response"],
+                "evidence_mode": "grounded",
+                "engine": "anchorworks_grounded_mode",
+                "grounded": grounded,
+                "evidence_packet": packet,
+                "contract": {
+                    "aw_builds_evidence_packet": True,
+                    "model_output_is_not_evidence": True,
+                    "memory_writes": False,
+                    "intake_writes": False,
+                },
+            }
+            response = grounded["response"]
+            citations = packet.get("citations") or []
+            actor = "clearspeak"
+            engine = "anchorworks_grounded_mode"
+            provider = "anchorworks"
+            mode_name = "grounded"
         elif mode_name in {"auto", "documents", "document", "maps", "mapped", "mapped_documents"}:
             requested_documents = mode_name in {"documents", "document", "maps", "mapped", "mapped_documents"}
             document_result = self.document_answer.answer(clean_message)

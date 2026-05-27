@@ -33,6 +33,8 @@ visual glyph lexicon and glyph-state intake
 Occular Cloud 6x4-4-6x4 count windows
 Occular tensor shard store/index/query
 OpenVINO/GPU-visible accelerated Occular lane with CPU parity
+Four-anchor Unit4 sibling counts
+Grounded evidence packet/render mode
 repo code lexicon mirror builder for Python/Rust identifiers
 ```
 
@@ -50,8 +52,8 @@ Generated media/state artifacts remain runtime data, not source code.
 
 ```text
 edge_state_intake: planned owned-device compact state intake lane.
-configurable count window contract: next backend lock.
-map-to-new-count adapter: next after window contract.
+proper memory scaffolding: next backend lock.
+Unit4 intake adapter: next after memory scaffold if still needed.
 ```
 
 ## Code Lexicon Mirror Truth
@@ -86,7 +88,14 @@ Current visual/Occular count shape:
 6x4-4-6x4
 ```
 
-The next lock is to make count windows configurable by contract without rewriting proven intake paths.
+Current Unit4 sibling count shape:
+
+```text
+6-1-6 over unit4
+unit4 = fixed ordered groups of 4 anchors from the start of the stream
+```
+
+Unit4 is an addition beside solo-anchor counts. It does not replace, rewrite, or promote into normal lifetime counts.
 
 ## Future Ability Area
 
