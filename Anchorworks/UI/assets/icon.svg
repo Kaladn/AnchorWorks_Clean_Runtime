@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="AnchorWorks">
-  <rect width="128" height="128" rx="18" fill="#10131b"/>
-  <path d="M24 64h80M64 24v80" stroke="#57d6b8" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="64" cy="64" r="27" fill="none" stroke="#8fb9ff" stroke-width="8"/>
-  <circle cx="64" cy="64" r="8" fill="#eef3f8"/>
-</svg>

@@ -7,15 +7,12 @@ from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import __version__
-from .chat_memory_system import ChatMemorySystem
 from .clearspeak import ClearSpeakService
+from .document_answer import DocumentAnswerAssembler
 from .intake_audit import audit_source_directory, rebuild_readiness_report
-from .model_api_client import ModelApiClient
 from .observed_map_graph_viewer import ObservedMapGraphViewer
 from .policy_diagnostics_report import build_settings_report, load_queries
 from .settings_inventory import build_settings_inventory
@@ -93,10 +90,6 @@ class IntakeEditBody(BaseModel):
     source_path: str = ""
 
 
-class ChatArchivePrepareBody(BaseModel):
-    archive_root: str
-
-
 class ClearSpeakQueryBody(BaseModel):
     query: str
     limit: int = 6
@@ -121,67 +114,12 @@ class MissingAnchorReviewSyncBody(BaseModel):
     letter: str = ""
 
 
-class ChatSendBody(BaseModel):
-    message: str
-    mode: str = "clearspeak"
-    branch: str = "main"
-    model: str = ""
-    evidence_visible: bool = True
-
-
-class ChatStopBody(BaseModel):
-    workflow_id: str = ""
-    response_id: str = ""
-
-
-class ChatActionBody(BaseModel):
-    action_id: str
-    workflow_id: str = ""
-    response_id: str = ""
-    payload: dict[str, Any] = {}
-
-
-class ChatArchiveImportBody(BaseModel):
-    archive_root: str
-
-
 class TreeBrainControlsBody(BaseModel):
     controls: dict[str, Any]
 
 
 class SymbolPolicyBody(BaseModel):
     policy: dict[str, Any]
-
-
-class ChatFinalizeBody(BaseModel):
-    day: str | None = None
-    branch: str = "main"
-
-
-class ChatCitationBody(BaseModel):
-    day: str
-    message_id: str
-    block_id: str = "b0"
-    block_ordinal: int = 0
-    coord: str
-    subject: str = ""
-    note: str = ""
-    source: str = "ui"
-
-
-class ChatNoteBody(BaseModel):
-    day: str
-    message_id: str
-    block_id: str = "b0"
-    block_ordinal: int = 0
-    text: str
-
-
-class SideChatBody(BaseModel):
-    source_day: str
-    message_id: str
-    description: str = ""
-    main_branch: str = "main"
 
 
 def _default_data_root() -> Path:
@@ -198,8 +136,6 @@ def _default_data_root() -> Path:
 def create_app(data_root: Path | None = None) -> FastAPI:
     package_root = Path(__file__).resolve().parent
     app_root = package_root.parents[1]
-    ui_root = app_root / "UI"
-    assets_root = ui_root / "assets"
     store = LexiconStore(data_root or _default_data_root())
     awsg_viewer = ObservedMapGraphViewer([
         store.root / "test" / "test data" / "experiments" / "observed_map_graph" / "runtime" / "graph",
@@ -207,16 +143,20 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     ])
     tree_brain_controls = TreeBrainControls.load(app_root / "config" / "tree_brain_controls.json")
     clearspeak = ClearSpeakService(store)
-    model_api = ModelApiClient()
-    chat_memory = ChatMemorySystem(store.root, clearspeak, model_api=model_api)
+    document_answer = DocumentAnswerAssembler(store)
 
     app = FastAPI(title="AnchorWorks Lexicon", version=__version__, docs_url="/api/docs")
     app.state.store = store
     app.state.awsg_viewer = awsg_viewer
     app.state.clearspeak = clearspeak
     app.state.tree_brain_controls = tree_brain_controls
-    app.state.model_api = model_api
-    app.state.chat_memory = chat_memory
+    app.state.document_answer = document_answer
+    app.state.core_runtime_status = {
+        "ui_runtime": "not_installed",
+        "chat_runtime": "not_installed",
+        "memory_runtime": "not_installed",
+        "future_port": True,
+    }
 
     app.add_middleware(
         CORSMiddleware,
@@ -225,23 +165,13 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.mount("/assets", StaticFiles(directory=assets_root), name="ui-assets")
-
     @app.get("/")
-    def index() -> FileResponse:
-        return FileResponse(ui_root / "index.html")
-
-    @app.get("/favicon.ico")
-    def favicon() -> FileResponse:
-        return FileResponse(assets_root / "favicon.ico")
-
-    @app.get("/manifest.webmanifest")
-    def manifest() -> FileResponse:
-        return FileResponse(ui_root / "manifest.webmanifest")
+    def root_status() -> dict[str, Any]:
+        return {"ok": True, "version": __version__, "runtime": app.state.core_runtime_status}
 
     @app.get("/api/health")
     def health() -> dict[str, Any]:
-        return {"ok": True, "version": __version__, "data_root": str(store.root)}
+        return {"ok": True, "version": __version__, "data_root": str(store.root), "runtime": app.state.core_runtime_status}
 
     def _symbol_policy_path() -> Path:
         return app_root / "config" / "symbol_policy.json"
@@ -330,7 +260,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         if formula_payload and evidence_mode in {"auto", "counts", "count", "documents", "document", "maps", "mapped", "mapped_documents"}:
             return formula_payload
         if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents", "auto"}:
-            document_result = chat_memory.document_answer.answer(body.query, limit=body.limit).to_dict()
+            document_result = document_answer.answer(body.query, limit=body.limit).to_dict()
             if document_result.get("ok"):
                 return document_result
             if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents"}:
@@ -411,153 +341,6 @@ def create_app(data_root: Path | None = None) -> FastAPI:
             "blocked": False,
             "contract": {"original_query_is_sacred": True, "remixes_are_read_only": True},
         }
-
-    @app.get("/api/chat/status")
-    def chat_status() -> dict[str, Any]:
-        return chat_memory.status()
-
-    @app.get("/api/chat/history")
-    def chat_history(day: str | None = None, branch: str = "main", limit: int = 200) -> dict[str, Any]:
-        return chat_memory.history(day=day, branch=branch, limit=limit)
-
-    @app.get("/api/chat/search")
-    def chat_search(
-        query: str,
-        day: str | None = None,
-        branch: str = "main",
-        limit: int = 50,
-        match: str = "all",
-    ) -> dict[str, Any]:
-        return chat_memory.search_history(query, day=day, branch=branch, limit=limit, match=match)
-
-    @app.post("/api/chat/send")
-    def chat_send(body: ChatSendBody) -> dict[str, Any]:
-        try:
-            return chat_memory.send(
-                body.message,
-                mode=body.mode,
-                branch=body.branch,
-                model=body.model,
-                evidence_visible=body.evidence_visible,
-            ).to_dict()
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
-
-    @app.post("/api/chat/stop")
-    def chat_stop(body: ChatStopBody | dict[str, Any]) -> dict[str, Any]:
-        if isinstance(body, dict):
-            workflow_id = str(body.get("workflow_id") or "")
-            response_id = str(body.get("response_id") or "")
-        else:
-            workflow_id = body.workflow_id
-            response_id = body.response_id
-        return {
-            "ok": True,
-            "workflow_id": workflow_id,
-            "response_id": response_id,
-            "status": "interrupted",
-            "writes_performed": False,
-        }
-
-    @app.post("/api/chat/action")
-    def chat_action(body: ChatActionBody | dict[str, Any]) -> dict[str, Any]:
-        if isinstance(body, dict):
-            action_id = str(body.get("action_id") or "")
-            workflow_id = str(body.get("workflow_id") or "")
-            response_id = str(body.get("response_id") or "")
-            payload = body.get("payload") if isinstance(body.get("payload"), dict) else {}
-        else:
-            action_id = body.action_id
-            workflow_id = body.workflow_id
-            response_id = body.response_id
-            payload = body.payload
-        allowed = {
-            "continue_working": {
-                "status": "awaiting_user_instruction",
-                "message": "Continue Working is ready. Enter the next instruction or choose another available control.",
-            },
-            "hide_evidence": {
-                "status": "evidence_hidden",
-                "message": "Evidence display hidden for this chat surface.",
-            },
-            "show_evidence": {
-                "status": "evidence_shown",
-                "message": "Evidence display shown for this chat surface.",
-            },
-        }
-        if action_id not in allowed:
-            raise HTTPException(status_code=400, detail=f"Unknown chat action: {action_id}")
-        result = allowed[action_id]
-        return {
-            "ok": True,
-            "action_id": action_id,
-            "workflow_id": workflow_id,
-            "response_id": response_id,
-            "payload": payload,
-            "status": result["status"],
-            "message": result["message"],
-            "writes_performed": False,
-            "chat_query_sent": False,
-        }
-
-    @app.post("/api/chat/archive/import")
-    def chat_archive_import(body: ChatArchiveImportBody) -> dict[str, Any]:
-        try:
-            return chat_memory.import_archive(Path(body.archive_root))
-        except (FileNotFoundError, NotADirectoryError, ValueError) as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
-
-    @app.post("/api/chat/finalize/preview")
-    def chat_finalize_preview(body: ChatFinalizeBody) -> dict[str, Any]:
-        try:
-            return chat_memory.preview_finalize(day=body.day, branch=body.branch)
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
-
-    @app.post("/api/chat/finalize")
-    def chat_finalize(body: ChatFinalizeBody) -> dict[str, Any]:
-        try:
-            return chat_memory.finalize_day(day=body.day, branch=body.branch)
-        except (FileNotFoundError, IsADirectoryError, ValueError, AssertionError) as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
-
-    @app.post("/api/chat/citations/attach")
-    def chat_citation_attach(body: ChatCitationBody) -> dict[str, Any]:
-        try:
-            return chat_memory.attach_citation(
-                day=body.day,
-                message_id=body.message_id,
-                block_id=body.block_id,
-                block_ordinal=body.block_ordinal,
-                coord=body.coord,
-                subject=body.subject,
-                note=body.note,
-                source=body.source,
-            )
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
-
-    @app.post("/api/chat/notes/attach")
-    def chat_note_attach(body: ChatNoteBody) -> dict[str, Any]:
-        try:
-            return chat_memory.attach_note(
-                day=body.day,
-                message_id=body.message_id,
-                block_id=body.block_id,
-                block_ordinal=body.block_ordinal,
-                text=body.text,
-            )
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
-
-    @app.post("/api/chat/side/start")
-    def chat_side_start(body: SideChatBody) -> dict[str, Any]:
-        return chat_memory.create_side_chat(
-            source_day=body.source_day,
-            message_id=body.message_id,
-            description=body.description,
-            main_branch=body.main_branch,
-        )
 
     @app.get("/api/search_lexicon")
     def search_lexicon(query: str, pack: str = "all") -> list[dict[str, Any]]:
@@ -885,13 +668,6 @@ def create_app(data_root: Path | None = None) -> FastAPI:
                 file_type=file.content_type or "",
             )
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
-
-    @app.post("/api/lexicon/intake/chat-archive/prepare")
-    def lexicon_intake_chat_archive_prepare(body: ChatArchivePrepareBody) -> dict[str, Any]:
-        try:
-            return store.prepare_chat_archive_intake(Path(body.archive_root))
-        except (FileNotFoundError, NotADirectoryError, ValueError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
     @app.post("/api/lexicon/intake/approve")

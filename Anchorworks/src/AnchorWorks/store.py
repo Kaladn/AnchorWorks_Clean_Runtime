@@ -16,7 +16,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .anchorworks_chat_archive import prepare_anchorworks_chat_archive
 from .anchor_field import build_query_frame
 from .anchor_classification import classify_unknown_anchor_rows, write_classified_unknown_report, write_math_lexicon
 from .document_prep import prepare_bytes, prepare_file
@@ -1326,10 +1325,6 @@ class LexiconStore:
             raise ValueError("invalid visual packet")
         data["packet_path"] = str(packet_path)
         return data
-
-    def prepare_chat_archive_intake(self, archive_root: Path) -> dict[str, Any]:
-        prepared = prepare_anchorworks_chat_archive(archive_root)
-        return prepared.to_dict()
 
     def _observed_map_path(self, source_path: Path) -> Path:
         digest = hashlib.sha1(str(source_path).encode("utf-8")).hexdigest()[:12]

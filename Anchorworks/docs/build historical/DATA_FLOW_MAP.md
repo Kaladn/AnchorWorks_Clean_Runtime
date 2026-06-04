@@ -563,7 +563,7 @@ Authority questions to resolve before migration:
 2. Which chat memory lane is real: `State/chat_memory` or `data/chats` plus `data/citations.db`?
 3. Which spare-slot source is real: `Spare_Slots/spare_slots.json` or `Spare_Slots/pool_*.json`?
 4. Which app source is real: `Anchorworks/` inside this boundary, or an outside git repo that must be re-imported later by explicit approval?
-5. Which services are required: nested FastAPI `8081`, bridge `5050`, citations `5052`, local model `11435`, or only a subset?
+5. Which services are required: nested FastAPI `8081`, bridge `5050`, citations `5052`, OpenAI API session bridge, or only a subset?
 6. Which data must never be committed: private docs, observed maps, counts, chat memory, model envs, runtime logs, and generated state?
 
 Decision law:

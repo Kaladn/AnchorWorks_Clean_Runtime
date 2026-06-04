@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
-from .chat_bridge import bridge_chat_memory_json
 from .document_film import extract_pdf_document_film_from_bytes
 from .visual_manifest import manifest_from_image_bytes
 from .visual_recognition_layer import create_empty_recognition_layer
@@ -283,12 +282,6 @@ def _prepare_delimited(raw: bytes, source_name: str, suffix: str) -> tuple[str, 
 
 def _prepare_json(raw: bytes, source_name: str) -> tuple[str, dict[str, Any]]:
     data = json.loads(_decode_text(raw))
-    bridged = bridge_chat_memory_json(data, source_name)
-    if bridged is not None:
-        metadata = dict(bridged.metadata)
-        metadata["_converter"] = "chat-memory-bridge"
-        return bridged.text, metadata
-
     rows: list[str] = []
     _flatten_json(data, "root", rows)
     lines = [_source_line(source_name), "[TYPE: json]", "", f"[JSON: {Path(source_name).stem}]"]

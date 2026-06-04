@@ -44,14 +44,6 @@ def build_settings_inventory(app_root: str | Path) -> dict[str, Any]:
             "runtime_active": True,
             "reason": "Backend allocation/checkpoint routes consume this manifest as the live symbol cursor.",
         },
-        {
-            "id": "chat_capture",
-            "label": "Chat Capture",
-            "path": str(data_root / "State" / "chat_memory"),
-            "classification": "runtime",
-            "runtime_active": True,
-            "reason": "Chat send/history/finalize routes write and read this memory lane.",
-        },
     ]
     for row in rows:
         path = Path(str(row["path"]))

@@ -127,7 +127,7 @@ ClearSpeak / counts
 External API
 ```
 
-Do not show unsupported local LLM providers as active model choices. AnchorWorks local means the deterministic local AnchorWorks/ClearSpeak path. A true local LLM runner is future work unless a verified backend route is added.
+Do not show offline provider runners as active or planned model choices. AnchorWorks local means the deterministic local AnchorWorks/ClearSpeak path only. OpenAI API session support is the approved external model-assistance direction.
 
 Chat display must show:
 
@@ -306,10 +306,10 @@ AnchorWorks Local
 Not:
 
 ```text
-Local LLM
+Offline provider runner
 ```
 
-unless and until a real local model runner route is added.
+OpenAI API session support is the approved model-assistance direction.
 
 ## Chained Intelligence Contract
 
@@ -329,7 +329,6 @@ Minimum future chain lanes:
 ```text
 anchorworks
 external_api
-future_local_model
 resolver
 ```
 
