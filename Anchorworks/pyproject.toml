@@ -10,10 +10,18 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115,<1",
+  "InquirerPy>=0.3,<1",
+  "openai>=2,<3",
   "openpyxl>=3.1,<4",
+  "prompt_toolkit>=3,<4",
+  "pyarrow>=24,<25",
   "pypdf>=5,<7",
   "python-docx>=1.1,<2",
   "python-multipart>=0.0.9,<1",
+  "questionary>=2,<3",
+  "rich>=15,<16",
+  "textual>=8,<9",
+  "typer>=0.26,<1",
   "uvicorn[standard]>=0.30,<1",
 ]
 

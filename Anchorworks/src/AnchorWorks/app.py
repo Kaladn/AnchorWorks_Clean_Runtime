@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from . import __version__
 from .clearspeak import ClearSpeakService
+from .conversation import ConversationEngine
 from .document_answer import DocumentAnswerAssembler
 from .intake_audit import audit_source_directory, rebuild_readiness_report
 from .observed_map_graph_viewer import ObservedMapGraphViewer
@@ -96,6 +97,14 @@ class ClearSpeakQueryBody(BaseModel):
     evidence_mode: str = "auto"
 
 
+class ChatSendBody(BaseModel):
+    text: str
+    mode: str = "auto"
+    evidence_mode: str = "auto"
+    conversation_id: str = ""
+    record_chat: bool = False
+
+
 class RemixQueryBody(BaseModel):
     query: str
     top_k: int = 4
@@ -144,18 +153,21 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     tree_brain_controls = TreeBrainControls.load(app_root / "config" / "tree_brain_controls.json")
     clearspeak = ClearSpeakService(store)
     document_answer = DocumentAnswerAssembler(store)
+    conversation_engine = ConversationEngine(store, clearspeak, document_answer)
 
     app = FastAPI(title="AnchorWorks Lexicon", version=__version__, docs_url="/api/docs")
     app.state.store = store
     app.state.awsg_viewer = awsg_viewer
     app.state.clearspeak = clearspeak
+    app.state.conversation_engine = conversation_engine
     app.state.tree_brain_controls = tree_brain_controls
     app.state.document_answer = document_answer
     app.state.core_runtime_status = {
-        "ui_runtime": "not_installed",
-        "chat_runtime": "not_installed",
-        "memory_runtime": "not_installed",
-        "future_port": True,
+        "ui_runtime": "terminal_operator_console",
+        "chat_runtime": "conversation_engine",
+        "memory_runtime": "explicit_chat_memory",
+        "silent_memory_writes": False,
+        "future_port": False,
     }
 
     app.add_middleware(
@@ -288,6 +300,16 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         result["evidence_mode"] = "counts"
         result["engine"] = "clearspeak_counts"
         return result
+
+    @app.post("/api/chat/send")
+    def chat_send(body: ChatSendBody) -> dict[str, Any]:
+        return conversation_engine.answer(
+            body.text,
+            mode=body.mode,
+            evidence_mode=body.evidence_mode,
+            conversation_id=body.conversation_id,
+            record_chat=body.record_chat,
+        )
 
     @app.get("/api/clearspeak/cloud")
     def clearspeak_cloud(anchor: str, k: int = 20) -> dict[str, Any]:
