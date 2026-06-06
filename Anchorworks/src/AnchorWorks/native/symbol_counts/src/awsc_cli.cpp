@@ -4,8 +4,10 @@
 #include <cctype>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <map>
+#include <regex>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -31,6 +33,351 @@ std::uint64_t arg_u64(int argc, char** argv, const std::string& name, std::uint6
         }
     }
     return fallback;
+}
+
+std::string read_text_file(const std::filesystem::path& path) {
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        throw std::runtime_error("cannot open file for reading: " + path.string());
+    }
+    return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+}
+
+void write_text_file(const std::filesystem::path& path, const std::string& text) {
+    std::filesystem::create_directories(path.parent_path());
+    const auto tmp = path.string() + ".tmp";
+    {
+        std::ofstream out(tmp, std::ios::binary | std::ios::trunc);
+        if (!out) {
+            throw std::runtime_error("cannot open temp file for writing: " + tmp);
+        }
+        out.write(text.data(), static_cast<std::streamsize>(text.size()));
+        if (!out) {
+            throw std::runtime_error("failed writing temp file: " + tmp);
+        }
+    }
+    if (std::filesystem::exists(path)) {
+        std::filesystem::remove(path);
+    }
+    std::filesystem::rename(tmp, path);
+}
+
+void append_u64_le(std::vector<std::uint8_t>& data, std::uint64_t value) {
+    for (int i = 0; i < 8; ++i) {
+        data.push_back(static_cast<std::uint8_t>((value >> (8 * i)) & 0xff));
+    }
+}
+
+std::uint8_t lane_for_authority(const std::string& authority) {
+    std::string normalized;
+    normalized.reserve(authority.size());
+    for (char ch : authority) {
+        normalized.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+    }
+    if (normalized == "canonical") {
+        return awsc::LANE_CANONICAL;
+    }
+    if (normalized == "math_companion") {
+        return awsc::LANE_MATH_COMPANION;
+    }
+    if (normalized == "structural_companion") {
+        return awsc::LANE_STRUCTURAL_COMPANION;
+    }
+    if (normalized == "user_lexicon") {
+        return awsc::LANE_USER_LEXICON;
+    }
+    return awsc::LANE_SOURCE_LOCAL_TEMP;
+}
+
+std::string json_escape(const std::string& value) {
+    std::string out;
+    out.reserve(value.size() + 8);
+    for (char ch : value) {
+        switch (ch) {
+            case '\\': out += "\\\\"; break;
+            case '"': out += "\\\""; break;
+            case '\b': out += "\\b"; break;
+            case '\f': out += "\\f"; break;
+            case '\n': out += "\\n"; break;
+            case '\r': out += "\\r"; break;
+            case '\t': out += "\\t"; break;
+            default:
+                if (static_cast<unsigned char>(ch) < 0x20) {
+                    out += ' ';
+                } else {
+                    out.push_back(ch);
+                }
+        }
+    }
+    return out;
+}
+
+struct AuthorityEntry {
+    awsc::Symbol symbol{};
+    std::uint8_t lane = awsc::LANE_SOURCE_LOCAL_TEMP;
+};
+
+std::string object_value(const std::string& object, const std::string& key) {
+    const std::regex pattern("\"" + key + "\"\\s*:\\s*\"([^\"]*)\"");
+    std::smatch match;
+    if (!std::regex_search(object, match, pattern)) {
+        return "";
+    }
+    return match[1].str();
+}
+
+std::map<std::string, AuthorityEntry> read_authority_snapshot(const std::filesystem::path& path) {
+    const auto text = read_text_file(path);
+    std::map<std::string, AuthorityEntry> authority;
+    const std::regex object_pattern("\\{[^{}]*\"anchor\"[^{}]*\\}");
+    for (std::sregex_iterator it(text.begin(), text.end(), object_pattern), end; it != end; ++it) {
+        const auto object = it->str();
+        auto anchor = object_value(object, "anchor");
+        const auto symbol = object_value(object, "symbol");
+        const auto auth = object_value(object, "authority");
+        if (anchor.empty() || symbol.empty()) {
+            continue;
+        }
+        std::transform(anchor.begin(), anchor.end(), anchor.begin(), [](unsigned char ch) {
+            return static_cast<char>(std::tolower(ch));
+        });
+        authority[anchor] = AuthorityEntry{awsc::symbol_from_hex(symbol), lane_for_authority(auth)};
+    }
+    return authority;
+}
+
+std::vector<std::string> split_paragraphs_native(const std::string& text) {
+    std::vector<std::string> paragraphs;
+    std::string current;
+    bool pending_blank = false;
+    bool line_has_text = false;
+    for (std::size_t index = 0; index <= text.size(); ++index) {
+        const char ch = index < text.size() ? text[index] : '\n';
+        if (ch == '\r') {
+            continue;
+        }
+        if (ch == '\n') {
+            if (line_has_text) {
+                current.push_back('\n');
+                line_has_text = false;
+                pending_blank = false;
+            } else if (!current.empty()) {
+                pending_blank = true;
+            }
+            continue;
+        }
+        if (std::isspace(static_cast<unsigned char>(ch))) {
+            if (!pending_blank) {
+                current.push_back(ch);
+            }
+            continue;
+        }
+        if (pending_blank && !current.empty()) {
+            while (!current.empty() && std::isspace(static_cast<unsigned char>(current.back()))) {
+                current.pop_back();
+            }
+            if (!current.empty()) {
+                paragraphs.push_back(current);
+            }
+            current.clear();
+            pending_blank = false;
+        }
+        current.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+        line_has_text = true;
+    }
+    while (!current.empty() && std::isspace(static_cast<unsigned char>(current.back()))) {
+        current.pop_back();
+    }
+    if (!current.empty()) {
+        paragraphs.push_back(current);
+    }
+    return paragraphs;
+}
+
+std::vector<std::string> extract_anchors_native(const std::string& text) {
+    std::vector<std::string> anchors;
+    std::size_t index = 0;
+    while (index < text.size()) {
+        const auto ch = static_cast<unsigned char>(text[index]);
+        if (std::isspace(ch)) {
+            ++index;
+            continue;
+        }
+        if (std::isalpha(ch) || text[index] == '\'') {
+            std::string word;
+            while (index < text.size()) {
+                const auto current = static_cast<unsigned char>(text[index]);
+                if (!std::isalpha(current) && text[index] != '\'') {
+                    break;
+                }
+                word.push_back(static_cast<char>(std::tolower(current)));
+                ++index;
+            }
+            if (!word.empty() && word.find_first_not_of('\'') != std::string::npos) {
+                anchors.push_back(word);
+            }
+            continue;
+        }
+        if (std::isdigit(ch)) {
+            anchors.emplace_back(1, text[index]);
+            ++index;
+            continue;
+        }
+        anchors.emplace_back(1, static_cast<char>(std::tolower(ch)));
+        ++index;
+    }
+    return anchors;
+}
+
+void append_awss_record(
+    std::vector<std::uint8_t>& data,
+    const awsc::Symbol& root,
+    const awsc::Symbol& neighbor,
+    std::int8_t offset,
+    std::uint8_t lane,
+    std::uint8_t root_lane,
+    std::uint64_t count
+) {
+    data.insert(data.end(), root.begin(), root.end());
+    data.insert(data.end(), neighbor.begin(), neighbor.end());
+    data.push_back(static_cast<std::uint8_t>(offset));
+    data.push_back(lane);
+    data.push_back(0);
+    data.push_back(root_lane);
+    data.push_back(0);
+    data.push_back(0);
+    append_u64_le(data, count);
+}
+
+struct RelationKey {
+    awsc::Symbol root{};
+    awsc::Symbol neighbor{};
+    std::int8_t offset = 0;
+    std::uint8_t lane = 0;
+    std::uint8_t root_lane = 0;
+
+    bool operator<(const RelationKey& other) const {
+        if (root != other.root) return root < other.root;
+        if (neighbor != other.neighbor) return neighbor < other.neighbor;
+        if (offset != other.offset) return offset < other.offset;
+        if (lane != other.lane) return lane < other.lane;
+        return root_lane < other.root_lane;
+    }
+};
+
+int run_intake_text(int argc, char** argv) {
+    const auto input = std::filesystem::path(arg_value(argc, argv, "--input"));
+    const auto authority_path = std::filesystem::path(arg_value(argc, argv, "--authority"));
+    const auto output = std::filesystem::path(arg_value(argc, argv, "--output"));
+    const auto manifest = std::filesystem::path(arg_value(argc, argv, "--manifest"));
+    const auto missing_path = std::filesystem::path(arg_value(argc, argv, "--missing"));
+    const auto window_radius_u64 = arg_u64(argc, argv, "--window-radius", 6);
+    if (window_radius_u64 == 0 || window_radius_u64 > 127) {
+        throw std::runtime_error("window radius must be 1..127");
+    }
+    const auto window_radius = static_cast<int>(window_radius_u64);
+    const auto authority = read_authority_snapshot(authority_path);
+    const auto paragraphs = split_paragraphs_native(read_text_file(input));
+
+    std::map<RelationKey, std::uint64_t> relations;
+    std::map<std::string, std::uint64_t> missing;
+    std::uint64_t countable_observations = 0;
+    std::uint64_t total_anchors = 0;
+
+    for (const auto& paragraph : paragraphs) {
+        const auto anchors = extract_anchors_native(paragraph);
+        total_anchors += anchors.size();
+        std::vector<const AuthorityEntry*> resolved;
+        resolved.reserve(anchors.size());
+        for (const auto& anchor : anchors) {
+            const auto found = authority.find(anchor);
+            if (found == authority.end()) {
+                missing[anchor] += 1;
+                resolved.push_back(nullptr);
+            } else {
+                ++countable_observations;
+                resolved.push_back(&found->second);
+            }
+        }
+        for (std::size_t position = 0; position < resolved.size(); ++position) {
+            const auto* root = resolved[position];
+            if (root == nullptr) {
+                continue;
+            }
+            for (int offset = -window_radius; offset <= window_radius; ++offset) {
+                if (offset == 0) {
+                    continue;
+                }
+                const auto neighbor_index = static_cast<int>(position) + offset;
+                if (neighbor_index < 0 || neighbor_index >= static_cast<int>(resolved.size())) {
+                    continue;
+                }
+                const auto* neighbor = resolved[static_cast<std::size_t>(neighbor_index)];
+                if (neighbor == nullptr) {
+                    continue;
+                }
+                relations[RelationKey{
+                    root->symbol,
+                    neighbor->symbol,
+                    static_cast<std::int8_t>(offset),
+                    neighbor->lane,
+                    root->lane,
+                }] += 1;
+            }
+        }
+    }
+
+    std::vector<std::uint8_t> stream;
+    stream.reserve(relations.size() * 24);
+    std::uint64_t observation_count = 0;
+    for (const auto& [key, count] : relations) {
+        append_awss_record(stream, key.root, key.neighbor, key.offset, key.lane, key.root_lane, count);
+        observation_count += count;
+    }
+    std::filesystem::create_directories(output.parent_path());
+    {
+        std::ofstream out(output, std::ios::binary | std::ios::trunc);
+        if (!out) {
+            throw std::runtime_error("cannot open AWSS output for writing: " + output.string());
+        }
+        out.write(reinterpret_cast<const char*>(stream.data()), static_cast<std::streamsize>(stream.size()));
+        if (!out) {
+            throw std::runtime_error("failed writing AWSS output: " + output.string());
+        }
+    }
+
+    std::string missing_json = "{\"schema_version\":\"anchorworks_native_intake_missing@1\",\"missing\":[";
+    bool first_missing = true;
+    for (const auto& [anchor, observations] : missing) {
+        if (!first_missing) {
+            missing_json += ",";
+        }
+        first_missing = false;
+        missing_json += "{\"anchor\":\"" + json_escape(anchor) + "\",\"observations\":" + std::to_string(observations) + "}";
+    }
+    missing_json += "]}";
+    write_text_file(missing_path, missing_json);
+
+    const auto manifest_json =
+        std::string("{\"schema_version\":\"anchorworks_native_intake_manifest@1\"") +
+        ",\"ok\":true" +
+        ",\"input\":\"" + json_escape(input.string()) + "\"" +
+        ",\"authority\":\"" + json_escape(authority_path.string()) + "\"" +
+        ",\"output\":\"" + json_escape(output.string()) + "\"" +
+        ",\"window_radius\":" + std::to_string(window_radius) +
+        ",\"paragraph_count\":" + std::to_string(paragraphs.size()) +
+        ",\"anchor_observation_count\":" + std::to_string(total_anchors) +
+        ",\"countable_anchor_observation_count\":" + std::to_string(countable_observations) +
+        ",\"missing_anchor_count\":" + std::to_string(missing.size()) +
+        ",\"record_count\":" + std::to_string(relations.size()) +
+        ",\"relation_observation_count\":" + std::to_string(observation_count) +
+        ",\"record_size\":24" +
+        ",\"raw_text_in_count_spine\":false}";
+    write_text_file(manifest, manifest_json);
+
+    std::cout << "{\"ok\":true,\"command\":\"intake-text\",\"record_count\":" << relations.size()
+              << ",\"missing_anchor_count\":" << missing.size() << "}\n";
+    return 0;
 }
 
 std::vector<std::string> split_csv(const std::string& text) {
@@ -82,6 +429,7 @@ double offset_weight(std::int8_t offset) {
 void print_usage() {
     std::cerr
         << "anchorworks-symbol-counts commands:\n"
+        << "  intake-text --input <prepared.txt> --authority <snapshot.json> --output <awss.bin> --manifest <manifest.json> --missing <missing.json> [--window-radius <n>]\n"
         << "  merge-stream --input <awss.bin> --output <root> [--generation <n>]\n"
         << "  merge-symbol-stream --input <awsy.bin> --output <root> [--generation <n>] [--window-radius <n>]\n"
         << "  verify --root <root>\n"
@@ -98,6 +446,9 @@ int main(int argc, char** argv) {
     }
     try {
         const std::string command = argv[1];
+        if (command == "intake-text") {
+            return run_intake_text(argc, argv);
+        }
         if (command == "merge-stream") {
             const auto input = std::filesystem::path(arg_value(argc, argv, "--input"));
             const auto output = std::filesystem::path(arg_value(argc, argv, "--output"));

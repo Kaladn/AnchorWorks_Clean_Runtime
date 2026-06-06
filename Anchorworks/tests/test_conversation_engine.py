@@ -61,3 +61,47 @@ def test_chat_send_api_returns_conversation_receipt():
     assert payload["schema_version"] == "anchorworks_conversation_receipt@1"
     assert payload["memory_write_status"]["counts_written"] is False
 
+
+def test_chat_send_does_not_record_memory_by_default(tmp_path):
+    app = create_app(tmp_path)
+    from fastapi.testclient import TestClient
+
+    client = TestClient(app)
+    response = client.post("/api/chat/send", json={"text": "good morning"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["memory_write_status"]["chat_recorded"] is False
+    memory_dir = tmp_path / "State" / "user" / "chat_memory"
+    assert not list(memory_dir.glob("*.jsonl"))
+
+
+def test_chat_send_records_explicit_memory_without_count_writes(tmp_path):
+    app = create_app(tmp_path)
+    from fastapi.testclient import TestClient
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/chat/send",
+        json={
+            "text": "good morning",
+            "conversation_id": "operator-session",
+            "record_chat": True,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    status = payload["memory_write_status"]
+    assert status["chat_recorded"] is True
+    assert status["counts_written"] is False
+    assert status["lifetime_written"] is False
+    memory_path = Path(status["chat_memory_path"])
+    assert memory_path.exists()
+    assert memory_path == tmp_path / "State" / "user" / "chat_memory" / "operator-session.jsonl"
+    stored = memory_path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(stored) == 1
+    assert '"conversation_id": "operator-session"' in stored[0]
+    assert '"user_text": "good morning"' in stored[0]
+    assert '"counts_written": false' in stored[0]
+    assert not (tmp_path / "State" / "lifetime_co_occurrence_counts.json").exists()

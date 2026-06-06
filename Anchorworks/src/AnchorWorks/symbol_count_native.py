@@ -196,6 +196,43 @@ def score_binary_counts(
     return json.loads(result.stdout)
 
 
+def intake_text_to_awss(
+    input_path: str | Path,
+    authority_path: str | Path,
+    output_path: str | Path,
+    *,
+    manifest_path: str | Path,
+    missing_path: str | Path,
+    window_radius: int = 6,
+    executable: str | Path | None = None,
+) -> dict[str, Any]:
+    exe = Path(executable) if executable else native_executable_path()
+    if not exe.exists():
+        exe = build_native_symbol_counts()
+    result = subprocess.run(
+        [
+            str(exe),
+            "intake-text",
+            "--input",
+            str(input_path),
+            "--authority",
+            str(authority_path),
+            "--output",
+            str(output_path),
+            "--manifest",
+            str(manifest_path),
+            "--missing",
+            str(missing_path),
+            "--window-radius",
+            str(int(window_radius)),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return json.loads(result.stdout)
+
+
 def write_awss_from_symbol_count_artifacts(
     artifact_paths: list[str | Path],
     output_path: str | Path,
