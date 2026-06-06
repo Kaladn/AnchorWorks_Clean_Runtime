@@ -12,6 +12,7 @@ from .symbol_count_cells import (
     MATH_COMPANION_LANE,
     SOURCE_LOCAL_TEMP_LANE,
     STRUCTURAL_COMPANION_LANE,
+    USER_LEXICON_LANE,
     symbol_to_bytes,
 )
 
@@ -292,6 +293,8 @@ def _lane_for_authority(authority: str) -> int:
         return MATH_COMPANION_LANE
     if normalized == "structural_companion":
         return STRUCTURAL_COMPANION_LANE
+    if normalized == "user_lexicon":
+        return USER_LEXICON_LANE
     return SOURCE_LOCAL_TEMP_LANE
 
 

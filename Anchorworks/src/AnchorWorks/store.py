@@ -8,6 +8,7 @@ import logging
 import os
 import random
 import re
+import shutil
 import threading
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -74,6 +75,8 @@ TEMP_SYMBOL_HEX_LENGTH = 11
 COMPANION_AUTHORITY_LANES = {"math_terms_or_symbols", "math_markup", "domain_notation_anchors", "structural_source_anchors"}
 NULL_SYMBOL_LANES = {"null_symbol_anchors", "source_id_artifacts"}
 CONVERSATIONAL_ANCHORS = {"hello", "hi", "hey", "thanks", "thank", "morning", "good", "yo"}
+USER_LEXICON_SYMBOL_BASE = 0xE000000000
+USER_LEXICON_SYMBOL_CAPACITY = 500_000_000
 INFO_TRANSFER_ANCHORS = {
     "remember",
     "consider",
@@ -272,7 +275,9 @@ class LexiconStore:
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
-        self.symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
+        self.canonical_symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
+        self.symbol_counts_binary_dir = self.user_counts_dir / "symbol_counts_binary"
+        self.user_counts_acknowledgement_path = self.symbol_counts_binary_dir / "user_count_acknowledgement.json"
         self.symbol_genome_pool_dir = self.state_dir / "symbol_genome_pool"
         self.symbol_streams_dir = self.state_dir / "symbol_streams"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
@@ -330,6 +335,7 @@ class LexiconStore:
         self.misspelled_reviews_dir.mkdir(parents=True, exist_ok=True)
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_symbol_counts_dir.mkdir(parents=True, exist_ok=True)
+        self.canonical_symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_genome_pool_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_streams_dir.mkdir(parents=True, exist_ok=True)
@@ -403,7 +409,8 @@ class LexiconStore:
             ],
             "protected_paths": {
                 "main_lexicon": str(self.canonical_dir),
-                "binary_counts": str(self.symbol_counts_binary_dir),
+                "canonical_binary_counts": str(self.canonical_symbol_counts_binary_dir),
+                "active_user_binary_counts": str(self.symbol_counts_binary_dir),
             },
         }
 
@@ -413,6 +420,37 @@ class LexiconStore:
 
     def _write_entries(self, path: Path, entries: list[dict[str, Any]]) -> None:
         self._write_json(path, entries)
+
+    def _user_lexicon_symbol_from_allocation(self, allocation: dict[str, Any]) -> str:
+        allocation_index = int(allocation.get("allocation_index", 0) or 0)
+        if allocation_index < 0 or allocation_index >= USER_LEXICON_SYMBOL_CAPACITY:
+            raise ValueError("user lexicon symbol range exhausted")
+        symbol = str(allocation.get("hex") or allocation.get("symbol") or "").strip()
+        if symbol.upper().startswith("0XE"):
+            return "0x" + symbol[2:].upper()
+        return f"0x{USER_LEXICON_SYMBOL_BASE + allocation_index:010X}"
+
+    def _build_user_lexicon_entry(
+        self,
+        anchor: str,
+        allocation: dict[str, Any],
+        *,
+        frequency: int = 0,
+        timestamp: str | None = None,
+    ) -> dict[str, Any]:
+        symbol = self._user_lexicon_symbol_from_allocation(allocation)
+        return {
+            "word": anchor,
+            "display": anchor,
+            "symbol": symbol,
+            "hex": symbol,
+            "status": "ASSIGNED",
+            "pack": "user",
+            "authority": "user_lexicon",
+            "frequency": int(frequency or 0),
+            "mapped_at": timestamp or _utc_now(),
+            "allocation_index": int(allocation.get("allocation_index", 0) or 0),
+        }
 
     def _invalidate_known_anchor_index(self) -> None:
         self._known_anchor_index = None
@@ -587,6 +625,8 @@ class LexiconStore:
                 paths.extend(("canonical", self.canonical_dir / f"canonical_{letter}.json") for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         if selected in {"all", "structural"} and self.structural_file.exists():
             paths.append(("structural", self.structural_file))
+        if selected in {"all", "user", "user_lexicon"} and self.user_lexicon_path.exists():
+            paths.append(("user", self.user_lexicon_path))
         if selected in {"all", "spare"}:
             paths.extend(("spare", path) for path in self._active_spare_paths())
         return paths
@@ -656,6 +696,9 @@ class LexiconStore:
         for entry in self._read_entries(path):
             if self.normalize_anchor(entry.get("word", "")) == target:
                 return entry, "canonical", path
+        for entry in self._read_entries(self.user_lexicon_path):
+            if self.normalize_anchor(entry.get("word", "")) == target:
+                return entry, "user", self.user_lexicon_path
         return None
 
     def _all_known_anchors(self) -> set[str]:
@@ -747,8 +790,56 @@ class LexiconStore:
                 symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
                 if anchor and symbol:
                     out[anchor] = symbol
+        for _, path in self._pack_paths("user"):
+            for entry in self._read_entries(path):
+                anchor = self.normalize_anchor(entry.get("word", ""))
+                symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
+                if anchor and symbol and anchor not in out:
+                    out[anchor] = symbol
         self._canonical_symbol_index = dict(out)
         return out
+
+    def _user_anchor_set(self) -> set[str]:
+        anchors: set[str] = set()
+        for _, path in self._pack_paths("user"):
+            for entry in self._read_entries(path):
+                anchor = self.normalize_anchor(entry.get("word", ""))
+                if anchor:
+                    anchors.add(anchor)
+        return anchors
+
+    def _symbol_authority_by_anchor(self) -> dict[str, tuple[str, str]]:
+        out: dict[str, tuple[str, str]] = {}
+        for _, path in self._pack_paths("canonical"):
+            for entry in self._read_entries(path):
+                anchor = self.normalize_anchor(entry.get("word", ""))
+                symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
+                if anchor and symbol:
+                    out[anchor] = (symbol, "canonical")
+        for _, path in self._pack_paths("user"):
+            for entry in self._read_entries(path):
+                anchor = self.normalize_anchor(entry.get("word", ""))
+                symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
+                if anchor and symbol and anchor not in out:
+                    out[anchor] = (symbol, "user_lexicon")
+        return out
+
+    def _apply_user_symbol_authority(self, symbol_authority: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        user_anchors = self._user_anchor_set()
+        if not user_anchors:
+            return symbol_authority
+        for row in symbol_authority:
+            anchor = self.normalize_anchor(row.get("anchor", ""))
+            if anchor in user_anchors:
+                row["authority"] = "user_lexicon"
+        return symbol_authority
+
+    def _symbol_relation_lane(self, authority: str) -> int:
+        if authority == "source_local":
+            return 4
+        if authority == "user_lexicon":
+            return 5
+        return 0
 
     def _known_anchor_spell_buckets(self) -> dict[tuple[str, tuple[bool, int], int], list[str]]:
         if self._known_anchor_spell_index is not None:
@@ -949,20 +1040,16 @@ class LexiconStore:
 
                 requested.append(anchor)
 
-            canonical_by_letter: dict[str, list[dict[str, Any]]] = {}
-            changed_letters: set[str] = set()
+            user_entries = self._read_entries(self.user_lexicon_path)
+            changed_user_lexicon = False
             timestamp = _utc_now()
             genome_pool = SymbolGenomePool(self.symbol_genome_pool_dir)
 
             for anchor in requested:
-                letter = self._letter_for_word(anchor)
-                canonical_path = self.canonical_dir / f"canonical_{letter}.json"
-                if letter not in canonical_by_letter:
-                    canonical_by_letter[letter] = self._read_entries(canonical_path)
                 try:
                     allocation = genome_pool.allocate(
                         anchor,
-                        authority="canonical",
+                        authority="user_lexicon",
                         category="specialized",
                         priority=2,
                     )
@@ -970,28 +1057,30 @@ class LexiconStore:
                     failed.append({"anchor": anchor, "reason": str(exc)})
                     continue
 
-                new_entry = {
-                    "word": anchor,
-                    "symbol": allocation["symbol"],
-                }
-                canonical_by_letter[letter].append(new_entry)
-                changed_letters.add(letter)
+                new_entry = self._build_user_lexicon_entry(
+                    anchor,
+                    allocation,
+                    frequency=int(frequency_map.get(anchor, 0) or 0),
+                    timestamp=timestamp,
+                )
+                user_entries.append(new_entry)
+                changed_user_lexicon = True
                 known_anchors.add(anchor)
                 approved.append({
                     "ok": True,
                     "word": anchor,
-                    "hex": allocation["hex"],
+                    "hex": new_entry["hex"],
                     "symbol": new_entry["symbol"],
                     "mapped_at": timestamp,
                     "frequency": int(frequency_map.get(anchor, 0) or 0),
+                    "pack": "user",
+                    "authority": "user_lexicon",
                 })
 
             if approved:
-                for letter in sorted(changed_letters):
-                    canonical_path = self.canonical_dir / f"canonical_{letter}.json"
-                    canonical_entries = canonical_by_letter[letter]
-                    canonical_entries.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
-                    self._write_entries(canonical_path, canonical_entries)
+                if changed_user_lexicon:
+                    user_entries.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
+                    self._write_entries(self.user_lexicon_path, user_entries)
                     lexicon_files_written += 1
                 self._invalidate_known_anchor_index()
                 self._all_known_anchors()
@@ -1006,6 +1095,7 @@ class LexiconStore:
             "slots_allocated": len(approved),
             "slots_available": slots_available,
             "lexicon_files_written": lexicon_files_written,
+            "user_lexicon_files_written": lexicon_files_written,
             "spare_pool_writes": spare_pool_writes,
             "index_reloads": index_reloads,
             "approved": approved,
@@ -1622,13 +1712,55 @@ class LexiconStore:
                 fates["other_relation"] += observations
         return dict(sorted(fates.items()))
 
+    def ensure_user_symbol_counts_seeded(self) -> dict[str, Any]:
+        with self._lock:
+            self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
+            seeded = False
+            source_root = self.canonical_symbol_counts_binary_dir
+            if source_root.exists():
+                for source_path in source_root.rglob("*"):
+                    if not source_path.is_file():
+                        continue
+                    relative = source_path.relative_to(source_root)
+                    target_path = self.symbol_counts_binary_dir / relative
+                    if target_path == self.user_counts_acknowledgement_path:
+                        continue
+                    target_path.parent.mkdir(parents=True, exist_ok=True)
+                    if not target_path.exists():
+                        shutil.copy2(source_path, target_path)
+                        seeded = True
+            if not self.user_counts_acknowledgement_path.exists():
+                acknowledgement = {
+                    "schema_version": "anchorworks_user_binary_counts_acknowledgement@1",
+                    "acknowledged_at": _utc_now(),
+                    "seed_source": str(self.canonical_symbol_counts_binary_dir),
+                    "active_binary_counts_root": str(self.symbol_counts_binary_dir),
+                    "canonical_seed_locked": True,
+                    "future_writes": "user_side_binary_counts_only",
+                    "seed_copy_mode": "copy_missing_files_only",
+                }
+                self._write_json(self.user_counts_acknowledgement_path, acknowledgement)
+                seeded = True
+            acknowledgement = self._read_json(self.user_counts_acknowledgement_path, {})
+        return {
+            "ok": True,
+            "seeded": seeded,
+            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
+            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
+            "acknowledgement_path": str(self.user_counts_acknowledgement_path),
+            "acknowledgement": acknowledgement,
+        }
+
     def counts_status(self) -> dict[str, Any]:
+        seed = self.ensure_user_symbol_counts_seeded()
         cells_root = self.symbol_counts_binary_dir / "cells"
         cell_paths = list(cells_root.glob("*/*.cell")) if cells_root.exists() else []
         stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
         return {
             "runtime": "awsc_v1_1_binary_cells",
             "binary_counts_root": str(self.symbol_counts_binary_dir),
+            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
+            "user_count_acknowledgement_path": seed["acknowledgement_path"],
             "symbol_stream_path": str(stream_path),
             "symbol_stream_exists": stream_path.exists(),
             "cell_count": len(cell_paths),
@@ -1698,6 +1830,7 @@ class LexiconStore:
         }
 
     def binary_substrate_status(self) -> dict[str, Any]:
+        seed = self.ensure_user_symbol_counts_seeded()
         stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
         cells_root = self.symbol_counts_binary_dir / "cells"
         cell_count = sum(1 for _ in cells_root.glob("*/*.cell")) if cells_root.exists() else 0
@@ -1718,6 +1851,9 @@ class LexiconStore:
             "awss_stream_exists": stream_path.exists(),
             "awss_stream_size_bytes": stream_path.stat().st_size if stream_path.exists() else 0,
             "awsc_cells_root": str(cells_root),
+            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
+            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
+            "user_count_acknowledgement_path": seed["acknowledgement_path"],
             "awsc_cell_count": cell_count,
             "runtime_law": "AWSM serves; JSON witnesses; AWSC counts.",
         }
@@ -2240,8 +2376,10 @@ class LexiconStore:
         symbol_by_anchor, symbol_authority = build_source_local_symbol_table(
             anchors,
             canonical_symbol_by_anchor=self._canonical_symbol_by_anchor(),
+            symbol_authority_by_anchor=self._symbol_authority_by_anchor(),
             source_id=source_id,
         )
+        symbol_authority = self._apply_user_symbol_authority(symbol_authority)
         relation_rows = build_symbol_relation_rows(
             paragraphs,
             symbol_by_anchor=symbol_by_anchor,
@@ -2252,10 +2390,11 @@ class LexiconStore:
             for row in symbol_authority
         }
         for row in relation_rows:
-            row["lane"] = 4 if authority_by_symbol.get(str(row.get("neighbor_symbol_anchor") or "")) == "source_local" else 0
+            row["lane"] = self._symbol_relation_lane(authority_by_symbol.get(str(row.get("neighbor_symbol_anchor") or "")))
             row["flags"] = 0
         source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
         canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
+        user_symbols = sum(1 for row in symbol_authority if row.get("authority") == "user_lexicon")
         relation_fates = self._symbol_relation_fates_from_symbol_rows(relation_rows, authority_by_symbol)
         out = {
             "schema_version": "anchorworks_source_local_symbol_counts@1",
@@ -2270,6 +2409,7 @@ class LexiconStore:
             "window_radius": int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
             "symbol_authority": symbol_authority,
             "canonical_symbol_count": canonical_symbols,
+            "user_lexicon_symbol_count": user_symbols,
             "source_local_symbol_count": source_local_symbols,
             "relation_fates": relation_fates,
             "symbol_relation_counts": relation_rows,
@@ -2288,6 +2428,7 @@ class LexiconStore:
             "symbol_counts_name": target.name,
             "symbol_counts_path": str(target),
             "canonical_symbol_count": canonical_symbols,
+            "user_lexicon_symbol_count": user_symbols,
             "source_local_symbol_count": source_local_symbols,
             "relation_fates": relation_fates,
             "unique_symbol_relations": len(relation_rows),
@@ -2301,6 +2442,7 @@ class LexiconStore:
         symbol_authority = [row for row in metadata.get("symbol_authority") or [] if isinstance(row, dict)]
         if not symbol_authority:
             raise ValueError(f"symbolic map lacks symbol authority table: {symbolic_path.name}")
+        symbol_authority = self._apply_user_symbol_authority(symbol_authority)
 
         source_name = str(metadata.get("source_name") or "document")
         source_path = str(metadata.get("source_path") or "")
@@ -2336,6 +2478,7 @@ class LexiconStore:
             })
 
         canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
+        user_symbols = sum(1 for row in symbol_authority if row.get("authority") == "user_lexicon")
         source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
         relation_fates = self._symbol_relation_fates_from_symbol_rows(relation_rows, authority_by_symbol)
         out = {
@@ -2352,6 +2495,7 @@ class LexiconStore:
             "window_radius": int(metadata.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
             "symbol_authority": symbol_authority,
             "canonical_symbol_count": canonical_symbols,
+            "user_lexicon_symbol_count": user_symbols,
             "source_local_symbol_count": source_local_symbols,
             "relation_fates": relation_fates,
             "symbol_relation_counts": relation_rows,
@@ -2371,6 +2515,7 @@ class LexiconStore:
             "symbol_counts_name": target.name,
             "symbol_counts_path": str(target),
             "canonical_symbol_count": canonical_symbols,
+            "user_lexicon_symbol_count": user_symbols,
             "source_local_symbol_count": source_local_symbols,
             "relation_fates": out["relation_fates"],
             "unique_symbol_relations": len(relation_rows),
@@ -2437,6 +2582,7 @@ class LexiconStore:
         missing = [str(path) for path in artifact_paths if not path.exists()]
         if missing:
             raise FileNotFoundError(f"missing source-local symbol count artifacts: {missing[:3]}")
+        seed = self.ensure_user_symbol_counts_seeded()
         stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
         stream = write_awss_from_symbol_count_artifacts(artifact_paths, stream_path)
         merge = merge_symbol_stream(
@@ -2454,6 +2600,8 @@ class LexiconStore:
             "stream_observation_count": int(stream.get("observation_count", 0) or 0),
             "stream_size_bytes": stream_path.stat().st_size if stream_path.exists() else 0,
             "binary_counts_root": str(self.symbol_counts_binary_dir),
+            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
+            "user_count_acknowledgement_path": seed["acknowledgement_path"],
             "verify": verify,
             "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
         }
@@ -3289,8 +3437,10 @@ class LexiconStore:
         symbol_by_anchor, symbol_authority = build_source_local_symbol_table(
             symbolic_anchors,
             canonical_symbol_by_anchor=self._canonical_symbol_by_anchor(),
+            symbol_authority_by_anchor=self._symbol_authority_by_anchor(),
             source_id=source_id,
         )
+        symbol_authority = self._apply_user_symbol_authority(symbol_authority)
         authority_by_symbol = {
             str(row.get("symbol") or ""): str(row.get("authority") or "")
             for row in symbol_authority
@@ -3486,7 +3636,7 @@ class LexiconStore:
                     root_symbol_id=int(row["symbol_id"]),
                     neighbor_symbol_id=int(row["neighbor_symbol_id"]),
                     offset=int(str(row["offset"]).replace("+", "")),
-                    lane=4 if authority_by_symbol.get(str(row["neighbor_symbol_anchor"])) == "source_local" else 0,
+                    lane=self._symbol_relation_lane(authority_by_symbol.get(str(row["neighbor_symbol_anchor"]))),
                     flags=0,
                     count=int(row["observations"]),
                 )
@@ -3758,87 +3908,55 @@ class LexiconStore:
         if surface_anchor in self._all_known_anchors():
             raise ValueError("anchor already exists in lexicon")
 
-        letter = self._letter_for_word(surface_anchor)
-        canonical_path = self.canonical_dir / f"canonical_{letter}.json"
-        pool_entries = self._read_spare_entries()
-        canonical_entries = self._read_entries(canonical_path)
-
-        slot_index = next(
-            (index for index, item in enumerate(pool_entries) if str(item.get("status", "")).upper() == "AVAILABLE"),
-            None,
+        genome_pool = SymbolGenomePool(self.symbol_genome_pool_dir)
+        allocation = genome_pool.allocate(
+            surface_anchor,
+            authority="user_lexicon",
+            category="specialized",
+            priority=2,
         )
-        if slot_index is None:
-            raise ValueError("no available spare slots")
-
-        slot = pool_entries.pop(slot_index)
-        new_entry = {
-            "binary": slot.get("binary", ""),
-            "hex": slot.get("hex") or slot.get("symbol", ""),
-            "font_symbol": slot.get("font_symbol", ""),
-            "tone_signature": slot.get("tone_signature", ""),
-            "status": "ASSIGNED",
-            "word": surface_anchor,
-            "display": surface_anchor,
-            "symbol": slot.get("hex") or slot.get("symbol", ""),
-            "mapped_at": _utc_now(),
-            "pack": "canonical",
-            "frequency": int(frequency or 0),
-        }
-        canonical_entries.append(new_entry)
-        canonical_entries.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
-        self._write_spare_entries(pool_entries)
-        self._write_entries(canonical_path, canonical_entries)
+        user_entries = self._read_entries(self.user_lexicon_path)
+        new_entry = self._build_user_lexicon_entry(surface_anchor, allocation, frequency=frequency)
+        user_entries.append(new_entry)
+        user_entries.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
+        self._write_entries(self.user_lexicon_path, user_entries)
         self._invalidate_known_anchor_index()
         return {
             "ok": True,
             "anchor": surface_anchor,
             "hex": new_entry["hex"],
             "symbol": new_entry["symbol"],
-            "slots_available": self._count_available_slots(),
-            "action": "added_to_lexicon",
+            "slots_available": genome_pool.status()["remaining"],
+            "action": "added_to_user_lexicon",
+            "pack": "user",
+            "authority": "user_lexicon",
         }
 
     def _assign_word(self, word: str, frequency: int = 0) -> dict[str, Any]:
         surface = self.normalize_anchor(word)
         if self._find_entry(surface):
             raise ValueError("word already exists in lexicon")
-        letter = self._letter_for_word(surface)
-        canonical_path = self.canonical_dir / f"canonical_{letter}.json"
-        pool_entries = self._read_spare_entries()
-        canonical_entries = self._read_entries(canonical_path)
-
-        slot_index = next(
-            (index for index, item in enumerate(pool_entries) if str(item.get("status", "")).upper() == "AVAILABLE"),
-            None,
+        genome_pool = SymbolGenomePool(self.symbol_genome_pool_dir)
+        allocation = genome_pool.allocate(
+            surface,
+            authority="user_lexicon",
+            category="specialized",
+            priority=2,
         )
-        if slot_index is None:
-            raise ValueError("no available spare slots")
-
-        slot = pool_entries.pop(slot_index)
-        new_entry = {
-            "binary": slot.get("binary", ""),
-            "hex": slot.get("hex") or slot.get("symbol", ""),
-            "font_symbol": slot.get("font_symbol", ""),
-            "tone_signature": slot.get("tone_signature", ""),
-            "status": "ASSIGNED",
-            "word": surface,
-            "display": surface,
-            "symbol": slot.get("hex") or slot.get("symbol", ""),
-            "mapped_at": _utc_now(),
-            "pack": "canonical",
-            "frequency": int(frequency or 0),
-        }
-        canonical_entries.append(new_entry)
-        canonical_entries.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
-        self._write_spare_entries(pool_entries)
-        self._write_entries(canonical_path, canonical_entries)
+        user_entries = self._read_entries(self.user_lexicon_path)
+        new_entry = self._build_user_lexicon_entry(surface, allocation, frequency=frequency)
+        user_entries.append(new_entry)
+        user_entries.sort(key=lambda item: (str(item.get("word", "")).casefold(), str(item.get("word", ""))))
+        self._write_entries(self.user_lexicon_path, user_entries)
         self._invalidate_known_anchor_index()
         return {
             "ok": True,
             "word": surface,
             "hex": new_entry["hex"],
             "symbol": new_entry["symbol"],
-            "slots_available": self._count_available_slots(),
+            "slots_available": genome_pool.status()["remaining"],
+            "pack": "user",
+            "authority": "user_lexicon",
         }
 
     def assign_pending(self, word: str) -> dict[str, Any]:
@@ -3882,33 +4000,15 @@ class LexiconStore:
         return {"denied": denied}
 
     def clear_canonical(self) -> dict[str, Any]:
-        moved = 0
-        with self._lock:
-            pool_entries = self._read_spare_entries()
-            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-                canonical_path = self.canonical_dir / f"canonical_{letter}.json"
-                canonical_entries = self._read_entries(canonical_path)
-                if not canonical_entries:
-                    continue
-                for entry in canonical_entries:
-                    if entry.get("hex") or entry.get("symbol"):
-                        pool_entries.append({
-                            "binary": entry.get("binary", ""),
-                            "hex": entry.get("hex") or entry.get("symbol", ""),
-                            "font_symbol": entry.get("font_symbol", ""),
-                            "tone_signature": entry.get("tone_signature", ""),
-                            "status": "AVAILABLE",
-                        })
-                        moved += 1
-                self._write_entries(canonical_path, [])
-            self._write_spare_entries(pool_entries)
-            self._invalidate_known_anchor_index()
         return {
-            "purged": moved,
-            "slots_reclaimed": moved,
+            "ok": False,
+            "locked": True,
+            "reason": "canonical_lexicon_is_read_only",
+            "purged": 0,
+            "slots_reclaimed": 0,
             "slots_available": self._count_available_slots(),
             "pool_available": self._count_available_slots(),
-            "moved": moved,
+            "moved": 0,
         }
 
     def return_to_pool(self) -> dict[str, Any]:

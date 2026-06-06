@@ -29,6 +29,9 @@ State/intake_uploads/**
 State/source_local_preview_counts/**
 State/source_local_symbol_counts/**
 State/symbol_counts_binary/**
+State/user/user_counts/**
+State/conversation_flow_*/**
+State/**/parquet_cache/**
 State/symbol_streams/**
 State/symbol_genome_pool/**
 State/source_local_occurrences/**

@@ -16,6 +16,15 @@ from .symbol_genome import (
 SYMBOL_GENOME_POOL_SCHEMA_VERSION = "anchorworks_symbol_genome_pool@1"
 MAX_40_BIT_SYMBOL_COUNT = 1 << 40
 DEFAULT_SYMBOL_GENOME_CAPACITY = 1_000_000_000_000
+USER_LEXICON_SYMBOL_BASE = 0xE000000000
+USER_LEXICON_SYMBOL_CAPACITY = 500_000_000
+SOURCE_LOCAL_SYMBOL_BASE = 0xF000000000
+AUTHORITY_SYMBOL_RANGES = {
+    "canonical": (0, USER_LEXICON_SYMBOL_BASE),
+    "user_lexicon": (USER_LEXICON_SYMBOL_BASE, USER_LEXICON_SYMBOL_CAPACITY),
+    "source_local": (SOURCE_LOCAL_SYMBOL_BASE, MAX_40_BIT_SYMBOL_COUNT - SOURCE_LOCAL_SYMBOL_BASE),
+    "source_local_coordinate": (SOURCE_LOCAL_SYMBOL_BASE, MAX_40_BIT_SYMBOL_COUNT - SOURCE_LOCAL_SYMBOL_BASE),
+}
 
 
 class SymbolGenomePool:
@@ -123,6 +132,16 @@ class SymbolGenomePool:
             self._write_manifest(payload)
         if not isinstance(payload, dict) or payload.get("schema_version") != SYMBOL_GENOME_POOL_SCHEMA_VERSION:
             raise ValueError("invalid symbol genome pool manifest")
+        changed = False
+        if int(payload.get("capacity") or 0) < self.capacity:
+            payload["capacity"] = self.capacity
+            changed = True
+        if payload.get("generator") != "cursor_backed_40_bit_symbol_genome":
+            payload["generator"] = "cursor_backed_40_bit_symbol_genome"
+            changed = True
+        if changed:
+            payload["updated_at"] = _utc_now()
+            self._write_manifest(payload)
         return payload
 
     def _write_manifest(self, payload: dict[str, Any]) -> None:
@@ -139,16 +158,19 @@ def symbol_genome_identity_from_index(
 ) -> dict[str, Any]:
     if allocation_index < 0 or allocation_index >= MAX_40_BIT_SYMBOL_COUNT:
         raise ValueError("allocation index must fit in 40 bits")
+    clean_authority = str(authority or "").strip().casefold()
+    symbol_index = _symbol_index_for_authority(clean_authority, int(allocation_index))
     category_code = SYMBOL_GENOME_CATEGORY_CODES[category]
     clean_priority = max(0, min(7, int(priority)))
-    symbol_bytes = int(allocation_index).to_bytes(5, "big")
+    symbol_bytes = int(symbol_index).to_bytes(5, "big")
     grid = symbol_to_visual_grid(symbol_bytes)
     hex_value = "0x" + symbol_bytes.hex().upper()
     return {
         "schema_version": SYMBOL_GENOME_SCHEMA_VERSION,
         "label": str(label or "").strip().casefold(),
-        "authority": str(authority or "").strip().casefold(),
+        "authority": clean_authority,
         "allocation_index": int(allocation_index),
+        "symbol_index": int(symbol_index),
         "category": category,
         "category_code": category_code,
         "priority": clean_priority,
@@ -164,6 +186,16 @@ def symbol_genome_identity_from_index(
         "tone_label": "",
         "tone_profile": None,
     }
+
+
+def _symbol_index_for_authority(authority: str, allocation_index: int) -> int:
+    base, capacity = AUTHORITY_SYMBOL_RANGES.get(authority, AUTHORITY_SYMBOL_RANGES["canonical"])
+    if allocation_index < 0 or allocation_index >= capacity:
+        raise ValueError(f"{authority or 'canonical'} symbol range exhausted")
+    symbol_index = base + allocation_index
+    if symbol_index < 0 or symbol_index >= MAX_40_BIT_SYMBOL_COUNT:
+        raise ValueError("symbol index must fit in 40 bits")
+    return symbol_index
 
 
 def _utc_now() -> str:

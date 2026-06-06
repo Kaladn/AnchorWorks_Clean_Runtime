@@ -75,27 +75,50 @@ def build_source_local_symbol_table(
     anchors: Sequence[str],
     *,
     canonical_symbol_by_anchor: Mapping[str, str | int],
+    symbol_authority_by_anchor: Mapping[str, Any] | None = None,
     source_id: str,
 ) -> tuple[dict[str, str], list[dict[str, Any]]]:
     symbol_by_anchor: dict[str, str] = {}
     authority_rows: list[dict[str, Any]] = []
+    authority_map = symbol_authority_by_anchor or {}
     seen = sorted({str(anchor) for anchor in anchors if str(anchor)})
     for anchor in seen:
-        canonical_symbol = canonical_symbol_by_anchor.get(anchor)
-        if canonical_symbol is not None:
-            display = _display_symbol(canonical_symbol)
+        authority_entry = authority_map.get(anchor)
+        if authority_entry is not None:
+            display, authority = _symbol_authority_entry(authority_entry)
             symbol_by_anchor[anchor] = display
-            authority = "canonical"
         else:
-            display = _source_local_symbol(anchor, source_id)
-            symbol_by_anchor[anchor] = display
-            authority = "source_local"
+            canonical_symbol = canonical_symbol_by_anchor.get(anchor)
+            if canonical_symbol is not None:
+                display = _display_symbol(canonical_symbol)
+                symbol_by_anchor[anchor] = display
+                authority = "canonical"
+            else:
+                display = _source_local_symbol(anchor, source_id)
+                symbol_by_anchor[anchor] = display
+                authority = "source_local"
         authority_rows.append({
             "anchor": anchor,
             "symbol": display,
             "authority": authority,
         })
     return symbol_by_anchor, authority_rows
+
+
+def _symbol_authority_entry(value: Any) -> tuple[str, str]:
+    if isinstance(value, dict):
+        symbol = value.get("symbol") or value.get("hex")
+        authority = value.get("authority") or "canonical"
+    elif isinstance(value, (tuple, list)) and len(value) >= 2:
+        symbol, authority = value[0], value[1]
+    else:
+        symbol = value
+        authority = "canonical"
+    display = _display_symbol(symbol)
+    if not display:
+        raise ValueError("symbol authority entry requires a symbol")
+    clean_authority = str(authority or "canonical").strip().casefold()
+    return display, clean_authority
 
 
 def build_symbol_relation_rows(

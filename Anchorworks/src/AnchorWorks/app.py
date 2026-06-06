@@ -609,11 +609,25 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     @app.delete("/api/lexicon/canonical")
     def lexicon_clear_canonical() -> dict[str, Any]:
-        return store.clear_canonical()
+        return {
+            "ok": False,
+            "locked": True,
+            "reason": "canonical_lexicon_is_read_only",
+            "purged": 0,
+            "slots_reclaimed": 0,
+            "moved": 0,
+        }
 
     @app.post("/api/lexicon/return-to-pool")
     def lexicon_return_to_pool() -> dict[str, Any]:
-        return store.return_to_pool()
+        return {
+            "ok": False,
+            "locked": True,
+            "reason": "canonical_lexicon_is_read_only",
+            "purged": 0,
+            "slots_reclaimed": 0,
+            "moved": 0,
+        }
 
     @app.post("/api/lexicon/import")
     def lexicon_import(body: ImportBody) -> dict[str, Any]:
