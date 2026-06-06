@@ -25,7 +25,6 @@ class StateMixin:
             "user_lexicon": self.user_lexicon_dir,
             "user_counts": self.user_counts_dir,
             "chat_counts": self.chat_counts_dir,
-            "chat_memory": self.chat_memory_dir,
             "ingest_staging": self.ingest_staging_dir,
             "rejected_or_literal_clusters": self.rejected_or_literal_clusters_dir,
         }

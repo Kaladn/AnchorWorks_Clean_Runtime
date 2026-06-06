@@ -27,7 +27,6 @@ class StorePaths:
         self.user_lexicon_dir = self.user_state_dir / "user_lexicon"
         self.user_counts_dir = self.user_state_dir / "user_counts"
         self.chat_counts_dir = self.user_state_dir / "chat_counts"
-        self.chat_memory_dir = self.user_state_dir / "chat_memory"
         self.ingest_staging_dir = self.user_state_dir / "ingest_staging"
         self.rejected_or_literal_clusters_dir = self.user_state_dir / "rejected_or_literal_clusters"
         self.anchor_maps_root = anchor_maps_root_for(self.root)
@@ -73,7 +72,6 @@ class StorePaths:
             self.user_lexicon_dir,
             self.user_counts_dir,
             self.chat_counts_dir,
-            self.chat_memory_dir,
             self.ingest_staging_dir,
             self.rejected_or_literal_clusters_dir,
             self.observed_maps_dir,

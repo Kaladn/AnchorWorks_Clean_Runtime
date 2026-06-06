@@ -76,13 +76,7 @@ ClearSpeak reads recognized anchors, source evidence, and active user-side binar
 
 Conversation runtime is installed as `conversation_engine`. It classifies greetings, corrections, notes, questions, and unsupported prompts without silently writing count memory.
 
-Explicit chat memory is user-side and opt-in. `/api/chat/send` records a durable JSONL chat turn only when `record_chat=true`:
-
-```text
-State/user/chat_memory/<conversation_id>.jsonl
-```
-
-Chat memory records the turn, route, frame, lane, represented anchors, and missing anchors. It does not write Canonical, user lexicon, lifetime counts, or symbol counts. Count learning from chat requires a later explicit finalize/intake step.
+The previous placeholder persistence layer was removed. `/api/chat/send` may return receipts, but it does not persist memory. Real memory scaffold work is intentionally blocked until the operator whiteboard contract defines it.
 
 ## Terminal And API Surface
 

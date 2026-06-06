@@ -171,17 +171,10 @@ class ConversationEngine:
             "memory_write_status": memory_status,
             "writes_allowed": {"chat": bool(memory_status.get("chat_recorded")), "counts": False, "lifetime": False, "lexicon": False},
         }
-        receipt["memory_write_status"] = self._record_explicit_chat_memory(receipt, memory_status)
-        receipt["writes_allowed"] = {
-            "chat": bool(receipt["memory_write_status"].get("chat_recorded")),
-            "counts": False,
-            "lifetime": False,
-            "lexicon": False,
-        }
         return receipt
 
     def _memory_status(self, *, record_chat: bool, conversation_id: str | None) -> dict[str, Any]:
-        return {
+        status = {
             "chat_record_requested": bool(record_chat),
             "chat_recorded": False,
             "conversation_id": str(conversation_id or ""),
@@ -189,31 +182,9 @@ class ConversationEngine:
             "lifetime_written": False,
             "requires_finalize_for_intake": True,
         }
-
-    def _record_explicit_chat_memory(self, receipt: dict[str, Any], memory_status: dict[str, Any]) -> dict[str, Any]:
-        if not memory_status.get("chat_record_requested"):
-            return dict(memory_status)
-        memory = getattr(self.store, "memory", None)
-        if memory is None or not hasattr(memory, "record_chat_turn"):
-            out = dict(memory_status)
-            out["chat_record_error"] = "explicit_chat_memory_writer_missing"
-            return out
-        try:
-            recorded = memory.record_chat_turn(
-                conversation_id=str(memory_status.get("conversation_id") or ""),
-                user_text=str(receipt.get("query") or ""),
-                receipt=receipt,
-            )
-        except Exception as exc:
-            out = dict(memory_status)
-            out["chat_record_error"] = str(exc)
-            return out
-        out = dict(memory_status)
-        out.update(recorded)
-        out["counts_written"] = False
-        out["lifetime_written"] = False
-        out["requires_finalize_for_intake"] = True
-        return out
+        if record_chat:
+            status["chat_record_blocked"] = "awaiting_whiteboard_memory_scaffold"
+        return status
 
     def _evidence_lane(self, payload: dict[str, Any]) -> str:
         engine = str(payload.get("engine") or "").casefold()

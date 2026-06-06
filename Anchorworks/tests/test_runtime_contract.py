@@ -14,7 +14,7 @@ class AnchorWorksRuntimeContractTests(unittest.TestCase):
         status = getattr(app.state, "core_runtime_status", {})
         self.assertEqual(status.get("ui_runtime"), "terminal_operator_console")
         self.assertEqual(status.get("chat_runtime"), "conversation_engine")
-        self.assertEqual(status.get("memory_runtime"), "explicit_chat_memory")
+        self.assertEqual(status.get("memory_runtime"), "awaiting_whiteboard_memory_scaffold")
         self.assertFalse(status.get("silent_memory_writes"))
 
 

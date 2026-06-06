@@ -165,7 +165,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     app.state.core_runtime_status = {
         "ui_runtime": "terminal_operator_console",
         "chat_runtime": "conversation_engine",
-        "memory_runtime": "explicit_chat_memory",
+        "memory_runtime": "awaiting_whiteboard_memory_scaffold",
         "silent_memory_writes": False,
         "future_port": False,
     }
