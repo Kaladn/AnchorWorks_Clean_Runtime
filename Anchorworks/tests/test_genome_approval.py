@@ -155,9 +155,9 @@ class GenomeApprovalTests(unittest.TestCase):
             artifact.write_text('{"symbol_relation_counts":[]}', encoding="utf-8")
 
             with (
-                patch("AnchorWorks.store.write_awss_from_symbol_count_artifacts", return_value={"record_count": 1, "observation_count": 7}),
-                patch("AnchorWorks.store.merge_symbol_stream", return_value={"ok": True}) as merge,
-                patch("AnchorWorks.store.verify_binary_counts", return_value={"ok": True}) as verify,
+                patch("AnchorWorks.store_runtime.counts.write_awss_from_symbol_count_artifacts", return_value={"record_count": 1, "observation_count": 7}),
+                patch("AnchorWorks.store_runtime.counts.merge_symbol_stream", return_value={"ok": True}) as merge,
+                patch("AnchorWorks.store_runtime.counts.verify_binary_counts", return_value={"ok": True}) as verify,
             ):
                 result = store.build_binary_symbol_counts_from_source_local(artifact_names=[artifact.name])
 

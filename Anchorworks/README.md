@@ -1,12 +1,12 @@
 # Anchorworks
 
-Contained AnchorWorks lexicon service and UI.
+AnchorWorks is a deterministic anchor, symbol, source, and count runtime.
 
-This folder lives inside the active `Lexical Data` root so the app and durable lexicon state stay together.
+The authoritative current system document is:
 
-It operates against the parent data root:
-
-`C:\Users\mydyi\OneDrive\Documents\Desktop\Lexical Data`
+```text
+docs/ANCHORWORKS_CURRENT_REALITY.md
+```
 
 ## Install
 
@@ -17,48 +17,20 @@ pip install -e .
 ## Run
 
 ```bash
-..\launch_anchorworks.ps1
+anchorworks shell
+anchorworks operator
+anchorworks serve --data-root D:\AnchorWorks_Clean_Runtime
 ```
 
-Then open:
+## Tests
 
-`http://127.0.0.1:8081`
-
-## Test Harness
-
-Test code and test-only harnesses live outside the app package:
+From this folder:
 
 ```bash
-python -m unittest discover -s "..\test\test data\tests"
+python -m pytest -q
+python -m compileall src\AnchorWorks -q
 ```
 
-## What it serves
+## Core Runtime Truth
 
-- Lexicon explorer UI
-- Canonical / structural / spare-slot browsing
-- Spare-slot assignment
-- Pending / ignored / unmatched state
-- Import / clear / return-to-pool operations
-- Document intake, resident chat memory, ClearSpeak, and lifetime co-occurrence counts
-
-## System Map
-
-The living data-flow contract is kept in:
-
-- `docs/DATA_FLOW_MAP.md`
-
-## Data root layout
-
-The service expects:
-
-- `Canonical/canonical_A.json` ... `canonical_Z.json`
-- Deprecated domain-pack files are not part of the active AnchorWorks runtime.
-- `Spare_Slots/spare_slots.json`
-- `Structural/structural.json`
-
-State files are created under:
-
-- `State/unmatched_words.json`
-- `State/pending_words.json`
-- `State/ignored_words.json`
-- `State/user/custom_entries.json`
+Canonical is a locked base. User lexicon and user-side binary counts are the active writable layers. Generated `State` runtime data is local unless intentionally snapshotted.

@@ -41,7 +41,7 @@ class TrueVisionLanguageMethodBoundaryTests(unittest.TestCase):
             self.assertEqual(item["use"], "read_only_reference")
 
     def test_language_branch_doc_names_state_capture_and_not_prompt_generation(self):
-        doc = (ROOT / "docs" / "truevision_language" / "TRUEVISION_LANGUAGE_STATE_BRANCH.md").read_text(
+        doc = (ROOT / "docs" / "ANCHORWORKS_CURRENT_REALITY.md").read_text(
             encoding="utf-8"
         )
 

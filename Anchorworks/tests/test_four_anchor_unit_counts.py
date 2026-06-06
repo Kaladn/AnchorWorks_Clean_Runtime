@@ -74,7 +74,7 @@ class FourAnchorUnitCountsTests(unittest.TestCase):
         self.assertEqual(loaded["writes_allowed"], {"solo_counts": False, "unit4_counts": True, "lexicon": False, "lifetime": False})
 
     def test_contract_doc_locks_sibling_layer_rules(self):
-        doc = (Path(__file__).resolve().parents[1] / "docs" / "FOUR_ANCHOR_UNIT_COUNTS_CONTRACT.md").read_text(encoding="utf-8")
+        doc = (Path(__file__).resolve().parents[1] / "docs" / "ANCHORWORKS_CURRENT_REALITY.md").read_text(encoding="utf-8")
 
         self.assertIn("Do not replace solo counts.", doc)
         self.assertIn("Unit4 stream = fixed ordered groups of 4 anchors.", doc)
