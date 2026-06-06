@@ -3227,45 +3227,16 @@ class LexiconStore:
         classified_missing = classify_unknown_anchor_rows(self._anchor_rows(raw_missing_counts))
         companion_counts: Counter[str] = Counter()
         classified_null_counts: Counter[str] = Counter()
-        missing_counts: Counter[str] = Counter()
-        for lane, rows in (classified_missing.get("lanes") or {}).items():
-            for row in rows:
-                anchor = self.normalize_anchor(str(row.get("anchor") or ""))
-                if not anchor:
-                    continue
-                observations = int(row.get("observations", 0) or 0)
-                if lane in COMPANION_AUTHORITY_LANES:
-                    companion_counts[anchor] += observations
-                    resolution_map[anchor] = anchor
-                elif lane in NULL_SYMBOL_LANES:
-                    classified_null_counts[anchor] += observations
-                    null_anchor_set.add(anchor)
-                    resolution_map[anchor] = NULL_ANCHOR
-                else:
-                    missing_counts[anchor] += observations
+        missing_counts: Counter[str] = Counter(raw_missing_counts)
 
-        suggestions = self._precompute_spell_suggestions(missing_counts, known_anchors)
+        suggestions: dict[str, str] = {}
         review_rows = self._build_misspelled_review_rows(missing_counts, known_anchors, suggestions=suggestions)
         review_index = {row["anchor"]: row for row in review_rows}
 
         corrections: list[dict[str, Any]] = []
         additions: list[dict[str, Any]] = []
-        decomposed_string_counts: Counter[str] = Counter({
-            anchor: count
-            for anchor, count in missing_counts.items()
-            if self._should_decompose_unknown_string(anchor)
-        })
-        unresolved_counts: Counter[str] = Counter({
-            anchor: count
-            for anchor, count in missing_counts.items()
-            if anchor not in decomposed_string_counts
-        })
-        for anchor in decomposed_string_counts:
-            row = review_index.get(anchor)
-            if row is not None:
-                row["ingest_action"] = "character_decomposed"
-                row["resolved_to"] = list(anchor)
-                row["character_decomposed"] = True
+        decomposed_string_counts: Counter[str] = Counter()
+        unresolved_counts: Counter[str] = Counter(missing_counts)
 
         unresolved_anchor_count = len(unresolved_counts)
         temp_symbol_map, temp_entries = self._build_temp_symbol_entries(source_path, unresolved_counts)
@@ -3591,6 +3562,8 @@ class LexiconStore:
             "count_write": count_write,
             "temp_symbol_count": len(temp_entries),
             "temp_lexicon_path": str(temp_lexicon_path) if temp_lexicon_path else "",
+            "temp_symbols": temp_entries,
+            "observed_anchors": payload["observed_anchors"],
             "misspelled_review_path": str(review_path),
             "misspelled_review_name": review_path.name,
             "misspelled_review_preview": review_rows[:25],

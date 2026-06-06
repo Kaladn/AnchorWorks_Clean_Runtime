@@ -14,7 +14,8 @@ from .symbol_genome import (
 
 
 SYMBOL_GENOME_POOL_SCHEMA_VERSION = "anchorworks_symbol_genome_pool@1"
-DEFAULT_SYMBOL_GENOME_CAPACITY = 15_000_000
+MAX_40_BIT_SYMBOL_COUNT = 1 << 40
+DEFAULT_SYMBOL_GENOME_CAPACITY = 1_000_000_000_000
 
 
 class SymbolGenomePool:
@@ -60,7 +61,7 @@ class SymbolGenomePool:
         manifest = self._read_manifest()
         capacity = int(manifest.get("capacity") or self.capacity)
         next_index = int(manifest.get("next_index") or 0)
-        if next_index >= capacity:
+        if next_index >= capacity or next_index >= MAX_40_BIT_SYMBOL_COUNT:
             raise ValueError("symbol genome pool exhausted")
 
         identity = symbol_genome_identity_from_index(
@@ -107,7 +108,7 @@ class SymbolGenomePool:
             "capacity": self.capacity,
             "next_index": 0,
             "assigned_count": 0,
-            "generator": "cursor_backed_symbol_genome",
+            "generator": "cursor_backed_40_bit_symbol_genome",
             "lexicon_pack": False,
             "records_materialized": False,
             "checkpoint_contract": "manifest cursor is authority; generated symbols are not copied into spare lexicon files",
@@ -136,12 +137,11 @@ def symbol_genome_identity_from_index(
     category: str = "specialized",
     priority: int = 2,
 ) -> dict[str, Any]:
-    if allocation_index < 0 or allocation_index > 0xFFFFFFFF:
-        raise ValueError("allocation index must fit in 32 bits")
+    if allocation_index < 0 or allocation_index >= MAX_40_BIT_SYMBOL_COUNT:
+        raise ValueError("allocation index must fit in 40 bits")
     category_code = SYMBOL_GENOME_CATEGORY_CODES[category]
     clean_priority = max(0, min(7, int(priority)))
-    byte1 = (category_code << 5) | (clean_priority << 2)
-    symbol_bytes = bytes([byte1]) + int(allocation_index).to_bytes(4, "big")
+    symbol_bytes = int(allocation_index).to_bytes(5, "big")
     grid = symbol_to_visual_grid(symbol_bytes)
     hex_value = "0x" + symbol_bytes.hex().upper()
     return {
@@ -152,6 +152,7 @@ def symbol_genome_identity_from_index(
         "category": category,
         "category_code": category_code,
         "priority": clean_priority,
+        "encoding": "cursor_40_bit",
         "symbol_length_bytes": 5,
         "symbol_bytes": list(symbol_bytes),
         "hex": hex_value,
