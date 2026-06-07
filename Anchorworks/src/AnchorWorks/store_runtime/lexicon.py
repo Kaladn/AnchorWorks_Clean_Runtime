@@ -35,6 +35,62 @@ class LexiconMixin:
             "allocation_index": int(allocation.get("allocation_index", 0) or 0),
         }
 
+    def ensure_user_lexicon_seeded(self) -> dict[str, Any]:
+        with self._lock:
+            existing_entries = self._read_entries(self.user_lexicon_path)
+            existing_keys = {
+                (
+                    self.normalize_anchor(entry.get("word", "")),
+                    str(entry.get("symbol") or entry.get("hex") or "").strip().upper(),
+                )
+                for entry in existing_entries
+            }
+            seeded: list[dict[str, Any]] = []
+
+            source_paths: list[Path] = []
+            source_paths.extend(sorted(self.canonical_dir.glob("canonical_*.json")))
+            canonical_structural = self.canonical_dir / "structural.json"
+            if canonical_structural.exists():
+                source_paths.append(canonical_structural)
+            if self.structural_file.exists():
+                source_paths.append(self.structural_file)
+
+            for path in source_paths:
+                for entry in self._read_entries(path):
+                    anchor = self.normalize_anchor(entry.get("word", ""))
+                    symbol = str(entry.get("symbol") or entry.get("hex") or "").strip()
+                    if not anchor or not symbol:
+                        continue
+                    key = (anchor, symbol.upper())
+                    if key in existing_keys:
+                        continue
+                    seeded.append({
+                        "word": anchor,
+                        "display": entry.get("display") or entry.get("word") or anchor,
+                        "symbol": symbol,
+                        "hex": entry.get("hex") or symbol,
+                        "status": entry.get("status") or "SEEDED",
+                        "pack": "user",
+                        "authority": "canonical_seed",
+                        "frequency": int(entry.get("frequency", 0) or 0),
+                        "mapped_at": entry.get("mapped_at") or _utc_now(),
+                    })
+                    existing_keys.add(key)
+
+            if seeded:
+                combined = existing_entries + seeded
+                combined.sort(key=lambda item: (self.normalize_anchor(item.get("word", "")), str(item.get("symbol") or item.get("hex") or "")))
+                self._write_entries(self.user_lexicon_path, combined)
+            elif not self.user_lexicon_path.exists():
+                self._write_entries(self.user_lexicon_path, [])
+
+            return {
+                "ok": True,
+                "canonical_entries_seeded": len(seeded),
+                "seed_mode": "explicit_copy_canonical_and_structural_to_user_lexicon",
+                "user_lexicon_path": str(self.user_lexicon_path),
+            }
+
     def _load_pending(self) -> list[dict[str, Any]]:
         data = self._read_json(self.pending_path, [])
         out: list[dict[str, Any]] = []
@@ -210,14 +266,14 @@ class LexiconMixin:
         for entry in structural:
             if self.normalize_anchor(entry.get("word", "")) == target:
                 return entry, "structural", self.structural_file
+        for entry in self._read_entries(self.user_lexicon_path):
+            if self.normalize_anchor(entry.get("word", "")) == target:
+                return entry, "user", self.user_lexicon_path
         letter = self._letter_for_word(target)
         path = self.canonical_dir / f"canonical_{letter}.json"
         for entry in self._read_entries(path):
             if self.normalize_anchor(entry.get("word", "")) == target:
                 return entry, "canonical", path
-        for entry in self._read_entries(self.user_lexicon_path):
-            if self.normalize_anchor(entry.get("word", "")) == target:
-                return entry, "user", self.user_lexicon_path
         return None
 
     def _all_known_anchors(self) -> set[str]:
@@ -584,25 +640,25 @@ class LexiconMixin:
 
     def context_map(self, word: str) -> dict[str, Any]:
         surface = self.normalize_anchor(word)
-        counter, observed_counts = self._load_combined_relation_counts()
-        relation_rows = self._relation_count_rows(counter)
-        items, _ = build_context_views(
-            relation_rows,
-            observed_counts=observed_counts,
-            window_radius=DEFAULT_WINDOW_RADIUS,
-        )
-
-        item = items.get(surface) if isinstance(items, dict) else None
-        if isinstance(item, dict):
+        retrieved = self.retrieve_from_counts(surface, limit=100)
+        before: dict[str, list[dict[str, Any]]] = {}
+        after: dict[str, list[dict[str, Any]]] = {}
+        for offset, rows in (retrieved.get("offsets") or {}).items():
+            try:
+                offset_int = int(offset)
+            except (TypeError, ValueError):
+                continue
+            target = before if offset_int < 0 else after
+            target[str(abs(offset_int))] = rows
+        if before or after:
             return {
                 "word": surface,
-                "before": item.get("before") or {},
-                "after": item.get("after") or {},
-                "total_windows": int(item.get("total_neighbor_observations", 0) or 0),
-                "center_observations": int(item.get("center_observations", 0) or 0),
+                "before": before,
+                "after": after,
+                "total_windows": int(retrieved.get("total_neighbor_observations", 0) or 0),
+                "center_observations": int(retrieved.get("total_neighbor_observations", 0) or 0),
                 "window_radius": DEFAULT_WINDOW_RADIUS,
             }
-
         return {
             "word": surface,
             "before": {},

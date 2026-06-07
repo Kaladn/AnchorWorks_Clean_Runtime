@@ -76,7 +76,28 @@ ClearSpeak reads recognized anchors, source evidence, and active user-side binar
 
 Conversation runtime is installed as `conversation_engine`. It classifies greetings, corrections, notes, questions, and unsupported prompts without silently writing count memory.
 
-The previous placeholder persistence layer was removed. `/api/chat/send` may return receipts, but it does not persist memory. Real memory scaffold work is intentionally blocked until the operator whiteboard contract defines it.
+Chat memory is not a separate brain or count store. The active memory shape is:
+
+```text
+current turn receipt -> response provenance
+today JSONL chat log -> working record
+daily chat consolidation -> native C++ ingest into user AWSC counts
+canonical base -> locked seed authority
+```
+
+`/api/chat/send` writes to the JSONL working record only when `record_chat=true`. Chat append never writes counts, lifetime state, lexicon state, or Canonical. Blocks and lines are preserved in the JSONL record for future format work.
+
+Explicit daily consolidation is the only chat-to-count path:
+
+```text
+State/user/chat_logs/YYYY-MM-DD.jsonl
+-> State/user/chat_logs/prepared/YYYY-MM-DD.txt
+-> native C++ intake
+-> State/user/user_counts/symbol_counts_binary/
+-> State/user/chat_logs/receipts/YYYY-MM-DD.consolidation.json
+```
+
+The consolidation path counts only prepared chat text. JSONL metadata, block ids, and line ids remain provenance and are not part of the count spine.
 
 ## Terminal And API Surface
 

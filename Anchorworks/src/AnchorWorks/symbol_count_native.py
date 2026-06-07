@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 import shutil
-import struct
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -12,8 +12,6 @@ from .symbol_count_cells import (
     MATH_COMPANION_LANE,
     SOURCE_LOCAL_TEMP_LANE,
     STRUCTURAL_COMPANION_LANE,
-    USER_LEXICON_LANE,
-    symbol_to_bytes,
 )
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
@@ -23,12 +21,6 @@ DEFAULT_BUILD_ROOT = REPO_ROOT / "build" / "native_symbol_counts"
 VS_CMAKE = Path(
     r"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
 )
-AWSS_RECORD_SIZE = 24
-AWSY_RECORD_SIZE = 8
-AWSY_SEQUENCE_START = 1 << 0
-AWSY_COUNT_BLOCKED = 1 << 1
-
-
 def cmake_path() -> Path:
     if VS_CMAKE.exists():
         return VS_CMAKE
@@ -196,189 +188,106 @@ def score_binary_counts(
     return json.loads(result.stdout)
 
 
-def intake_text_to_awss(
+def write_authority_snapshot(
+    authority_by_anchor: dict[str, tuple[str, str]],
+    output_path: str | Path,
+) -> dict[str, Any]:
+    out = Path(output_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    anchors = [
+        {"anchor": anchor, "symbol": symbol, "authority": authority}
+        for anchor, (symbol, authority) in sorted(authority_by_anchor.items())
+        if anchor and symbol
+    ]
+    payload = {
+        "schema_version": "anchorworks_symbol_authority_snapshot@1",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "anchor_count": len(anchors),
+        "anchors": anchors,
+    }
+    out.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
+    return {"ok": True, "authority_path": str(out), "anchor_count": len(anchors)}
+
+
+def native_text_intake_to_counts(
+    *,
     input_path: str | Path,
     authority_path: str | Path,
-    output_path: str | Path,
-    *,
+    output_root: str | Path,
     manifest_path: str | Path,
     missing_path: str | Path,
+    source_id: str,
     window_radius: int = 6,
+    generation: int = 0,
+    source_local_missing: bool = True,
     executable: str | Path | None = None,
 ) -> dict[str, Any]:
     exe = Path(executable) if executable else native_executable_path()
     if not exe.exists():
         exe = build_native_symbol_counts()
-    result = subprocess.run(
-        [
-            str(exe),
-            "intake-text",
-            "--input",
-            str(input_path),
-            "--authority",
-            str(authority_path),
-            "--output",
-            str(output_path),
-            "--manifest",
-            str(manifest_path),
-            "--missing",
-            str(missing_path),
-            "--window-radius",
-            str(int(window_radius)),
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    command = [
+        str(exe),
+        "intake-text",
+        "--input",
+        str(input_path),
+        "--authority",
+        str(authority_path),
+        "--merge-output",
+        str(output_root),
+        "--manifest",
+        str(manifest_path),
+        "--missing",
+        str(missing_path),
+        "--source-id",
+        str(source_id),
+        "--window-radius",
+        str(int(window_radius)),
+        "--generation",
+        str(int(generation)),
+    ]
+    if source_local_missing:
+        command.append("--source-local-missing")
+    result = subprocess.run(command, check=True, capture_output=True, text=True)
     return json.loads(result.stdout)
 
 
-def write_awss_from_symbol_count_artifacts(
-    artifact_paths: list[str | Path],
-    output_path: str | Path,
-) -> dict[str, Any]:
-    out = Path(output_path)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    record_count = 0
-    observation_count = 0
-    with out.open("wb") as handle:
-        for artifact_path in artifact_paths:
-            payload = json.loads(Path(artifact_path).read_text(encoding="utf-8"))
-            authority_by_symbol = _authority_by_symbol(payload)
-            for row in payload.get("symbol_relation_counts") or []:
-                root_symbol = str(row.get("symbol_anchor") or "").strip()
-                neighbor_symbol = str(row.get("neighbor_symbol_anchor") or "").strip()
-                if not root_symbol or not neighbor_symbol:
-                    continue
-                observations = int(row.get("observations", 0) or 0)
-                if observations <= 0:
-                    continue
-                lane = _lane_for_authority(authority_by_symbol.get(neighbor_symbol, "source_local"))
-                root_lane = _lane_for_authority(authority_by_symbol.get(root_symbol, "source_local"))
-                handle.write(_pack_awss_record(
-                    root_symbol=root_symbol,
-                    neighbor_symbol=neighbor_symbol,
-                    offset=_parse_offset(row.get("offset")),
-                    lane=lane,
-                    flags=0,
-                    root_lane=root_lane,
-                    count=observations,
-                ))
-                record_count += 1
-                observation_count += observations
-    return {
-        "ok": True,
-        "stream_path": str(out),
-        "record_count": record_count,
-        "observation_count": observation_count,
-        "record_size": AWSS_RECORD_SIZE,
-    }
-
-
-def write_compact_symbol_stream(
-    sequences: list[list[dict[str, Any]]],
-    output_path: str | Path,
-) -> dict[str, Any]:
-    out = Path(output_path)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    record_count = 0
-    with out.open("wb") as handle:
-        for sequence in sequences:
-            first = True
-            for item in sequence:
-                symbol = str(item.get("symbol") or "").strip()
-                if not symbol:
-                    continue
-                boundary_flags = int(item.get("boundary_flags", 0) or 0)
-                if first:
-                    boundary_flags |= AWSY_SEQUENCE_START
-                    first = False
-                if bool(item.get("count_blocked", False)):
-                    boundary_flags |= AWSY_COUNT_BLOCKED
-                handle.write(_pack_awsy_record(
-                    symbol=symbol,
-                    lane=int(item.get("lane", SOURCE_LOCAL_TEMP_LANE) or 0),
-                    flags=int(item.get("flags", 0) or 0),
-                    boundary_flags=boundary_flags,
-                ))
-                record_count += 1
-    return {
-        "ok": True,
-        "stream_path": str(out),
-        "record_count": record_count,
-        "record_size": AWSY_RECORD_SIZE,
-    }
-
-
-def _authority_by_symbol(payload: dict[str, Any]) -> dict[str, str]:
-    out: dict[str, str] = {}
-    for row in payload.get("symbol_authority") or []:
-        if not isinstance(row, dict):
-            continue
-        symbol = str(row.get("symbol") or "").strip()
-        authority = str(row.get("authority") or "").strip()
-        if symbol:
-            out[symbol] = authority
-    return out
-
-
-def _lane_for_authority(authority: str) -> int:
-    normalized = authority.lower()
-    if normalized == "canonical":
-        return CANONICAL_LANE
-    if normalized == "math_companion":
-        return MATH_COMPANION_LANE
-    if normalized == "structural_companion":
-        return STRUCTURAL_COMPANION_LANE
-    if normalized == "user_lexicon":
-        return USER_LEXICON_LANE
-    return SOURCE_LOCAL_TEMP_LANE
-
-
-def _parse_offset(value: Any) -> int:
-    text = str(value or "").strip()
-    if text.startswith("+"):
-        text = text[1:]
-    offset = int(text)
-    if offset == 0 or offset < -128 or offset > 127:
-        raise ValueError(f"invalid AWSS offset: {value}")
-    return offset
-
-
-def _pack_awss_record(
+def native_directory_intake_to_counts(
     *,
-    root_symbol: str,
-    neighbor_symbol: str,
-    offset: int,
-    lane: int,
-    flags: int,
-    root_lane: int,
-    count: int,
-) -> bytes:
-    return struct.pack(
-        "<5s5sbBBBHQ",
-        symbol_to_bytes(root_symbol),
-        symbol_to_bytes(neighbor_symbol),
-        offset,
-        lane,
-        flags,
-        root_lane,
-        0,
-        count,
-    )
-
-
-def _pack_awsy_record(
-    *,
-    symbol: str,
-    lane: int,
-    flags: int,
-    boundary_flags: int,
-) -> bytes:
-    return struct.pack(
-        "<5sBBB",
-        symbol_to_bytes(symbol),
-        int(lane) & 0xFF,
-        int(flags) & 0xFF,
-        int(boundary_flags) & 0xFF,
-    )
+    input_dir: str | Path,
+    authority_path: str | Path,
+    output_root: str | Path,
+    manifest_path: str | Path,
+    missing_path: str | Path,
+    source_id: str,
+    window_radius: int = 6,
+    generation: int = 0,
+    source_local_missing: bool = True,
+    executable: str | Path | None = None,
+) -> dict[str, Any]:
+    exe = Path(executable) if executable else native_executable_path()
+    if not exe.exists():
+        exe = build_native_symbol_counts()
+    command = [
+        str(exe),
+        "intake-dir",
+        "--input-dir",
+        str(input_dir),
+        "--authority",
+        str(authority_path),
+        "--merge-output",
+        str(output_root),
+        "--manifest",
+        str(manifest_path),
+        "--missing",
+        str(missing_path),
+        "--source-id",
+        str(source_id),
+        "--window-radius",
+        str(int(window_radius)),
+        "--generation",
+        str(int(generation)),
+    ]
+    if source_local_missing:
+        command.append("--source-local-missing")
+    result = subprocess.run(command, check=True, capture_output=True, text=True)
+    return json.loads(result.stdout)

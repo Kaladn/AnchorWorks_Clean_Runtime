@@ -30,9 +30,17 @@ class ConversationEngine:
         recognition = self._recognize(text)
         input_kind = self._input_kind(text, recognition)
         frame = self._frame(text, recognition, mode=mode)
-        memory_status = self._memory_status(record_chat=record_chat, conversation_id=conversation_id)
+        chat_record = None
+        if record_chat:
+            chat_record = self.store.memory.append_chat_turn(text, conversation_id=str(conversation_id or "default"))
+        memory_status = self._memory_status(
+            record_chat=record_chat,
+            conversation_id=conversation_id,
+            chat_record=chat_record,
+        )
 
         if input_kind in {"conversation", "continue", "stop"}:
+            speech = self._conversation_speech(input_kind, text=text)
             return self._receipt(
                 text=text,
                 recognition=recognition,
@@ -40,8 +48,8 @@ class ConversationEngine:
                 input_kind=input_kind,
                 selected_engine_path=f"conversation_{input_kind}",
                 evidence_lane="conversation_style",
-                speech=self._conversation_speech(input_kind),
-                response=self._conversation_speech(input_kind),
+                speech=speech,
+                response=speech,
                 memory_status=memory_status,
             )
 
@@ -173,17 +181,32 @@ class ConversationEngine:
         }
         return receipt
 
-    def _memory_status(self, *, record_chat: bool, conversation_id: str | None) -> dict[str, Any]:
+    def _memory_status(
+        self,
+        *,
+        record_chat: bool,
+        conversation_id: str | None,
+        chat_record: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         status = {
             "chat_record_requested": bool(record_chat),
-            "chat_recorded": False,
+            "chat_recorded": bool(chat_record and chat_record.get("chat_recorded")),
             "conversation_id": str(conversation_id or ""),
             "counts_written": False,
             "lifetime_written": False,
-            "requires_finalize_for_intake": True,
+            "daily_consolidation_required": bool(chat_record and chat_record.get("chat_recorded")),
+            "requires_finalize_for_intake": bool(chat_record and chat_record.get("chat_recorded")),
         }
-        if record_chat:
-            status["chat_record_blocked"] = "awaiting_whiteboard_memory_scaffold"
+        if chat_record:
+            status.update({
+                "day_id": chat_record.get("day_id"),
+                "chat_log_path": chat_record.get("chat_log_path"),
+                "turn_id": chat_record.get("turn_id"),
+                "block_id": chat_record.get("block_id"),
+                "line_id": chat_record.get("line_id"),
+                "record_count": chat_record.get("record_count"),
+                "write_rule": "jsonl_only_until_daily_consolidation",
+            })
         return status
 
     def _evidence_lane(self, payload: dict[str, Any]) -> str:
@@ -199,9 +222,26 @@ class ConversationEngine:
             return "document_evidence"
         return "no_source_support"
 
-    def _conversation_speech(self, input_kind: str) -> str:
+    def _conversation_speech(self, input_kind: str, *, text: str = "") -> str:
         if input_kind == "continue":
             return "I can continue from the current context, but I need a live subject or trace to extend."
         if input_kind == "stop":
             return "Stopped. I will not continue that response."
-        return "Good morning. I am here and ready to work the local AnchorWorks system."
+        greeting = self._greeting_reply(text)
+        if greeting:
+            return f"{greeting}. I am here and ready to work the local AnchorWorks system."
+        return "I am here and ready to work the local AnchorWorks system."
+
+    def _greeting_reply(self, text: str) -> str:
+        lower = str(text or "").casefold()
+        if "afternoon" in lower:
+            return "Good afternoon"
+        if "evening" in lower:
+            return "Good evening"
+        if "morning" in lower:
+            return "Good morning"
+        if "hello" in lower:
+            return "Hello"
+        if lower.strip() in {"hi", "hey", "yo"}:
+            return lower.strip().capitalize()
+        return ""

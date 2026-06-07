@@ -1,6 +1,4 @@
 from __future__ import annotations
-
-import os
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -25,7 +23,6 @@ from .anchor_field import build_query_frame
 from .inference import run_inference
 from .intake import extract_anchors
 from .language_state_replay import build_language_state_replay
-from .lifetime_symbol_mirror import load_lifetime_by_symbol_dir
 from .symbol_count_cells import read_symbol_cell
 
 
@@ -306,20 +303,9 @@ class ClearSpeakService:
         return "\n".join(lines)
 
     def _load_count_index(self, seed_anchors: list[str] | None = None) -> dict[str, Any]:
-        external_by_symbol_dir = os.environ.get("ANCHORWORKS_LIFETIME_BY_SYMBOL_DIR")
-        if external_by_symbol_dir:
-            return load_lifetime_by_symbol_dir(external_by_symbol_dir)
         awsc_index = self._load_awsc_count_index(seed_anchors or [])
         if awsc_index["by_anchor"]:
             return awsc_index
-        if hasattr(self.store, "_load_combined_relation_counts"):
-            counter, _observed = self.store._load_combined_relation_counts()
-            by_anchor: dict[str, dict[str, Counter[str]]] = {}
-            for (anchor, offset, neighbor), observations in counter.items():
-                if observations <= 0:
-                    continue
-                by_anchor.setdefault(anchor, {}).setdefault(offset, Counter())[neighbor] += int(observations)
-            return {"by_anchor": by_anchor}
         return {"by_anchor": {}}
 
     def _load_awsc_count_index(self, seed_anchors: list[str]) -> dict[str, Any]:

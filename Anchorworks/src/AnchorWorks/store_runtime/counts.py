@@ -18,60 +18,6 @@ class CountsMixin:
             )
         ]
 
-    def _load_relation_counts_file(self, path: Path) -> tuple[Counter[tuple[str, str, str]], Counter[str], dict[str, Any]]:
-        payload = self._read_json(path, {})
-        counter: Counter[tuple[str, str, str]] = Counter()
-        observed_counts: Counter[str] = Counter()
-        metadata = {
-            "first_saved_at": None,
-            "updated_at": None,
-            "ingest_events": 0,
-            "window_radius": DEFAULT_WINDOW_RADIUS,
-        }
-
-        if isinstance(payload, dict):
-            metadata["first_saved_at"] = payload.get("first_saved_at")
-            metadata["updated_at"] = payload.get("updated_at")
-            metadata["ingest_events"] = int(payload.get("ingest_events", 0) or 0)
-            metadata["window_radius"] = int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS)
-
-            rows = payload.get("co_occurrence_counts") or []
-            if isinstance(rows, list):
-                for row in rows:
-                    if not isinstance(row, dict):
-                        continue
-                    anchor = row.get("anchor")
-                    offset = row.get("offset")
-                    neighbor = row.get("neighbor")
-                    observations = int(row.get("observations", 0) or 0)
-                    if not isinstance(anchor, str) or not isinstance(offset, str) or not isinstance(neighbor, str):
-                        continue
-                    if observations <= 0:
-                        continue
-                    counter[(anchor, offset, neighbor)] += observations
-
-            observed_rows = payload.get("anchor_observation_counts") or []
-            if isinstance(observed_rows, list):
-                for row in observed_rows:
-                    if not isinstance(row, dict):
-                        continue
-                    anchor = row.get("anchor")
-                    observations = int(row.get("observations", 0) or 0)
-                    if not isinstance(anchor, str) or observations <= 0:
-                        continue
-                    observed_counts[anchor] += observations
-
-        return counter, observed_counts, metadata
-
-    def _load_combined_relation_counts(self) -> tuple[Counter[tuple[str, str, str]], Counter[str]]:
-        base_counter, base_observed, _ = self._load_relation_counts_file(self.lifetime_counts_path)
-        user_counter, user_observed, _ = self._load_relation_counts_file(self.user_counts_path)
-        combined_counter = Counter(base_counter)
-        combined_counter.update(user_counter)
-        combined_observed = Counter(base_observed)
-        combined_observed.update(user_observed)
-        return combined_counter, combined_observed
-
     def _canonical_lifetime_relation_rows(
         self,
         relation_rows: list[dict[str, Any]],
@@ -148,6 +94,8 @@ class CountsMixin:
         with self._lock:
             self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
             seeded = False
+            copied_canonical_count_files = 0
+            canonical_placeholder_cells_created = 0
             source_root = self.canonical_symbol_counts_binary_dir
             if source_root.exists():
                 for source_path in source_root.rglob("*"):
@@ -160,7 +108,24 @@ class CountsMixin:
                     target_path.parent.mkdir(parents=True, exist_ok=True)
                     if not target_path.exists():
                         shutil.copy2(source_path, target_path)
+                        copied_canonical_count_files += 1
                         seeded = True
+            for symbol in self._canonical_seed_symbol_values():
+                try:
+                    cell_path = self._symbol_count_cell_path(symbol)
+                    if cell_path.exists():
+                        continue
+                    write_symbol_cell(
+                        cell_path,
+                        symbol=symbol,
+                        relations=[],
+                        root_lane=CANONICAL_LANE,
+                        generation=0,
+                    )
+                    canonical_placeholder_cells_created += 1
+                    seeded = True
+                except (TypeError, ValueError):
+                    continue
             if not self.user_counts_acknowledgement_path.exists():
                 acknowledgement = {
                     "schema_version": "anchorworks_user_binary_counts_acknowledgement@1",
@@ -169,32 +134,116 @@ class CountsMixin:
                     "active_binary_counts_root": str(self.symbol_counts_binary_dir),
                     "canonical_seed_locked": True,
                     "future_writes": "user_side_binary_counts_only",
-                    "seed_copy_mode": "copy_missing_files_only",
+                    "seed_copy_mode": "copy_missing_files_and_canonical_authority_placeholders",
+                    "canonical_authority_placeholder_seed": True,
                 }
                 self._write_json(self.user_counts_acknowledgement_path, acknowledgement)
                 seeded = True
             acknowledgement = self._read_json(self.user_counts_acknowledgement_path, {})
+            if acknowledgement.get("canonical_authority_placeholder_seed") is not True:
+                acknowledgement["canonical_authority_placeholder_seed"] = True
+                acknowledgement["seed_copy_mode"] = "copy_missing_files_and_canonical_authority_placeholders"
+                self._write_json(self.user_counts_acknowledgement_path, acknowledgement)
         return {
             "ok": True,
             "seeded": seeded,
+            "copied_canonical_count_files": copied_canonical_count_files,
+            "canonical_placeholder_cells_created": canonical_placeholder_cells_created,
             "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
             "active_binary_counts_root": str(self.symbol_counts_binary_dir),
             "acknowledgement_path": str(self.user_counts_acknowledgement_path),
             "acknowledgement": acknowledgement,
         }
 
+    def _canonical_seed_symbol_values(self) -> list[str]:
+        symbols: list[str] = []
+        seen: set[str] = set()
+        seed_paths = [path for _, path in self._pack_paths("canonical")]
+        canonical_structural = self.canonical_dir / "structural.json"
+        if canonical_structural.exists():
+            seed_paths.append(canonical_structural)
+        if self.structural_file.exists():
+            seed_paths.append(self.structural_file)
+        for path in seed_paths:
+            for entry in self._read_entries(path):
+                symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
+                if not symbol:
+                    continue
+                text = symbol[2:] if symbol.lower().startswith("0x") else symbol
+                text = text.upper().zfill(10)
+                if len(text) != 10 or text in seen:
+                    continue
+                seen.add(text)
+                symbols.append("0x" + text)
+        return symbols
+
+    def _symbol_count_cell_path(self, symbol: str) -> Path:
+        text = str(symbol or "").strip()
+        if text.lower().startswith("0x"):
+            text = text[2:]
+        text = text.upper().zfill(10)
+        if len(text) != 10:
+            raise ValueError("symbol must be 5 bytes")
+        return self.symbol_counts_binary_dir / "cells" / text[:2] / f"{text}.cell"
+
+    def _symbol_text(self, symbol: str | bytes) -> str:
+        if isinstance(symbol, bytes):
+            return "0x" + symbol.hex().upper()
+        text = str(symbol or "").strip()
+        if not text:
+            return ""
+        if text.lower().startswith("0x"):
+            text = text[2:]
+        return "0x" + text.upper().zfill(10)
+
+    def _binary_relation_rows_for_anchor(self, anchor: str) -> list[dict[str, Any]]:
+        surface = self.normalize_anchor(anchor)
+        if not surface or not hasattr(self, "_canonical_symbol_by_anchor"):
+            return []
+        symbol_by_anchor = self._canonical_symbol_by_anchor()
+        root_symbol = symbol_by_anchor.get(surface)
+        if not root_symbol:
+            return []
+        anchor_by_symbol = {
+            self._symbol_text(symbol): self.normalize_anchor(anchor_value)
+            for anchor_value, symbol in symbol_by_anchor.items()
+            if str(anchor_value or "").strip() and str(symbol or "").strip()
+        }
+        try:
+            path = self._symbol_count_cell_path(root_symbol)
+        except ValueError:
+            return []
+        if not path.exists():
+            return []
+        try:
+            cell = read_symbol_cell(path)
+        except ValueError:
+            return []
+        rows: list[dict[str, Any]] = []
+        for relation in cell.relations:
+            neighbor = anchor_by_symbol.get(self._symbol_text(relation.neighbor_symbol))
+            if not neighbor:
+                continue
+            observations = int(relation.count or 0)
+            if observations <= 0:
+                continue
+            rows.append({
+                "anchor": surface,
+                "offset": str(int(relation.offset)),
+                "neighbor": neighbor,
+                "observations": observations,
+            })
+        return rows
+
     def counts_status(self) -> dict[str, Any]:
         seed = self.ensure_user_symbol_counts_seeded()
         cells_root = self.symbol_counts_binary_dir / "cells"
         cell_paths = list(cells_root.glob("*/*.cell")) if cells_root.exists() else []
-        stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
         return {
             "runtime": "awsc_v1_1_binary_cells",
             "binary_counts_root": str(self.symbol_counts_binary_dir),
             "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
             "user_count_acknowledgement_path": seed["acknowledgement_path"],
-            "symbol_stream_path": str(stream_path),
-            "symbol_stream_exists": stream_path.exists(),
             "cell_count": len(cell_paths),
             "json_counts_removed": True,
             "ingest_events": 0,
@@ -206,11 +255,15 @@ class CountsMixin:
 
     def retrieve_from_counts(self, anchor: str, limit: int = 25) -> dict[str, Any]:
         surface = self.normalize_anchor(anchor)
-        counter, _ = self._load_combined_relation_counts()
         total_by_neighbor: Counter[str] = Counter()
         by_offset: dict[str, Counter[str]] = {}
-        for (anchor, offset, neighbor), observations in counter.items():
-            if anchor != surface or observations <= 0:
+        for row in self._binary_relation_rows_for_anchor(surface):
+            observations = int(row.get("observations", 0) or 0)
+            if observations <= 0:
+                continue
+            offset = str(row.get("offset") or "")
+            neighbor = str(row.get("neighbor") or "")
+            if not offset or not neighbor:
                 continue
             total_by_neighbor[neighbor] += observations
             by_offset.setdefault(offset, Counter())[neighbor] += observations
@@ -236,560 +289,164 @@ class CountsMixin:
             "offsets": offset_rows,
         }
 
-    def build_source_local_symbol_counts(self, observed_map_name: str) -> dict[str, Any]:
-        symbolic_path = self._resolve_symbolic_map_name(observed_map_name)
-        if symbolic_path.exists():
-            return self._build_source_local_symbol_counts_from_awsm(symbolic_path)
-
-        path = self._resolve_observed_map_name(observed_map_name)
-        if not path.exists():
-            raise FileNotFoundError(observed_map_name)
-        payload = self._read_json(path, {})
-        if not isinstance(payload, dict):
-            raise ValueError(f"invalid observed map: {path.name}")
-
-        source_name = str(payload.get("source_name") or Path(str(payload.get("source_path") or "document")).name or "document")
-        source_path = str(payload.get("source_path") or "")
-        source_hash = str((payload.get("document_prep") or {}).get("sha256") or hashlib.sha256(source_path.encode("utf-8")).hexdigest())
-        source_id = hashlib.sha1((source_path + "\n" + source_hash + "\n" + path.name).encode("utf-8")).hexdigest()
-        stem = self._flat_runtime_stem(source_name, source_id)
-        target = self.source_local_symbol_counts_dir / f"{stem}.symbol_counts.json"
-
-        paragraphs = [row for row in payload.get("paragraphs") or [] if isinstance(row, dict)]
-        anchors: list[str] = []
-        for paragraph in paragraphs:
-            anchors.extend(str(anchor) for anchor in (paragraph.get("resolved_anchors") or paragraph.get("anchors") or []) if str(anchor))
-
-        symbol_by_anchor, symbol_authority = build_source_local_symbol_table(
-            anchors,
-            canonical_symbol_by_anchor=self._canonical_symbol_by_anchor(),
-            symbol_authority_by_anchor=self._symbol_authority_by_anchor(),
-            source_id=source_id,
-        )
-        symbol_authority = self._apply_user_symbol_authority(symbol_authority)
-        relation_rows = build_symbol_relation_rows(
-            paragraphs,
-            symbol_by_anchor=symbol_by_anchor,
-            window_radius=int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
-        )
-        authority_by_symbol = {
-            str(row.get("symbol") or ""): str(row.get("authority") or "")
-            for row in symbol_authority
-        }
-        for row in relation_rows:
-            row["lane"] = self._symbol_relation_lane(authority_by_symbol.get(str(row.get("neighbor_symbol_anchor") or "")))
-            row["flags"] = 0
-        source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
-        canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
-        user_symbols = sum(1 for row in symbol_authority if row.get("authority") == "user_lexicon")
-        relation_fates = self._symbol_relation_fates_from_symbol_rows(relation_rows, authority_by_symbol)
-        out = {
-            "schema_version": "anchorworks_source_local_symbol_counts@1",
-            "saved_at": _utc_now(),
-            "source_id": source_id,
-            "source_name": source_name,
-            "source_path": source_path,
-            "source_hash": source_hash,
-            "source_format": "observed_json",
-            "observed_map_name": path.name,
-            "observed_map_path": str(path),
-            "window_radius": int(payload.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
-            "symbol_authority": symbol_authority,
-            "canonical_symbol_count": canonical_symbols,
-            "user_lexicon_symbol_count": user_symbols,
-            "source_local_symbol_count": source_local_symbols,
-            "relation_fates": relation_fates,
-            "symbol_relation_counts": relation_rows,
-            "unique_symbol_relations": len(relation_rows),
-            "total_symbol_relation_observations": int(sum(row["observations"] for row in relation_rows)),
-            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
-        }
-        self._write_json(target, out)
-        return {
-            "ok": True,
-            "source_id": source_id,
-            "source_name": source_name,
-            "source_path": source_path,
-            "source_format": "observed_json",
-            "observed_map_name": path.name,
-            "symbol_counts_name": target.name,
-            "symbol_counts_path": str(target),
-            "canonical_symbol_count": canonical_symbols,
-            "user_lexicon_symbol_count": user_symbols,
-            "source_local_symbol_count": source_local_symbols,
-            "relation_fates": relation_fates,
-            "unique_symbol_relations": len(relation_rows),
-            "total_symbol_relation_observations": out["total_symbol_relation_observations"],
-            "writes_allowed": out["writes_allowed"],
-        }
-
-    def _build_source_local_symbol_counts_from_awsm(self, symbolic_path: Path) -> dict[str, Any]:
-        symbolic = read_symbolic_map_binary(symbolic_path)
-        metadata = symbolic.metadata
-        symbol_authority = [row for row in metadata.get("symbol_authority") or [] if isinstance(row, dict)]
-        if not symbol_authority:
-            raise ValueError(f"symbolic map lacks symbol authority table: {symbolic_path.name}")
-        symbol_authority = self._apply_user_symbol_authority(symbol_authority)
-
-        source_name = str(metadata.get("source_name") or "document")
-        source_path = str(metadata.get("source_path") or "")
-        source_hash = str(metadata.get("source_hash") or hashlib.sha256(source_path.encode("utf-8")).hexdigest())
-        observed_map_name = str(metadata.get("observed_map_name") or (symbolic_path.stem + ".observed.json"))
-        source_id = str(
-            metadata.get("source_id")
-            or hashlib.sha1((source_path + "\n" + source_hash + "\n" + observed_map_name).encode("utf-8")).hexdigest()
-        )
-        stem = self._flat_runtime_stem(source_name, source_id)
-        target = self.source_local_symbol_counts_dir / f"{stem}.symbol_counts.json"
-
-        authority_by_symbol = {
-            str(row.get("symbol") or ""): str(row.get("authority") or "")
-            for row in symbol_authority
-        }
-        relation_rows: list[dict[str, Any]] = []
-        for row in symbolic.relations:
-            root_display = f"0x{row.root_symbol_id:010X}"
-            neighbor_display = f"0x{row.neighbor_symbol_id:010X}"
-            observations = int(row.count)
-            if observations <= 0:
-                continue
-            relation_rows.append({
-                "symbol_id": int(row.root_symbol_id),
-                "symbol_anchor": root_display,
-                "offset": f"+{row.offset}" if row.offset > 0 else str(row.offset),
-                "neighbor_symbol_id": int(row.neighbor_symbol_id),
-                "neighbor_symbol_anchor": neighbor_display,
-                "observations": observations,
-                "lane": int(row.lane),
-                "flags": int(row.flags),
-            })
-
-        canonical_symbols = sum(1 for row in symbol_authority if row.get("authority") == "canonical")
-        user_symbols = sum(1 for row in symbol_authority if row.get("authority") == "user_lexicon")
-        source_local_symbols = sum(1 for row in symbol_authority if row.get("authority") == "source_local")
-        relation_fates = self._symbol_relation_fates_from_symbol_rows(relation_rows, authority_by_symbol)
-        out = {
-            "schema_version": "anchorworks_source_local_symbol_counts@1",
-            "saved_at": _utc_now(),
-            "source_id": source_id,
-            "source_name": source_name,
-            "source_path": source_path,
-            "source_hash": source_hash,
-            "source_format": "awsm",
-            "observed_map_name": observed_map_name,
-            "symbolic_map_name": symbolic_path.name,
-            "symbolic_map_path": str(symbolic_path),
-            "window_radius": int(metadata.get("window_radius", DEFAULT_WINDOW_RADIUS) or DEFAULT_WINDOW_RADIUS),
-            "symbol_authority": symbol_authority,
-            "canonical_symbol_count": canonical_symbols,
-            "user_lexicon_symbol_count": user_symbols,
-            "source_local_symbol_count": source_local_symbols,
-            "relation_fates": relation_fates,
-            "symbol_relation_counts": relation_rows,
-            "unique_symbol_relations": len(relation_rows),
-            "total_symbol_relation_observations": int(sum(row["observations"] for row in relation_rows)),
-            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
-        }
-        self._write_json(target, out)
-        return {
-            "ok": True,
-            "source_id": source_id,
-            "source_name": source_name,
-            "source_path": source_path,
-            "source_format": "awsm",
-            "observed_map_name": observed_map_name,
-            "symbolic_map_name": symbolic_path.name,
-            "symbol_counts_name": target.name,
-            "symbol_counts_path": str(target),
-            "canonical_symbol_count": canonical_symbols,
-            "user_lexicon_symbol_count": user_symbols,
-            "source_local_symbol_count": source_local_symbols,
-            "relation_fates": out["relation_fates"],
-            "unique_symbol_relations": len(relation_rows),
-            "total_symbol_relation_observations": out["total_symbol_relation_observations"],
-            "writes_allowed": out["writes_allowed"],
-        }
-
-    def load_symbolic_map_bundle(self, name: str) -> dict[str, Any]:
-        symbolic_path = self._resolve_symbolic_map_name(name)
-        if not symbolic_path.exists():
-            raise FileNotFoundError(name)
-        bundle = read_symbolic_map_bundle(symbolic_path)
-        return {
-            "ok": True,
-            "schema_version": "anchorworks_symbolic_map_bundle@1",
-            "source_format": "awsm_bundle",
-            "symbolic_map_name": symbolic_path.name,
-            "symbolic_map_path": str(symbolic_path),
-            "metadata": bundle.map.metadata,
-            "relation_count": bundle.map.relation_count,
-            "relations": [
-                {
-                    "root_symbol_id": row.root_symbol_id,
-                    "neighbor_symbol_id": row.neighbor_symbol_id,
-                    "offset": row.offset,
-                    "lane": row.lane,
-                    "flags": row.flags,
-                    "count": row.count,
-                }
-                for row in bundle.map.relations
-            ],
-            "locator_count": len(bundle.locators),
-            "locators": bundle.locators,
-            "null_count": len(bundle.nulls),
-            "nulls": bundle.nulls,
-            "visual_count": len(bundle.visuals),
-            "visuals": bundle.visuals,
-            "paths": bundle.paths,
-            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
-        }
-
-    def build_binary_symbol_counts_from_source_local(
+    def map_document_to_user_counts_native(
         self,
+        source_path: str | Path,
         *,
-        limit: int | None = None,
+        window_radius: int = DEFAULT_WINDOW_RADIUS,
         generation: int = 0,
-        artifact_names: list[str] | None = None,
     ) -> dict[str, Any]:
-        if artifact_names is None:
-            artifact_paths = sorted(self.source_local_symbol_counts_dir.glob("*.symbol_counts.json"))
-        else:
-            artifact_paths = []
-            root = self.source_local_symbol_counts_dir.resolve()
-            for name in artifact_names:
-                target = (self.source_local_symbol_counts_dir / Path(name).name).resolve()
-                if target.parent != root:
-                    raise FileNotFoundError(name)
-                artifact_paths.append(target)
-            artifact_paths = sorted(artifact_paths, key=lambda item: item.name.lower())
-        if limit is not None:
-            artifact_paths = artifact_paths[: max(0, int(limit))]
-        if not artifact_paths:
-            raise FileNotFoundError("no source-local symbol count artifacts found")
-        missing = [str(path) for path in artifact_paths if not path.exists()]
-        if missing:
-            raise FileNotFoundError(f"missing source-local symbol count artifacts: {missing[:3]}")
+        source = Path(source_path).expanduser().resolve()
+        if not source.exists():
+            raise FileNotFoundError(source)
+        if source.is_dir():
+            raise IsADirectoryError(source)
         seed = self.ensure_user_symbol_counts_seeded()
-        stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
-        stream = write_awss_from_symbol_count_artifacts(artifact_paths, stream_path)
-        merge = merge_symbol_stream(
-            stream_path,
-            self.symbol_counts_binary_dir,
-            generation=int(generation),
+        digest = hashlib.sha1(str(source).encode("utf-8")).hexdigest()[:12]
+        safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", source.name).strip("._") or "source"
+        run_root = self.ingest_staging_dir / "native_mapping" / f"{safe_name}-{digest}"
+        authority_path = run_root / "authority_snapshot.json"
+        manifest_path = run_root / "manifest.json"
+        missing_path = run_root / "missing.json"
+        snapshot = write_authority_snapshot(self._symbol_authority_by_anchor(), authority_path)
+        receipt = native_text_intake_to_counts(
+            input_path=source,
+            authority_path=authority_path,
+            output_root=self.symbol_counts_binary_dir,
+            manifest_path=manifest_path,
+            missing_path=missing_path,
+            source_id=digest,
+            window_radius=window_radius,
+            generation=generation,
+            source_local_missing=True,
         )
+        manifest = self._read_json(manifest_path, {})
+        missing = self._read_json(missing_path, {})
         verify = verify_binary_counts(self.symbol_counts_binary_dir)
         return {
-            "ok": bool(merge.get("ok")) and bool(verify.get("ok")),
-            "schema_version": "anchorworks_binary_symbol_counts_build@1",
-            "artifact_count": len(artifact_paths),
-            "stream_path": str(stream_path),
-            "stream_record_count": int(stream.get("record_count", 0) or 0),
-            "stream_observation_count": int(stream.get("observation_count", 0) or 0),
-            "stream_size_bytes": stream_path.stat().st_size if stream_path.exists() else 0,
-            "binary_counts_root": str(self.symbol_counts_binary_dir),
+            "ok": bool(receipt.get("ok")) and bool(verify.get("ok")),
+            "runtime": "native_cpp_intake_text",
+            "source_path": str(source),
+            "run_root": str(run_root),
+            "authority_snapshot": snapshot,
+            "authority_path": str(authority_path),
+            "manifest_path": str(manifest_path),
+            "missing_path": str(missing_path),
+            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
             "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
             "user_count_acknowledgement_path": seed["acknowledgement_path"],
+            "receipt": receipt,
+            "manifest": manifest,
+            "missing": missing,
             "verify": verify,
-            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+            "raw_text_in_count_spine": bool(manifest.get("raw_text_in_count_spine")),
         }
 
-    def build_symbolic_intake_batch(
+    def map_directory_to_user_counts_native(
         self,
-        source_paths: list[str | Path],
+        source_dir: str | Path,
         *,
-        max_workers: int | None = None,
+        window_radius: int = DEFAULT_WINDOW_RADIUS,
         generation: int = 0,
-        null_anchors: set[str] | None = None,
     ) -> dict[str, Any]:
-        normalized_paths = [Path(path).expanduser().resolve() for path in source_paths]
-        if not normalized_paths:
-            raise ValueError("at least one source path is required")
-        for path in normalized_paths:
-            if not path.exists():
-                raise FileNotFoundError(path)
-            if not path.is_file():
-                raise IsADirectoryError(path)
+        source = Path(source_dir).expanduser().resolve()
+        if not source.exists():
+            raise FileNotFoundError(source)
+        if not source.is_dir():
+            raise NotADirectoryError(source)
 
-        groups: dict[str, list[Path]] = {}
-        for path in normalized_paths:
-            groups.setdefault(str(path.parent), []).append(path)
-
-        worker_count = max(1, min(int(max_workers or (os.cpu_count() or 1)), len(normalized_paths)))
-        worker_args = [
-            (str(self.root), str(path), "binary_source_local", sorted(null_anchors or set()))
-            for group_name in sorted(groups)
-            for path in sorted(groups[group_name], key=lambda item: item.name.lower())
-        ]
-
-        map_results: list[dict[str, Any]] = []
-        if worker_count == 1:
-            map_results = [_build_observed_map_worker(args) for args in worker_args]
-        else:
-            with ProcessPoolExecutor(max_workers=worker_count) as executor:
-                future_by_path = {executor.submit(_build_observed_map_worker, args): args[1] for args in worker_args}
-                for future in as_completed(future_by_path):
-                    map_results.append(future.result())
-            map_results.sort(key=lambda row: str(row.get("source_path") or "").lower())
-
-        symbol_artifacts = [
-            self.build_source_local_symbol_counts(str(row["saved_map_name"]))
-            for row in map_results
-        ]
-        binary = self.build_binary_symbol_counts_from_source_local(
-            generation=generation,
-            artifact_names=[str(row["symbol_counts_name"]) for row in symbol_artifacts],
-        )
-        return {
-            "ok": bool(binary.get("ok")),
-            "schema_version": "anchorworks_symbolic_intake_batch@1",
-            "source_count": len(normalized_paths),
-            "group_count": len(groups),
-            "groups": [
-                {"group": group, "source_count": len(paths)}
-                for group, paths in sorted(groups.items())
-            ],
-            "max_workers_used": worker_count,
-            "map_root": str(self.observed_maps_dir),
-            "map_count": len(map_results),
-            "maps": map_results,
-            "symbol_artifact_count": len(symbol_artifacts),
-            "symbol_artifacts": symbol_artifacts,
-            "binary": binary,
-            "writes_allowed": {"maps": True, "counts": False, "lifetime": False, "lexicon": False},
-        }
-
-    def build_symbolic_intake_batch_chunked(
-        self,
-        source_paths: list[str | Path],
-        *,
-        max_workers: int | None = None,
-        generation: int = 0,
-        null_anchors: set[str] | None = None,
-        run_id: str | None = None,
-        chunk_file_limit: int = 250,
-        soft_warning_gb: float = 32.0,
-        emergency_flush_gb: float = 36.0,
-        abort_gb: float = 39.0,
-        write_chunk_binaries: bool = True,
-    ) -> dict[str, Any]:
-        normalized_paths = [Path(path).expanduser().resolve() for path in source_paths]
-        if not normalized_paths:
-            raise ValueError("at least one source path is required")
-        for path in normalized_paths:
-            if not path.exists():
-                raise FileNotFoundError(path)
-            if not path.is_file():
-                raise IsADirectoryError(path)
-
-        safe_run_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(run_id or f"chunked_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}")).strip("._") or "chunked"
-        run_root = self.ingest_staging_dir / "chunked_symbolic_intake" / safe_run_id
-        chunks_root = run_root / "chunks"
-        chunk_binary_root = self.state_dir / "symbol_counts_binary_chunks" / safe_run_id
-        run_root.mkdir(parents=True, exist_ok=True)
-        chunks_root.mkdir(parents=True, exist_ok=True)
-        if write_chunk_binaries:
-            chunk_binary_root.mkdir(parents=True, exist_ok=True)
-
-        file_limit = max(1, int(chunk_file_limit))
-        worker_count = max(1, int(max_workers or (os.cpu_count() or 1)))
-        chunks = [
-            normalized_paths[index : index + file_limit]
-            for index in range(0, len(normalized_paths), file_limit)
-        ]
+        seed = self.ensure_user_symbol_counts_seeded()
+        digest = hashlib.sha1(str(source).encode("utf-8")).hexdigest()[:12]
+        safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", source.name).strip("._") or "source_dir"
+        run_root = self.ingest_staging_dir / "native_directory_mapping" / f"{safe_name}-{digest}"
+        authority_path = run_root / "authority_snapshot.json"
         manifest_path = run_root / "manifest.json"
-        stop_path = run_root / "STOP"
-        started = time.perf_counter()
-        chunk_rows: list[dict[str, Any]] = []
-        failed_files: list[dict[str, Any]] = []
-        stopped_reason = ""
-        completed_chunk_ids: set[str] = set()
-        if manifest_path.exists():
-            try:
-                existing = json.loads(manifest_path.read_text(encoding="utf-8"))
-                for row in existing.get("chunks") or []:
-                    if not isinstance(row, dict):
-                        continue
-                    chunk_id = str(row.get("chunk_id") or "")
-                    if chunk_id and int(row.get("files_failed", 0) or 0) == 0:
-                        completed_chunk_ids.add(chunk_id)
-                        chunk_rows.append(row)
-                for error in existing.get("failed_files") or []:
-                    if isinstance(error, dict):
-                        failed_files.append(error)
-            except Exception:
-                completed_chunk_ids = set()
-                chunk_rows = []
-                failed_files = []
-
-        for chunk_index, chunk_paths in enumerate(chunks, start=1):
-            chunk_id = f"chunk_{chunk_index:04d}"
-            if stop_path.exists():
-                stopped_reason = "stop_requested_before_chunk"
-                break
-            if chunk_id in completed_chunk_ids:
-                continue
-            chunk_started = time.perf_counter()
-            rss_start = _current_process_rss_bytes()
-            chunk_manifest_path = chunks_root / f"{chunk_id}.json"
-            chunk_workers = max(1, min(worker_count, len(chunk_paths)))
-            worker_args = [
-                (str(self.root), str(path), "binary_source_local", sorted(null_anchors or set()))
-                for path in chunk_paths
-            ]
-
-            map_results: list[dict[str, Any]] = []
-            map_errors: list[dict[str, Any]] = []
-            if chunk_workers == 1:
-                for args in worker_args:
-                    try:
-                        map_results.append(_build_observed_map_worker(args))
-                    except Exception as exc:
-                        error = {"source_path": args[1], "stage": "map", "error": str(exc)}
-                        map_errors.append(error)
-                        failed_files.append(error)
-            else:
-                with ProcessPoolExecutor(max_workers=chunk_workers) as executor:
-                    future_by_path = {executor.submit(_build_observed_map_worker, args): args[1] for args in worker_args}
-                    for future in as_completed(future_by_path):
-                        source_path = future_by_path[future]
-                        try:
-                            map_results.append(future.result())
-                        except Exception as exc:
-                            error = {"source_path": source_path, "stage": "map", "error": str(exc)}
-                            map_errors.append(error)
-                            failed_files.append(error)
-                map_results.sort(key=lambda row: str(row.get("source_path") or "").lower())
-
-            symbol_artifacts: list[dict[str, Any]] = []
-            symbol_errors: list[dict[str, Any]] = []
-            for row in map_results:
-                try:
-                    symbol_artifacts.append(self.build_source_local_symbol_counts(str(row["saved_map_name"])))
-                except Exception as exc:
-                    error = {
-                        "source_path": str(row.get("source_path") or ""),
-                        "observed_map_name": str(row.get("saved_map_name") or ""),
-                        "stage": "source_local_symbol_counts",
-                        "error": str(exc),
-                    }
-                    symbol_errors.append(error)
-                    failed_files.append(error)
-
-            binary: dict[str, Any] | None = None
-            binary_error = ""
-            if write_chunk_binaries and symbol_artifacts:
-                try:
-                    artifact_paths = [self.source_local_symbol_counts_dir / str(row["symbol_counts_name"]) for row in symbol_artifacts]
-                    stream_path = run_root / "symbol_streams" / f"{chunk_id}.awss"
-                    stream = write_awss_from_symbol_count_artifacts(artifact_paths, stream_path)
-                    output_root = chunk_binary_root / chunk_id
-                    merge = merge_symbol_stream(stream_path, output_root, generation=int(generation))
-                    verify = verify_binary_counts(output_root)
-                    binary = {
-                        "ok": bool(merge.get("ok")) and bool(verify.get("ok")),
-                        "stream_path": str(stream_path),
-                        "stream_record_count": int(stream.get("record_count", 0) or 0),
-                        "stream_observation_count": int(stream.get("observation_count", 0) or 0),
-                        "stream_size_bytes": stream_path.stat().st_size if stream_path.exists() else 0,
-                        "binary_counts_root": str(output_root),
-                        "verify": verify,
-                    }
-                except Exception as exc:
-                    binary_error = str(exc)
-
-            del worker_args
-            gc.collect()
-            rss_end = _current_process_rss_bytes()
-            peak_rss = max(rss_start, rss_end)
-            elapsed = time.perf_counter() - chunk_started
-            chunk_row = {
-                "chunk_id": chunk_id,
-                "source_count": len(chunk_paths),
-                "files_ok": len(symbol_artifacts),
-                "files_failed": len(map_errors) + len(symbol_errors),
-                "source_paths": [str(path) for path in chunk_paths],
-                "map_count": len(map_results),
-                "maps": [
-                    {
-                        "source_path": str(row.get("source_path") or ""),
-                        "saved_map_name": str(row.get("saved_map_name") or ""),
-                        "symbolic_map_name": str(row.get("symbolic_map_name") or ""),
-                    }
-                    for row in map_results
-                ],
-                "symbol_artifact_count": len(symbol_artifacts),
-                "symbol_artifacts": [
-                    {
-                        "source_path": str(row.get("source_path") or ""),
-                        "symbol_counts_name": str(row.get("symbol_counts_name") or ""),
-                        "unique_symbol_relations": int(row.get("unique_symbol_relations", 0) or 0),
-                        "total_symbol_relation_observations": int(row.get("total_symbol_relation_observations", 0) or 0),
-                    }
-                    for row in symbol_artifacts
-                ],
-                "binary": binary,
-                "binary_error": binary_error,
-                "errors": map_errors + symbol_errors,
-                "elapsed_seconds": round(elapsed, 6),
-                "rss_start_bytes": rss_start,
-                "rss_end_bytes": rss_end,
-                "peak_rss_bytes": peak_rss,
-                "memory_status": _memory_status(peak_rss, soft_warning_gb, emergency_flush_gb, abort_gb),
-            }
-            chunk_manifest_path.write_text(json.dumps(chunk_row, indent=2, ensure_ascii=False), encoding="utf-8")
-            chunk_rows.append(chunk_row)
-
-            manifest = {
-                "schema_version": "anchorworks_chunked_symbolic_intake_run@1",
-                "run_id": safe_run_id,
-                "status": "running",
-                "source_count": len(normalized_paths),
-                "chunk_count": len(chunks),
-                "completed_chunks": len(chunk_rows),
-                "chunk_file_limit": file_limit,
-                "memory_budget": {
-                    "soft_warning_gb": soft_warning_gb,
-                    "emergency_flush_gb": emergency_flush_gb,
-                    "abort_gb": abort_gb,
-                },
-                "chunk_binary_root": str(chunk_binary_root) if write_chunk_binaries else "",
-                "chunks": chunk_rows,
-                "failed_files": failed_files,
-                "writes_allowed": {"maps": True, "counts": False, "lifetime": False, "lexicon": False},
-            }
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-            if peak_rss >= int(float(abort_gb) * 1024 * 1024 * 1024):
-                stopped_reason = "abort_gb_reached_after_safe_chunk_flush"
-                break
-            if stop_path.exists():
-                stopped_reason = "stop_requested_after_safe_chunk_flush"
-                break
-
-        total_elapsed = time.perf_counter() - started
-        ok = not stopped_reason and not failed_files and all((row.get("binary") or {}).get("ok", True) for row in chunk_rows)
-        final = {
-            "schema_version": "anchorworks_chunked_symbolic_intake_run@1",
-            "run_id": safe_run_id,
-            "status": "stopped" if stopped_reason else "completed",
-            "ok": bool(ok),
-            "stopped_reason": stopped_reason,
-            "source_count": len(normalized_paths),
-            "chunk_count": len(chunks),
-            "completed_chunks": len(chunk_rows),
-            "files_ok": sum(int(row.get("files_ok", 0) or 0) for row in chunk_rows),
-            "files_failed": len(failed_files),
-            "manifest_path": str(manifest_path),
+        missing_path = run_root / "missing.json"
+        snapshot = write_authority_snapshot(self._symbol_authority_by_anchor(), authority_path)
+        receipt = native_directory_intake_to_counts(
+            input_dir=source,
+            authority_path=authority_path,
+            output_root=self.symbol_counts_binary_dir,
+            manifest_path=manifest_path,
+            missing_path=missing_path,
+            source_id=digest,
+            window_radius=window_radius,
+            generation=generation,
+            source_local_missing=True,
+        )
+        manifest = self._read_json(manifest_path, {})
+        missing = self._read_json(missing_path, {})
+        verify = verify_binary_counts(self.symbol_counts_binary_dir)
+        return {
+            "ok": bool(receipt.get("ok")) and bool(verify.get("ok")),
+            "runtime": "native_cpp_directory_mapping",
+            "source_dir": str(source),
             "run_root": str(run_root),
-            "map_root": str(self.observed_maps_dir),
-            "source_local_symbol_counts_root": str(self.source_local_symbol_counts_dir),
-            "chunk_binary_root": str(chunk_binary_root) if write_chunk_binaries else "",
-            "elapsed_seconds": round(total_elapsed, 6),
-            "chunks": chunk_rows,
-            "failed_files": failed_files,
-            "writes_allowed": {"maps": True, "counts": False, "lifetime": False, "lexicon": False},
+            "authority_snapshot": snapshot,
+            "authority_path": str(authority_path),
+            "manifest_path": str(manifest_path),
+            "missing_path": str(missing_path),
+            "file_count": int(manifest.get("file_count", 0) or 0),
+            "files_mapped": int(manifest.get("file_count", 0) or 0),
+            "skipped_file_count": int(manifest.get("skipped_file_count", 0) or 0),
+            "skipped_files": manifest.get("skipped_files") or [],
+            "failure_count": 0,
+            "failures": [],
+            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
+            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
+            "user_count_acknowledgement_path": seed["acknowledgement_path"],
+            "receipt": receipt,
+            "manifest": manifest,
+            "missing": missing,
+            "verify": verify,
+            "files": [],
+            "raw_text_in_count_spine": bool(manifest.get("raw_text_in_count_spine")),
         }
-        manifest_path.write_text(json.dumps(final, indent=2, ensure_ascii=False), encoding="utf-8")
-        return final
+
+    def map_path_to_user_counts_native(
+        self,
+        source_path: str | Path,
+        *,
+        window_radius: int = DEFAULT_WINDOW_RADIUS,
+        generation: int = 0,
+    ) -> dict[str, Any]:
+        source = Path(source_path).expanduser().resolve()
+        if source.is_dir():
+            return self.map_directory_to_user_counts_native(
+                source,
+                window_radius=window_radius,
+                generation=generation,
+            )
+        return self.map_document_to_user_counts_native(
+            source,
+            window_radius=window_radius,
+            generation=generation,
+        )
+
+    def map_intake_content_to_user_counts_native(
+        self,
+        *,
+        source_name: str,
+        content: str,
+        intake_edits: list[dict[str, Any]] | None = None,
+        window_radius: int = DEFAULT_WINDOW_RADIUS,
+        generation: int = 0,
+    ) -> dict[str, Any]:
+        if _is_visual_preview_content(content):
+            raise ValueError("visual intake preview is source-local evidence only; use a future visual approval route before mapping/counting")
+        if intake_edits:
+            raise ValueError("native intake mapping does not accept inline edit/null fallback; run edit/approval first, then map")
+        staged_path = self._intake_upload_path(source_name=source_name, content=content)
+        staged_path.write_text(content, encoding="utf-8")
+        result = self.map_document_to_user_counts_native(
+            staged_path,
+            window_radius=window_radius,
+            generation=generation,
+        )
+        result["source_name"] = source_name or staged_path.name
+        result["staged_path"] = str(staged_path)
+        result["intake_edits_applied"] = False
+        return result
 
     def build_source_local_resonance(self, observed_map_name: str) -> dict[str, Any]:
         path = self._resolve_observed_map_name(observed_map_name)
@@ -845,3 +502,4 @@ class CountsMixin:
             "writes_allowed": summary["writes_allowed"],
             "authority": summary["authority"],
         }
+

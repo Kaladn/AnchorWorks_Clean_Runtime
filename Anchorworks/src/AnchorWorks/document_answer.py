@@ -18,6 +18,8 @@ from .answer_surface import render_anchor_answer_surface
 from .intake import extract_anchors
 from .local_meta_overlay import query_local_overlay_cloud, renderer_cloud_input
 
+DOCUMENT_WALK_TOP_K = 3
+
 
 @dataclass
 class DocumentAnswerResult:
@@ -62,10 +64,27 @@ class DocumentAnswerAssembler:
         ][:passage_limit]
         overlays = self._load_local_overlays(passages)
         answer_assembly = build_document_grounded_answer(focus_anchors, passages, overlays, limit=limit)
+        from .answer_path import choose_answer_block_path
+
+        answer_block_path = choose_answer_block_path(
+            focus_anchors,
+            passages,
+            _answer_terms_for_block_path(answer_assembly),
+            limit=limit,
+        )
+        answer_assembly["answer_block_path"] = answer_block_path
         evidence_passages = _evidence_passages_for_answer(passages, answer_assembly)
         citations = [_citation_for_passage(row) for row in evidence_passages[:3]]
         response = render_document_passages(evidence_passages[:3])
-        speech = render_grounded_document_answer(query_text, focus_anchors, passages, answer_assembly) or response
+        speech = str(answer_block_path.get("speech") or "").strip()
+        if not speech:
+            speech = render_grounded_document_answer(query_text, focus_anchors, passages, answer_assembly)
+        frame = answer_assembly.get("gathered_fact_frame") if isinstance(answer_assembly.get("gathered_fact_frame"), dict) else {}
+        if not speech:
+            if passages and not frame.get("selected_fact"):
+                speech = "No document-backed answer passed the query-frame check yet."
+            else:
+                speech = response
         return DocumentAnswerResult(
             ok=bool(passages),
             query=query_text,
@@ -205,7 +224,7 @@ def _walk_document_count_index(query_anchors: list[str], count_index: dict[str, 
             forward_context=forward_context,
             blocked=blocked | selected_anchors,
             attention_frame=attention_frame,
-            top_k=6,
+            top_k=DOCUMENT_WALK_TOP_K,
         )
         pool = active_cloud["candidates"]
         if not pool:
@@ -225,7 +244,7 @@ def _walk_document_count_index(query_anchors: list[str], count_index: dict[str, 
             pool,
             seed_anchors=seeds,
             blocked=blocked | selected_anchors,
-            lookahead_k=6,
+            lookahead_k=DOCUMENT_WALK_TOP_K,
         )
         winner = lookahead_decision.get("chosen") or {}
         if not winner:
@@ -306,7 +325,7 @@ def render_grounded_document_answer(
     if not text:
         text = _best_fact_text(query, query_anchors, passages, answer_assembly)
     if not text:
-        return render_answer_assembly_speech(query_anchors, answer_assembly)
+        return ""
     return _clean_fact_answer_text(text)
 
 
@@ -429,6 +448,14 @@ def _best_fact_text(
     return str(candidates[0].get("answer_text") or "")
 
 
+def _answer_terms_for_block_path(answer_assembly: dict[str, Any]) -> list[str]:
+    return [
+        str(row.get("anchor") or "").strip().casefold()
+        for row in answer_assembly.get("terms") or []
+        if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+    ]
+
+
 def _fact_candidates(query_anchors: list[str], passages: list[dict[str, Any]], answer_terms: list[str]) -> list[dict[str, Any]]:
     query_set = {
         str(anchor or "").strip().casefold()
@@ -450,6 +477,8 @@ def _fact_candidates(query_anchors: list[str], passages: list[dict[str, Any]], a
             query_hits = anchors & query_set
             content_query_hits = anchors & query_content_set
             if query_content_set and not content_query_hits:
+                continue
+            if len(query_content_set) > 1 and not query_content_set.issubset(anchors):
                 continue
             term_hits = (anchors | answer_anchors) & term_set
             score = (

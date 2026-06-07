@@ -24,7 +24,7 @@ class StateMixin:
         directories = {
             "user_lexicon": self.user_lexicon_dir,
             "user_counts": self.user_counts_dir,
-            "chat_counts": self.chat_counts_dir,
+            "chat_logs": self.chat_logs_dir,
             "ingest_staging": self.ingest_staging_dir,
             "rejected_or_literal_clusters": self.rejected_or_literal_clusters_dir,
         }

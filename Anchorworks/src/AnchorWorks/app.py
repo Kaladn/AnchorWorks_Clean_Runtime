@@ -14,7 +14,6 @@ from .clearspeak import ClearSpeakService
 from .conversation import ConversationEngine
 from .document_answer import DocumentAnswerAssembler
 from .intake_audit import audit_source_directory, rebuild_readiness_report
-from .observed_map_graph_viewer import ObservedMapGraphViewer
 from .policy_diagnostics_report import build_settings_report, load_queries
 from .settings_inventory import build_settings_inventory
 from .store import LexiconStore
@@ -33,6 +32,8 @@ class ImportBody(BaseModel):
 
 class MappingRunBody(BaseModel):
     file_path: str
+    window_radius: int = 6
+    generation: int = 0
 
 
 class IntakeAuditBody(BaseModel):
@@ -81,6 +82,8 @@ class IntakeMapBody(BaseModel):
     source_name: str
     content: str
     intake_edits: list[dict[str, Any]] = []
+    window_radius: int = 6
+    generation: int = 0
 
 
 class IntakeEditBody(BaseModel):
@@ -103,6 +106,18 @@ class ChatSendBody(BaseModel):
     evidence_mode: str = "auto"
     conversation_id: str = ""
     record_chat: bool = False
+
+
+class ChatSearchBody(BaseModel):
+    query: str
+    day_id: str = ""
+    limit: int = 20
+
+
+class ChatConsolidateBody(BaseModel):
+    day_id: str = ""
+    window_radius: int = 6
+    generation: int = 0
 
 
 class RemixQueryBody(BaseModel):
@@ -146,10 +161,6 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     package_root = Path(__file__).resolve().parent
     app_root = package_root.parents[1]
     store = LexiconStore(data_root or _default_data_root())
-    awsg_viewer = ObservedMapGraphViewer([
-        store.root / "test" / "test data" / "experiments" / "observed_map_graph" / "runtime" / "graph",
-        store.anchor_maps_root / "source_graphs",
-    ])
     tree_brain_controls = TreeBrainControls.load(app_root / "config" / "tree_brain_controls.json")
     clearspeak = ClearSpeakService(store)
     document_answer = DocumentAnswerAssembler(store)
@@ -157,7 +168,6 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     app = FastAPI(title="AnchorWorks Lexicon", version=__version__, docs_url="/api/docs")
     app.state.store = store
-    app.state.awsg_viewer = awsg_viewer
     app.state.clearspeak = clearspeak
     app.state.conversation_engine = conversation_engine
     app.state.tree_brain_controls = tree_brain_controls
@@ -165,7 +175,7 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     app.state.core_runtime_status = {
         "ui_runtime": "terminal_operator_console",
         "chat_runtime": "conversation_engine",
-        "memory_runtime": "awaiting_whiteboard_memory_scaffold",
+        "memory_runtime": "daily_jsonl_consolidation",
         "silent_memory_writes": False,
         "future_port": False,
     }
@@ -311,6 +321,25 @@ def create_app(data_root: Path | None = None) -> FastAPI:
             record_chat=body.record_chat,
         )
 
+    @app.get("/api/chat/today")
+    def chat_today(day_id: str = "", limit: int | None = None) -> dict[str, Any]:
+        return store.memory.today_chat_log(day_id=day_id or None, limit=limit)
+
+    @app.post("/api/chat/search-today")
+    def chat_search_today(body: ChatSearchBody) -> dict[str, Any]:
+        return store.memory.search_today_chat(body.query, day_id=body.day_id or None, limit=body.limit)
+
+    @app.post("/api/chat/consolidate-day")
+    def chat_consolidate_day(body: ChatConsolidateBody) -> dict[str, Any]:
+        try:
+            return store.memory.consolidate_day_chat(
+                day_id=body.day_id or None,
+                window_radius=body.window_radius,
+                generation=body.generation,
+            )
+        except (OSError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
     @app.get("/api/clearspeak/cloud")
     def clearspeak_cloud(anchor: str, k: int = 20) -> dict[str, Any]:
         return store.context_map(anchor)
@@ -414,25 +443,19 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     @app.get("/api/lexicon/observed-maps")
     def lexicon_observed_maps() -> dict[str, Any]:
-        return store.observed_map_files()
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; active mapping uses native C++ user counts")
 
     @app.get("/api/lexicon/observed-map/{name}")
     def lexicon_observed_map(name: str) -> dict[str, Any]:
-        try:
-            return store.load_observed_map(name)
-        except (FileNotFoundError, ValueError) as exc:
-            raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; active mapping uses native C++ user counts")
 
     @app.get("/api/lexicon/symbolic-maps")
     def lexicon_symbolic_maps() -> dict[str, Any]:
-        return store.symbolic_map_files()
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; active mapping uses native C++ user counts")
 
     @app.get("/api/lexicon/symbolic-map/{name}")
     def lexicon_symbolic_map(name: str) -> dict[str, Any]:
-        try:
-            return store.load_symbolic_map_bundle(name)
-        except (FileNotFoundError, ValueError) as exc:
-            raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; active mapping uses native C++ user counts")
 
     @app.get("/api/binary-substrate/status")
     def binary_substrate_status() -> dict[str, Any]:
@@ -440,21 +463,15 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     @app.get("/api/awsg/graphs")
     def awsg_graphs() -> dict[str, Any]:
-        return awsg_viewer.list_graphs()
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; active graph export must come from native count-weight relations")
 
     @app.get("/api/awsg/graph/{graph_name}")
     def awsg_graph(graph_name: str) -> dict[str, Any]:
-        try:
-            return awsg_viewer.graph_summary(graph_name)
-        except FileNotFoundError as exc:
-            raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; active graph export must come from native count-weight relations")
 
     @app.get("/api/awsg/graph/{graph_name}/slice")
     def awsg_graph_slice(graph_name: str, node_id: str = "", radius: int = 1, limit: int = 500) -> dict[str, Any]:
-        try:
-            return awsg_viewer.graph_slice(graph_name, node_id=node_id, radius=radius, limit=limit)
-        except FileNotFoundError as exc:
-            raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; active graph export must come from native count-weight relations")
 
     @app.get("/api/visual-intake/files")
     def visual_intake_files() -> dict[str, Any]:
@@ -639,8 +656,12 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.post("/api/lexicon/mapping/run")
     def lexicon_mapping_run(body: MappingRunBody) -> dict[str, Any]:
         try:
-            return store.build_observed_map(Path(body.file_path))
-        except (FileNotFoundError, IsADirectoryError, ValueError, AssertionError) as exc:
+            return store.map_path_to_user_counts_native(
+                Path(body.file_path),
+                window_radius=body.window_radius,
+                generation=body.generation,
+            )
+        except (FileNotFoundError, NotADirectoryError, IsADirectoryError, ValueError, RuntimeError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
     @app.post("/api/intake/audit")
@@ -662,24 +683,18 @@ def create_app(data_root: Path | None = None) -> FastAPI:
 
     @app.post("/api/resonance/source-local/build")
     def resonance_source_local_build(body: ResonanceBuildBody) -> dict[str, Any]:
-        try:
-            return store.build_source_local_resonance(body.observed_map_name)
-        except (FileNotFoundError, ValueError) as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; source-local resonance must not be built from old observed maps")
 
     @app.post("/api/flat-documents/runtime/build")
     def flat_documents_runtime_build(body: ResonanceBuildBody) -> dict[str, Any]:
-        try:
-            return store.build_flat_runtime_from_observed_map(body.observed_map_name)
-        except (FileNotFoundError, ValueError) as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=410, detail="legacy-observed-map route locked; flat runtime must not be built from old observed maps")
 
     @app.post("/api/symbol-counts/binary/build")
     def symbol_counts_binary_build(body: BinarySymbolCountsBuildBody) -> dict[str, Any]:
-        try:
-            return store.build_binary_symbol_counts_from_source_local(limit=body.limit, generation=body.generation)
-        except (FileNotFoundError, ValueError, RuntimeError) as exc:
-            raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(
+            status_code=410,
+            detail="count-producing ingest is native-only; call the AnchorWorks C++ executable",
+        )
 
     @app.post("/api/lexicon/intake/preview")
     def lexicon_intake_preview(body: IntakePreviewBody) -> dict[str, Any]:
@@ -732,7 +747,13 @@ def create_app(data_root: Path | None = None) -> FastAPI:
     @app.post("/api/lexicon/intake/map")
     def lexicon_intake_map(body: IntakeMapBody) -> dict[str, Any]:
         try:
-            return store.build_intake_mapping(source_name=body.source_name, content=body.content, intake_edits=body.intake_edits)
+            return store.map_intake_content_to_user_counts_native(
+                source_name=body.source_name,
+                content=body.content,
+                intake_edits=body.intake_edits,
+                window_radius=body.window_radius,
+                generation=body.generation,
+            )
         except (FileNotFoundError, IsADirectoryError, ValueError, AssertionError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 

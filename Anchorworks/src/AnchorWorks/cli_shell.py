@@ -32,7 +32,11 @@ Commands:
 `/intake-preview <path>`   preview intake without approval
 `/intake-ready <path>`     check whether a file is ready to map
 `/intake-audit <dir>`      audit a source directory for intake
-`/intake-map <path>`       build an intake map after readiness passes
+`/intake-map <path>`       native map file or directory into user AWSC counts
+`/map-native <path>`       map a document into user AWSC counts through C++
+`/chat-today [day]`        show the JSONL working chat record
+`/chat-search <text>`      search today's JSONL working chat record
+`/chat-consolidate [day]`  explicitly consolidate a JSONL day through native counts
 `/missing`                 show missing-anchor review queue
 `/operator`                show operator-worthy runtime variables
 `/raw`                     toggle raw JSON output for the last result
@@ -172,6 +176,18 @@ def execute_shell_line(ctx: ShellContext, line: str) -> bool:
     if command == "intake-map":
         _handle_intake_map(ctx, args)
         return True
+    if command == "map-native":
+        _handle_native_mapping(ctx, args)
+        return True
+    if command == "chat-today":
+        _handle_chat_today(ctx, args)
+        return True
+    if command == "chat-search":
+        _handle_chat_search(ctx, args)
+        return True
+    if command == "chat-consolidate":
+        _handle_chat_consolidate(ctx, args)
+        return True
     if command == "missing":
         _handle_missing(ctx)
         return True
@@ -230,6 +246,46 @@ def _handle_status(ctx: ShellContext) -> None:
     for key, value in storage.items():
         table.add_row(f"storage.{key}", _short(value))
     console.print(table)
+
+
+def _handle_native_mapping(ctx: ShellContext, path_text: str) -> None:
+    console = ctx.console or Console()
+    if not path_text:
+        console.print("[yellow]/map-native needs a file path.[/yellow]")
+        return
+    try:
+        result = ctx.store.map_path_to_user_counts_native(Path(path_text))
+    except Exception as exc:
+        console.print(Panel(str(exc), title="Native Mapping Error", style="red"))
+        return
+    ctx.last_result = result
+    receipt = result.get("receipt") or {}
+    manifest = result.get("manifest") or {}
+    missing = result.get("missing") or {}
+    table = Table(title="Native Mapping")
+    table.add_column("Field")
+    table.add_column("Value")
+    table.add_row("runtime", str(result.get("runtime") or ""))
+    table.add_row("ok", str(result.get("ok")))
+    table.add_row("updated_cells", str(receipt.get("updated_cell_count", 0)))
+    table.add_row("records", str(receipt.get("record_count", 0)))
+    table.add_row("missing_names", str(manifest.get("missing_anchor_count", 0)))
+    table.add_row("source_local_symbols", str(manifest.get("source_local_symbol_count", 0)))
+    table.add_row("raw_text_in_count_spine", str(result.get("raw_text_in_count_spine")))
+    table.add_row("counts_root", str(result.get("active_binary_counts_root") or ""))
+    if result.get("missing_path"):
+        table.add_row("missing_sidecar", str(result.get("missing_path") or ""))
+    if result.get("runtime") == "native_cpp_directory_mapping":
+        table.add_row("file_count", str(result.get("file_count", 0)))
+        table.add_row("files_mapped", str(result.get("files_mapped", 0)))
+        table.add_row("failure_count", str(result.get("failure_count", 0)))
+    console.print(table)
+    source_local = missing.get("source_local_symbols") or []
+    if source_local:
+        preview = ", ".join(f"{row.get('anchor')}={row.get('symbol')}" for row in source_local[:5])
+        console.print(Panel(preview, title="Source-Local Symbols", border_style="cyan"))
+    if ctx.raw_enabled:
+        _print_json(console, result)
 
 
 def _handle_cloud(ctx: ShellContext, anchor: str) -> None:
@@ -396,20 +452,83 @@ def _handle_intake_map(ctx: ShellContext, path_text: str) -> None:
     if not path_text:
         console.print("[yellow]/intake-map needs a file path.[/yellow]")
         return
-    preview = _preview_file_for_intake(ctx, path_text)
-    if preview is None:
+    _handle_native_mapping(ctx, path_text)
+
+
+def _handle_chat_today(ctx: ShellContext, day_text: str) -> None:
+    console = ctx.console or Console()
+    day = str(day_text or "").strip() or None
+    result = ctx.store.memory.today_chat_log(day_id=day)
+    ctx.last_result = result
+    table = Table(title=f"Chat JSONL - {result.get('day_id')}")
+    table.add_column("Block")
+    table.add_column("Line")
+    table.add_column("Role")
+    table.add_column("Text")
+    for record in list(result.get("records") or [])[-12:]:
+        table.add_row(
+            str(record.get("block_id") or ""),
+            str(record.get("line_id") or ""),
+            str(record.get("role") or ""),
+            _short(record.get("clean_text") or record.get("raw_text") or "", 80),
+        )
+    console.print(table)
+    if ctx.raw_enabled:
+        _print_json(console, result)
+
+
+def _handle_chat_search(ctx: ShellContext, args: str) -> None:
+    console = ctx.console or Console()
+    query, day = _parse_chat_search_args(args)
+    if not query:
+        console.print("[yellow]/chat-search needs text.[/yellow]")
         return
-    readiness = intake_readiness_from_preview(preview)
-    if not readiness["ready"]:
-        ctx.last_result = {"preview": preview, "readiness": readiness}
-        console.print(Panel(readiness["message"], title="Intake Map Blocked", border_style="yellow"))
-        _print_missing_preview(console, preview)
+    result = ctx.store.memory.search_today_chat(query, day_id=day)
+    ctx.last_result = result
+    table = Table(title=f"Chat Search - {query}")
+    table.add_column("Block")
+    table.add_column("Line")
+    table.add_column("Text")
+    for record in result.get("matches") or []:
+        table.add_row(
+            str(record.get("block_id") or ""),
+            str(record.get("line_id") or ""),
+            _short(record.get("clean_text") or record.get("raw_text") or "", 100),
+        )
+    console.print(table)
+    if ctx.raw_enabled:
+        _print_json(console, result)
+
+
+def _handle_chat_consolidate(ctx: ShellContext, day_text: str) -> None:
+    console = ctx.console or Console()
+    try:
+        result = ctx.store.memory.consolidate_day_chat(day_id=str(day_text or "").strip() or None)
+    except Exception as exc:
+        console.print(Panel(str(exc), title="Chat Consolidation Error", style="red"))
         return
-    path = Path(path_text).expanduser()
-    content = path.read_text(encoding="utf-8", errors="replace")
-    result = ctx.store.build_intake_mapping(source_name=path.name, content=content)
-    ctx.last_result = {"preview": preview, "readiness": readiness, "mapping": result}
-    console.print(Panel(_short(result), title="Intake Map Built", border_style="green"))
+    ctx.last_result = result
+    native = result.get("native_mapping") or {}
+    receipt = native.get("receipt") or {}
+    table = Table(title=f"Chat Consolidation - {result.get('day_id')}")
+    table.add_column("Field")
+    table.add_column("Value")
+    table.add_row("runtime", str(result.get("runtime") or ""))
+    table.add_row("counts_written", str(result.get("counts_written")))
+    table.add_row("records", str(result.get("record_count", 0)))
+    table.add_row("updated_cells", str(receipt.get("updated_cell_count", 0)))
+    table.add_row("receipt", str(result.get("receipt_path") or ""))
+    console.print(table)
+    if ctx.raw_enabled:
+        _print_json(console, result)
+
+
+def _parse_chat_search_args(args: str) -> tuple[str, str | None]:
+    text = str(args or "").strip()
+    if " --day " not in text:
+        return text, None
+    query, _, day = text.partition(" --day ")
+    return query.strip(), day.strip() or None
 
 
 def _handle_missing(ctx: ShellContext) -> None:
@@ -515,6 +634,7 @@ def operator_surface_snapshot(ctx: ShellContext) -> dict[str, Any]:
             "readiness_command": "/intake-ready <path>",
             "audit_command": "/intake-audit <dir>",
             "map_command": "/intake-map <path>",
+            "map_runtime": "native_cpp_intake_text_or_directory_mapping",
         },
     }
 

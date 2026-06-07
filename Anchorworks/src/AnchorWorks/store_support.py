@@ -11,7 +11,6 @@ import re
 import shutil
 import threading
 import time
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -41,12 +40,14 @@ from .phrase_candidates import (
     write_phrase_candidate_review,
     write_phrase_candidate_review_from_observed_maps,
 )
-from .symbol_relation_counts import build_source_local_symbol_table, build_symbol_relation_rows
 from .symbol_count_native import (
+    native_directory_intake_to_counts,
+    native_text_intake_to_counts,
     merge_symbol_stream,
     verify_binary_counts,
-    write_awss_from_symbol_count_artifacts,
+    write_authority_snapshot,
 )
+from .symbol_count_cells import CANONICAL_LANE, read_symbol_cell, write_symbol_cell
 from .symbolic_map_binary import (
     SymbolicMapRelation,
     read_symbolic_map_binary,
@@ -215,15 +216,6 @@ def _is_visual_preview_content(content: str) -> bool:
         "Writes_Allowed: maps=false counts=false lifetime=false lexicon=false",
     )
     return all(marker in content for marker in markers)
-
-
-def _build_observed_map_worker(args: tuple[str, str, str, list[str]]) -> dict[str, Any]:
-    from .store import LexiconStore
-
-    data_root, source_path, count_target, null_anchor_rows = args
-    store = LexiconStore(Path(data_root))
-    null_anchors = set(null_anchor_rows) if null_anchor_rows else None
-    return store.build_observed_map(Path(source_path), count_target=count_target, null_anchors=null_anchors)
 
 
 def _ordered_unique(values: Any) -> list[str]:

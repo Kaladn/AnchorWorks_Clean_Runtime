@@ -35,6 +35,24 @@ std::uint64_t arg_u64(int argc, char** argv, const std::string& name, std::uint6
     return fallback;
 }
 
+bool has_flag(int argc, char** argv, const std::string& name) {
+    for (int i = 2; i < argc; ++i) {
+        if (argv[i] == name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string optional_arg_value(int argc, char** argv, const std::string& name, const std::string& fallback) {
+    for (int i = 2; i + 1 < argc; ++i) {
+        if (argv[i] == name) {
+            return argv[i + 1];
+        }
+    }
+    return fallback;
+}
+
 std::string read_text_file(const std::filesystem::path& path) {
     std::ifstream in(path, std::ios::binary);
     if (!in) {
@@ -116,6 +134,31 @@ struct AuthorityEntry {
     awsc::Symbol symbol{};
     std::uint8_t lane = awsc::LANE_SOURCE_LOCAL_TEMP;
 };
+
+struct IntakeStats {
+    std::uint64_t paragraph_count = 0;
+    std::uint64_t anchor_observation_count = 0;
+    std::uint64_t countable_anchor_observation_count = 0;
+};
+
+std::uint64_t fnv1a_64(const std::string& text) {
+    std::uint64_t hash = 14695981039346656037ULL;
+    for (unsigned char ch : text) {
+        hash ^= static_cast<std::uint64_t>(ch);
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}
+
+awsc::Symbol source_local_symbol_for(const std::string& source_id, const std::string& anchor) {
+    const auto hash = fnv1a_64(source_id + "\n" + anchor);
+    const auto value = 0xF000000000ULL | (hash & 0x0FFFFFFFFFULL);
+    awsc::Symbol symbol{};
+    for (int i = 0; i < 5; ++i) {
+        symbol[static_cast<std::size_t>(4 - i)] = static_cast<std::uint8_t>((value >> (8 * i)) & 0xff);
+    }
+    return symbol;
+}
 
 std::string object_value(const std::string& object, const std::string& key) {
     const std::regex pattern("\"" + key + "\"\\s*:\\s*\"([^\"]*)\"");
@@ -265,45 +308,63 @@ struct RelationKey {
     }
 };
 
-int run_intake_text(int argc, char** argv) {
-    const auto input = std::filesystem::path(arg_value(argc, argv, "--input"));
-    const auto authority_path = std::filesystem::path(arg_value(argc, argv, "--authority"));
-    const auto output = std::filesystem::path(arg_value(argc, argv, "--output"));
-    const auto manifest = std::filesystem::path(arg_value(argc, argv, "--manifest"));
-    const auto missing_path = std::filesystem::path(arg_value(argc, argv, "--missing"));
-    const auto window_radius_u64 = arg_u64(argc, argv, "--window-radius", 6);
-    if (window_radius_u64 == 0 || window_radius_u64 > 127) {
-        throw std::runtime_error("window radius must be 1..127");
-    }
-    const auto window_radius = static_cast<int>(window_radius_u64);
-    const auto authority = read_authority_snapshot(authority_path);
-    const auto paragraphs = split_paragraphs_native(read_text_file(input));
+std::filesystem::path cell_path_for_awsc_symbol(const std::filesystem::path& root, const awsc::Symbol& symbol) {
+    const auto hex = awsc::symbol_to_hex(symbol);
+    return root / "cells" / hex.substr(0, 2) / (hex + ".cell");
+}
 
-    std::map<RelationKey, std::uint64_t> relations;
-    std::map<std::string, std::uint64_t> missing;
-    std::uint64_t countable_observations = 0;
-    std::uint64_t total_anchors = 0;
+void add_text_file_to_relations(
+    const std::filesystem::path& input,
+    const std::map<std::string, AuthorityEntry>& authority,
+    const std::string& source_id,
+    bool source_local_missing,
+    int window_radius,
+    std::map<RelationKey, std::uint64_t>& relations,
+    std::map<std::string, std::uint64_t>& missing,
+    std::map<std::string, AuthorityEntry>& source_local,
+    IntakeStats& stats
+) {
+    const auto paragraphs = split_paragraphs_native(read_text_file(input));
+    stats.paragraph_count += paragraphs.size();
 
     for (const auto& paragraph : paragraphs) {
         const auto anchors = extract_anchors_native(paragraph);
-        total_anchors += anchors.size();
-        std::vector<const AuthorityEntry*> resolved;
+        stats.anchor_observation_count += anchors.size();
+        std::vector<AuthorityEntry> resolved;
+        std::vector<bool> is_resolved;
         resolved.reserve(anchors.size());
+        is_resolved.reserve(anchors.size());
         for (const auto& anchor : anchors) {
             const auto found = authority.find(anchor);
             if (found == authority.end()) {
                 missing[anchor] += 1;
-                resolved.push_back(nullptr);
+                if (source_local_missing) {
+                    const auto local_key = source_id + "\n" + anchor;
+                    auto local_found = source_local.find(local_key);
+                    if (local_found == source_local.end()) {
+                        local_found = source_local.emplace(
+                            local_key,
+                            AuthorityEntry{source_local_symbol_for(source_id, anchor), awsc::LANE_SOURCE_LOCAL_TEMP}
+                        ).first;
+                    }
+                    ++stats.countable_anchor_observation_count;
+                    resolved.push_back(local_found->second);
+                    is_resolved.push_back(true);
+                } else {
+                    resolved.push_back(AuthorityEntry{});
+                    is_resolved.push_back(false);
+                }
             } else {
-                ++countable_observations;
-                resolved.push_back(&found->second);
+                ++stats.countable_anchor_observation_count;
+                resolved.push_back(found->second);
+                is_resolved.push_back(true);
             }
         }
         for (std::size_t position = 0; position < resolved.size(); ++position) {
-            const auto* root = resolved[position];
-            if (root == nullptr) {
+            if (!is_resolved[position]) {
                 continue;
             }
+            const auto& root = resolved[position];
             for (int offset = -window_radius; offset <= window_radius; ++offset) {
                 if (offset == 0) {
                     continue;
@@ -312,37 +373,147 @@ int run_intake_text(int argc, char** argv) {
                 if (neighbor_index < 0 || neighbor_index >= static_cast<int>(resolved.size())) {
                     continue;
                 }
-                const auto* neighbor = resolved[static_cast<std::size_t>(neighbor_index)];
-                if (neighbor == nullptr) {
+                if (!is_resolved[static_cast<std::size_t>(neighbor_index)]) {
                     continue;
                 }
+                const auto& neighbor = resolved[static_cast<std::size_t>(neighbor_index)];
                 relations[RelationKey{
-                    root->symbol,
-                    neighbor->symbol,
+                    root.symbol,
+                    neighbor.symbol,
                     static_cast<std::int8_t>(offset),
-                    neighbor->lane,
-                    root->lane,
+                    neighbor.lane,
+                    root.lane,
                 }] += 1;
             }
         }
     }
+}
 
-    std::vector<std::uint8_t> stream;
-    stream.reserve(relations.size() * 24);
+std::uint64_t merge_relation_map_to_cells(
+    const std::map<RelationKey, std::uint64_t>& relations,
+    const std::filesystem::path& output_root,
+    std::uint64_t generation
+) {
+    struct RootBucket {
+        std::uint8_t root_lane = awsc::LANE_CANONICAL;
+        std::vector<awsc::Relation> relations;
+    };
+
+    std::map<awsc::Symbol, RootBucket> buckets;
+    for (const auto& [key, count] : relations) {
+        auto& bucket = buckets[key.root];
+        if (bucket.relations.empty()) {
+            bucket.root_lane = key.root_lane;
+        } else if (bucket.root_lane != key.root_lane) {
+            throw std::runtime_error("relation map changes root lane for one symbol");
+        }
+        bucket.relations.push_back(awsc::Relation{
+            key.neighbor,
+            key.offset,
+            key.lane,
+            0,
+            count,
+        });
+    }
+
+    std::filesystem::create_directories(output_root / "indexes");
+    for (const auto& [root, bucket] : buckets) {
+        const auto cell_path = cell_path_for_awsc_symbol(output_root, root);
+        std::vector<awsc::Relation> merged = bucket.relations;
+        std::uint16_t flags = 0;
+        std::uint64_t wal_frame = 0;
+        std::uint64_t overflow_offset = 0;
+        if (std::filesystem::exists(cell_path)) {
+            const auto existing = awsc::read_cell(cell_path);
+            if (existing.root_lane != bucket.root_lane) {
+                throw std::runtime_error("existing AWSC cell root lane does not match incoming relation map");
+            }
+            flags = existing.flags;
+            wal_frame = existing.wal_frame + 1;
+            overflow_offset = existing.overflow_offset;
+            merged.insert(merged.end(), existing.relations.begin(), existing.relations.end());
+        }
+        awsc::write_cell(cell_path, awsc::Cell{
+            root,
+            bucket.root_lane,
+            flags,
+            generation,
+            wal_frame,
+            overflow_offset,
+            merged
+        });
+    }
+
+    std::ofstream metadata(output_root / "metadata.json", std::ios::trunc);
+    metadata << "{\n"
+             << "  \"schema_version\": \"anchorworks_symbol_counts_binary@1.1\",\n"
+             << "  \"input_format\": \"native-direct-text\",\n"
+             << "  \"updated_cell_count\": " << buckets.size() << ",\n"
+             << "  \"generation\": " << generation << "\n"
+             << "}\n";
+    return buckets.size();
+}
+
+int run_intake_text(int argc, char** argv) {
+    const auto input = std::filesystem::path(arg_value(argc, argv, "--input"));
+    const auto authority_path = std::filesystem::path(arg_value(argc, argv, "--authority"));
+    const auto output_text = optional_arg_value(argc, argv, "--output", "");
+    const auto output = std::filesystem::path(output_text);
+    const auto merge_output_text = optional_arg_value(argc, argv, "--merge-output", "");
+    const auto merge_output = std::filesystem::path(merge_output_text);
+    const auto manifest = std::filesystem::path(arg_value(argc, argv, "--manifest"));
+    const auto missing_path = std::filesystem::path(arg_value(argc, argv, "--missing"));
+    const auto source_id = optional_arg_value(argc, argv, "--source-id", input.filename().string());
+    const auto source_local_missing = has_flag(argc, argv, "--source-local-missing");
+    if (output_text.empty() == merge_output_text.empty()) {
+        throw std::runtime_error("provide exactly one of --output or --merge-output");
+    }
+    const auto generation = arg_u64(argc, argv, "--generation", 0);
+    const auto window_radius_u64 = arg_u64(argc, argv, "--window-radius", 6);
+    if (window_radius_u64 == 0 || window_radius_u64 > 127) {
+        throw std::runtime_error("window radius must be 1..127");
+    }
+    const auto window_radius = static_cast<int>(window_radius_u64);
+    const auto authority = read_authority_snapshot(authority_path);
+    std::map<RelationKey, std::uint64_t> relations;
+    std::map<std::string, std::uint64_t> missing;
+    std::map<std::string, AuthorityEntry> source_local;
+    IntakeStats stats;
+    add_text_file_to_relations(
+        input,
+        authority,
+        source_id,
+        source_local_missing,
+        window_radius,
+        relations,
+        missing,
+        source_local,
+        stats
+    );
+
     std::uint64_t observation_count = 0;
     for (const auto& [key, count] : relations) {
-        append_awss_record(stream, key.root, key.neighbor, key.offset, key.lane, key.root_lane, count);
         observation_count += count;
     }
-    std::filesystem::create_directories(output.parent_path());
-    {
-        std::ofstream out(output, std::ios::binary | std::ios::trunc);
-        if (!out) {
-            throw std::runtime_error("cannot open AWSS output for writing: " + output.string());
+    std::uint64_t updated_cell_count = 0;
+    if (!merge_output_text.empty()) {
+        updated_cell_count = merge_relation_map_to_cells(relations, merge_output, generation);
+    } else {
+        std::vector<std::uint8_t> stream;
+        stream.reserve(relations.size() * 24);
+        for (const auto& [key, count] : relations) {
+            append_awss_record(stream, key.root, key.neighbor, key.offset, key.lane, key.root_lane, count);
         }
-        out.write(reinterpret_cast<const char*>(stream.data()), static_cast<std::streamsize>(stream.size()));
-        if (!out) {
-            throw std::runtime_error("failed writing AWSS output: " + output.string());
+        std::filesystem::create_directories(output.parent_path());
+        {
+            std::ofstream out(output, std::ios::binary | std::ios::trunc);
+            if (!out) {
+                throw std::runtime_error("cannot open AWSS output for writing: " + output.string());
+            }
+            out.write(reinterpret_cast<const char*>(stream.data()), static_cast<std::streamsize>(stream.size()));
+            if (!out) {
+                throw std::runtime_error("failed writing AWSS output: " + output.string());
+            }
         }
     }
 
@@ -355,6 +526,19 @@ int run_intake_text(int argc, char** argv) {
         first_missing = false;
         missing_json += "{\"anchor\":\"" + json_escape(anchor) + "\",\"observations\":" + std::to_string(observations) + "}";
     }
+    missing_json += "],\"source_local_symbols\":[";
+    bool first_source_local = true;
+    for (const auto& [local_key, entry] : source_local) {
+        if (!first_source_local) {
+            missing_json += ",";
+        }
+        first_source_local = false;
+        const auto split = local_key.find('\n');
+        const auto anchor = split == std::string::npos ? local_key : local_key.substr(split + 1);
+        missing_json += "{\"anchor\":\"" + json_escape(anchor) +
+                        "\",\"symbol\":\"0x" + awsc::symbol_to_hex(entry.symbol) +
+                        "\",\"observations\":" + std::to_string(missing[anchor]) + "}";
+    }
     missing_json += "]}";
     write_text_file(missing_path, missing_json);
 
@@ -363,20 +547,192 @@ int run_intake_text(int argc, char** argv) {
         ",\"ok\":true" +
         ",\"input\":\"" + json_escape(input.string()) + "\"" +
         ",\"authority\":\"" + json_escape(authority_path.string()) + "\"" +
-        ",\"output\":\"" + json_escape(output.string()) + "\"" +
+        ",\"output\":\"" + json_escape(output_text) + "\"" +
+        ",\"merge_output\":\"" + json_escape(merge_output_text) + "\"" +
+        ",\"source_id\":\"" + json_escape(source_id) + "\"" +
         ",\"window_radius\":" + std::to_string(window_radius) +
-        ",\"paragraph_count\":" + std::to_string(paragraphs.size()) +
-        ",\"anchor_observation_count\":" + std::to_string(total_anchors) +
-        ",\"countable_anchor_observation_count\":" + std::to_string(countable_observations) +
+        ",\"paragraph_count\":" + std::to_string(stats.paragraph_count) +
+        ",\"anchor_observation_count\":" + std::to_string(stats.anchor_observation_count) +
+        ",\"countable_anchor_observation_count\":" + std::to_string(stats.countable_anchor_observation_count) +
         ",\"missing_anchor_count\":" + std::to_string(missing.size()) +
+        ",\"source_local_symbol_count\":" + std::to_string(source_local.size()) +
         ",\"record_count\":" + std::to_string(relations.size()) +
         ",\"relation_observation_count\":" + std::to_string(observation_count) +
+        ",\"updated_cell_count\":" + std::to_string(updated_cell_count) +
         ",\"record_size\":24" +
         ",\"raw_text_in_count_spine\":false}";
     write_text_file(manifest, manifest_json);
 
     std::cout << "{\"ok\":true,\"command\":\"intake-text\",\"record_count\":" << relations.size()
-              << ",\"missing_anchor_count\":" << missing.size() << "}\n";
+              << ",\"missing_anchor_count\":" << missing.size()
+              << ",\"source_local_symbol_count\":" << source_local.size()
+              << ",\"updated_cell_count\":" << updated_cell_count << "}\n";
+    return 0;
+}
+
+std::string lower_string(std::string value) {
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::tolower(ch));
+    });
+    return value;
+}
+
+bool is_generated_runtime_path(const std::filesystem::path& root, const std::filesystem::path& path) {
+    static const std::set<std::string> names = {
+        "State", "AnchorMaps", "build", "dist", "__pycache__", ".git", ".pytest_cache",
+        ".mypy_cache", ".ruff_cache", "node_modules", "outputs"
+    };
+    const auto relative = std::filesystem::relative(path, root);
+    for (auto it = relative.begin(); it != relative.end(); ++it) {
+        if (std::next(it) == relative.end()) {
+            break;
+        }
+        if (names.count(it->string()) > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool has_supported_text_suffix(const std::filesystem::path& path) {
+    static const std::set<std::string> suffixes = {
+        ".txt", ".md", ".rst", ".srt", ".vtt", ".json", ".jsonl", ".csv", ".tsv", ".log"
+    };
+    const auto ext = lower_string(path.extension().string());
+    return ext.empty() || suffixes.count(ext) > 0;
+}
+
+std::string json_skipped_files(const std::vector<std::pair<std::filesystem::path, std::string>>& skipped) {
+    std::string out = "[";
+    bool first = true;
+    for (const auto& [path, reason] : skipped) {
+        if (!first) {
+            out += ",";
+        }
+        first = false;
+        out += "{\"source_path\":\"" + json_escape(path.string()) + "\",\"reason\":\"" + json_escape(reason) + "\"}";
+    }
+    out += "]";
+    return out;
+}
+
+int run_intake_dir(int argc, char** argv) {
+    const auto input_dir = std::filesystem::path(arg_value(argc, argv, "--input-dir"));
+    const auto authority_path = std::filesystem::path(arg_value(argc, argv, "--authority"));
+    const auto merge_output = std::filesystem::path(arg_value(argc, argv, "--merge-output"));
+    const auto manifest = std::filesystem::path(arg_value(argc, argv, "--manifest"));
+    const auto missing_path = std::filesystem::path(arg_value(argc, argv, "--missing"));
+    const auto source_id_prefix = optional_arg_value(argc, argv, "--source-id", input_dir.filename().string());
+    const auto source_local_missing = has_flag(argc, argv, "--source-local-missing");
+    const auto generation = arg_u64(argc, argv, "--generation", 0);
+    const auto window_radius_u64 = arg_u64(argc, argv, "--window-radius", 6);
+    if (!std::filesystem::exists(input_dir) || !std::filesystem::is_directory(input_dir)) {
+        throw std::runtime_error("input directory does not exist: " + input_dir.string());
+    }
+    if (window_radius_u64 == 0 || window_radius_u64 > 127) {
+        throw std::runtime_error("window radius must be 1..127");
+    }
+    const auto window_radius = static_cast<int>(window_radius_u64);
+    const auto authority = read_authority_snapshot(authority_path);
+
+    std::vector<std::filesystem::path> files;
+    std::vector<std::pair<std::filesystem::path, std::string>> skipped;
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(input_dir)) {
+        if (!entry.is_regular_file()) {
+            continue;
+        }
+        const auto path = entry.path();
+        if (is_generated_runtime_path(input_dir, path)) {
+            skipped.emplace_back(path, "generated_runtime_path");
+            continue;
+        }
+        if (!has_supported_text_suffix(path)) {
+            skipped.emplace_back(path, "unsupported_suffix");
+            continue;
+        }
+        files.push_back(path);
+    }
+    std::sort(files.begin(), files.end());
+    std::sort(skipped.begin(), skipped.end(), [](const auto& left, const auto& right) {
+        return left.first.string() < right.first.string();
+    });
+
+    std::map<RelationKey, std::uint64_t> relations;
+    std::map<std::string, std::uint64_t> missing;
+    std::map<std::string, AuthorityEntry> source_local;
+    IntakeStats stats;
+    for (const auto& path : files) {
+        const auto rel = std::filesystem::relative(path, input_dir).generic_string();
+        add_text_file_to_relations(
+            path,
+            authority,
+            source_id_prefix + "/" + rel,
+            source_local_missing,
+            window_radius,
+            relations,
+            missing,
+            source_local,
+            stats
+        );
+    }
+
+    std::uint64_t observation_count = 0;
+    for (const auto& [key, count] : relations) {
+        observation_count += count;
+    }
+    const auto updated_cell_count = merge_relation_map_to_cells(relations, merge_output, generation);
+
+    std::string missing_json = "{\"schema_version\":\"anchorworks_native_intake_missing@1\",\"missing\":";
+    missing_json += "[";
+    bool first_missing = true;
+    for (const auto& [anchor, observations] : missing) {
+        if (!first_missing) missing_json += ",";
+        first_missing = false;
+        missing_json += "{\"anchor\":\"" + json_escape(anchor) + "\",\"observations\":" + std::to_string(observations) + "}";
+    }
+    missing_json += "],\"source_local_symbols\":[";
+    bool first_source_local = true;
+    for (const auto& [local_key, entry] : source_local) {
+        if (!first_source_local) missing_json += ",";
+        first_source_local = false;
+        const auto split = local_key.find('\n');
+        const auto anchor = split == std::string::npos ? local_key : local_key.substr(split + 1);
+        missing_json += "{\"anchor\":\"" + json_escape(anchor) +
+                        "\",\"symbol\":\"0x" + awsc::symbol_to_hex(entry.symbol) +
+                        "\",\"observations\":" + std::to_string(missing[anchor]) + "}";
+    }
+    missing_json += "]}";
+    write_text_file(missing_path, missing_json);
+
+    const auto manifest_json =
+        std::string("{\"schema_version\":\"anchorworks_native_directory_intake_manifest@1\"") +
+        ",\"ok\":true" +
+        ",\"input_dir\":\"" + json_escape(input_dir.string()) + "\"" +
+        ",\"authority\":\"" + json_escape(authority_path.string()) + "\"" +
+        ",\"merge_output\":\"" + json_escape(merge_output.string()) + "\"" +
+        ",\"source_id\":\"" + json_escape(source_id_prefix) + "\"" +
+        ",\"window_radius\":" + std::to_string(window_radius) +
+        ",\"file_count\":" + std::to_string(files.size()) +
+        ",\"skipped_file_count\":" + std::to_string(skipped.size()) +
+        ",\"skipped_files\":" + json_skipped_files(skipped) +
+        ",\"paragraph_count\":" + std::to_string(stats.paragraph_count) +
+        ",\"anchor_observation_count\":" + std::to_string(stats.anchor_observation_count) +
+        ",\"countable_anchor_observation_count\":" + std::to_string(stats.countable_anchor_observation_count) +
+        ",\"missing_anchor_count\":" + std::to_string(missing.size()) +
+        ",\"source_local_symbol_count\":" + std::to_string(source_local.size()) +
+        ",\"record_count\":" + std::to_string(relations.size()) +
+        ",\"relation_observation_count\":" + std::to_string(observation_count) +
+        ",\"updated_cell_count\":" + std::to_string(updated_cell_count) +
+        ",\"record_size\":24" +
+        ",\"raw_text_in_count_spine\":false}";
+    write_text_file(manifest, manifest_json);
+
+    std::cout << "{\"ok\":true,\"command\":\"intake-dir\",\"file_count\":" << files.size()
+              << ",\"skipped_file_count\":" << skipped.size()
+              << ",\"record_count\":" << relations.size()
+              << ",\"missing_anchor_count\":" << missing.size()
+              << ",\"source_local_symbol_count\":" << source_local.size()
+              << ",\"updated_cell_count\":" << updated_cell_count << "}\n";
     return 0;
 }
 
@@ -429,7 +785,8 @@ double offset_weight(std::int8_t offset) {
 void print_usage() {
     std::cerr
         << "anchorworks-symbol-counts commands:\n"
-        << "  intake-text --input <prepared.txt> --authority <snapshot.json> --output <awss.bin> --manifest <manifest.json> --missing <missing.json> [--window-radius <n>]\n"
+        << "  intake-text --input <prepared.txt> --authority <snapshot.json> (--output <awss.bin> | --merge-output <root>) --manifest <manifest.json> --missing <missing.json> [--window-radius <n>]\n"
+        << "  intake-dir --input-dir <dir> --authority <snapshot.json> --merge-output <root> --manifest <manifest.json> --missing <missing.json> [--window-radius <n>]\n"
         << "  merge-stream --input <awss.bin> --output <root> [--generation <n>]\n"
         << "  merge-symbol-stream --input <awsy.bin> --output <root> [--generation <n>] [--window-radius <n>]\n"
         << "  verify --root <root>\n"
@@ -448,6 +805,9 @@ int main(int argc, char** argv) {
         const std::string command = argv[1];
         if (command == "intake-text") {
             return run_intake_text(argc, argv);
+        }
+        if (command == "intake-dir") {
+            return run_intake_dir(argc, argv);
         }
         if (command == "merge-stream") {
             const auto input = std::filesystem::path(arg_value(argc, argv, "--input"));

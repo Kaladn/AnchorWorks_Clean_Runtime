@@ -276,17 +276,12 @@ class IntakeMixin:
         count_target: str = "binary_source_local",
         intake_edits: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        if _is_visual_preview_content(content):
-            raise ValueError("visual intake preview is source-local evidence only; use a future visual approval route before mapping/counting")
-        null_anchors = {
-            self.normalize_anchor(str(edit.get("original_anchor") or ""))
-            for edit in (intake_edits or [])
-            if str(edit.get("action") or "").strip().lower() == "null"
-            and self.normalize_anchor(str(edit.get("original_anchor") or ""))
-        }
-        staged_path = self._intake_upload_path(source_name=source_name, content=content)
-        staged_path.write_text(content, encoding="utf-8")
-        return self.build_observed_map(staged_path, count_target=count_target, null_anchors=null_anchors)
+        del count_target
+        return self.map_intake_content_to_user_counts_native(
+            source_name=source_name,
+            content=content,
+            intake_edits=intake_edits,
+        )
 
     def _anchor_case_signature(self, anchor: str) -> tuple[bool, int]:
         return (anchor[:1].isupper(), sum(1 for char in anchor if char.isupper()))

@@ -5,6 +5,7 @@ __pycache__/
 Anchorworks/anchorworks-8081*.out.log
 Anchorworks/anchorworks-8081*.err.log
 Anchorworks/reports/**
+Anchorworks/State/**
 test/test data/experiments/toy_evidence_renderer/runtime/
 test/test data/experiments/observed_map_graph/runtime/
 
@@ -39,6 +40,7 @@ State/source_local_resonance/**
 State/temp_lexicons/**
 State/ingest_staging/**
 State/user/ingest_staging/**
+State/user/user_lexicon/**
 State/visual_intake/**
 State/misspelled_reviews/**
 State/chat_memory/chats/**

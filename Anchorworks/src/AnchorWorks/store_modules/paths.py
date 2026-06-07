@@ -26,7 +26,10 @@ class StorePaths:
         self.user_state_dir = self.state_dir / "user"
         self.user_lexicon_dir = self.user_state_dir / "user_lexicon"
         self.user_counts_dir = self.user_state_dir / "user_counts"
-        self.chat_counts_dir = self.user_state_dir / "chat_counts"
+        self.symbol_genome_pool_dir = self.user_lexicon_dir / "symbol_genome_pool"
+        self.chat_logs_dir = self.user_state_dir / "chat_logs"
+        self.chat_log_receipts_dir = self.chat_logs_dir / "receipts"
+        self.chat_log_prepared_dir = self.chat_logs_dir / "prepared"
         self.ingest_staging_dir = self.user_state_dir / "ingest_staging"
         self.rejected_or_literal_clusters_dir = self.user_state_dir / "rejected_or_literal_clusters"
         self.anchor_maps_root = anchor_maps_root_for(self.root)
@@ -35,7 +38,8 @@ class StorePaths:
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
         self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
-        self.symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
+        self.canonical_symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
+        self.symbol_counts_binary_dir = self.user_counts_dir / "symbol_counts_binary"
         self.symbol_streams_dir = self.state_dir / "symbol_streams"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
@@ -52,15 +56,12 @@ class StorePaths:
         self.flat_documents_occurrence_index_dir = self.flat_documents_dir / "occurrence_index"
         self.flat_documents_local_overlays_dir = self.flat_documents_dir / "local_overlays"
         self.intake_uploads_dir = self.state_dir / "intake_uploads"
-        self.lifetime_counts_path = self.state_dir / "lifetime_co_occurrence_counts.json"
         self.missing_anchor_registry_path = self.state_dir / "missing_anchor_registry.json"
         self.unmatched_path = self.state_dir / "unmatched_words.json"
         self.pending_path = self.state_dir / "pending_words.json"
         self.ignored_path = self.state_dir / "ignored_words.json"
         self.custom_entries_path = self.user_state_dir / "custom_entries.json"
         self.user_lexicon_path = self.user_lexicon_dir / "anchors.json"
-        self.user_counts_path = self.user_counts_dir / "lifetime_co_occurrence_counts.json"
-        self.chat_counts_path = self.chat_counts_dir / "chat_co_occurrence_counts.json"
         self.ingest_staging_manifest_path = self.ingest_staging_dir / "manifest.json"
         self.rejected_or_literal_clusters_path = self.rejected_or_literal_clusters_dir / "clusters.json"
 
@@ -71,7 +72,10 @@ class StorePaths:
             self.user_state_dir,
             self.user_lexicon_dir,
             self.user_counts_dir,
-            self.chat_counts_dir,
+            self.symbol_genome_pool_dir,
+            self.chat_logs_dir,
+            self.chat_log_receipts_dir,
+            self.chat_log_prepared_dir,
             self.ingest_staging_dir,
             self.rejected_or_literal_clusters_dir,
             self.observed_maps_dir,
@@ -79,6 +83,7 @@ class StorePaths:
             self.misspelled_reviews_dir,
             self.temp_lexicons_dir,
             self.source_local_symbol_counts_dir,
+            self.canonical_symbol_counts_binary_dir,
             self.symbol_counts_binary_dir,
             self.symbol_streams_dir,
             self.source_local_occurrences_dir,

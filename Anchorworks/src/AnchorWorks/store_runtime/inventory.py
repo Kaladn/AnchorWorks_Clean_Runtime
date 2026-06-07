@@ -63,7 +63,6 @@ class InventoryMixin:
 
     def binary_substrate_status(self) -> dict[str, Any]:
         seed = self.ensure_user_symbol_counts_seeded()
-        stream_path = self.symbol_streams_dir / "source_local_symbol_counts.awss"
         cells_root = self.symbol_counts_binary_dir / "cells"
         cell_count = sum(1 for _ in cells_root.glob("*/*.cell")) if cells_root.exists() else 0
         symbolic_inventory = self.symbolic_map_files()
@@ -79,15 +78,12 @@ class InventoryMixin:
             "awsl_locator_count": symbolic_inventory["locator_sidecar_count"],
             "awsn_null_count": symbolic_inventory["null_sidecar_count"],
             "awsv_visual_count": symbolic_inventory["visual_sidecar_count"],
-            "awss_stream_path": str(stream_path),
-            "awss_stream_exists": stream_path.exists(),
-            "awss_stream_size_bytes": stream_path.stat().st_size if stream_path.exists() else 0,
             "awsc_cells_root": str(cells_root),
             "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
             "active_binary_counts_root": str(self.symbol_counts_binary_dir),
             "user_count_acknowledgement_path": seed["acknowledgement_path"],
             "awsc_cell_count": cell_count,
-            "runtime_law": "AWSM serves; JSON witnesses; AWSC counts.",
+            "runtime_law": "Native C++ count ingest writes AWSC cells; Python only orchestrates.",
         }
 
     def misspelled_review_files(self) -> dict[str, Any]:

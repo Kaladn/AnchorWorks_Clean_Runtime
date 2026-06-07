@@ -15,7 +15,7 @@ from .symbol_genome import (
 
 SYMBOL_GENOME_POOL_SCHEMA_VERSION = "anchorworks_symbol_genome_pool@1"
 MAX_40_BIT_SYMBOL_COUNT = 1 << 40
-DEFAULT_SYMBOL_GENOME_CAPACITY = 1_000_000_000_000
+DEFAULT_SYMBOL_GENOME_CAPACITY = 10_000_000
 USER_LEXICON_SYMBOL_BASE = 0xE000000000
 USER_LEXICON_SYMBOL_CAPACITY = 500_000_000
 SOURCE_LOCAL_SYMBOL_BASE = 0xF000000000
@@ -120,6 +120,7 @@ class SymbolGenomePool:
             "generator": "cursor_backed_40_bit_symbol_genome",
             "lexicon_pack": False,
             "records_materialized": False,
+            "slot_materialization": "cursor_manifest_only",
             "checkpoint_contract": "manifest cursor is authority; generated symbols are not copied into spare lexicon files",
             "checkpoints": [],
         }
@@ -133,11 +134,20 @@ class SymbolGenomePool:
         if not isinstance(payload, dict) or payload.get("schema_version") != SYMBOL_GENOME_POOL_SCHEMA_VERSION:
             raise ValueError("invalid symbol genome pool manifest")
         changed = False
-        if int(payload.get("capacity") or 0) < self.capacity:
+        next_index = int(payload.get("next_index") or 0)
+        if next_index > self.capacity:
+            raise ValueError("symbol genome pool cursor exceeds configured capacity")
+        if int(payload.get("capacity") or 0) != self.capacity:
             payload["capacity"] = self.capacity
             changed = True
         if payload.get("generator") != "cursor_backed_40_bit_symbol_genome":
             payload["generator"] = "cursor_backed_40_bit_symbol_genome"
+            changed = True
+        if payload.get("slot_materialization") != "cursor_manifest_only":
+            payload["slot_materialization"] = "cursor_manifest_only"
+            changed = True
+        if payload.get("records_materialized") is not False:
+            payload["records_materialized"] = False
             changed = True
         if changed:
             payload["updated_at"] = _utc_now()

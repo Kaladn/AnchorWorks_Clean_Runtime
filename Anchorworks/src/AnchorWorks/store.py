@@ -21,6 +21,11 @@ class LexiconStore(
 ):
     def __init__(self, data_root: Path) -> None:
         self.root = Path(data_root).expanduser().resolve()
+        if self.root.name.lower() == "anchorworks" and self.root.parent.name == "AnchorWorks_Clean_Runtime":
+            raise RuntimeError(
+                "code folder cannot be used as AnchorWorks data root; "
+                "use D:\\AnchorWorks_Clean_Runtime or an explicit temp/integration root"
+            )
         self.paths = StorePaths(self.root)
         self.canonical_dir = self.root / "Canonical"
         self.spare_dir = self.root / "Spare_Slots"
@@ -30,7 +35,9 @@ class LexiconStore(
         self.user_state_dir = self.state_dir / "user"
         self.user_lexicon_dir = self.user_state_dir / "user_lexicon"
         self.user_counts_dir = self.user_state_dir / "user_counts"
-        self.chat_counts_dir = self.user_state_dir / "chat_counts"
+        self.chat_logs_dir = self.user_state_dir / "chat_logs"
+        self.chat_log_receipts_dir = self.chat_logs_dir / "receipts"
+        self.chat_log_prepared_dir = self.chat_logs_dir / "prepared"
         self.ingest_staging_dir = self.user_state_dir / "ingest_staging"
         self.rejected_or_literal_clusters_dir = self.user_state_dir / "rejected_or_literal_clusters"
         self.anchor_maps_root = _anchor_maps_root_for(self.root)
@@ -42,7 +49,7 @@ class LexiconStore(
         self.canonical_symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
         self.symbol_counts_binary_dir = self.user_counts_dir / "symbol_counts_binary"
         self.user_counts_acknowledgement_path = self.symbol_counts_binary_dir / "user_count_acknowledgement.json"
-        self.symbol_genome_pool_dir = self.state_dir / "symbol_genome_pool"
+        self.symbol_genome_pool_dir = self.user_lexicon_dir / "symbol_genome_pool"
         self.symbol_streams_dir = self.state_dir / "symbol_streams"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
@@ -60,15 +67,12 @@ class LexiconStore(
         self.flat_documents_local_overlays_dir = self.flat_documents_dir / "local_overlays"
         self.phrase_candidates_dir = self.state_dir / "phrase_candidates"
         self.intake_uploads_dir = self.state_dir / "intake_uploads"
-        self.lifetime_counts_path = self.state_dir / "lifetime_co_occurrence_counts.json"
         self.missing_anchor_registry_path = self.state_dir / "missing_anchor_registry.json"
         self.unmatched_path = self.state_dir / "unmatched_words.json"
         self.pending_path = self.state_dir / "pending_words.json"
         self.ignored_path = self.state_dir / "ignored_words.json"
         self.custom_entries_path = self.user_state_dir / "custom_entries.json"
         self.user_lexicon_path = self.user_lexicon_dir / "anchors.json"
-        self.user_counts_path = self.user_counts_dir / "lifetime_co_occurrence_counts.json"
-        self.chat_counts_path = self.chat_counts_dir / "chat_co_occurrence_counts.json"
         self.ingest_staging_manifest_path = self.ingest_staging_dir / "manifest.json"
         self.rejected_or_literal_clusters_path = self.rejected_or_literal_clusters_dir / "clusters.json"
         self._known_anchor_index: set[str] | None = None
@@ -91,7 +95,9 @@ class LexiconStore(
         self.user_state_dir.mkdir(parents=True, exist_ok=True)
         self.user_lexicon_dir.mkdir(parents=True, exist_ok=True)
         self.user_counts_dir.mkdir(parents=True, exist_ok=True)
-        self.chat_counts_dir.mkdir(parents=True, exist_ok=True)
+        self.chat_logs_dir.mkdir(parents=True, exist_ok=True)
+        self.chat_log_receipts_dir.mkdir(parents=True, exist_ok=True)
+        self.chat_log_prepared_dir.mkdir(parents=True, exist_ok=True)
         self.ingest_staging_dir.mkdir(parents=True, exist_ok=True)
         self.rejected_or_literal_clusters_dir.mkdir(parents=True, exist_ok=True)
         self.observed_maps_dir.mkdir(parents=True, exist_ok=True)
