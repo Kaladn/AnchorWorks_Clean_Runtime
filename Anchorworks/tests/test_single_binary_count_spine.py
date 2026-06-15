@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import subprocess
+from types import SimpleNamespace
 from pathlib import Path
 
+from AnchorWorks.cli_shell import local_answer
 from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.store import LexiconStore
 from AnchorWorks.symbol_count_native import build_native_symbol_counts, native_executable_path
@@ -140,3 +142,60 @@ def test_document_answer_passage_hits_do_not_count_as_success_without_query_fram
 
     assert result.ok is False
     assert result.speech == "No document-backed answer passed the query-frame check yet."
+
+
+def test_auto_answer_uses_counts_not_document_answer_by_default() -> None:
+    class FakeDocumentAnswer:
+        def answer(self, *_args, **_kwargs):
+            raise AssertionError("document answers must be explicit RAG/document mode only")
+
+    class FakeClearSpeak:
+        def query(self, query: str, *, limit: int = 6):
+            return SimpleNamespace(to_dict=lambda: {
+                "query": query,
+                "speech": "counts refusal",
+                "response": "counts refusal",
+                "evidence": [],
+                "citations": [],
+            })
+
+    ctx = SimpleNamespace(document_answer=FakeDocumentAnswer(), clearspeak=FakeClearSpeak())
+
+    result = local_answer(ctx, "what is the grounded answer?")
+
+    assert result["engine"] == "clearspeak_counts"
+    assert result["evidence_mode"] == "counts"
+    assert result["speech"] == "counts refusal"
+
+
+def test_document_answer_requires_explicit_document_mode() -> None:
+    class FakeDocumentAnswer:
+        def answer(self, query: str, *, limit: int = 6):
+            return SimpleNamespace(to_dict=lambda: {
+                "ok": True,
+                "query": query,
+                "speech": "document answer",
+                "response": "document answer",
+                "evidence": [],
+                "citations": [],
+                "engine": "document_answer_assembler",
+            })
+
+    class FakeClearSpeak:
+        def query(self, *_args, **_kwargs):
+            raise AssertionError("explicit document mode should not fall through to counts")
+
+    ctx = SimpleNamespace(document_answer=FakeDocumentAnswer(), clearspeak=FakeClearSpeak())
+
+    result = local_answer(ctx, "what is the document answer?", evidence_mode="documents")
+
+    assert result["engine"] == "document_answer_assembler"
+    assert result["speech"] == "document answer"
+
+
+def test_store_init_does_not_create_flat_document_cache(tmp_path: Path) -> None:
+    _seed_force_root(tmp_path)
+
+    LexiconStore(tmp_path)
+
+    assert not (tmp_path / "State" / "flat_documents").exists()

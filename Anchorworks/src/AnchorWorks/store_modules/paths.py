@@ -87,12 +87,6 @@ class StorePaths:
             self.visual_intake_manifests_dir,
             self.visual_intake_region_maps_dir,
             self.visual_intake_recognition_layers_dir,
-            self.flat_documents_raw_dir,
-            self.flat_documents_symbolic_dir,
-            self.flat_documents_block_index_dir,
-            self.flat_documents_visual_links_dir,
-            self.flat_documents_occurrence_index_dir,
-            self.flat_documents_local_overlays_dir,
             self.intake_uploads_dir,
         )
 

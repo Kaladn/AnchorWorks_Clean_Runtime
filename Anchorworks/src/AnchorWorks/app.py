@@ -281,11 +281,11 @@ def create_app(data_root: Path | None = None) -> FastAPI:
         formula_payload = solve_formula_question(body.query)
         if formula_payload and evidence_mode in {"auto", "counts", "count", "documents", "document", "maps", "mapped", "mapped_documents"}:
             return formula_payload
-        if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents", "auto"}:
+        if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents", "rag"}:
             document_result = document_answer.answer(body.query, limit=body.limit).to_dict()
             if document_result.get("ok"):
                 return document_result
-            if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents"}:
+            if evidence_mode in {"documents", "document", "maps", "mapped", "mapped_documents", "rag"}:
                 represented = document_result.get("represented_anchors") or []
                 missing = document_result.get("missing_anchors") or []
                 shape_note = ""

@@ -44,6 +44,8 @@ input text or approved document
 
 The active answer path is evidence-first. ClearSpeak receives a query, resolves observed anchors, asks the native count scorer for count relationships, admits enough connected evidence, and renders from what the walk actually found. A short or incomplete answer means the search/admission path needs work; it does not mean the renderer should fabricate missing content.
 
+Document-backed answers are not part of the default speaking path. They are an explicit RAG/document mode only. Normal questions speak from counts or refuse from counts. Raw document caches must not silently sit behind the default answer route.
+
 ## Main Components
 
 `src/AnchorWorks/store.py`
@@ -93,6 +95,8 @@ No Python component may become a count compute fallback.
 No UI, test, preview, or chat helper may silently create count authority outside the single binary file.
 
 No answer renderer may compensate for missing evidence by inventing content.
+
+No document/RAG cache may answer default questions. Document evidence requires an explicit document/RAG request and provenance-bearing source material.
 
 ## Verification
 

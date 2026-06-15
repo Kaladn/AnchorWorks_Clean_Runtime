@@ -23,6 +23,7 @@ HELP_TEXT = """
 Commands:
 
 `/ask <question>`          ask ClearSpeak through the full local answer route
+`/rag <question>`          ask the explicit document/RAG evidence route
 `/status`                  show local runtime status
 `/cloud <anchor>`          show count neighborhood
 `/search <text>`           search the lexicon
@@ -92,11 +93,11 @@ def local_answer(ctx: ShellContext, query: str, *, limit: int = 6, evidence_mode
     if formula_payload and mode in {"auto", "counts", "count", "documents", "document", "maps", "mapped", "mapped_documents"}:
         return dict(formula_payload)
 
-    if mode in {"documents", "document", "maps", "mapped", "mapped_documents", "auto"}:
+    if mode in {"documents", "document", "maps", "mapped", "mapped_documents", "rag"}:
         document_result = ctx.document_answer.answer(query, limit=limit).to_dict()
         if document_result.get("ok"):
             return document_result
-        if mode in {"documents", "document", "maps", "mapped", "mapped_documents"}:
+        if mode in {"documents", "document", "maps", "mapped", "mapped_documents", "rag"}:
             represented = document_result.get("represented_anchors") or []
             missing = document_result.get("missing_anchors") or []
             shape_note = ""
@@ -145,6 +146,9 @@ def execute_shell_line(ctx: ShellContext, line: str) -> bool:
         return True
     if command == "ask":
         _handle_ask(ctx, args)
+        return True
+    if command in {"rag", "document", "documents"}:
+        _handle_ask(ctx, args, evidence_mode="documents")
         return True
     if command == "status":
         _handle_status(ctx)
@@ -214,13 +218,13 @@ def run_shell(data_root: Path | None = None) -> None:
             break
 
 
-def _handle_ask(ctx: ShellContext, query: str) -> None:
+def _handle_ask(ctx: ShellContext, query: str, *, evidence_mode: str = "auto") -> None:
     console = ctx.console or Console()
     if not query:
         console.print("[yellow]Ask needs a question.[/yellow]")
         return
     try:
-        result = local_answer(ctx, query)
+        result = local_answer(ctx, query, evidence_mode=evidence_mode)
     except Exception as exc:
         console.print(Panel(str(exc), title="Answer Error", style="red"))
         return

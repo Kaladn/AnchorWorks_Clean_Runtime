@@ -89,11 +89,11 @@ class ConversationEngine:
         if formula_payload and mode in {"auto", "counts", "count", "documents", "document", "maps", "mapped", "mapped_documents"}:
             return dict(formula_payload)
 
-        if mode in {"documents", "document", "maps", "mapped", "mapped_documents", "auto"}:
+        if mode in {"documents", "document", "maps", "mapped", "mapped_documents", "rag"}:
             document_result = self.document_answer.answer(text).to_dict()
             if document_result.get("ok"):
                 return document_result
-            if mode in {"documents", "document", "maps", "mapped", "mapped_documents"}:
+            if mode in {"documents", "document", "maps", "mapped", "mapped_documents", "rag"}:
                 document_result["engine"] = "document_answer_no_map_support"
                 document_result["speech"] = "Document Mode found no source-local map support for that question."
                 document_result["response"] = document_result["speech"]

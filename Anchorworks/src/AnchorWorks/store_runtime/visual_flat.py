@@ -4,6 +4,14 @@ from ..store_support import *
 
 
 class VisualFlatMixin:
+    def _ensure_flat_document_dirs(self) -> None:
+        self.flat_documents_raw_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_symbolic_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_block_index_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_visual_links_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_occurrence_index_dir.mkdir(parents=True, exist_ok=True)
+        self.flat_documents_local_overlays_dir.mkdir(parents=True, exist_ok=True)
+
     def _visual_safe_stem(self, source_name: str, visual_record_id: str) -> str:
         original = Path(source_name or "visual").stem
         safe_stem = "".join(
@@ -223,6 +231,7 @@ class VisualFlatMixin:
             raise ValueError("flat document source must live under the raw flat document root")
         if not source.exists() or not source.is_file():
             raise FileNotFoundError(source.name)
+        self._ensure_flat_document_dirs()
         prepared = prepare_file(source)
         inventory = self._extract_document_anchor_inventory(prepared.prepared_text)
         observed_counts: Counter[str] = inventory["observed_counts"]
@@ -263,6 +272,7 @@ class VisualFlatMixin:
         source_hash = str((payload.get("document_prep") or {}).get("sha256") or hashlib.sha256(source_path.encode("utf-8")).hexdigest())
         source_id = hashlib.sha1((source_path + "\n" + source_hash + "\n" + path.name).encode("utf-8")).hexdigest()
         stem = self._flat_runtime_stem(source_name, source_id)
+        self._ensure_flat_document_dirs()
 
         symbolic_path = self.flat_documents_symbolic_dir / f"{stem}.symbolic.json"
         block_index_path = self.flat_documents_block_index_dir / f"{stem}.blocks.jsonl"
