@@ -1,0 +1,64 @@
+ M Anchorworks/docs/ANCHORWORKS_CURRENT_REALITY.md
+ M Anchorworks/src/AnchorWorks/app.py
+ M Anchorworks/src/AnchorWorks/clearspeak.py
+ M Anchorworks/src/AnchorWorks/cli.py
+ M Anchorworks/src/AnchorWorks/cli_shell.py
+ M Anchorworks/src/AnchorWorks/conversation.py
+ D Anchorworks/src/AnchorWorks/lifetime_symbol_mirror.py
+ M Anchorworks/src/AnchorWorks/native/symbol_counts/src/awsc_cli.cpp
+ M Anchorworks/src/AnchorWorks/store.py
+ M Anchorworks/src/AnchorWorks/store_modules/memory.py
+ M Anchorworks/src/AnchorWorks/store_modules/paths.py
+ M Anchorworks/src/AnchorWorks/store_runtime/counts.py
+ M Anchorworks/src/AnchorWorks/store_runtime/intake.py
+ M Anchorworks/src/AnchorWorks/store_runtime/inventory.py
+ M Anchorworks/src/AnchorWorks/store_runtime/lexicon.py
+ M Anchorworks/src/AnchorWorks/store_runtime/state.py
+ M Anchorworks/src/AnchorWorks/store_support.py
+ M Anchorworks/src/AnchorWorks/symbol_count_native.py
+ D Anchorworks/src/AnchorWorks/symbol_relation_counts.py
+ M Anchorworks/src/AnchorWorks/terminal_operator.py
+ D Anchorworks/tests/test_answer_surface_direction.py
+ D Anchorworks/tests/test_aw_inference_candidate_walk.py
+ D Anchorworks/tests/test_clearspeak_directional_render.py
+ D Anchorworks/tests/test_cli_shell.py
+ D Anchorworks/tests/test_code_lexicon_mirror.py
+ D Anchorworks/tests/test_conversation_corpus.py
+ D Anchorworks/tests/test_conversation_engine.py
+ D Anchorworks/tests/test_conversation_input_type.py
+ D Anchorworks/tests/test_count_window_contract.py
+ D Anchorworks/tests/test_four_anchor_unit_counts.py
+ D Anchorworks/tests/test_genome_approval.py
+ D Anchorworks/tests/test_language_state_replay.py
+ D Anchorworks/tests/test_native_intake_spine.py
+ D Anchorworks/tests/test_occular_cloud_accel.py
+ D Anchorworks/tests/test_occular_cloud_systems.py
+ D Anchorworks/tests/test_occular_tensor_index.py
+ D Anchorworks/tests/test_occular_tensor_store.py
+ D Anchorworks/tests/test_query_recognition_frame.py
+ D Anchorworks/tests/test_runtime_contract.py
+ D Anchorworks/tests/test_terminal_operator_ui.py
+ D Anchorworks/tests/test_truevision_document_state_movie.py
+ D Anchorworks/tests/test_truevision_language_contracts.py
+ D Anchorworks/tests/test_truevision_language_ingest.py
+ D Anchorworks/tests/test_truevision_language_method_boundary.py
+ D State/chat_memory/attachments/.gitkeep
+ D State/chat_memory/chats/.gitkeep
+ D State/chat_memory/citations/.gitkeep
+ D State/chat_memory/imports/.gitkeep
+ D State/chat_memory/memory/lessons/.gitkeep
+ D State/chat_memory/memory/reasoning/.gitkeep
+ D State/chat_memory/memory/side_chats.json
+ D State/chat_memory/notes/.gitkeep
+ D State/chat_memory/summaries/.gitkeep
+ M State/user/user_lexicon/anchors.json
+?? Anchorworks/docs/ANCHORWORKS_CODE_SYSTEM_DIAGRAM.md
+?? Anchorworks/docs/AW_OPERATOR_SURFACE.md
+?? Anchorworks/tests/test_chat_jsonl_memory.py
+?? Anchorworks/tests/test_native_count_cli_surface.py
+?? Anchorworks/tests/test_native_count_executable.py
+?? Anchorworks/tests/test_native_count_ingest_governance.py
+?? Anchorworks/tests/test_native_count_routes.py
+?? Anchorworks/tests/test_native_mapping_ui_surfaces.py
+?? Anchorworks/tests/test_native_user_mapping_pipeline.py
+?? recovery_reports/

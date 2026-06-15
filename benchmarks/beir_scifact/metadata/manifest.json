@@ -1,0 +1,24 @@
+{
+  "schema_version": "anchorworks_beir_scifact_dataset@1",
+  "dataset": "BeIR/scifact",
+  "qrels_dataset": "BeIR/scifact-qrels",
+  "source": "Hugging Face Dataset Viewer parquet exports",
+  "huggingface_urls": {
+    "corpus": "https://huggingface.co/datasets/BeIR/scifact",
+    "qrels": "https://huggingface.co/datasets/BeIR/scifact-qrels"
+  },
+  "counts": {
+    "corpus_docs": 5183,
+    "queries": 1109,
+    "qrels_train": 919,
+    "qrels_test": 339
+  },
+  "paths": {
+    "intake_text": "D:\\AnchorWorks_Clean_Runtime\\benchmarks\\beir_scifact\\aw_corpus\\beir_scifact_corpus_aw_intake.txt",
+    "queries_jsonl": "D:\\AnchorWorks_Clean_Runtime\\benchmarks\\beir_scifact\\metadata\\queries.jsonl",
+    "qrels_train_jsonl": "D:\\AnchorWorks_Clean_Runtime\\benchmarks\\beir_scifact\\metadata\\qrels_train.jsonl",
+    "qrels_test_jsonl": "D:\\AnchorWorks_Clean_Runtime\\benchmarks\\beir_scifact\\metadata\\qrels_test.jsonl",
+    "corpus_index_jsonl": "D:\\AnchorWorks_Clean_Runtime\\benchmarks\\beir_scifact\\metadata\\corpus_index.jsonl"
+  },
+  "benchmark_rule": "queries and qrels are held as benchmark metadata; only corpus text is mapped into AW user counts in this intake action."
+}

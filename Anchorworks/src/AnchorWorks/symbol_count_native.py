@@ -11,6 +11,7 @@ CANONICAL_LANE = 0
 MATH_COMPANION_LANE = 1
 STRUCTURAL_COMPANION_LANE = 2
 SOURCE_LOCAL_TEMP_LANE = 4
+USER_LEXICON_LANE = 5
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[1]
@@ -79,7 +80,7 @@ def score_binary_count_stream(
         CANONICAL_LANE,
         MATH_COMPANION_LANE,
         STRUCTURAL_COMPANION_LANE,
-        SOURCE_LOCAL_TEMP_LANE,
+        USER_LEXICON_LANE,
     ]
     result = subprocess.run(
         [
@@ -131,7 +132,8 @@ def native_text_intake_to_counts(
     missing_path: str | Path,
     source_id: str,
     window_radius: int = 6,
-    source_local_missing: bool = True,
+    source_local_missing: bool = False,
+    aw_md_copy_path: str | Path | None = None,
     executable: str | Path | None = None,
 ) -> dict[str, Any]:
     exe = Path(executable) if executable else native_executable_path()
@@ -155,6 +157,8 @@ def native_text_intake_to_counts(
         "--output",
         str(output_path),
     ]
+    if aw_md_copy_path:
+        command.extend(["--aw-md-copy", str(aw_md_copy_path)])
     if source_local_missing:
         command.append("--source-local-missing")
     result = subprocess.run(command, check=True, capture_output=True, text=True)
@@ -170,7 +174,7 @@ def native_directory_intake_to_counts(
     missing_path: str | Path,
     source_id: str,
     window_radius: int = 6,
-    source_local_missing: bool = True,
+    source_local_missing: bool = False,
     executable: str | Path | None = None,
 ) -> dict[str, Any]:
     exe = Path(executable) if executable else native_executable_path()

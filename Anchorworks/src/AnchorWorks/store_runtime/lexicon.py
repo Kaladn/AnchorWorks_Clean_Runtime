@@ -38,6 +38,18 @@ class LexiconMixin:
     def ensure_user_lexicon_seeded(self) -> dict[str, Any]:
         with self._lock:
             existing_entries = self._read_entries(self.user_lexicon_path)
+            normalized_existing: list[dict[str, Any]] = []
+            normalized_count = 0
+            for entry in existing_entries:
+                if not isinstance(entry, dict):
+                    continue
+                next_entry = dict(entry)
+                if str(next_entry.get("authority") or "") == "canonical_seed":
+                    next_entry["authority"] = "user_lexicon"
+                    next_entry.setdefault("source_authority", "canonical_seed")
+                    normalized_count += 1
+                normalized_existing.append(next_entry)
+            existing_entries = normalized_existing
             existing_keys = {
                 (
                     self.normalize_anchor(entry.get("word", "")),
@@ -71,23 +83,28 @@ class LexiconMixin:
                         "hex": entry.get("hex") or symbol,
                         "status": entry.get("status") or "SEEDED",
                         "pack": "user",
-                        "authority": "canonical_seed",
+                        "authority": "user_lexicon",
+                        "source_authority": "canonical_seed",
                         "frequency": int(entry.get("frequency", 0) or 0),
                         "mapped_at": entry.get("mapped_at") or _utc_now(),
                     })
                     existing_keys.add(key)
 
-            if seeded:
+            if seeded or normalized_count:
                 combined = existing_entries + seeded
                 combined.sort(key=lambda item: (self.normalize_anchor(item.get("word", "")), str(item.get("symbol") or item.get("hex") or "")))
                 self._write_entries(self.user_lexicon_path, combined)
+                self._invalidate_known_anchor_index()
+                self._canonical_symbol_index = None
+                self._canonical_anchor_index = None
             elif not self.user_lexicon_path.exists():
                 self._write_entries(self.user_lexicon_path, [])
 
             return {
                 "ok": True,
                 "canonical_entries_seeded": len(seeded),
-                "seed_mode": "explicit_copy_canonical_and_structural_to_user_lexicon",
+                "canonical_entries_normalized_to_user": normalized_count,
+                "seed_mode": "explicit_copy_canonical_and_structural_to_user_lexicon_then_user_authority_only",
                 "user_lexicon_path": str(self.user_lexicon_path),
             }
 
@@ -192,13 +209,13 @@ class LexiconMixin:
     def _pack_paths(self, pack: str) -> list[tuple[str, Path]]:
         selected = (pack or "all").lower()
         paths: list[tuple[str, Path]] = []
-        if selected in {"all", "canonical"}:
+        if selected in {"canonical"}:
             canonical_paths = sorted(self.canonical_dir.glob("canonical_*.json"))
             if canonical_paths:
                 paths.extend(("canonical", path) for path in canonical_paths)
             else:
                 paths.extend(("canonical", self.canonical_dir / f"canonical_{letter}.json") for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-        if selected in {"all", "structural"} and self.structural_file.exists():
+        if selected in {"structural"} and self.structural_file.exists():
             paths.append(("structural", self.structural_file))
         if selected in {"all", "user", "user_lexicon"} and self.user_lexicon_path.exists():
             paths.append(("user", self.user_lexicon_path))
@@ -269,11 +286,6 @@ class LexiconMixin:
         for entry in self._read_entries(self.user_lexicon_path):
             if self.normalize_anchor(entry.get("word", "")) == target:
                 return entry, "user", self.user_lexicon_path
-        letter = self._letter_for_word(target)
-        path = self.canonical_dir / f"canonical_{letter}.json"
-        for entry in self._read_entries(path):
-            if self.normalize_anchor(entry.get("word", "")) == target:
-                return entry, "canonical", path
         return None
 
     def _all_known_anchors(self) -> set[str]:
@@ -359,17 +371,11 @@ class LexiconMixin:
         if self._canonical_symbol_index is not None:
             return dict(self._canonical_symbol_index)
         out: dict[str, str] = {}
-        for _, path in self._pack_paths("canonical"):
-            for entry in self._read_entries(path):
-                anchor = self.normalize_anchor(entry.get("word", ""))
-                symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
-                if anchor and symbol:
-                    out[anchor] = symbol
         for _, path in self._pack_paths("user"):
             for entry in self._read_entries(path):
                 anchor = self.normalize_anchor(entry.get("word", ""))
                 symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
-                if anchor and symbol and anchor not in out:
+                if anchor and symbol:
                     out[anchor] = symbol
         self._canonical_symbol_index = dict(out)
         return out
@@ -385,17 +391,11 @@ class LexiconMixin:
 
     def _symbol_authority_by_anchor(self) -> dict[str, tuple[str, str]]:
         out: dict[str, tuple[str, str]] = {}
-        for _, path in self._pack_paths("canonical"):
-            for entry in self._read_entries(path):
-                anchor = self.normalize_anchor(entry.get("word", ""))
-                symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
-                if anchor and symbol:
-                    out[anchor] = (symbol, "canonical")
         for _, path in self._pack_paths("user"):
             for entry in self._read_entries(path):
                 anchor = self.normalize_anchor(entry.get("word", ""))
                 symbol = str(entry.get("hex") or entry.get("symbol") or "").strip()
-                if anchor and symbol and anchor not in out:
+                if anchor and symbol:
                     out[anchor] = (symbol, "user_lexicon")
         return out
 

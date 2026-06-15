@@ -1,0 +1,12 @@
+{
+  "schema_version": "anchorworks_user_binary_state_checkpoint@1",
+  "ok": true,
+  "created_at": "20260615T100229Z",
+  "reason": "pre_user_symbol_rebuild_scifact",
+  "active_count_path": "D:\\AnchorWorks_Clean_Runtime\\State\\user\\user_counts\\symbol_counts.bin",
+  "count_backup_path": "D:\\AnchorWorks_Clean_Runtime\\State\\user\\binary_state_backups\\20260615T100229Z_pre_user_symbol_rebuild_scifact\\symbol_counts.bin",
+  "count_backup_bytes": 169061808,
+  "user_lexicon_path": "D:\\AnchorWorks_Clean_Runtime\\State\\user\\user_lexicon\\anchors.json",
+  "lexicon_backup_path": "D:\\AnchorWorks_Clean_Runtime\\State\\user\\binary_state_backups\\20260615T100229Z_pre_user_symbol_rebuild_scifact\\anchors.json",
+  "active_spine_unchanged": true
+}

@@ -1,36 +1,34 @@
 from __future__ import annotations
 
 from collections import Counter
+import json
+from pathlib import Path
+import re
 from typing import Any
 
-from .question_frame_inducer import induce_question_frame
 
+ATTENTION_CONTRACT = "anchorworks_attention_frame@2"
+ATTENTION_LAW = (
+    "Counts store observed data truth as symbolic weight. AW coordinates prove where it was observed. "
+    "Attention admits relevant observed evidence; it does not promote evidence into world truth."
+)
 
-ATTENTION_CONTRACT = "anchorworks_clearspeak_attention@1"
-ATTENTION_LAW = "Counts store weight; context clouds store neighborhood; attention chooses relevance."
-MULTI_CONTEXT_SUPPORT_BONUS = 8.0
-ROLE_SUPPORT_BONUS = 6.0
 ACTIVE_CLOUD_WEIGHTS = {
-    "question": 0.35,
-    "rear": 0.25,
+    "question": 0.40,
+    "rear": 0.20,
     "answer": 0.30,
     "forward": 0.10,
 }
+
 ACTIVE_SCORE_WEIGHTS = {
-    "question_fit": 0.30,
-    "rear_fit": 0.25,
-    "answer_fit": 0.25,
-    "forward_fit": 0.15,
+    "query_support": 0.40,
+    "context_support": 0.20,
+    "answer_support": 0.20,
+    "coordinate_support": 0.15,
     "source_support": 0.05,
 }
-ANSWER_SLOT_KEYWORDS = {
-    "category": {"law", "laws", "principle", "principles", "rule", "rules"},
-    "mechanism": {"force", "forces", "mass", "acceleration", "accelerate", "motion", "move", "object", "objects"},
-    "parts": {"first", "second", "third", "three", "pair", "pairs"},
-}
 
-
-_ANSWER_EXCLUSION_SET = {
+_BLOCKED_CONTENT = {
     "",
     ".",
     ",",
@@ -47,9 +45,6 @@ _ANSWER_EXCLUSION_SET = {
     "a",
     "an",
     "and",
-    "about",
-    "able",
-    "also",
     "are",
     "as",
     "at",
@@ -62,7 +57,6 @@ _ANSWER_EXCLUSION_SET = {
     "do",
     "does",
     "for",
-    "following",
     "from",
     "had",
     "has",
@@ -71,34 +65,18 @@ _ANSWER_EXCLUSION_SET = {
     "i",
     "if",
     "in",
-    "information",
-    "into",
     "is",
     "it",
-    "learning",
     "may",
-    "more",
-    "one",
     "of",
     "on",
-    "only",
     "or",
-    "other",
-    "our",
-    "own",
-    "questions",
-    "should",
-    "source",
     "that",
     "the",
-    "their",
-    "these",
-    "they",
     "this",
     "to",
     "was",
     "were",
-    "we",
     "what",
     "when",
     "where",
@@ -107,11 +85,353 @@ _ANSWER_EXCLUSION_SET = {
     "why",
     "with",
     "would",
-    "will",
-    "using",
-    "your",
     "you",
 }
+
+_METADATA_OR_SECTION_LABELS = {
+    "abstract",
+    "background",
+    "conclusion",
+    "conclusions",
+    "data",
+    "document",
+    "id",
+    "introduction",
+    "line",
+    "methods",
+    "objective",
+    "objectives",
+    "purpose",
+    "result",
+    "results",
+    "source",
+    "study",
+    "title",
+}
+
+_LOW_SIGNAL_GENERAL_TERMS = {
+    "against",
+    "after",
+    "acute",
+    "addition",
+    "adult",
+    "afforded",
+    "all",
+    "among",
+    "approximately",
+    "assess",
+    "been",
+    "being",
+    "benefit",
+    "between",
+    "case",
+    "cases",
+    "caused",
+    "ci",
+    "confidence",
+    "control",
+    "during",
+    "findings",
+    "found",
+    "greater",
+    "high",
+    "included",
+    "increased",
+    "interval",
+    "lower",
+    "new",
+    "observed",
+    "performed",
+    "reported",
+    "showed",
+    "significant",
+    "significantly",
+    "total",
+    "than",
+    "using",
+    "values",
+    "well",
+    "we",
+}
+
+_ATTENTION_ANCHOR_PATTERN = re.compile(r"^[a-z][a-z']{1,63}$")
+
+
+def build_native_search_attention(
+    native_search: dict[str, Any],
+    *,
+    top_k: int = 12,
+    n0_regex_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """Admit a focused evidence set from the native search coordinate receipt.
+
+    Input is the native `search-aw` payload. This function does not score the
+    binary count stream and does not read documents. It only chooses which
+    already-returned symbols/blocks deserve attention.
+    """
+
+    query_anchors = _clean_list(native_search.get("query_anchors") or [])
+    represented_anchors = _clean_list(native_search.get("represented_anchors") or [])
+    missing_anchors = _clean_list(native_search.get("missing_anchors") or [])
+    user_regex = _load_user_n0_regex(n0_regex_path or native_search.get("n0_regex_path") or native_search.get("attention_regex_path"))
+    if not represented_anchors and int(native_search.get("represented_anchor_count", 0) or 0) == len(query_anchors):
+        represented_anchors = list(query_anchors)
+    missing_content = [anchor for anchor in missing_anchors if not blocked_answer_anchor(anchor)]
+    if missing_content:
+        return {
+            "schema_version": ATTENTION_CONTRACT,
+            "law": ATTENTION_LAW,
+            "admission_status": "refused",
+            "refusal_reason": "missing_query_content_anchor",
+            "observed_data_truth": False,
+            "world_truth_claim": False,
+            "world_truth_promoted": False,
+            "query": str(native_search.get("query") or ""),
+            "query_anchors": query_anchors,
+            "represented_anchors": represented_anchors,
+            "missing_anchors": missing_anchors,
+            "missing_content_anchors": missing_content,
+            "represented_anchor_count": int(native_search.get("represented_anchor_count", 0) or 0),
+            "count_candidate_count": int(native_search.get("count_candidate_count", 0) or 0),
+            "admitted_blocks": [],
+            "focus_candidates": [],
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+    candidate_rows: dict[str, dict[str, Any]] = {}
+    admitted_blocks: list[dict[str, Any]] = []
+    answer_forward_evidence: list[dict[str, Any]] = []
+    deferred_blocks: list[dict[str, Any]] = []
+    n0_rejected: list[dict[str, Any]] = []
+    raw_hits = [hit for hit in (native_search.get("hits") or []) if isinstance(hit, dict)]
+    max_query_overlap = 0
+    for hit in raw_hits:
+        max_query_overlap = max(max_query_overlap, len(_clean_list(hit.get("query_anchor_hits") or [])))
+
+    for hit in raw_hits:
+        query_hits = _clean_list(hit.get("query_anchor_hits") or [])
+        candidate_hits = _clean_list(hit.get("count_candidate_anchor_hits") or [])
+        block_score = float(hit.get("score", 0.0) or 0.0)
+        coordinate = {
+            "doc_id": str(hit.get("doc_id") or ""),
+            "source_file": str(hit.get("source_file") or ""),
+            "block_id": int(hit.get("block_id", 0) or 0),
+            "block_line_start": int(hit.get("block_line_start", 0) or 0),
+            "block_line_end": int(hit.get("block_line_end", 0) or 0),
+            "document_line_start": int(hit.get("document_line_start", 0) or 0),
+            "document_line_end": int(hit.get("document_line_end", 0) or 0),
+            "rag_copy": str(hit.get("rag_copy") or ""),
+            "query_anchor_hits": query_hits,
+            "score": block_score,
+        }
+        if query_hits:
+            answer_forward_evidence.append(coordinate)
+        if query_hits and len(query_hits) < max_query_overlap:
+            deferred_blocks.append(coordinate)
+            continue
+        if query_hits:
+            admitted_blocks.append(coordinate)
+        for source_anchor in candidate_hits:
+            anchor, normalize_trace = _apply_user_normalize(source_anchor, user_regex)
+            user_admit: dict[str, Any] = {}
+            user_deny = _user_regex_match(anchor, user_regex.get("deny_focus_patterns"))
+            if user_deny:
+                reason = user_deny.get("reason") or "user_denied_focus"
+            else:
+                reason = _candidate_gate_reason(anchor, set(query_anchors))
+                if not reason:
+                    user_admit = _user_regex_match(anchor, user_regex.get("admit_focus_patterns"))
+            if reason:
+                n0_rejected.append({
+                    "anchor": anchor,
+                    "source_anchor": source_anchor,
+                    "reason": reason,
+                    "block_id": coordinate["block_id"],
+                    "doc_id": coordinate["doc_id"],
+                })
+                continue
+            current = candidate_rows.setdefault(anchor, {
+                "anchor": anchor,
+                "source_anchor": source_anchor,
+                "first_seen": len(candidate_rows),
+                "attention_score": 0.0,
+                "selection_score": 0.0,
+                "supporting_blocks": [],
+                "supporting_query_anchors": set(),
+                "raw_observations": 0,
+                "user_regex": {
+                    "normalized": bool(normalize_trace),
+                    "normalization": normalize_trace,
+                    "boost": 0.0,
+                    "admit_reason": user_admit.get("reason", ""),
+                },
+                "why_chosen": [],
+            })
+            boost_match = _user_regex_match(anchor, user_regex.get("boost_focus_patterns"))
+            boost = float((boost_match or {}).get("boost", 0.0) or 0.0)
+            if user_admit:
+                boost += float(user_admit.get("boost", 3.0) or 3.0)
+            current["user_regex"]["boost"] += boost
+            if boost_match and boost_match.get("reason"):
+                current["user_regex"]["boost_reason"] = boost_match.get("reason")
+            current["attention_score"] += max(1.0, block_score / 1000.0) + len(query_hits) + boost
+            current["raw_observations"] += 1
+            current["supporting_query_anchors"].update(query_hits)
+            current["supporting_blocks"].append(coordinate)
+
+    focus_candidates = list(candidate_rows.values())
+    for row in focus_candidates:
+        support_count = len(row["supporting_query_anchors"])
+        row["attention_score"] = round(float(row["attention_score"]) + support_count, 6)
+        row["selection_score"] = row["attention_score"]
+        row["supporting_query_anchors"] = sorted(row["supporting_query_anchors"])
+        row["supporting_blocks"] = _dedupe_coordinates(row["supporting_blocks"])
+        row["why_chosen"] = [
+            "native_count_candidate_seen_in_admitted_block",
+            "block_has_query_anchor_overlap",
+            "coordinate_support_preserved",
+        ]
+    focus_candidates.sort(key=lambda item: (-float(item["attention_score"]), int(item.get("first_seen", 0)), str(item["anchor"])))
+
+    return {
+        "schema_version": ATTENTION_CONTRACT,
+        "law": ATTENTION_LAW,
+        "admission_status": "admitted" if admitted_blocks or focus_candidates else "empty",
+        "refusal_reason": "",
+        "observed_data_truth": bool(admitted_blocks or focus_candidates),
+        "world_truth_claim": False,
+        "world_truth_promoted": False,
+        "query": str(native_search.get("query") or ""),
+        "query_anchors": query_anchors,
+        "represented_anchors": represented_anchors,
+        "missing_anchors": missing_anchors,
+        "missing_content_anchors": [],
+        "represented_anchor_count": int(native_search.get("represented_anchor_count", 0) or 0),
+        "count_candidate_count": int(native_search.get("count_candidate_count", 0) or 0),
+        "admitted_blocks": _dedupe_coordinates(admitted_blocks)[: max(1, int(top_k or 1))],
+        "answer_forward_evidence": _dedupe_coordinates(answer_forward_evidence),
+        "focus_candidates": focus_candidates[: max(1, int(top_k or 1))],
+        "n0_attention": {
+            "schema_version": "anchorworks_n0_attention@1",
+            "law": "n0_attention rejects attention pollution before focus admission without erasing evidence or counts.",
+            "rejected_count": len(n0_rejected),
+            "rejected": n0_rejected,
+            "deferred_block_count": len(_dedupe_coordinates(deferred_blocks)),
+            "deferred_blocks": _dedupe_coordinates(deferred_blocks),
+            "user_regex": _user_regex_report(user_regex),
+            "answer_forward_ops_may_use_evidence": True,
+        },
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
+def build_renderer_handoff(attention: dict[str, Any], native_search: dict[str, Any]) -> dict[str, Any]:
+    """Verify attention output and prepare a renderer-facing payload.
+
+    n0_attention denies focus authority, not language availability. This handoff
+    restores full native candidate terms to the renderer while preserving the
+    attention focus set and evidence coordinates.
+    """
+
+    verified, failures = _verify_attention_payload(attention)
+    evidence_blocks = list(attention.get("answer_forward_evidence") or attention.get("admitted_blocks") or [])
+    focus_anchors = [str(row.get("anchor") or "") for row in attention.get("focus_candidates") or [] if row.get("anchor")]
+    renderer_terms: list[str] = []
+    for hit in native_search.get("hits") or []:
+        if not isinstance(hit, dict):
+            continue
+        for anchor in hit.get("count_candidate_anchor_hits") or []:
+            clean = str(anchor or "").strip().casefold()
+            if clean and clean not in renderer_terms:
+                renderer_terms.append(clean)
+    rejected_terms = [
+        {"anchor": str(row.get("source_anchor") or row.get("anchor") or ""), "reason": str(row.get("reason") or "")}
+        for row in attention.get("n0_attention", {}).get("rejected", []) or []
+    ]
+    return {
+        "schema_version": "anchorworks_renderer_handoff@1",
+        "mode": str(native_search.get("mode") or "rag"),
+        "verified": verified,
+        "verification_failures": failures,
+        "render_may_use_full_language": True,
+        "renderer_role": "compose_from_verified_observed_evidence",
+        "observed_data_truth": bool(attention.get("observed_data_truth")),
+        "world_truth_claim": False,
+        "world_truth_promoted": False,
+        "query": str(attention.get("query") or native_search.get("query") or ""),
+        "focus_anchors": focus_anchors,
+        "renderer_terms": renderer_terms,
+        "evidence_blocks": evidence_blocks,
+        "attention_rejected_terms": rejected_terms,
+        "n0_attention": attention.get("n0_attention") or {},
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
+def render_from_handoff(handoff: dict[str, Any]) -> dict[str, Any]:
+    """Render a verified observed-data handoff without promoting world truth."""
+
+    mode = str(handoff.get("mode") or "counts").strip().casefold()
+    if not handoff.get("verified"):
+        return {
+            "schema_version": "anchorworks_handoff_render@1",
+            "mode": mode,
+            "renderer": "refusal_surface",
+            "ok": False,
+            "speech": "No verified observed-data handoff passed the renderer gate.",
+            "citations": [],
+            "focus_anchors": [],
+            "attention_rejected_terms": list(handoff.get("attention_rejected_terms") or []),
+            "observed_data_truth": False,
+            "world_truth_claim": False,
+            "verification_failures": list(handoff.get("verification_failures") or ["handoff_not_verified"]),
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+
+    if mode == "rag":
+        blocks = list(handoff.get("evidence_blocks") or [])
+        return {
+            "schema_version": "anchorworks_handoff_render@1",
+            "mode": "rag",
+            "renderer": "block_surface",
+            "ok": True,
+            "speech": "",
+            "blocks": blocks,
+            "citations": [_citation_from_block(block) for block in blocks if isinstance(block, dict)],
+            "focus_anchors": list(handoff.get("focus_anchors") or []),
+            "attention_rejected_terms": list(handoff.get("attention_rejected_terms") or []),
+            "observed_data_truth": bool(handoff.get("observed_data_truth")),
+            "world_truth_claim": False,
+            "world_truth_promoted": False,
+            "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+        }
+
+    renderer_terms = _clean_list(list(handoff.get("renderer_terms") or []))
+    focus_anchors = _clean_list(list(handoff.get("focus_anchors") or []))
+    phrase_terms = renderer_terms if _renderer_terms_are_phrase_like(renderer_terms, focus_anchors) else (focus_anchors or renderer_terms)
+    phrase = _renderer_phrase(phrase_terms, allow_list_style=(phrase_terms == focus_anchors and bool(focus_anchors)))
+    citations = [_citation_from_block(block) for block in (handoff.get("evidence_blocks") or []) if isinstance(block, dict)]
+    coordinate_text = _coordinate_phrase(citations)
+    if phrase and coordinate_text:
+        speech = f"Observed data supports the phrase '{phrase}' at {coordinate_text}."
+    elif coordinate_text:
+        speech = f"Observed data is available at {coordinate_text}."
+    else:
+        speech = "Observed data passed attention, but no source coordinate was available for rendering."
+    return {
+        "schema_version": "anchorworks_handoff_render@1",
+        "mode": "counts",
+        "renderer": "language_surface",
+        "ok": True,
+        "speech": speech,
+        "citations": citations,
+        "focus_anchors": focus_anchors,
+        "attention_rejected_terms": list(handoff.get("attention_rejected_terms") or []),
+        "observed_data_truth": bool(handoff.get("observed_data_truth")),
+        "world_truth_claim": False,
+        "world_truth_promoted": False,
+        "render_may_use_full_language": True,
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
 
 
 def rank_attention_candidates(
@@ -122,84 +442,28 @@ def rank_attention_candidates(
     limit_per_anchor: int = 32,
     attention_frame: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    """Rank answer candidates from weighted anchor neighborhoods.
-
-    This is the current ClearSpeak attention layer: it does not create truth and
-    it does not cite proof. It chooses which observed neighbors are relevant to
-    the active context.
-    """
     frame = attention_frame or infer_attention_frame(context)
-    excluded = set(blocked or set())
+    blocked_set = {str(item or "").strip().casefold() for item in (blocked or set())}
     candidates: dict[str, dict[str, Any]] = {}
-    for context_anchor in context[-50:]:
-        retrieved = retrieve_from_count_index(count_index, context_anchor, limit=limit_per_anchor)
-        offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
-        for offset, rows in offsets.items():
-            distance = offset_distance(str(offset))
-            position_strength = 1.0 / max(distance, 1)
+    for root in _clean_list(context)[-50:]:
+        retrieved = retrieve_from_count_index(count_index, root, limit=limit_per_anchor)
+        for offset, rows in (retrieved.get("offsets") or {}).items():
+            strength = 1.0 / max(1, offset_distance(str(offset)))
             for row in rows or []:
-                anchor = str(row.get("anchor") or "").strip()
-                if not anchor or anchor in excluded or blocked_answer_anchor(anchor):
-                    continue
+                anchor = str(row.get("anchor") or "").strip().casefold()
                 observations = int(row.get("observations", 0) or 0)
-                if observations <= 0:
+                gate = _candidate_gate_reason(anchor, blocked_set)
+                if gate or observations <= 0:
                     continue
-                current = candidates.setdefault(anchor, {
-                    "anchor": anchor,
-                    "selection_score": 0.0,
-                    "raw_observations": 0,
-                    "supporting_context": [],
-                    "support_offsets": [],
-                    "why_chosen": [],
-                    "attention_math": attention_math_contract(),
-                    "frame_type": frame["frame_type"],
-                    "role_fit": {
-                        "score": 0.0,
-                        "matched_roles": [],
-                        "supporting_anchors": [],
-                    },
-                    "lane_fit": {
-                        "lane": "counts",
-                        "score": 1.0,
-                    },
-                    "query_echo_penalty": 0.0,
-                    "glue_penalty": 0.0,
-                    "source_support": {
-                        "kind": "lifetime_anchor_counts",
-                        "evidence_required_for_claim": True,
-                    },
-                    "answer_health": {
-                        "status": "supported",
-                        "reason": "candidate_has_observed_count_support",
-                    },
-                })
-                current["selection_score"] += observations * position_strength
+                current = candidates.setdefault(anchor, _candidate_seed(anchor, frame))
                 current["raw_observations"] += observations
-                if context_anchor not in current["supporting_context"]:
-                    current["supporting_context"].append(context_anchor)
-                if str(offset) not in current["support_offsets"]:
-                    current["support_offsets"].append(str(offset))
-
-    ranked = list(candidates.values())
-    for row in ranked:
-        support_count = len(row["supporting_context"])
-        role_fit = _role_fit(frame, row["supporting_context"])
-        row["role_fit"] = role_fit
-        row["selection_score"] = round(
-            float(row["selection_score"])
-            + (support_count * MULTI_CONTEXT_SUPPORT_BONUS)
-            + float(role_fit["score"]),
-            4,
-        )
-        row["why_chosen"] = [
-            f"raw_observations={row['raw_observations']}",
-            f"context_support={support_count}",
-            "observations_x_position_strength",
-            "multi_context_support_bonus",
-            "role_frame_fit",
-            "selected_anchor_reenters_context",
-        ]
-    ranked.sort(key=lambda row: (-float(row["selection_score"]), -int(row["raw_observations"]), str(row["anchor"])))
+                current["selection_score"] += observations * strength
+                current["supporting_context"].add(root)
+                current["support_offsets"].add(str(offset))
+    ranked = [_finalize_candidate(row, frame) for row in candidates.values()]
+    ranked.sort(key=lambda item: (-float(item["selection_score"]), -int(item["raw_observations"]), item["anchor"]))
+    for index, row in enumerate(ranked, start=1):
+        row["candidate_rank"] = index
     return ranked
 
 
@@ -215,143 +479,55 @@ def build_active_cloud_frame(
     top_k: int = 6,
     limit_per_anchor: int = 32,
 ) -> dict[str, Any]:
-    """Build and score the active Q/R/A/F cloud for one answer step."""
-
     frame = attention_frame or infer_attention_frame(question_anchors)
-    blocked_set = {str(anchor or "").strip().casefold() for anchor in (blocked or set())}
+    blocked_set = {str(item or "").strip().casefold() for item in (blocked or set())}
     clouds = {
         "question": _clean_list(question_anchors),
         "rear": _clean_list(rear_context),
         "answer": _clean_list(answer_so_far),
         "forward": _clean_list(forward_context),
     }
-    candidate_rows: dict[str, dict[str, Any]] = {}
-    rejected: dict[tuple[str, str], dict[str, Any]] = {}
+    candidates: dict[str, dict[str, Any]] = {}
+    rejected: list[dict[str, Any]] = []
 
-    for cloud_name, anchors in clouds.items():
-        for root in anchors:
+    for cloud_name, roots in clouds.items():
+        for root in roots:
             retrieved = retrieve_from_count_index(count_index, root, limit=limit_per_anchor)
-            offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
-            for offset, rows in offsets.items():
-                distance = offset_distance(str(offset))
-                position_strength = 1.0 / max(distance, 1)
+            for offset, rows in (retrieved.get("offsets") or {}).items():
+                strength = ACTIVE_CLOUD_WEIGHTS[cloud_name] / max(1, offset_distance(str(offset)))
                 for row in rows or []:
                     anchor = str(row.get("anchor") or "").strip().casefold()
                     observations = int(row.get("observations", 0) or 0)
-                    if not anchor or observations <= 0:
+                    reason = _candidate_gate_reason(anchor, blocked_set)
+                    if reason or observations <= 0:
+                        if anchor:
+                            rejected.append({"anchor": anchor, "reason": reason or "no_observations"})
                         continue
-                    gate_reason = _candidate_gate_reason(anchor, blocked_set)
-                    if gate_reason:
-                        rejected.setdefault((anchor, gate_reason), {
-                            "anchor": anchor,
-                            "reason": gate_reason,
-                            "supporting_cloud": cloud_name,
-                            "supporting_anchor": root,
-                        })
-                        continue
-                    current = candidate_rows.setdefault(anchor, {
-                        "anchor": anchor,
-                        "raw_observations": 0,
-                        "weighted_observations": 0.0,
-                        "cloud_support": {
-                            "question": set(),
-                            "rear": set(),
-                            "answer": set(),
-                            "forward": set(),
-                        },
-                        "support_offsets": set(),
-                    })
+                    current = candidates.setdefault(anchor, _candidate_seed(anchor, frame))
                     current["raw_observations"] += observations
-                    current["weighted_observations"] += observations * position_strength * ACTIVE_CLOUD_WEIGHTS[cloud_name]
-                    current["cloud_support"][cloud_name].add(root)
+                    current["selection_score"] += observations * strength
+                    current["supporting_context"].add(root)
                     current["support_offsets"].add(str(offset))
+                    current["cloud_support"][cloud_name].add(root)
 
-    candidates: list[dict[str, Any]] = []
-    for anchor, row in candidate_rows.items():
-        score_parts = {
-            "question_fit": _support_fit(row["cloud_support"]["question"], clouds["question"]),
-            "rear_fit": _support_fit(row["cloud_support"]["rear"], clouds["rear"]),
-            "answer_fit": _support_fit(row["cloud_support"]["answer"], clouds["answer"]),
-            "forward_fit": _support_fit(row["cloud_support"]["forward"], clouds["forward"]),
-            "source_support": min(1.0, float(row["raw_observations"]) / 10.0),
-        }
-        penalties = _candidate_penalties(anchor, row, clouds, frame)
-        if float(penalties.get("contradiction_penalty", 0.0) or 0.0) >= 1.0:
-            rejected[(anchor, "contradictory_ordinal")] = {
-                "anchor": anchor,
-                "reason": "contradictory_ordinal",
-                "observations": int(row["raw_observations"]),
-            }
-            continue
-        frame_guidance = _learned_frame_candidate_guidance(anchor, row, clouds, frame)
-        if float(penalties.get("domain_drift_penalty", 0.0) or 0.0) >= 0.75:
-            rejected[anchor] = {
-                "anchor": anchor,
-                "reason": "domain_field_drift",
-                "observations": int(row["raw_observations"]),
-            }
-            continue
-        score = (
-            ACTIVE_SCORE_WEIGHTS["question_fit"] * score_parts["question_fit"]
-            + ACTIVE_SCORE_WEIGHTS["rear_fit"] * score_parts["rear_fit"]
-            + ACTIVE_SCORE_WEIGHTS["answer_fit"] * score_parts["answer_fit"]
-            + ACTIVE_SCORE_WEIGHTS["forward_fit"] * score_parts["forward_fit"]
-            + ACTIVE_SCORE_WEIGHTS["source_support"] * score_parts["source_support"]
-            + min(0.25, float(row["weighted_observations"]) / 100.0)
-            - penalties["total"]
-        )
-        score += float(frame_guidance.get("boost", 0.0) or 0.0)
-        score -= float(frame_guidance.get("penalty", 0.0) or 0.0)
-        supporting_context = _ordered_supporting_context(row["cloud_support"], clouds)
-        role_fit = _role_fit(frame, supporting_context)
-        score += min(0.10, float(role_fit["score"]) / 100.0)
-        score -= _phrase_field_drift_penalty(anchor, frame)
-        candidates.append({
-            "anchor": anchor,
-            "score": round(score, 6),
-            "selection_score": round(score, 6),
-            "score_parts": {key: round(value, 6) for key, value in score_parts.items()},
-            "penalties": penalties,
-            "learned_frame_guidance": frame_guidance,
-            "raw_observations": int(row["raw_observations"]),
-            "weighted_observations": round(float(row["weighted_observations"]), 6),
-            "supporting_context": supporting_context,
-            "cloud_support": {key: sorted(value) for key, value in row["cloud_support"].items()},
-            "support_offsets": sorted(row["support_offsets"], key=offset_sort_key),
-            "role_fit": role_fit,
-            "source_support": {
-                "kind": "lifetime_anchor_counts",
-                "score": round(score_parts["source_support"], 6),
-                "evidence_required_for_claim": True,
-            },
-            "answer_health": {
-                "status": "supported",
-                "reason": "candidate_supported_by_active_cloud",
-            },
-            "attention_math": attention_math_contract(),
-            "frame_type": frame["frame_type"],
-            "why_chosen": [
-                "candidate_in_active_cloud",
-                "Q/R/A/F_score_parts",
-                "learned_frame_slot_guidance",
-                "gates_passed_before_score",
-                "path_trace_required",
-            ],
-        })
-
-    candidates.sort(key=lambda item: (-float(item["score"]), -int(item["raw_observations"]), str(item["anchor"])))
-    for index, row in enumerate(candidates, start=1):
+    rows = [_finalize_candidate(row, frame) for row in candidates.values()]
+    rows.sort(key=lambda item: (-float(item["selection_score"]), -int(item["raw_observations"]), item["anchor"]))
+    for index, row in enumerate(rows, start=1):
         row["candidate_rank"] = index
     return {
-        "schema_version": "anchorworks_active_cloud_frame@1",
-        "combined_cloud_formula": "C_t = wq Q + wr R + wa A_t + wf F_t",
+        "schema_version": "anchorworks_active_cloud_frame@2",
+        "law": ATTENTION_LAW,
+        "combined_cloud_formula": "attention = weighted symbolic neighborhood admission",
         "weights": dict(ACTIVE_CLOUD_WEIGHTS),
         "score_weights": dict(ACTIVE_SCORE_WEIGHTS),
         "clouds": clouds,
         "attention_frame": frame,
-        "candidates": candidates[: max(1, int(top_k or 6))],
-        "candidate_count": len(candidates),
-        "rejected_candidates": sorted(rejected.values(), key=lambda item: (item["reason"], item["anchor"])),
+        "candidates": rows[: max(1, int(top_k or 1))],
+        "candidate_count": len(rows),
+        "rejected_candidates": _dedupe_rejections(rejected),
+        "observed_data_truth": bool(rows),
+        "world_truth_claim": False,
+        "world_truth_promoted": False,
         "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
     }
 
@@ -363,72 +539,42 @@ def choose_candidate_with_lookahead(
     seed_anchors: list[str],
     blocked: set[str] | None = None,
     lookahead_k: int = 6,
-    min_future_content: int = 2,
-    max_future_glue_ratio: float = 0.50,
-    max_future_null_ratio: float = 0.25,
+    min_future_content: int = 1,
+    max_future_glue_ratio: float = 0.75,
+    max_future_null_ratio: float = 0.50,
 ) -> dict[str, Any]:
-    """Choose a candidate only after checking whether its future still has shape."""
-
-    blocked_set = {str(anchor or "").strip().casefold() for anchor in (blocked or set())}
-    seed_set = {str(anchor or "").strip().casefold() for anchor in seed_anchors if str(anchor or "").strip()}
+    blocked_set = {str(item or "").strip().casefold() for item in (blocked or set())}
     scored: list[dict[str, Any]] = []
     for row in candidates:
         anchor = str(row.get("anchor") or "").strip().casefold()
-        future = _lookahead_health(
+        future = _future_health(
             count_index,
             anchor,
-            seed_set=seed_set,
             blocked=blocked_set | {anchor},
             lookahead_k=lookahead_k,
             min_future_content=min_future_content,
             max_future_glue_ratio=max_future_glue_ratio,
             max_future_null_ratio=max_future_null_ratio,
         )
-        query_coherence = _query_field_coherence(row, future, seed_set)
-        if not query_coherence["coherent"]:
-            future = {
-                **future,
-                "lookahead_score": round(float(future.get("lookahead_score", 0.0) or 0.0) - 0.75, 6),
-                "pattern_health": "anomalous",
-                "rejected_reason": "query_field_drift",
-            }
-        elif future.get("rejected_reason") in {"future_cloud_empty", "future_content_below_min"} and (
-            query_coherence.get("direct_seed_support") or query_coherence.get("answer_support")
-            or query_coherence.get("continuation_support")
-        ):
-            future = {
-                **future,
-                "lookahead_score": max(0.0, float(future.get("lookahead_score", 0.0) or 0.0)),
-                "pattern_health": "healthy",
-                "rejected_reason": "",
-                "terminal_candidate": True,
-            }
-        current_score = float(row.get("score", row.get("selection_score", 0.0)) or 0.0)
-        anomaly_penalty = 0.55 if future["pattern_health"] == "anomalous" else 0.0
+        current = float(row.get("selection_score", row.get("score", 0.0)) or 0.0)
         scored.append({
             **row,
-            "current_score": round(current_score, 6),
+            "current_score": round(current, 6),
             "lookahead_score": future["lookahead_score"],
-            "final_score": round(current_score + float(future["lookahead_score"]) - anomaly_penalty, 6),
-            "anomaly_penalty": anomaly_penalty,
-            "query_field_coherence": query_coherence,
+            "final_score": round(current + float(future["lookahead_score"]), 6),
             **future,
         })
-    scored.sort(key=lambda item: (-float(item["final_score"]), int(item.get("candidate_rank", 9999)), str(item.get("anchor") or "")))
+    scored.sort(key=lambda item: (-float(item["final_score"]), int(item.get("candidate_rank", 9999)), item["anchor"]))
     chosen = next((row for row in scored if row.get("pattern_health") == "healthy"), {})
     return {
-        "schema_version": "clearspeak_topk_lookahead@1",
+        "schema_version": "anchorworks_attention_lookahead@2",
         "chosen": chosen,
         "candidates": scored,
         "path_health": "healthy" if chosen else "blocked",
-        "stop_reason": "" if chosen else "no_healthy_query_field_path",
-        "lookahead": {
-            "lookahead_k": lookahead_k,
-            "min_future_content": min_future_content,
-            "max_future_glue_ratio": max_future_glue_ratio,
-            "max_future_null_ratio": max_future_null_ratio,
-        },
-        "law": "A top-K anchor is chosen only if its future still has shape and remains coherent with the active query field.",
+        "stop_reason": "" if chosen else "no_admissible_future",
+        "observed_data_truth": bool(scored),
+        "world_truth_claim": False,
+        "world_truth_promoted": False,
     }
 
 
@@ -441,46 +587,34 @@ def build_answer_length_policy(
 ) -> dict[str, Any]:
     max_count = max(1, int(max_anchors if max_anchors is not None else limit or 6))
     min_count = max(0, int(min_anchors if min_anchors is not None else 0))
-    if min_count > max_count:
-        min_count = max_count
-    target_count = int(target_anchors if target_anchors is not None else max(min_count, min(max_count, int(limit or max_count))))
+    min_count = min(min_count, max_count)
+    target_count = int(target_anchors if target_anchors is not None else max(min_count, min(max_count, limit or max_count)))
     target_count = max(min_count, min(max_count, target_count))
     return {
-        "schema_version": "anchorworks_answer_length_policy@1",
+        "schema_version": "anchorworks_answer_length_policy@2",
         "min_anchors": min_count,
         "target_anchors": target_count,
         "max_anchors": max_count,
-        "stop_law": "Before min, continue; after target, stop only when required slots are satisfied or max is reached.",
+        "stop_law": "stop only after minimum, target, and required slot conditions allow it",
     }
 
 
 def answer_slot_state(frame: dict[str, Any], seed_anchors: list[str], emitted_anchors: list[str]) -> dict[str, Any]:
+    required = list(frame.get("required_slots") or [])
     content = set(_clean_list(frame.get("content_anchors") or seed_anchors))
     emitted = set(_clean_list(emitted_anchors))
-    required = _required_answer_slots(frame, content)
     satisfied: list[str] = []
-    slot_hits: dict[str, list[str]] = {}
-
     if "subject" in required and content:
         satisfied.append("subject")
-        slot_hits["subject"] = sorted(content)
-    for slot, keywords in ANSWER_SLOT_KEYWORDS.items():
-        hits = sorted((content | emitted) & keywords)
-        if slot == "parts":
-            if len(set(hits) & {"first", "second", "third", "three"}) >= 2:
-                satisfied.append(slot)
-                slot_hits[slot] = hits
-        elif hits:
-            satisfied.append(slot)
-            slot_hits[slot] = hits
-
+    if "answer_content" in required and (emitted - content):
+        satisfied.append("answer_content")
     missing = [slot for slot in required if slot not in set(satisfied)]
     return {
-        "schema_version": "anchorworks_answer_slot_state@1",
+        "schema_version": "anchorworks_answer_slot_state@2",
         "required_slots": required,
         "satisfied_slots": satisfied,
         "missing_slots": missing,
-        "slot_hits": slot_hits,
+        "slot_hits": {"content": sorted(content), "emitted": sorted(emitted)},
         "all_required_satisfied": not missing,
     }
 
@@ -505,7 +639,7 @@ def answer_length_state(policy: dict[str, Any], emitted_count: int, slot_state: 
     else:
         reason = "stop_allowed"
     return {
-        "schema_version": "anchorworks_answer_length_state@1",
+        "schema_version": "anchorworks_answer_length_state@2",
         "emitted_count": emitted_count,
         "below_min": below_min,
         "at_target": at_target,
@@ -515,479 +649,63 @@ def answer_length_state(policy: dict[str, Any], emitted_count: int, slot_state: 
     }
 
 
-def _lookahead_health(
-    count_index: dict[str, Any],
-    anchor: str,
-    *,
-    seed_set: set[str],
-    blocked: set[str],
-    lookahead_k: int,
-    min_future_content: int,
-    max_future_glue_ratio: float,
-    max_future_null_ratio: float,
-) -> dict[str, Any]:
-    retrieved = retrieve_from_count_index(count_index, anchor, limit=max(lookahead_k * 4, 8))
-    offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
-    future_counts: Counter[str] = Counter()
-    total = 0
-    glue_total = 0
-    null_total = 0
-    for _offset, rows in offsets.items():
-        for item in rows or []:
-            neighbor = str(item.get("anchor") or "").strip().casefold()
-            observations = int(item.get("observations", 0) or 0)
-            if not neighbor or observations <= 0:
-                continue
-            total += observations
-            if neighbor == "__null__":
-                null_total += observations
-                continue
-            if blocked_answer_anchor(neighbor):
-                glue_total += observations
-                continue
-            if neighbor in blocked:
-                continue
-            future_counts[neighbor] += observations
-    if total <= 0:
-        return {
-            "future_cloud": [],
-            "future_content_count": 0,
-            "future_glue_ratio": 1.0,
-            "future_null_ratio": 1.0,
-            "backlink_support": 0,
-            "lookahead_score": -1.0,
-            "pattern_health": "anomalous",
-            "rejected_reason": "future_cloud_empty",
-        }
-    future_rows = [
-        anchor_name
-        for anchor_name, _count in sorted(future_counts.items(), key=lambda item: (-item[1], item[0]))[:lookahead_k]
-    ]
-    non_seed_content = [item for item in future_rows if item not in seed_set]
-    backlink_support = sum(1 for item in future_counts if item in seed_set)
-    glue_ratio = glue_total / total
-    null_ratio = null_total / total
-    content_count = len(non_seed_content)
-    anomalous = (
-        content_count < min_future_content
-        or glue_ratio > max_future_glue_ratio
-        or null_ratio > max_future_null_ratio
-    )
-    lookahead_score = (content_count / max(1, lookahead_k)) + (0.12 * backlink_support) - (0.6 * glue_ratio) - (0.8 * null_ratio)
-    rejected_reason = ""
-    if anomalous:
-        if glue_ratio > max_future_glue_ratio:
-            rejected_reason = "future_cloud_glue_heavy"
-        elif null_ratio > max_future_null_ratio:
-            rejected_reason = "future_cloud_null_heavy"
-        else:
-            rejected_reason = "future_content_below_min"
-    return {
-        "future_cloud": future_rows,
-        "future_content_count": content_count,
-        "future_glue_ratio": round(glue_ratio, 6),
-        "future_null_ratio": round(null_ratio, 6),
-        "backlink_support": backlink_support,
-        "lookahead_score": round(lookahead_score, 6),
-        "pattern_health": "anomalous" if anomalous else "healthy",
-        "rejected_reason": rejected_reason,
-    }
-
-
-def _query_field_coherence(row: dict[str, Any], future: dict[str, Any], seed_set: set[str]) -> dict[str, Any]:
-    """Reject count-supported candidates that drift away from the active question field."""
-
-    clean_seeds = {str(anchor or "").strip().casefold() for anchor in seed_set if str(anchor or "").strip()}
-    if not clean_seeds:
-        return {
-            "coherent": True,
-            "reason": "no_seed_field_required",
-            "direct_seed_support": [],
-            "answer_support": [],
-            "backlink_support": int(future.get("backlink_support", 0) or 0),
-            "required_seed_support": 0,
-        }
-    supporting_context = set(_clean_list(row.get("supporting_context") or []))
-    cloud_support = row.get("cloud_support") if isinstance(row.get("cloud_support"), dict) else {}
-    question_support = set(_clean_list(cloud_support.get("question") or []))
-    rear_support = set(_clean_list(cloud_support.get("rear") or []))
-    answer_support = set(_clean_list(cloud_support.get("answer") or []))
-    continuation_support = answer_support | (rear_support - clean_seeds)
-    direct_support = sorted((supporting_context | question_support) & clean_seeds)
-    backlink_support = int(future.get("backlink_support", 0) or 0)
-    required = 1
-    coherent = (
-        len(direct_support) >= required
-        or (len(direct_support) >= 1 and backlink_support > 0)
-        or bool(continuation_support)
-    )
-    if coherent:
-        reason = "candidate_attached_to_query_field"
-    elif direct_support:
-        reason = "single_seed_support_without_backlink"
-    else:
-        reason = "no_query_seed_support"
-    return {
-        "coherent": coherent,
-        "reason": reason,
-        "direct_seed_support": direct_support,
-        "rear_support": sorted(rear_support),
-        "answer_support": sorted(answer_support),
-        "continuation_support": sorted(continuation_support),
-        "backlink_support": backlink_support,
-        "required_seed_support": required,
-    }
-
-
 def attention_math_contract() -> dict[str, Any]:
     return {
         "schema_version": ATTENTION_CONTRACT,
-        "kind": "runtime_relevance_scoring",
+        "kind": "runtime_focus_admission",
         "law": ATTENTION_LAW,
-        "cloud_role": "stored_neighborhood",
-        "attention_role": "choose_relevance_for_active_context",
-        "position_strength": "1 / absolute_offset_distance",
-        "candidate_score": "sum(observations * position_strength) + supporting_context_count * 8",
-        "role_aware_candidate_score": "base_candidate_score + role_fit_score",
-        "active_cloud_formula": "C_t = wq Q + wr R + wa A_t + wf F_t",
+        "counts_create_observed_data_truth": True,
+        "counts_create_world_truth": False,
+        "attention_role": "admit ranked focus from observed symbolic evidence",
+        "coordinate_role": "preserve doc/block/line location for later proof",
         "active_cloud_weights": dict(ACTIVE_CLOUD_WEIGHTS),
-        "active_candidate_score": "0.30*question_fit + 0.25*rear_fit + 0.25*answer_fit + 0.15*forward_fit + 0.05*source_support - penalties",
-        "selected_anchor_reenters_context": True,
-        "counts_create_truth": False,
-        "clouds_cite_proof": False,
+        "active_score_weights": dict(ACTIVE_SCORE_WEIGHTS),
     }
 
 
 def infer_attention_frame(anchors: list[str], phrase_field: dict[str, Any] | None = None) -> dict[str, Any]:
-    observed = [str(anchor or "").strip().casefold() for anchor in anchors if str(anchor or "").strip()]
-    frame_type = _frame_type(observed)
-    learned_frame = induce_question_frame(" ".join(observed)) if observed else {}
+    observed = _clean_list(anchors)
     content = content_anchors(observed)
-    role_by_anchor: dict[str, str] = {}
-    role_trace: list[dict[str, str]] = []
-
-    for anchor in observed:
-        role = _surface_role(anchor, frame_type)
-        if role:
-            role_by_anchor.setdefault(anchor, role)
-            role_trace.append({"anchor": anchor, "role": role})
-
-    if frame_type in {"method_question", "method_declaration"}:
-        if content:
-            role_by_anchor[content[0]] = "action_candidate"
-        if len(content) > 1:
-            role_by_anchor[content[1]] = "object_candidate"
-
-    for anchor in content:
-        role_by_anchor.setdefault(anchor, "content_anchor")
-    phrase_payload = _phrase_field_payload(phrase_field)
-    if phrase_payload:
-        for anchor, role in phrase_payload.get("join_role_by_anchor", {}).items():
-            role_by_anchor[anchor] = role
-
+    required_slots = ["subject", "answer_content"] if content else []
     frame = {
-        "schema_version": "anchorworks_attention_frame@1",
-        "frame_type": frame_type,
+        "schema_version": "anchorworks_attention_frame@2",
+        "frame_type": _frame_type(observed),
         "observed_anchors": observed,
         "content_anchors": content,
-        "role_by_anchor": role_by_anchor,
-        "role_trace": role_trace,
+        "required_slots": required_slots,
+        "role_by_anchor": {anchor: "content_anchor" for anchor in content},
+        "role_trace": [{"anchor": anchor, "role": "content_anchor"} for anchor in content],
         "authority": "runtime_attention_shape",
-        "learned_question_frame": learned_frame,
-        "writes_allowed": {
-            "maps": False,
-            "counts": False,
-            "lifetime": False,
-            "lexicon": False,
-        },
+        "observed_data_truth": bool(observed),
+        "world_truth_claim": False,
+        "world_truth_promoted": False,
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
     }
-    if phrase_payload:
-        frame["phrase_field"] = phrase_payload
+    if isinstance(phrase_field, dict) and phrase_field:
+        frame["phrase_field"] = phrase_field
     return frame
 
 
 def content_anchors(anchors: list[str]) -> list[str]:
-    content = [anchor for anchor in anchors if not blocked_answer_anchor(anchor)]
-    return content or anchors
-
-
-def _frame_type(anchors: list[str]) -> str:
-    if "how" in anchors and "this" in anchors and "is" in anchors:
-        return "method_declaration"
-    if anchors and anchors[0] == "how":
-        return "method_question"
-    if "?" in anchors and "how" in anchors:
-        return "method_question"
-    if anchors and anchors[0] in {"what", "why", "when", "where", "which", "who"}:
-        return "question"
-    return "open_context"
-
-
-def _required_answer_slots(frame: dict[str, Any], content: set[str]) -> list[str]:
-    frame_type = str(frame.get("frame_type") or "")
-    if isinstance(frame.get("phrase_field"), dict):
-        return ["subject", "category", "mechanism", "parts"]
-    if frame_type == "method_question":
-        return ["subject", "mechanism"]
-    if frame_type == "question":
-        return ["subject", "category"]
-    return []
-
-
-def _surface_role(anchor: str, frame_type: str) -> str:
-    if anchor == "how":
-        return "method_marker" if frame_type == "method_declaration" else "question_marker"
-    if anchor == "i":
-        return "speaker_marker"
-    if anchor == "this":
-        return "declaration_marker"
-    if anchor in {"do", "does", "did", "is", "are", "was", "were"}:
-        return "glue_direction"
-    if anchor == "?":
-        return "question_punctuation"
-    if anchor == ".":
-        return "statement_punctuation"
-    return ""
-
-
-def _role_fit(frame: dict[str, Any], supporting_context: list[str]) -> dict[str, Any]:
-    role_by_anchor = frame.get("role_by_anchor") if isinstance(frame.get("role_by_anchor"), dict) else {}
-    matched: list[str] = []
-    supporting: list[str] = []
-    for anchor in supporting_context:
-        role = str(role_by_anchor.get(anchor) or "")
-        if not role or role in matched:
-            continue
-        matched.append(role)
-        supporting.append(anchor)
-    score = len(matched) * ROLE_SUPPORT_BONUS
-    if "action_candidate" in matched and "object_candidate" in matched:
-        score += ROLE_SUPPORT_BONUS
-    return {
-        "score": round(score, 4),
-        "matched_roles": matched,
-        "supporting_anchors": supporting,
-    }
+    content = [anchor for anchor in _clean_list(anchors) if not blocked_answer_anchor(anchor)]
+    return content or _clean_list(anchors)
 
 
 def blocked_answer_anchor(anchor: str) -> bool:
     clean = str(anchor or "").strip().casefold()
-    if clean in _ANSWER_EXCLUSION_SET:
+    if clean in _BLOCKED_CONTENT:
+        return True
+    if clean and all(ch.isdigit() for ch in clean):
+        return True
+    if len(clean) == 1 and not clean.isalnum():
         return True
     if clean.startswith("<") or clean.endswith(">") or "xml" in clean:
         return True
-    if len(clean) == 1 and not clean.isalnum():
-        return True
-    return bool(clean) and all(char.isdigit() for char in clean)
-
-
-def _clean_list(anchors: list[str]) -> list[str]:
-    out: list[str] = []
-    seen: set[str] = set()
-    for anchor in anchors:
-        clean = str(anchor or "").strip().casefold()
-        if not clean or clean in seen:
-            continue
-        seen.add(clean)
-        out.append(clean)
-    return out
-
-
-def _candidate_gate_reason(anchor: str, blocked: set[str]) -> str:
-    clean = str(anchor or "").strip().casefold()
-    if clean in blocked:
-        return "query_echo"
-    if clean in _ANSWER_EXCLUSION_SET:
-        return "glue_as_content"
-    if clean and any((not char.isalnum()) and char not in {"'", "-"} for char in clean):
-        return "punctuation_as_content"
-    if len(clean) == 1 and not clean.isalnum():
-        return "punctuation_as_content"
-    if clean and all(char.isdigit() for char in clean):
-        return "number_as_content"
-    return ""
-
-
-def _support_fit(supporting: set[str], cloud: list[str]) -> float:
-    if not cloud:
-        return 0.0
-    return min(1.0, len(set(supporting)) / max(1, len(set(cloud))))
-
-
-def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, list[str]], frame: dict[str, Any]) -> dict[str, float]:
-    penalties = {
-        "glue_as_content_penalty": 0.0,
-        "unsupported_jump_penalty": 0.0,
-        "repetition_penalty": 0.0,
-        "contradiction_penalty": 0.0,
-        "source_mismatch_penalty": 0.0,
-        "query_echo_penalty": 0.0,
-        "domain_drift_penalty": 0.0,
-    }
-    if anchor in set(clouds["question"]):
-        penalties["query_echo_penalty"] = 0.50
-    if clouds["answer"] and anchor in set(clouds["answer"]):
-        penalties["repetition_penalty"] = 0.75
-    penalties["contradiction_penalty"] = _ordinal_contradiction_penalty(anchor, clouds)
-    if not row["cloud_support"]["question"] and not row["cloud_support"]["answer"]:
-        penalties["unsupported_jump_penalty"] = 0.20
-    penalties["domain_drift_penalty"] = _phrase_field_drift_penalty(anchor, frame)
-    if not penalties["domain_drift_penalty"]:
-        penalties["domain_drift_penalty"] = _question_field_drift_penalty(anchor, frame)
-        if penalties["domain_drift_penalty"] and _candidate_supported_by_content_field(row, frame):
-            penalties["domain_drift_penalty"] = 0.0
-    penalties["total"] = round(sum(penalties.values()), 6)
-    return penalties
-
-
-def _ordinal_contradiction_penalty(anchor: str, clouds: dict[str, list[str]]) -> float:
-    clean = str(anchor or "").strip().casefold()
-    question_terms = set(_clean_list(clouds.get("question") or []))
-    if "first" in question_terms and clean == "second":
-        return 1.25
-    if "second" in question_terms and clean == "first":
-        return 1.25
-    if "third" in question_terms and clean in {"first", "second"}:
-        return 1.25
-    return 0.0
-
-
-def _learned_frame_candidate_guidance(
-    anchor: str,
-    row: dict[str, Any],
-    clouds: dict[str, list[str]],
-    frame: dict[str, Any],
-) -> dict[str, Any]:
-    learned = frame.get("learned_question_frame") if isinstance(frame.get("learned_question_frame"), dict) else {}
-    frame_type = str(learned.get("frame_type") or "")
-    slots = learned.get("slots") if isinstance(learned.get("slots"), dict) else {}
-    subject_terms = set(_clean_list(str(slots.get("subject") or "").split()))
-    question_terms = set(_clean_list(clouds.get("question") or []))
-    answer_terms = set(_clean_list(clouds.get("answer") or []))
-    support_terms: set[str] = set()
-    cloud_support = row.get("cloud_support") if isinstance(row.get("cloud_support"), dict) else {}
-    for values in cloud_support.values():
-        support_terms.update(_clean_list(list(values)))
-
-    anchor_text = str(anchor or "").casefold()
-    reasons: list[str] = []
-    boost = 0.0
-    penalty = 0.0
-    if not learned:
-        return {
-            "schema_version": "anchorworks_learned_frame_candidate_guidance@1",
-            "active": False,
-            "boost": 0.0,
-            "penalty": 0.0,
-            "reasons": [],
-        }
-
-    if anchor_text in subject_terms:
-        boost += 0.08
-        reasons.append("candidate_matches_learned_subject_slot")
-    if support_terms & subject_terms:
-        boost += 0.06
-        reasons.append("candidate_supported_by_subject_slot_terms")
-    if support_terms & question_terms:
-        boost += 0.04
-        reasons.append("candidate_supported_by_question_terms")
-
-    if frame_type in {"causal_explanation", "process_explanation"}:
-        if anchor_text in {"because", "cause", "causes", "caused", "force", "forces", "change", "changes", "affect", "depends"}:
-            boost += 0.07
-            reasons.append("candidate_fits_explanation_frame")
-    if frame_type == "definition":
-        if anchor_text in {"is", "are", "means", "called", "known", "type", "kind", "category"}:
-            boost += 0.06
-            reasons.append("candidate_fits_definition_frame")
-    if frame_type == "comparison":
-        if anchor_text in {"similar", "different", "same", "both", "than", "whereas", "compare", "contrast"}:
-            boost += 0.07
-            reasons.append("candidate_fits_comparison_frame")
-    if frame_type == "selection_check":
-        if anchor_text in {"true", "best", "correct", "statement", "choice", "fits"}:
-            boost += 0.06
-            reasons.append("candidate_fits_selection_frame")
-
-    if frame_type != "open_educational_frame" and not ((support_terms | {anchor_text}) & (subject_terms | question_terms | answer_terms)):
-        penalty += 0.05
-        reasons.append("candidate_weakly_connected_to_learned_frame")
-
-    return {
-        "schema_version": "anchorworks_learned_frame_candidate_guidance@1",
-        "active": True,
-        "frame_type": frame_type,
-        "boost": round(boost, 6),
-        "penalty": round(penalty, 6),
-        "subject_terms": sorted(subject_terms),
-        "reasons": reasons,
-        "fact_answer_authority": False,
-    }
-
-
-def _phrase_field_payload(phrase_field: dict[str, Any] | None) -> dict[str, Any] | None:
-    if not isinstance(phrase_field, dict):
-        return None
-    sequence = [str(anchor or "").strip().casefold() for anchor in phrase_field.get("anchor_sequence") or [] if str(anchor or "").strip()]
-    if not sequence:
-        return None
-    return {
-        "schema_version": "anchorworks_phrase_field@1",
-        "phrase": str(phrase_field.get("phrase") or " ".join(sequence)),
-        "hex": str(phrase_field.get("hex") or phrase_field.get("symbol") or ""),
-        "phrase_type": str(phrase_field.get("phrase_type") or ""),
-        "anchor_sequence": sequence,
-        "join_role_by_anchor": {
-            str(anchor or "").strip().casefold(): str(role)
-            for anchor, role in (phrase_field.get("join_role_by_anchor") or {}).items()
-            if str(anchor or "").strip()
-        },
-        "authority": "phrase_lexicon",
-    }
-
-
-def _phrase_field_drift_penalty(anchor: str, frame: dict[str, Any]) -> float:
-    phrase = frame.get("phrase_field") if isinstance(frame.get("phrase_field"), dict) else {}
-    sequence = set(_clean_list((phrase or {}).get("anchor_sequence") or []))
-    if not sequence:
-        return 0.0
-    field_terms = sequence | set().union(*ANSWER_SLOT_KEYWORDS.values())
-    return 1.00 if str(anchor or "").strip().casefold() not in field_terms else 0.0
-
-
-def _question_field_drift_penalty(anchor: str, frame: dict[str, Any]) -> float:
-    if str(frame.get("frame_type") or "") != "question":
-        return 0.0
-    content = set(_clean_list(frame.get("content_anchors") or []))
-    if len(content) < 2:
-        return 0.0
-    field_terms = content | set().union(*ANSWER_SLOT_KEYWORDS.values())
-    return 0.75 if str(anchor or "").strip().casefold() not in field_terms else 0.0
-
-
-def _candidate_supported_by_content_field(row: dict[str, Any], frame: dict[str, Any]) -> bool:
-    content = set(_clean_list(frame.get("content_anchors") or []))
-    if len(content) < 2:
-        return True
-    cloud_support = row.get("cloud_support") if isinstance(row.get("cloud_support"), dict) else {}
-    supported: set[str] = set()
-    for cloud_name in ("question", "rear", "answer", "forward"):
-        supported.update(_clean_list(list(cloud_support.get(cloud_name) or [])))
-    return len(supported & content) >= min(2, len(content))
-
-
-def _ordered_supporting_context(cloud_support: dict[str, set[str]], clouds: dict[str, list[str]]) -> list[str]:
-    ordered: list[str] = []
-    for cloud_name in ("question", "rear", "answer", "forward"):
-        support = cloud_support.get(cloud_name) or set()
-        for anchor in clouds.get(cloud_name) or []:
-            if anchor in support and anchor not in ordered:
-                ordered.append(anchor)
-    return ordered
+    return False
 
 
 def retrieve_from_count_index(count_index: dict[str, Any], anchor: str, limit: int = 25) -> dict[str, Any]:
-    surface = str(anchor or "").strip().lower()
+    surface = str(anchor or "").strip().casefold()
     offsets = (count_index.get("by_anchor") or {}).get(surface) or {}
     total_by_neighbor: Counter[str] = Counter()
     by_offset: dict[str, Counter[str]] = {}
@@ -998,9 +716,10 @@ def retrieve_from_count_index(count_index: dict[str, Any], anchor: str, limit: i
             count = int(observations or 0)
             if count <= 0:
                 continue
-            total_by_neighbor[str(neighbor)] += count
-            by_offset.setdefault(str(offset), Counter())[str(neighbor)] += count
-    neighbor_rows = [
+            clean_neighbor = str(neighbor).strip().casefold()
+            total_by_neighbor[clean_neighbor] += count
+            by_offset.setdefault(str(offset), Counter())[clean_neighbor] += count
+    neighbors = [
         {"anchor": neighbor, "observations": count}
         for neighbor, count in sorted(total_by_neighbor.items(), key=lambda item: (-item[1], item[0]))[:limit]
     ]
@@ -1015,7 +734,7 @@ def retrieve_from_count_index(count_index: dict[str, Any], anchor: str, limit: i
         "anchor": surface,
         "neighbor_count": len(total_by_neighbor),
         "total_neighbor_observations": int(sum(total_by_neighbor.values())),
-        "neighbors": neighbor_rows,
+        "neighbors": neighbors,
         "offsets": offset_rows,
     }
 
@@ -1032,3 +751,344 @@ def offset_sort_key(offset: str) -> int:
         return int(str(offset).replace("+", ""))
     except ValueError:
         return 0
+
+
+def _candidate_seed(anchor: str, frame: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "anchor": anchor,
+        "score": 0.0,
+        "selection_score": 0.0,
+        "raw_observations": 0,
+        "supporting_context": set(),
+        "support_offsets": set(),
+        "cloud_support": {"question": set(), "rear": set(), "answer": set(), "forward": set()},
+        "score_parts": {},
+        "penalties": {},
+        "role_fit": {"score": 0.0, "matched_roles": [], "supporting_anchors": []},
+        "source_support": {"kind": "native_symbol_counts", "evidence_required_for_claim": True},
+        "answer_health": {"status": "supported", "reason": "candidate_has_observed_symbolic_support"},
+        "attention_math": attention_math_contract(),
+        "frame_type": frame.get("frame_type", "open_context"),
+        "why_chosen": [],
+    }
+
+
+def _finalize_candidate(row: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
+    support = sorted(row["supporting_context"])
+    offsets = sorted(row["support_offsets"], key=offset_sort_key)
+    breadth_bonus = len(support) * 2.0
+    final_score = round(float(row["selection_score"]) + breadth_bonus, 6)
+    return {
+        **row,
+        "score": final_score,
+        "selection_score": final_score,
+        "supporting_context": support,
+        "support_offsets": offsets,
+        "cloud_support": {key: sorted(value) for key, value in row["cloud_support"].items()},
+        "score_parts": {
+            "symbolic_weight": round(float(row["selection_score"]), 6),
+            "support_breadth_bonus": breadth_bonus,
+        },
+        "role_fit": _role_fit(frame, support),
+        "why_chosen": [
+            "observed_in_native_count_neighborhood",
+            "passed_attention_gate",
+            "ranked_by_weight_and_context_breadth",
+        ],
+    }
+
+
+def _future_health(
+    count_index: dict[str, Any],
+    anchor: str,
+    *,
+    blocked: set[str],
+    lookahead_k: int,
+    min_future_content: int,
+    max_future_glue_ratio: float,
+    max_future_null_ratio: float,
+) -> dict[str, Any]:
+    retrieved = retrieve_from_count_index(count_index, anchor, limit=max(lookahead_k * 4, 8))
+    total = 0
+    glue = 0
+    content: Counter[str] = Counter()
+    for rows in (retrieved.get("offsets") or {}).values():
+        for row in rows:
+            neighbor = str(row.get("anchor") or "").strip().casefold()
+            observations = int(row.get("observations", 0) or 0)
+            if observations <= 0:
+                continue
+            total += observations
+            if blocked_answer_anchor(neighbor) or neighbor in blocked:
+                glue += observations
+                continue
+            content[neighbor] += observations
+    if total <= 0:
+        return {
+            "future_cloud": [],
+            "future_content_count": 0,
+            "future_glue_ratio": 1.0,
+            "future_null_ratio": 1.0,
+            "lookahead_score": -1.0,
+            "pattern_health": "anomalous",
+            "rejected_reason": "future_cloud_empty",
+        }
+    future = [anchor_name for anchor_name, _count in content.most_common(lookahead_k)]
+    glue_ratio = glue / max(1, total)
+    null_ratio = 0.0 if future else 1.0
+    healthy = len(future) >= min_future_content and glue_ratio <= max_future_glue_ratio and null_ratio <= max_future_null_ratio
+    return {
+        "future_cloud": future,
+        "future_content_count": len(future),
+        "future_glue_ratio": round(glue_ratio, 6),
+        "future_null_ratio": round(null_ratio, 6),
+        "lookahead_score": round((len(future) / max(1, lookahead_k)) - glue_ratio - null_ratio, 6),
+        "pattern_health": "healthy" if healthy else "anomalous",
+        "rejected_reason": "" if healthy else "future_content_below_min",
+    }
+
+
+def _role_fit(frame: dict[str, Any], support: list[str]) -> dict[str, Any]:
+    role_by_anchor = frame.get("role_by_anchor") if isinstance(frame.get("role_by_anchor"), dict) else {}
+    matched: list[str] = []
+    supporting: list[str] = []
+    for anchor in support:
+        role = str(role_by_anchor.get(anchor) or "")
+        if role and role not in matched:
+            matched.append(role)
+            supporting.append(anchor)
+    return {"score": float(len(matched)), "matched_roles": matched, "supporting_anchors": supporting}
+
+
+def _candidate_gate_reason(anchor: str, blocked: set[str]) -> str:
+    clean = str(anchor or "").strip().casefold()
+    if not clean:
+        return "empty_anchor"
+    if clean in blocked:
+        return "query_echo"
+    if blocked_answer_anchor(clean):
+        return "glue_or_noncontent"
+    if clean in _METADATA_OR_SECTION_LABELS:
+        return "metadata_or_section_label"
+    if clean in _LOW_SIGNAL_GENERAL_TERMS:
+        return "low_signal_general_term"
+    if not _ATTENTION_ANCHOR_PATTERN.match(clean):
+        return "regex_attention_pollution"
+    return ""
+
+
+def _verify_attention_payload(attention: dict[str, Any]) -> tuple[bool, list[str]]:
+    failures: list[str] = []
+    if attention.get("schema_version") != ATTENTION_CONTRACT:
+        failures.append("wrong_attention_schema")
+    if bool(attention.get("world_truth_claim")):
+        failures.append("world_truth_claim_not_allowed")
+    if bool(attention.get("world_truth_promoted")):
+        failures.append("world_truth_promotion_not_allowed")
+    if attention.get("admission_status") == "admitted" and not attention.get("admitted_blocks"):
+        failures.append("admitted_without_blocks")
+    if attention.get("admission_status") == "refused" and attention.get("focus_candidates"):
+        failures.append("refused_with_focus_candidates")
+    writes = attention.get("writes_allowed") if isinstance(attention.get("writes_allowed"), dict) else {}
+    for key in ("maps", "counts", "lifetime", "lexicon"):
+        if bool(writes.get(key)):
+            failures.append(f"write_not_allowed:{key}")
+    return not failures, failures
+
+
+def _renderer_phrase(terms: list[str], limit: int = 12, *, allow_list_style: bool = False) -> str:
+    out: list[str] = []
+    for term in terms:
+        clean = str(term or "").strip().casefold()
+        if not clean:
+            continue
+        if len(clean) == 1 and not clean.isalnum():
+            continue
+        if all(ch.isdigit() for ch in clean):
+            continue
+        out.append(clean)
+        if len(out) >= limit:
+            break
+    if allow_list_style:
+        return ", ".join(out)
+    return " ".join(out)
+
+
+def _renderer_terms_are_phrase_like(terms: list[str], focus_anchors: list[str]) -> bool:
+    clean_terms = _clean_list(terms)
+    if not clean_terms:
+        return False
+    meaningful_terms = [
+        term for term in clean_terms
+        if not (len(term) == 1 and not term.isalnum()) and not all(ch.isdigit() for ch in term)
+    ]
+    if any(term in _METADATA_OR_SECTION_LABELS for term in meaningful_terms[:8]):
+        return False
+    if len([term for term in meaningful_terms[:10] if term in _LOW_SIGNAL_GENERAL_TERMS]) >= 3:
+        return False
+    focus = set(_clean_list(focus_anchors))
+    if focus and not (focus & set(clean_terms)):
+        return False
+    content_terms = [term for term in meaningful_terms if not blocked_answer_anchor(term)]
+    return len(content_terms) >= 2
+
+
+def _citation_from_block(block: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "doc_id": str(block.get("doc_id") or ""),
+        "source_file": str(block.get("source_file") or ""),
+        "block_id": int(block.get("block_id", 0) or 0),
+        "document_line_start": int(block.get("document_line_start", 0) or 0),
+        "document_line_end": int(block.get("document_line_end", 0) or 0),
+        "rag_copy": str(block.get("rag_copy") or ""),
+        "citation_type": "observed_data_coordinate",
+    }
+
+
+def _coordinate_phrase(citations: list[dict[str, Any]]) -> str:
+    parts: list[str] = []
+    for row in citations[:3]:
+        doc_id = str(row.get("doc_id") or "unknown_doc")
+        block_id = int(row.get("block_id", 0) or 0)
+        start = int(row.get("document_line_start", 0) or 0)
+        end = int(row.get("document_line_end", 0) or 0)
+        parts.append(f"{doc_id} block {block_id} lines {start}-{end}")
+    return "; ".join(parts)
+
+
+def _load_user_n0_regex(path_value: Any) -> dict[str, Any]:
+    empty = {
+        "path": "",
+        "loaded": False,
+        "deny_focus_patterns": [],
+        "admit_focus_patterns": [],
+        "boost_focus_patterns": [],
+        "normalize_focus_patterns": [],
+    }
+    if not path_value:
+        return empty
+    path = Path(path_value)
+    if not path.exists():
+        return {**empty, "path": str(path)}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return {**empty, "path": str(path)}
+    return {
+        "path": str(path),
+        "loaded": True,
+        "schema_version": str(payload.get("schema_version") or "anchorworks_n0_attention_regex@1"),
+        "deny_focus_patterns": _regex_rows(payload.get("deny_focus_patterns")),
+        "admit_focus_patterns": _regex_rows(payload.get("admit_focus_patterns")),
+        "boost_focus_patterns": _regex_rows(payload.get("boost_focus_patterns")),
+        "normalize_focus_patterns": _regex_rows(payload.get("normalize_focus_patterns")),
+    }
+
+
+def _regex_rows(value: Any) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if not isinstance(value, list):
+        return rows
+    for row in value:
+        if not isinstance(row, dict):
+            continue
+        pattern = str(row.get("pattern") or "").strip()
+        if not pattern:
+            continue
+        rows.append(dict(row, pattern=pattern))
+    return rows
+
+
+def _user_regex_match(anchor: str, rows: Any) -> dict[str, Any]:
+    clean = str(anchor or "").strip().casefold()
+    if not isinstance(rows, list):
+        return {}
+    for row in rows:
+        try:
+            if re.search(str(row.get("pattern") or ""), clean):
+                return row
+        except re.error:
+            continue
+    return {}
+
+
+def _apply_user_normalize(anchor: str, user_regex: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    clean = str(anchor or "").strip().casefold()
+    for row in user_regex.get("normalize_focus_patterns") or []:
+        try:
+            pattern = str(row.get("pattern") or "")
+            if re.search(pattern, clean):
+                replacement = str(row.get("replace") or clean).strip().casefold()
+                if replacement:
+                    return replacement, {
+                        "pattern": pattern,
+                        "replace": replacement,
+                        "reason": str(row.get("reason") or "user_normalized_focus_anchor"),
+                    }
+        except re.error:
+            continue
+    return clean, {}
+
+
+def _user_regex_report(user_regex: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "schema_version": str(user_regex.get("schema_version") or "anchorworks_n0_attention_regex@1"),
+        "path": str(user_regex.get("path") or ""),
+        "loaded": bool(user_regex.get("loaded")),
+        "mode": "additive_not_takeover",
+        "rules": {
+            "deny_count": len(user_regex.get("deny_focus_patterns") or []),
+            "admit_count": len(user_regex.get("admit_focus_patterns") or []),
+            "boost_count": len(user_regex.get("boost_focus_patterns") or []),
+            "normalize_count": len(user_regex.get("normalize_focus_patterns") or []),
+        },
+        "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+    }
+
+
+def _frame_type(anchors: list[str]) -> str:
+    if not anchors:
+        return "empty"
+    if anchors[0] in {"what", "why", "when", "where", "which", "who", "how"} or "?" in anchors:
+        return "question"
+    return "open_context"
+
+
+def _clean_list(values: list[Any]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        clean = str(value or "").strip().casefold()
+        if not clean or clean in seen:
+            continue
+        seen.add(clean)
+        out.append(clean)
+    return out
+
+
+def _dedupe_coordinates(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    seen: set[tuple[str, int, int, int]] = set()
+    for row in rows:
+        key = (
+            str(row.get("doc_id") or ""),
+            int(row.get("block_id", 0) or 0),
+            int(row.get("document_line_start", 0) or 0),
+            int(row.get("document_line_end", 0) or 0),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(row)
+    return out
+
+
+def _dedupe_rejections(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for row in rows:
+        key = (str(row.get("anchor") or ""), str(row.get("reason") or ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(row)
+    return out

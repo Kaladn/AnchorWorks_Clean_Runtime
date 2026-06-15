@@ -1,0 +1,1074 @@
+{
+  "schema_version": "anchorworks_beir_scifact_count_benchmark@1",
+  "run_id": "beir_scifact_counts_first10_20260615T094725Z",
+  "created_at": "2026-06-15T09:47:32.654617+00:00",
+  "dataset": "BeIR/scifact",
+  "split": "test_qrels_first10_unique_queries",
+  "mode": "counts_only_native_score_stream",
+  "document_lane_used": false,
+  "rag_lane_used": false,
+  "raw_corpus_answer_lane_used": false,
+  "count_path": "D:\\AnchorWorks_Clean_Runtime\\State\\user\\user_counts\\symbol_counts.bin",
+  "count_file_size": 169061808,
+  "doc_hit_metrics_status": "unscorable_doc_id_mapping_missing",
+  "reason_doc_hits_blocked": "native count scorer returns neighbor symbols/anchors, not corpus document IDs",
+  "requested_metrics": [
+    "hit@1",
+    "hit@5",
+    "hit@10",
+    "miss",
+    "runtime_per_query"
+  ],
+  "term_evidence_metrics": {
+    "query_count": 10,
+    "queries_with_context_symbols": 10,
+    "queries_with_term_evidence": 10,
+    "queries_without_term_evidence": 0,
+    "queries_with_named_term_anchors": 10,
+    "avg_runtime_ms": 611.07,
+    "max_runtime_ms": 637.35
+  },
+  "queries": [
+    {
+      "query_id": "1",
+      "query_text": "0-dimensional biomaterials show inductive properties.",
+      "expected_doc_ids": [
+        "31715818"
+      ],
+      "represented_content_anchors": [
+        "0",
+        "dimensional",
+        "biomaterials",
+        "show",
+        "inductive",
+        "properties"
+      ],
+      "context_symbols": [
+        "0x1000044D6B",
+        "0x1000013873",
+        "0x1000007A7D",
+        "0x1000038F48",
+        "0x100001FEEF",
+        "0x100003357F"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 593.33,
+      "native_context_count": 6,
+      "native_candidate_count": 8547,
+      "retrieved_terms": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 1543.18,
+          "observations": 4687
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1313.4,
+          "observations": 3189
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 1282.62,
+          "observations": 4051
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 1079.12,
+          "observations": 1460
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1074.05,
+          "observations": 2591
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 1027.1,
+          "observations": 3785
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 865.467,
+          "observations": 2928
+        },
+        {
+          "symbol": "1000042CD9",
+          "anchor": "we",
+          "score": 856.8,
+          "observations": 1109
+        },
+        {
+          "symbol": "F7A930959E",
+          "anchor": "",
+          "score": 581.6,
+          "observations": 1084
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 500.3,
+          "observations": 2117
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "3",
+      "query_text": "1,000 genomes project enables mapping of genetic sequence variation consisting of rare variants with larger penetrance effects than common variants.",
+      "expected_doc_ids": [
+        "14717500"
+      ],
+      "represented_content_anchors": [
+        "1",
+        "0",
+        "genomes",
+        "project",
+        "enables",
+        "mapping",
+        "genetic",
+        "sequence",
+        "variation",
+        "consisting",
+        "rare",
+        "variants",
+        "larger",
+        "penetrance",
+        "effects",
+        "than",
+        "common"
+      ],
+      "context_symbols": [
+        "0x1000044D6C",
+        "0x1000044D6B",
+        "0x1000019DE7",
+        "0x1000033374",
+        "0x1000015DB8",
+        "0x100002694E",
+        "0x1000019D63",
+        "0x1000038A76",
+        "0x100004163D",
+        "0x100000F028",
+        "0x100003506E",
+        "0x1000041639",
+        "0x10000239DE",
+        "0x100002FA9A",
+        "0x10000159ED",
+        "0x100003BD41",
+        "0x100000E577"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 629.218,
+      "native_context_count": 17,
+      "native_candidate_count": 13553,
+      "retrieved_terms": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 5144.22,
+          "observations": 13252
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 4585.73,
+          "observations": 12473
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 3645.75,
+          "observations": 11456
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3300.53,
+          "observations": 8991
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 2703.97,
+          "observations": 6694
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 2624.65,
+          "observations": 6398
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1762.93,
+          "observations": 5732
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1145.15,
+          "observations": 4612
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1084.97,
+          "observations": 3484
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 1046.63,
+          "observations": 3168
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "5",
+      "query_text": "1/2000 in UK have abnormal PrP positivity.",
+      "expected_doc_ids": [
+        "13734012"
+      ],
+      "represented_content_anchors": [
+        "1",
+        "2",
+        "0",
+        "u",
+        "k",
+        "have",
+        "abnormal",
+        "prp",
+        "positivity"
+      ],
+      "context_symbols": [
+        "0x1000044D6C",
+        "0x1000044D6D",
+        "0x1000044D6B",
+        "0x1000044D96",
+        "0x1000044D8C",
+        "0x100001C707",
+        "0x1000000316",
+        "0x10000339CD",
+        "0x10000322EA"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 608.5,
+      "native_context_count": 9,
+      "native_candidate_count": 14635,
+      "retrieved_terms": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 7026.85,
+          "observations": 18020
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 5304.47,
+          "observations": 16021
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 4159.82,
+          "observations": 14437
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 3993.58,
+          "observations": 9899
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3972.28,
+          "observations": 11602
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 3628.05,
+          "observations": 8604
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 2943.93,
+          "observations": 9199
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1927.67,
+          "observations": 7581
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1424.23,
+          "observations": 4630
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 1314.17,
+          "observations": 4115
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "13",
+      "query_text": "5% of perinatal mortality is due to low birth weight.",
+      "expected_doc_ids": [
+        "1606628"
+      ],
+      "represented_content_anchors": [
+        "5",
+        "%",
+        "perinatal",
+        "mortality",
+        "due",
+        "low",
+        "birth",
+        "weight"
+      ],
+      "context_symbols": [
+        "0x1000044D70",
+        "0x1000044D60",
+        "0x100002FEFE",
+        "0x1000029772",
+        "0x10000153A7",
+        "0x1000025637",
+        "0x1000007C09",
+        "0x1000042EC1"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 594.144,
+      "native_context_count": 8,
+      "native_candidate_count": 8802,
+      "retrieved_terms": [
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 2232.05,
+          "observations": 5185
+        },
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 2048.65,
+          "observations": 5100
+        },
+        {
+          "symbol": "100000CFCF",
+          "anchor": "ci",
+          "score": 1544.93,
+          "observations": 2658
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 1300.9,
+          "observations": 3405
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1273.35,
+          "observations": 2669
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1235.95,
+          "observations": 3113
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 1213.13,
+          "observations": 3809
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 607.817,
+          "observations": 2301
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 541.117,
+          "observations": 1558
+        },
+        {
+          "symbol": "100000EBF8",
+          "anchor": "confidence",
+          "score": 502.133,
+          "observations": 782
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "36",
+      "query_text": "A deficiency of vitamin B12 increases blood levels of homocysteine.",
+      "expected_doc_ids": [
+        "5152028",
+        "11705328"
+      ],
+      "represented_content_anchors": [
+        "deficiency",
+        "vitamin",
+        "b",
+        "1",
+        "2",
+        "increases",
+        "blood",
+        "levels",
+        "homocysteine"
+      ],
+      "context_symbols": [
+        "0x10000121E4",
+        "0x100004221A",
+        "0x1000044D83",
+        "0x1000044D6C",
+        "0x1000044D6D",
+        "0x100001FBB9",
+        "0x1000008241",
+        "0x1000024530",
+        "0xE00002D2CE"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 626.662,
+      "native_context_count": 9,
+      "native_candidate_count": 13774,
+      "retrieved_terms": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 6096.77,
+          "observations": 14593
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 5026.37,
+          "observations": 13308
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3643.25,
+          "observations": 9570
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 3546.3,
+          "observations": 11610
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 2713.5,
+          "observations": 6829
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 2462.2,
+          "observations": 5969
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 2443.63,
+          "observations": 7082
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1608.03,
+          "observations": 6026
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1276.07,
+          "observations": 3846
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 1009.12,
+          "observations": 2930
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "42",
+      "query_text": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "expected_doc_ids": [
+        "18174210"
+      ],
+      "represented_content_anchors": [
+        "high",
+        "count",
+        "raises",
+        "vulnerability",
+        "severe",
+        "anemia",
+        "homozygous",
+        "alpha",
+        "+",
+        "thalassemia",
+        "trait",
+        "subjects"
+      ],
+      "context_symbols": [
+        "0x100001D466",
+        "0x100000FE06",
+        "0x1000034DAF",
+        "0x100004260A",
+        "0x1000038B6B",
+        "0x1000002F95",
+        "0x100001DC8D",
+        "0x1000002420",
+        "0x1000044D66",
+        "0x100003BCFB",
+        "0x100003D46F",
+        "0x100003A41E"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 601.862,
+      "native_context_count": 12,
+      "native_candidate_count": 5448,
+      "retrieved_terms": [
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 612.183,
+          "observations": 1561
+        },
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 601.217,
+          "observations": 1506
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 444.783,
+          "observations": 1151
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 424.717,
+          "observations": 1210
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 388.617,
+          "observations": 731
+        },
+        {
+          "symbol": "100000B99C",
+          "anchor": "cd",
+          "score": 336.083,
+          "observations": 853
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 212.467,
+          "observations": 568
+        },
+        {
+          "symbol": "100000BACC",
+          "anchor": "cells",
+          "score": 207.117,
+          "observations": 505
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 153.817,
+          "observations": 352
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 120.8,
+          "observations": 285
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "48",
+      "query_text": "A total of 1,000 people in the UK are asymptomatic carriers of vCJD infection.",
+      "expected_doc_ids": [
+        "13734012"
+      ],
+      "represented_content_anchors": [
+        "total",
+        "1",
+        "0",
+        "people",
+        "u",
+        "k",
+        "asymptomatic",
+        "carriers",
+        "vcjd",
+        "infection"
+      ],
+      "context_symbols": [
+        "0x100003D0E1",
+        "0x1000044D6C",
+        "0x1000044D6B",
+        "0x100002FC5F",
+        "0x1000044D96",
+        "0x1000044D8C",
+        "0x100000501B",
+        "0x100000B269",
+        "0xE00006A9FF",
+        "0x10000200E5"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 637.35,
+      "native_context_count": 10,
+      "native_candidate_count": 12576,
+      "retrieved_terms": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 4854.88,
+          "observations": 12398
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 3896.45,
+          "observations": 11070
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 2799.82,
+          "observations": 9785
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 2783.43,
+          "observations": 7951
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 2654.97,
+          "observations": 6563
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 2474.67,
+          "observations": 5880
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1760.9,
+          "observations": 5727
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1144.9,
+          "observations": 4611
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1069.2,
+          "observations": 3285
+        },
+        {
+          "symbol": "F7A930959E",
+          "anchor": "",
+          "score": 1008.97,
+          "observations": 2002
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "49",
+      "query_text": "ADAR1 binds to Dicer to cleave pre-miRNA.",
+      "expected_doc_ids": [
+        "5953485"
+      ],
+      "represented_content_anchors": [
+        "d",
+        "r",
+        "1",
+        "binds",
+        "dicer",
+        "cleave",
+        "pre",
+        "mirna"
+      ],
+      "context_symbols": [
+        "0x1000044D85",
+        "0x1000044D93",
+        "0x1000044D6C",
+        "0x1000007967",
+        "0x10000134A0",
+        "0x100000D611",
+        "0x100003277A",
+        "0x10000288C0"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 600.082,
+      "native_context_count": 8,
+      "native_candidate_count": 11271,
+      "retrieved_terms": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 3430.07,
+          "observations": 8061
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 2487.75,
+          "observations": 7145
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 1936.08,
+          "observations": 6479
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 1881.87,
+          "observations": 5162
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1477.22,
+          "observations": 3458
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1348.28,
+          "observations": 3399
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1260.6,
+          "observations": 3610
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 825.267,
+          "observations": 3056
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 674.4,
+          "observations": 2081
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 590.05,
+          "observations": 1693
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "50",
+      "query_text": "AIRE is expressed in some skin tumors.",
+      "expected_doc_ids": [
+        "12580014"
+      ],
+      "represented_content_anchors": [
+        "r",
+        "e",
+        "expressed",
+        "some",
+        "skin",
+        "tumors"
+      ],
+      "context_symbols": [
+        "0x1000044D93",
+        "0x1000044D86",
+        "0x1000016653",
+        "0x1000039801",
+        "0x1000039351",
+        "0x100003E2C1"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 582.234,
+      "native_context_count": 6,
+      "native_candidate_count": 4737,
+      "retrieved_terms": [
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 598.3,
+          "observations": 1065
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 465.733,
+          "observations": 1051
+        },
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 411.4,
+          "observations": 980
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 358.083,
+          "observations": 1001
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 163.933,
+          "observations": 312
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 141.5,
+          "observations": 321
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 135.267,
+          "observations": 385
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 122.467,
+          "observations": 280
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 95.9833,
+          "observations": 198
+        },
+        {
+          "symbol": "100000445E",
+          "anchor": "are",
+          "score": 95.7,
+          "observations": 189
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    },
+    {
+      "query_id": "51",
+      "query_text": "ALDH1 expression is associated with better breast cancer outcomes.",
+      "expected_doc_ids": [
+        "45638119"
+      ],
+      "represented_content_anchors": [
+        "l",
+        "d",
+        "h",
+        "1",
+        "expression",
+        "associated",
+        "better",
+        "breast",
+        "cancer",
+        "outcomes"
+      ],
+      "context_symbols": [
+        "0x1000044D8D",
+        "0x1000044D85",
+        "0x1000044D89",
+        "0x1000044D6C",
+        "0x1000016657",
+        "0x1000004DF9",
+        "0x100000749A",
+        "0x100000926E",
+        "0x100000A99B",
+        "0x100002DB74"
+      ],
+      "retrieved_doc_ids": [],
+      "hit_rank": null,
+      "hit_at_1": null,
+      "hit_at_5": null,
+      "hit_at_10": null,
+      "miss": null,
+      "doc_score_status": "unscorable_doc_id_mapping_missing",
+      "runtime_ms": 637.32,
+      "native_context_count": 10,
+      "native_candidate_count": 12986,
+      "retrieved_terms": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 4921.55,
+          "observations": 11633
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 4861.52,
+          "observations": 11817
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3249.7,
+          "observations": 8238
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 3224.37,
+          "observations": 9788
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 2726.13,
+          "observations": 4847
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1881.55,
+          "observations": 4714
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1408.22,
+          "observations": 3616
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1260.6,
+          "observations": 3610
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 1059.03,
+          "observations": 2114
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 1023,
+          "observations": 2136
+        }
+      ],
+      "answer_or_refusal": "term_evidence_returned",
+      "error": ""
+    }
+  ]
+}

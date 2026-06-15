@@ -1,0 +1,3866 @@
+{
+  "schema_version": "anchorworks_beir_scifact_count_corpus_search@1",
+  "run_id": "beir_scifact_counts_corpus_first10_20260615T095114Z",
+  "created_at": "2026-06-15T09:51:42.050019+00:00",
+  "dataset": "BeIR/scifact",
+  "split": "test_qrels_first10_unique_queries",
+  "mode": "counts_plus_flat_file_coordination_search_only",
+  "document_answer_lane_used": false,
+  "rag_rendering_used": false,
+  "raw_corpus_answer_lane_used": false,
+  "flat_file_role": "corpus_id_search_target_and_provenance_index_only",
+  "count_path": "D:\\AnchorWorks_Clean_Runtime\\State\\user\\user_counts\\symbol_counts.bin",
+  "count_file_size": 169061808,
+  "metrics": {
+    "query_count": 10,
+    "hit_at_1": 1,
+    "hit_at_5": 1,
+    "hit_at_10": 1,
+    "miss": 9,
+    "hit_at_1_rate": 0.1,
+    "hit_at_5_rate": 0.1,
+    "hit_at_10_rate": 0.1,
+    "avg_runtime_ms": 2674.851,
+    "max_runtime_ms": 2718.682
+  },
+  "queries": [
+    {
+      "query_id": "1",
+      "query_text": "0-dimensional biomaterials show inductive properties.",
+      "expected_doc_ids": [
+        "31715818"
+      ],
+      "represented_content_anchors": [
+        "0",
+        "dimensional",
+        "biomaterials",
+        "show",
+        "inductive",
+        "properties"
+      ],
+      "context_symbols": [
+        "0x1000044D6B",
+        "0x1000013873",
+        "0x1000007A7D",
+        "0x1000038F48",
+        "0x100001FEEF",
+        "0x100003357F"
+      ],
+      "retrieved_doc_ids": [
+        "5114940",
+        "10749308",
+        "14711483",
+        "34025053",
+        "7111021",
+        "14319754",
+        "76415938",
+        "30058568",
+        "12810152",
+        "32766786"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2661.709,
+      "native_context_count": 6,
+      "native_candidate_count": 8547,
+      "count_terms_used": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 1543.18,
+          "observations": 4687
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1313.4,
+          "observations": 3189
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 1282.62,
+          "observations": 4051
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 1079.12,
+          "observations": 1460
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1074.05,
+          "observations": 2591
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 1027.1,
+          "observations": 3785
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 865.467,
+          "observations": 2928
+        },
+        {
+          "symbol": "1000042CD9",
+          "anchor": "we",
+          "score": 856.8,
+          "observations": 1109
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 500.3,
+          "observations": 2117
+        },
+        {
+          "symbol": "100000CFCF",
+          "anchor": "ci",
+          "score": 345.883,
+          "observations": 877
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 333.817,
+          "observations": 1206
+        },
+        {
+          "symbol": "10000444FE",
+          "anchor": "years",
+          "score": 331.1,
+          "observations": 664
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 319.633,
+          "observations": 1555
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 318.433,
+          "observations": 1180
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 272.967,
+          "observations": 842
+        },
+        {
+          "symbol": "100002806B",
+          "anchor": "mg",
+          "score": 261.667,
+          "observations": 402
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 254.95,
+          "observations": 760
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 238.267,
+          "observations": 768
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 225.683,
+          "observations": 687
+        },
+        {
+          "symbol": "100001D047",
+          "anchor": "here",
+          "score": 212.9,
+          "observations": 430
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "5114940",
+          "score": 7167.8167,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "compared",
+            "interval",
+            "not",
+            "respectively",
+            "than",
+            "title",
+            "women"
+          ]
+        },
+        {
+          "doc_id": "10749308",
+          "score": 6975.3503,
+          "matched_query_anchors": [
+            "show"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "interval",
+            "not",
+            "over",
+            "patients",
+            "results",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "14711483",
+          "score": 6205.501,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "compared",
+            "kg",
+            "less",
+            "mg",
+            "not",
+            "over",
+            "patients",
+            "respectively",
+            "results",
+            "than",
+            "vs",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "34025053",
+          "score": 6097.9507,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "compared",
+            "days",
+            "here",
+            "kg",
+            "mg",
+            "nm",
+            "not",
+            "over",
+            "patients",
+            "results",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "7111021",
+          "score": 6068.034,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "compared",
+            "here",
+            "interval",
+            "less",
+            "patients",
+            "per",
+            "person",
+            "respectively",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "14319754",
+          "score": 5995.217,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "compared",
+            "data",
+            "patients",
+            "per",
+            "person",
+            "respectively",
+            "than",
+            "vs",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "76415938",
+          "score": 5925.2837,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "cells",
+            "interval",
+            "less",
+            "not",
+            "over",
+            "patients",
+            "respectively",
+            "results",
+            "than",
+            "vs",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "30058568",
+          "score": 5874.8007,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "compared",
+            "interval",
+            "less",
+            "patients",
+            "per",
+            "person",
+            "respectively",
+            "than",
+            "vs",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "12810152",
+          "score": 5763.034,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "compared",
+            "data",
+            "interval",
+            "mg",
+            "not",
+            "per",
+            "results",
+            "than",
+            "vs",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "32766786",
+          "score": 5718.917,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "less",
+            "not",
+            "patients",
+            "results",
+            "than",
+            "years"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "3",
+      "query_text": "1,000 genomes project enables mapping of genetic sequence variation consisting of rare variants with larger penetrance effects than common variants.",
+      "expected_doc_ids": [
+        "14717500"
+      ],
+      "represented_content_anchors": [
+        "1",
+        "0",
+        "genomes",
+        "project",
+        "enables",
+        "mapping",
+        "genetic",
+        "sequence",
+        "variation",
+        "consisting",
+        "rare",
+        "variants",
+        "larger",
+        "penetrance",
+        "effects",
+        "than",
+        "common"
+      ],
+      "context_symbols": [
+        "0x1000044D6C",
+        "0x1000044D6B",
+        "0x1000019DE7",
+        "0x1000033374",
+        "0x1000015DB8",
+        "0x100002694E",
+        "0x1000019D63",
+        "0x1000038A76",
+        "0x100004163D",
+        "0x100000F028",
+        "0x100003506E",
+        "0x1000041639",
+        "0x10000239DE",
+        "0x100002FA9A",
+        "0x10000159ED",
+        "0x100003BD41",
+        "0x100000E577"
+      ],
+      "retrieved_doc_ids": [
+        "19408393",
+        "34287602",
+        "32766786",
+        "5114940",
+        "10749308",
+        "76415938",
+        "1449692",
+        "10485142",
+        "654735",
+        "31591262"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2718.682,
+      "native_context_count": 17,
+      "native_candidate_count": 13553,
+      "count_terms_used": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 5144.22,
+          "observations": 13252
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 4585.73,
+          "observations": 12473
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 3645.75,
+          "observations": 11456
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3300.53,
+          "observations": 8991
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 2703.97,
+          "observations": 6694
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 2624.65,
+          "observations": 6398
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1762.93,
+          "observations": 5732
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1145.15,
+          "observations": 4612
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1084.97,
+          "observations": 3484
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 1046.63,
+          "observations": 3168
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 865.617,
+          "observations": 2375
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 777.817,
+          "observations": 2332
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 753.45,
+          "observations": 1816
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 730.267,
+          "observations": 1929
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 726.05,
+          "observations": 2206
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 685.533,
+          "observations": 1746
+        },
+        {
+          "symbol": "100000CFCF",
+          "anchor": "ci",
+          "score": 649.333,
+          "observations": 1673
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 596.667,
+          "observations": 1752
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 584.067,
+          "observations": 1507
+        },
+        {
+          "symbol": "10000444FE",
+          "anchor": "years",
+          "score": 578.533,
+          "observations": 1337
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "19408393",
+          "score": 16989.017,
+          "matched_query_anchors": [
+            "common",
+            "than"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "document",
+            "group",
+            "patients",
+            "per",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "34287602",
+          "score": 16386.017,
+          "matched_query_anchors": [
+            "genetic",
+            "genomes",
+            "sequence",
+            "than",
+            "variation"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "per",
+            "protein",
+            "results",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "32766786",
+          "score": 16308.917,
+          "matched_query_anchors": [
+            "than"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cancer",
+            "document",
+            "group",
+            "less",
+            "patients",
+            "results",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "5114940",
+          "score": 16060.037,
+          "matched_query_anchors": [
+            "than"
+          ],
+          "matched_count_terms": [
+            "abstract",
+            "between",
+            "interval",
+            "than",
+            "title",
+            "type",
+            "women"
+          ]
+        },
+        {
+          "doc_id": "10749308",
+          "score": 15390.967,
+          "matched_query_anchors": [
+            "than"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "group",
+            "interval",
+            "patients",
+            "results",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "76415938",
+          "score": 15248.751,
+          "matched_query_anchors": [
+            "than"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cancer",
+            "cells",
+            "group",
+            "human",
+            "interval",
+            "less",
+            "patients",
+            "results",
+            "than",
+            "vs",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "1449692",
+          "score": 14758.947,
+          "matched_query_anchors": [
+            "effects"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "id",
+            "protein",
+            "results"
+          ]
+        },
+        {
+          "doc_id": "10485142",
+          "score": 13951.33,
+          "matched_query_anchors": [
+            "common",
+            "genetic"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "human",
+            "id"
+          ]
+        },
+        {
+          "doc_id": "654735",
+          "score": 13863.117,
+          "matched_query_anchors": [
+            "common",
+            "than"
+          ],
+          "matched_count_terms": [
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "group",
+            "mir",
+            "patients",
+            "protein",
+            "results",
+            "than",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "31591262",
+          "score": 13601.534,
+          "matched_query_anchors": [
+            "than"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "group",
+            "interval",
+            "patients",
+            "results",
+            "than"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "5",
+      "query_text": "1/2000 in UK have abnormal PrP positivity.",
+      "expected_doc_ids": [
+        "13734012"
+      ],
+      "represented_content_anchors": [
+        "1",
+        "2",
+        "0",
+        "u",
+        "k",
+        "have",
+        "abnormal",
+        "prp",
+        "positivity"
+      ],
+      "context_symbols": [
+        "0x1000044D6C",
+        "0x1000044D6D",
+        "0x1000044D6B",
+        "0x1000044D96",
+        "0x1000044D8C",
+        "0x100001C707",
+        "0x1000000316",
+        "0x10000339CD",
+        "0x10000322EA"
+      ],
+      "retrieved_doc_ids": [
+        "5114940",
+        "19408393",
+        "10485142",
+        "10749308",
+        "32766786",
+        "1449692",
+        "22948960",
+        "15521377",
+        "2140497",
+        "34025053"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2652.667,
+      "native_context_count": 9,
+      "native_candidate_count": 14635,
+      "count_terms_used": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 7026.85,
+          "observations": 18020
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 5304.47,
+          "observations": 16021
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 4159.82,
+          "observations": 14437
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 3993.58,
+          "observations": 9899
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3972.28,
+          "observations": 11602
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 3628.05,
+          "observations": 8604
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 2943.93,
+          "observations": 9199
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1927.67,
+          "observations": 7581
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1424.23,
+          "observations": 4630
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 1314.17,
+          "observations": 4115
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 1119.1,
+          "observations": 2997
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 1004.67,
+          "observations": 3086
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 976.417,
+          "observations": 2551
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 924.6,
+          "observations": 2908
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 913.633,
+          "observations": 2185
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 903.083,
+          "observations": 2318
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 811.317,
+          "observations": 2446
+        },
+        {
+          "symbol": "100002F444",
+          "anchor": "patients",
+          "score": 807.483,
+          "observations": 2136
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 802.733,
+          "observations": 2057
+        },
+        {
+          "symbol": "1000042CD9",
+          "anchor": "we",
+          "score": 789.717,
+          "observations": 1985
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "5114940",
+          "score": 29104.814,
+          "matched_query_anchors": [
+            "k",
+            "u"
+          ],
+          "matched_count_terms": [
+            "abstract",
+            "been",
+            "between",
+            "identified",
+            "months",
+            "not",
+            "receptor",
+            "studies",
+            "than",
+            "title",
+            "type",
+            "women"
+          ]
+        },
+        {
+          "doc_id": "19408393",
+          "score": 23098.053,
+          "matched_query_anchors": [
+            "u"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "document",
+            "months",
+            "patients",
+            "per",
+            "studies",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "10485142",
+          "score": 23024.846,
+          "matched_query_anchors": [
+            "k"
+          ],
+          "matched_count_terms": [
+            "been",
+            "cell",
+            "cells",
+            "expression",
+            "id",
+            "identified",
+            "not",
+            "studies"
+          ]
+        },
+        {
+          "doc_id": "10749308",
+          "score": 22966.787,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "been",
+            "between",
+            "document",
+            "not",
+            "patients",
+            "results",
+            "studies",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "32766786",
+          "score": 22931.787,
+          "matched_query_anchors": [
+            "u"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "months",
+            "not",
+            "patients",
+            "results",
+            "studies",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "1449692",
+          "score": 21958.913,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "id",
+            "not",
+            "protein",
+            "results"
+          ]
+        },
+        {
+          "doc_id": "22948960",
+          "score": 21879.253,
+          "matched_query_anchors": [
+            "k"
+          ],
+          "matched_count_terms": [
+            "been",
+            "between",
+            "cell",
+            "cells",
+            "document",
+            "expression",
+            "protein",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "15521377",
+          "score": 20321.917,
+          "matched_query_anchors": [
+            "k"
+          ],
+          "matched_count_terms": [
+            "after",
+            "been",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "identified",
+            "il",
+            "mir",
+            "not",
+            "receptor",
+            "results",
+            "studies",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "2140497",
+          "score": 19859.487,
+          "matched_query_anchors": [
+            "k",
+            "u"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "document",
+            "months",
+            "than",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "34025053",
+          "score": 19799.634,
+          "matched_query_anchors": [
+            "k",
+            "u"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "diabetes",
+            "mg",
+            "months",
+            "not",
+            "patients",
+            "results",
+            "studies",
+            "type",
+            "years"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "13",
+      "query_text": "5% of perinatal mortality is due to low birth weight.",
+      "expected_doc_ids": [
+        "1606628"
+      ],
+      "represented_content_anchors": [
+        "5",
+        "%",
+        "perinatal",
+        "mortality",
+        "due",
+        "low",
+        "birth",
+        "weight"
+      ],
+      "context_symbols": [
+        "0x1000044D70",
+        "0x1000044D60",
+        "0x100002FEFE",
+        "0x1000029772",
+        "0x10000153A7",
+        "0x1000025637",
+        "0x1000007C09",
+        "0x1000042EC1"
+      ],
+      "retrieved_doc_ids": [
+        "35495268",
+        "36212758",
+        "8582337",
+        "37480103",
+        "22123421",
+        "581832",
+        "12770738",
+        "2488880",
+        "13619127",
+        "40156901"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2654.066,
+      "native_context_count": 8,
+      "native_candidate_count": 8802,
+      "count_terms_used": [
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 2232.05,
+          "observations": 5185
+        },
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 2048.65,
+          "observations": 5100
+        },
+        {
+          "symbol": "100000CFCF",
+          "anchor": "ci",
+          "score": 1544.93,
+          "observations": 2658
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 1300.9,
+          "observations": 3405
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1273.35,
+          "observations": 2669
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1235.95,
+          "observations": 3113
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 1213.13,
+          "observations": 3809
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 607.817,
+          "observations": 2301
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 541.117,
+          "observations": 1558
+        },
+        {
+          "symbol": "100000EBF8",
+          "anchor": "confidence",
+          "score": 502.133,
+          "observations": 782
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 465.667,
+          "observations": 1165
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 399.083,
+          "observations": 1798
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 392.9,
+          "observations": 1126
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 360.017,
+          "observations": 1055
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 333.4,
+          "observations": 766
+        },
+        {
+          "symbol": "10000444FE",
+          "anchor": "years",
+          "score": 332,
+          "observations": 583
+        },
+        {
+          "symbol": "100002F444",
+          "anchor": "patients",
+          "score": 329.8,
+          "observations": 906
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 324.683,
+          "observations": 836
+        },
+        {
+          "symbol": "10000425AF",
+          "anchor": "vs",
+          "score": 294.75,
+          "observations": 572
+        },
+        {
+          "symbol": "1000020D19",
+          "anchor": "interval",
+          "score": 280.083,
+          "observations": 748
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "35495268",
+          "score": 11566.5159,
+          "matched_query_anchors": [
+            "low",
+            "mortality",
+            "weight"
+          ],
+          "matched_count_terms": [
+            "all",
+            "among",
+            "confidence",
+            "increased",
+            "interval",
+            "levels",
+            "loss",
+            "patients",
+            "rate",
+            "respectively",
+            "risk",
+            "than",
+            "vs",
+            "weight",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "36212758",
+          "score": 10725.4163,
+          "matched_query_anchors": [
+            "low"
+          ],
+          "matched_count_terms": [
+            "age",
+            "all",
+            "among",
+            "associated",
+            "cancer",
+            "compared",
+            "confidence",
+            "high",
+            "increased",
+            "interval",
+            "patients",
+            "respectively",
+            "risk",
+            "than",
+            "vs",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "8582337",
+          "score": 10494.3166,
+          "matched_query_anchors": [
+            "birth",
+            "due",
+            "low",
+            "mortality",
+            "weight"
+          ],
+          "matched_count_terms": [
+            "age",
+            "all",
+            "among",
+            "between",
+            "body",
+            "cancer",
+            "high",
+            "increased",
+            "levels",
+            "loss",
+            "rate",
+            "risk",
+            "than",
+            "weight",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "37480103",
+          "score": 10461.5829,
+          "matched_query_anchors": [
+            "birth",
+            "weight"
+          ],
+          "matched_count_terms": [
+            "after",
+            "age",
+            "among",
+            "associated",
+            "between",
+            "cancer",
+            "compared",
+            "confidence",
+            "high",
+            "increased",
+            "interval",
+            "levels",
+            "results",
+            "risk",
+            "than",
+            "weight",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "22123421",
+          "score": 9897.6663,
+          "matched_query_anchors": [
+            "low",
+            "mortality"
+          ],
+          "matched_count_terms": [
+            "age",
+            "associated",
+            "between",
+            "cancer",
+            "compared",
+            "confidence",
+            "increased",
+            "interval",
+            "patients",
+            "than",
+            "vs",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "581832",
+          "score": 9858.6999,
+          "matched_query_anchors": [
+            "birth",
+            "due",
+            "mortality"
+          ],
+          "matched_count_terms": [
+            "age",
+            "all",
+            "associated",
+            "between",
+            "high",
+            "increased",
+            "interval",
+            "levels",
+            "loss",
+            "rate",
+            "respectively",
+            "results",
+            "risk",
+            "than",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "12770738",
+          "score": 9844.5486,
+          "matched_query_anchors": [
+            "low",
+            "mortality",
+            "weight"
+          ],
+          "matched_count_terms": [
+            "age",
+            "among",
+            "associated",
+            "body",
+            "compared",
+            "confidence",
+            "high",
+            "increased",
+            "interval",
+            "levels",
+            "risk",
+            "than",
+            "weight",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "2488880",
+          "score": 9820.1827,
+          "matched_query_anchors": [
+            "due",
+            "mortality"
+          ],
+          "matched_count_terms": [
+            "after",
+            "age",
+            "all",
+            "among",
+            "associated",
+            "confidence",
+            "increased",
+            "interval",
+            "patients",
+            "risk",
+            "than",
+            "vs",
+            "women"
+          ]
+        },
+        {
+          "doc_id": "13619127",
+          "score": 9812.8656,
+          "matched_query_anchors": [
+            "low",
+            "mortality"
+          ],
+          "matched_count_terms": [
+            "among",
+            "associated",
+            "between",
+            "compared",
+            "confidence",
+            "increased",
+            "interval",
+            "patients",
+            "rate",
+            "respectively",
+            "results",
+            "risk",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "40156901",
+          "score": 9791.2323,
+          "matched_query_anchors": [
+            "low",
+            "mortality"
+          ],
+          "matched_count_terms": [
+            "after",
+            "all",
+            "associated",
+            "between",
+            "confidence",
+            "high",
+            "increased",
+            "interval",
+            "mg",
+            "patients",
+            "rate",
+            "results",
+            "than",
+            "vs"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "36",
+      "query_text": "A deficiency of vitamin B12 increases blood levels of homocysteine.",
+      "expected_doc_ids": [
+        "5152028",
+        "11705328"
+      ],
+      "represented_content_anchors": [
+        "deficiency",
+        "vitamin",
+        "b",
+        "1",
+        "2",
+        "increases",
+        "blood",
+        "levels",
+        "homocysteine"
+      ],
+      "context_symbols": [
+        "0x10000121E4",
+        "0x100004221A",
+        "0x1000044D83",
+        "0x1000044D6C",
+        "0x1000044D6D",
+        "0x100001FBB9",
+        "0x1000008241",
+        "0x1000024530",
+        "0xE00002D2CE"
+      ],
+      "retrieved_doc_ids": [
+        "1449692",
+        "22948960",
+        "5114940",
+        "24101431",
+        "15521377",
+        "19408393",
+        "5377642",
+        "2647374",
+        "14319754",
+        "38028419"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2707.403,
+      "native_context_count": 9,
+      "native_candidate_count": 13774,
+      "count_terms_used": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 6096.77,
+          "observations": 14593
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 5026.37,
+          "observations": 13308
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3643.25,
+          "observations": 9570
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 3546.3,
+          "observations": 11610
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 2713.5,
+          "observations": 6829
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 2462.2,
+          "observations": 5969
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 2443.63,
+          "observations": 7082
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1608.03,
+          "observations": 6026
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1276.07,
+          "observations": 3846
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 1009.12,
+          "observations": 2930
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 901.1,
+          "observations": 2290
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 874.15,
+          "observations": 2017
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 838.117,
+          "observations": 2394
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 798.767,
+          "observations": 2535
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 760.017,
+          "observations": 1865
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 741.05,
+          "observations": 2149
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 727.55,
+          "observations": 1755
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 679.65,
+          "observations": 1589
+        },
+        {
+          "symbol": "100000BACC",
+          "anchor": "cells",
+          "score": 642.883,
+          "observations": 1690
+        },
+        {
+          "symbol": "1000016657",
+          "anchor": "expression",
+          "score": 598.133,
+          "observations": 1285
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "1449692",
+          "score": 20059.446,
+          "matched_query_anchors": [
+            "b"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "id",
+            "increased",
+            "protein",
+            "results"
+          ]
+        },
+        {
+          "doc_id": "22948960",
+          "score": 19506.63,
+          "matched_query_anchors": [
+            "b"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "document",
+            "during",
+            "expression",
+            "high",
+            "protein",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "5114940",
+          "score": 18015.901,
+          "matched_query_anchors": [
+            "b"
+          ],
+          "matched_count_terms": [
+            "abstract",
+            "between",
+            "increased",
+            "months",
+            "receptor",
+            "than",
+            "title",
+            "type",
+            "women"
+          ]
+        },
+        {
+          "doc_id": "24101431",
+          "score": 17962.133,
+          "matched_query_anchors": [
+            "b",
+            "levels"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "cell",
+            "cells",
+            "diabetes",
+            "expression",
+            "factor",
+            "increased",
+            "levels",
+            "patients",
+            "results",
+            "th",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "15521377",
+          "score": 17502.166,
+          "matched_query_anchors": [
+            "b",
+            "levels"
+          ],
+          "matched_count_terms": [
+            "after",
+            "cell",
+            "cells",
+            "during",
+            "expression",
+            "gene",
+            "il",
+            "increased",
+            "levels",
+            "mir",
+            "receptor",
+            "results",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "19408393",
+          "score": 17266.564,
+          "matched_query_anchors": [
+            "b"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "document",
+            "increased",
+            "months",
+            "patients",
+            "per",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "5377642",
+          "score": 16990.433,
+          "matched_query_anchors": [
+            "b",
+            "levels"
+          ],
+          "matched_count_terms": [
+            "abstract",
+            "cell",
+            "cells",
+            "expression",
+            "factor",
+            "gene",
+            "high",
+            "increased",
+            "levels",
+            "protein",
+            "results",
+            "than",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "2647374",
+          "score": 16718.066,
+          "matched_query_anchors": [
+            "blood",
+            "levels"
+          ],
+          "matched_count_terms": [
+            "after",
+            "cells",
+            "expression",
+            "factor",
+            "gene",
+            "increased",
+            "levels",
+            "patients",
+            "protein",
+            "receptor",
+            "results",
+            "rs",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "14319754",
+          "score": 16703.151,
+          "matched_query_anchors": [
+            "b",
+            "levels"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "during",
+            "high",
+            "increased",
+            "levels",
+            "months",
+            "patients",
+            "per",
+            "than",
+            "vs",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "38028419",
+          "score": 16453.546,
+          "matched_query_anchors": [
+            "deficiency",
+            "levels"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "expression",
+            "gene",
+            "increased",
+            "levels",
+            "protein"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "42",
+      "query_text": "A high microerythrocyte count raises vulnerability to severe anemia in homozygous alpha (+)- thalassemia trait subjects.",
+      "expected_doc_ids": [
+        "18174210"
+      ],
+      "represented_content_anchors": [
+        "high",
+        "count",
+        "raises",
+        "vulnerability",
+        "severe",
+        "anemia",
+        "homozygous",
+        "alpha",
+        "+",
+        "thalassemia",
+        "trait",
+        "subjects"
+      ],
+      "context_symbols": [
+        "0x100001D466",
+        "0x100000FE06",
+        "0x1000034DAF",
+        "0x100004260A",
+        "0x1000038B6B",
+        "0x1000002F95",
+        "0x100001DC8D",
+        "0x1000002420",
+        "0x1000044D66",
+        "0x100003BCFB",
+        "0x100003D46F",
+        "0x100003A41E"
+      ],
+      "retrieved_doc_ids": [
+        "18174210",
+        "40913091",
+        "2647374",
+        "25420421",
+        "42441846",
+        "39506601",
+        "21479231",
+        "3935126",
+        "6061927",
+        "6315132"
+      ],
+      "hit_rank": 1,
+      "hit_at_1": true,
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "miss": false,
+      "runtime_ms": 2633.978,
+      "native_context_count": 12,
+      "native_candidate_count": 5448,
+      "count_terms_used": [
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 612.183,
+          "observations": 1561
+        },
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 601.217,
+          "observations": 1506
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 444.783,
+          "observations": 1151
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 424.717,
+          "observations": 1210
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 388.617,
+          "observations": 731
+        },
+        {
+          "symbol": "100000B99C",
+          "anchor": "cd",
+          "score": 336.083,
+          "observations": 853
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 212.467,
+          "observations": 568
+        },
+        {
+          "symbol": "100000BACC",
+          "anchor": "cells",
+          "score": 207.117,
+          "observations": 505
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 153.817,
+          "observations": 352
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 120.8,
+          "observations": 285
+        },
+        {
+          "symbol": "100000A1D2",
+          "anchor": "ca",
+          "score": 120.15,
+          "observations": 292
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 111.4,
+          "observations": 330
+        },
+        {
+          "symbol": "1000024530",
+          "anchor": "levels",
+          "score": 108.85,
+          "observations": 165
+        },
+        {
+          "symbol": "1000037414",
+          "anchor": "risk",
+          "score": 101.9,
+          "observations": 186
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 100.483,
+          "observations": 166
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 99.8333,
+          "observations": 263
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 99.2833,
+          "observations": 232
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 95.8833,
+          "observations": 266
+        },
+        {
+          "symbol": "100000BAAC",
+          "anchor": "cell",
+          "score": 80.8,
+          "observations": 206
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 78.85,
+          "observations": 183
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "18174210",
+          "score": 5640.35,
+          "matched_query_anchors": [
+            "alpha",
+            "count",
+            "homozygous",
+            "severe"
+          ],
+          "matched_count_terms": [
+            "all",
+            "alpha",
+            "associated",
+            "cell",
+            "control",
+            "disease",
+            "increased",
+            "levels",
+            "malaria",
+            "risk",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "40913091",
+          "score": 5467.3,
+          "matched_query_anchors": [
+            "alpha",
+            "anemia",
+            "subjects",
+            "thalassemia",
+            "trait"
+          ],
+          "matched_count_terms": [
+            "alpha",
+            "beta",
+            "patients"
+          ]
+        },
+        {
+          "doc_id": "2647374",
+          "score": 5416.1837,
+          "matched_query_anchors": [
+            "alpha",
+            "severe",
+            "subjects"
+          ],
+          "matched_count_terms": [
+            "alpha",
+            "associated",
+            "blood",
+            "cells",
+            "concentrations",
+            "control",
+            "expression",
+            "factor",
+            "increased",
+            "levels",
+            "patients",
+            "risk",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "25420421",
+          "score": 4883.2336,
+          "matched_query_anchors": [
+            "count",
+            "high",
+            "severe"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "blood",
+            "cell",
+            "cells",
+            "density",
+            "disease",
+            "high",
+            "low",
+            "malaria",
+            "than",
+            "very"
+          ]
+        },
+        {
+          "doc_id": "42441846",
+          "score": 4626.3333,
+          "matched_query_anchors": [
+            "high",
+            "homozygous",
+            "subjects"
+          ],
+          "matched_count_terms": [
+            "control",
+            "disease",
+            "high",
+            "increased",
+            "level",
+            "levels",
+            "low",
+            "patients",
+            "regulatory",
+            "risk",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "39506601",
+          "score": 4591.8503,
+          "matched_query_anchors": [
+            "anemia",
+            "high",
+            "severe"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "high",
+            "level",
+            "mice",
+            "regulatory"
+          ]
+        },
+        {
+          "doc_id": "21479231",
+          "score": 4244.5836,
+          "matched_query_anchors": [
+            "count",
+            "high"
+          ],
+          "matched_count_terms": [
+            "all",
+            "among",
+            "associated",
+            "cell",
+            "cells",
+            "factor",
+            "high",
+            "patients",
+            "risk",
+            "than",
+            "vs"
+          ]
+        },
+        {
+          "doc_id": "3935126",
+          "score": 4186.0669,
+          "matched_query_anchors": [
+            "anemia",
+            "high"
+          ],
+          "matched_count_terms": [
+            "among",
+            "associated",
+            "blood",
+            "cell",
+            "cells",
+            "disease",
+            "grade",
+            "high",
+            "levels",
+            "low",
+            "patients"
+          ]
+        },
+        {
+          "doc_id": "6061927",
+          "score": 4004.5338,
+          "matched_query_anchors": [
+            "alpha",
+            "high"
+          ],
+          "matched_count_terms": [
+            "alpha",
+            "cell",
+            "cells",
+            "concentrations",
+            "expression",
+            "high",
+            "levels",
+            "low",
+            "mice"
+          ]
+        },
+        {
+          "doc_id": "6315132",
+          "score": 3986.3167,
+          "matched_query_anchors": [
+            "anemia",
+            "high",
+            "severe"
+          ],
+          "matched_count_terms": [
+            "blood",
+            "cell",
+            "control",
+            "expression",
+            "high",
+            "level",
+            "than",
+            "very"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "48",
+      "query_text": "A total of 1,000 people in the UK are asymptomatic carriers of vCJD infection.",
+      "expected_doc_ids": [
+        "13734012"
+      ],
+      "represented_content_anchors": [
+        "total",
+        "1",
+        "0",
+        "people",
+        "u",
+        "k",
+        "asymptomatic",
+        "carriers",
+        "vcjd",
+        "infection"
+      ],
+      "context_symbols": [
+        "0x100003D0E1",
+        "0x1000044D6C",
+        "0x1000044D6B",
+        "0x100002FC5F",
+        "0x1000044D96",
+        "0x1000044D8C",
+        "0x100000501B",
+        "0x100000B269",
+        "0xE00006A9FF",
+        "0x10000200E5"
+      ],
+      "retrieved_doc_ids": [
+        "5114940",
+        "19408393",
+        "32766786",
+        "34287602",
+        "14319754",
+        "22948960",
+        "2140497",
+        "1449692",
+        "10749308",
+        "39903312"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2646.055,
+      "native_context_count": 10,
+      "native_candidate_count": 12576,
+      "count_terms_used": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 4854.88,
+          "observations": 12398
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 3896.45,
+          "observations": 11070
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 2799.82,
+          "observations": 9785
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 2783.43,
+          "observations": 7951
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 2654.97,
+          "observations": 6563
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 2474.67,
+          "observations": 5880
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1760.9,
+          "observations": 5727
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 1144.9,
+          "observations": 4611
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 1069.2,
+          "observations": 3285
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 940.9,
+          "observations": 2907
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 801.567,
+          "observations": 2184
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 683.65,
+          "observations": 1792
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 658.667,
+          "observations": 1531
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 658.5,
+          "observations": 2078
+        },
+        {
+          "symbol": "100000CFCF",
+          "anchor": "ci",
+          "score": 649.333,
+          "observations": 1673
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 641.3,
+          "observations": 1629
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 567,
+          "observations": 1880
+        },
+        {
+          "symbol": "10000444FE",
+          "anchor": "years",
+          "score": 559.7,
+          "observations": 1279
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 553.3,
+          "observations": 1441
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 543.283,
+          "observations": 1610
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "5114940",
+          "score": 17976.437,
+          "matched_query_anchors": [
+            "k",
+            "people",
+            "u"
+          ],
+          "matched_count_terms": [
+            "abstract",
+            "between",
+            "interval",
+            "receptor",
+            "than",
+            "title",
+            "type",
+            "women"
+          ]
+        },
+        {
+          "doc_id": "19408393",
+          "score": 14825.151,
+          "matched_query_anchors": [
+            "u"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "document",
+            "patients",
+            "per",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "32766786",
+          "score": 14169.701,
+          "matched_query_anchors": [
+            "u"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "patients",
+            "results",
+            "than",
+            "year",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "34287602",
+          "score": 13890.701,
+          "matched_query_anchors": [
+            "infection",
+            "u"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "during",
+            "per",
+            "protein",
+            "results",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "14319754",
+          "score": 13740.185,
+          "matched_query_anchors": [
+            "k",
+            "u"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "during",
+            "patients",
+            "per",
+            "than",
+            "vs",
+            "year",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "22948960",
+          "score": 13613.418,
+          "matched_query_anchors": [
+            "k"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "document",
+            "during",
+            "expression",
+            "protein",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "2140497",
+          "score": 13377.034,
+          "matched_query_anchors": [
+            "k",
+            "u"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "document",
+            "than",
+            "women",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "1449692",
+          "score": 13350.317,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "id",
+            "protein",
+            "results"
+          ]
+        },
+        {
+          "doc_id": "10749308",
+          "score": 13282.484,
+          "matched_query_anchors": [],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "interval",
+            "patients",
+            "results",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "39903312",
+          "score": 13259.851,
+          "matched_query_anchors": [
+            "k",
+            "total",
+            "u"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "during",
+            "interval",
+            "mg",
+            "patients",
+            "per",
+            "results",
+            "than",
+            "vs"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "49",
+      "query_text": "ADAR1 binds to Dicer to cleave pre-miRNA.",
+      "expected_doc_ids": [
+        "5953485"
+      ],
+      "represented_content_anchors": [
+        "d",
+        "r",
+        "1",
+        "binds",
+        "dicer",
+        "cleave",
+        "pre",
+        "mirna"
+      ],
+      "context_symbols": [
+        "0x1000044D85",
+        "0x1000044D93",
+        "0x1000044D6C",
+        "0x1000007967",
+        "0x10000134A0",
+        "0x100000D611",
+        "0x100003277A",
+        "0x10000288C0"
+      ],
+      "retrieved_doc_ids": [
+        "1449692",
+        "654735",
+        "15521377",
+        "22948960",
+        "5114940",
+        "19408393",
+        "32766786",
+        "10024681",
+        "24828165",
+        "21392223"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2717.302,
+      "native_context_count": 8,
+      "native_candidate_count": 11271,
+      "count_terms_used": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 3430.07,
+          "observations": 8061
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 2487.75,
+          "observations": 7145
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 1936.08,
+          "observations": 6479
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 1881.87,
+          "observations": 5162
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1477.22,
+          "observations": 3458
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1348.28,
+          "observations": 3399
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1260.6,
+          "observations": 3610
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 825.267,
+          "observations": 3056
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 674.4,
+          "observations": 2081
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 590.05,
+          "observations": 1693
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 536.067,
+          "observations": 1201
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 516.55,
+          "observations": 1336
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 475.567,
+          "observations": 1472
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 429.983,
+          "observations": 1040
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 424.75,
+          "observations": 969
+        },
+        {
+          "symbol": "100001F0C4",
+          "anchor": "il",
+          "score": 421.383,
+          "observations": 966
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 406.95,
+          "observations": 1268
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 402.883,
+          "observations": 1173
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 365.25,
+          "observations": 850
+        },
+        {
+          "symbol": "1000016657",
+          "anchor": "expression",
+          "score": 318.283,
+          "observations": 701
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "1449692",
+          "score": 10503.399,
+          "matched_query_anchors": [
+            "r"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "id",
+            "protein",
+            "results"
+          ]
+        },
+        {
+          "doc_id": "654735",
+          "score": 10244.816,
+          "matched_query_anchors": [
+            "d",
+            "mirna",
+            "r"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "levels",
+            "mir",
+            "patients",
+            "protein",
+            "results",
+            "than",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "15521377",
+          "score": 10222.232,
+          "matched_query_anchors": [
+            "d",
+            "r"
+          ],
+          "matched_count_terms": [
+            "after",
+            "cell",
+            "cells",
+            "during",
+            "expression",
+            "gene",
+            "il",
+            "levels",
+            "mir",
+            "receptor",
+            "results",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "22948960",
+          "score": 10161.116,
+          "matched_query_anchors": [
+            "d"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cell",
+            "cells",
+            "document",
+            "during",
+            "expression",
+            "protein",
+            "type"
+          ]
+        },
+        {
+          "doc_id": "5114940",
+          "score": 10028.146,
+          "matched_query_anchors": [
+            "d",
+            "r"
+          ],
+          "matched_count_terms": [
+            "abstract",
+            "between",
+            "receptor",
+            "than",
+            "title",
+            "type",
+            "women"
+          ]
+        },
+        {
+          "doc_id": "19408393",
+          "score": 9918.383,
+          "matched_query_anchors": [
+            "d",
+            "r"
+          ],
+          "matched_count_terms": [
+            "after",
+            "between",
+            "document",
+            "patients",
+            "per",
+            "than",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "32766786",
+          "score": 9801.117,
+          "matched_query_anchors": [
+            "d",
+            "r"
+          ],
+          "matched_count_terms": [
+            "between",
+            "document",
+            "patients",
+            "results",
+            "than",
+            "year",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "10024681",
+          "score": 9696.449,
+          "matched_query_anchors": [
+            "d",
+            "mirna",
+            "r"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "levels",
+            "mir",
+            "patients",
+            "protein",
+            "results"
+          ]
+        },
+        {
+          "doc_id": "24828165",
+          "score": 9551.716,
+          "matched_query_anchors": [
+            "d",
+            "r"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "document",
+            "during",
+            "expression",
+            "gene"
+          ]
+        },
+        {
+          "doc_id": "21392223",
+          "score": 9504.332,
+          "matched_query_anchors": [
+            "d",
+            "pre",
+            "r"
+          ],
+          "matched_count_terms": [
+            "cell",
+            "cells",
+            "during",
+            "expression",
+            "gene",
+            "levels",
+            "protein",
+            "receptor",
+            "results",
+            "type"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "50",
+      "query_text": "AIRE is expressed in some skin tumors.",
+      "expected_doc_ids": [
+        "12580014"
+      ],
+      "represented_content_anchors": [
+        "r",
+        "e",
+        "expressed",
+        "some",
+        "skin",
+        "tumors"
+      ],
+      "context_symbols": [
+        "0x1000044D93",
+        "0x1000044D86",
+        "0x1000016653",
+        "0x1000039801",
+        "0x1000039351",
+        "0x100003E2C1"
+      ],
+      "retrieved_doc_ids": [
+        "22401720",
+        "24980622",
+        "9604301",
+        "15721252",
+        "982650",
+        "3756384",
+        "26068103",
+        "14315749",
+        "15593561",
+        "7165938"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2662.197,
+      "native_context_count": 6,
+      "native_candidate_count": 4737,
+      "count_terms_used": [
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 598.3,
+          "observations": 1065
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 465.733,
+          "observations": 1051
+        },
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 411.4,
+          "observations": 980
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 358.083,
+          "observations": 1001
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 163.933,
+          "observations": 312
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 141.5,
+          "observations": 321
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 135.267,
+          "observations": 385
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 122.467,
+          "observations": 280
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 95.9833,
+          "observations": 198
+        },
+        {
+          "symbol": "100000445E",
+          "anchor": "are",
+          "score": 95.7,
+          "observations": 189
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 72.9,
+          "observations": 156
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 70.4,
+          "observations": 187
+        },
+        {
+          "symbol": "100000BACC",
+          "anchor": "cells",
+          "score": 64.9833,
+          "observations": 192
+        },
+        {
+          "symbol": "100001E35A",
+          "anchor": "human",
+          "score": 62.8,
+          "observations": 113
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 56.9833,
+          "observations": 136
+        },
+        {
+          "symbol": "100000504C",
+          "anchor": "at",
+          "score": 52.4333,
+          "observations": 91
+        },
+        {
+          "symbol": "1000004A01",
+          "anchor": "as",
+          "score": 49.7333,
+          "observations": 125
+        },
+        {
+          "symbol": "1000019D5B",
+          "anchor": "genes",
+          "score": 49.6167,
+          "observations": 86
+        },
+        {
+          "symbol": "100002CFBD",
+          "anchor": "on",
+          "score": 48.1667,
+          "observations": 94
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 46.8667,
+          "observations": 108
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "22401720",
+          "score": 5949.3,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "some",
+            "tumors"
+          ],
+          "matched_count_terms": [
+            "cancer",
+            "cell",
+            "expression",
+            "highly",
+            "human",
+            "levels",
+            "not",
+            "primary",
+            "receptor",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "24980622",
+          "score": 5709.8999,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "some",
+            "tumors"
+          ],
+          "matched_count_terms": [
+            "between",
+            "cancer",
+            "cells",
+            "expression",
+            "patients",
+            "positive",
+            "primary"
+          ]
+        },
+        {
+          "doc_id": "9604301",
+          "score": 5438.8168,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "some"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "between",
+            "cells",
+            "differentially",
+            "during",
+            "expression",
+            "gene",
+            "genes",
+            "highly",
+            "human",
+            "levels",
+            "mice",
+            "not",
+            "patients"
+          ]
+        },
+        {
+          "doc_id": "15721252",
+          "score": 5419.05,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "some"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "between",
+            "cancer",
+            "cell",
+            "cells",
+            "differentially",
+            "expression",
+            "gene",
+            "genes",
+            "highly",
+            "human",
+            "not",
+            "positive",
+            "receptor"
+          ]
+        },
+        {
+          "doc_id": "982650",
+          "score": 5287.3335,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "tumors"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "between",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "human",
+            "levels",
+            "mice",
+            "protein",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "3756384",
+          "score": 5198.4168,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "tumors"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "genes",
+            "induced",
+            "mice",
+            "patients",
+            "protein"
+          ]
+        },
+        {
+          "doc_id": "26068103",
+          "score": 5161.1001,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "some"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "cell",
+            "cells",
+            "expression",
+            "induced",
+            "levels",
+            "mice",
+            "mouse",
+            "not",
+            "patients",
+            "protein",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "14315749",
+          "score": 5064.5168,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "tumors"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "between",
+            "expression",
+            "gene",
+            "genes",
+            "human",
+            "levels",
+            "not",
+            "patients",
+            "positive",
+            "protein",
+            "receptor"
+          ]
+        },
+        {
+          "doc_id": "15593561",
+          "score": 5032.9668,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "some"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "human",
+            "levels",
+            "protein",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "7165938",
+          "score": 5025.2334,
+          "matched_query_anchors": [
+            "e",
+            "expressed",
+            "r",
+            "tumors"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "levels",
+            "patients",
+            "primary",
+            "than"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    },
+    {
+      "query_id": "51",
+      "query_text": "ALDH1 expression is associated with better breast cancer outcomes.",
+      "expected_doc_ids": [
+        "45638119"
+      ],
+      "represented_content_anchors": [
+        "l",
+        "d",
+        "h",
+        "1",
+        "expression",
+        "associated",
+        "better",
+        "breast",
+        "cancer",
+        "outcomes"
+      ],
+      "context_symbols": [
+        "0x1000044D8D",
+        "0x1000044D85",
+        "0x1000044D89",
+        "0x1000044D6C",
+        "0x1000016657",
+        "0x1000004DF9",
+        "0x100000749A",
+        "0x100000926E",
+        "0x100000A99B",
+        "0x100002DB74"
+      ],
+      "retrieved_doc_ids": [
+        "15521377",
+        "8963413",
+        "982650",
+        "15721252",
+        "25832301",
+        "21439640",
+        "7821634",
+        "12762485",
+        "29366489",
+        "7165938"
+      ],
+      "hit_rank": null,
+      "hit_at_1": false,
+      "hit_at_5": false,
+      "hit_at_10": false,
+      "miss": true,
+      "runtime_ms": 2694.455,
+      "native_context_count": 10,
+      "native_candidate_count": 12986,
+      "count_terms_used": [
+        {
+          "symbol": "1000002EAD",
+          "anchor": "and",
+          "score": 4921.55,
+          "observations": 11633
+        },
+        {
+          "symbol": "100002CB76",
+          "anchor": "of",
+          "score": 4861.52,
+          "observations": 11817
+        },
+        {
+          "symbol": "100001F815",
+          "anchor": "in",
+          "score": 3249.7,
+          "observations": 8238
+        },
+        {
+          "symbol": "100003BDF2",
+          "anchor": "the",
+          "score": 3224.37,
+          "observations": 9788
+        },
+        {
+          "symbol": "10000439B9",
+          "anchor": "with",
+          "score": 2726.13,
+          "observations": 4847
+        },
+        {
+          "symbol": "100003CB95",
+          "anchor": "to",
+          "score": 1881.55,
+          "observations": 4714
+        },
+        {
+          "symbol": "100003CAF5",
+          "anchor": "title",
+          "score": 1408.22,
+          "observations": 3616
+        },
+        {
+          "symbol": "100001EE7E",
+          "anchor": "id",
+          "score": 1260.6,
+          "observations": 3610
+        },
+        {
+          "symbol": "1000021448",
+          "anchor": "is",
+          "score": 1059.03,
+          "observations": 2114
+        },
+        {
+          "symbol": "1000042A39",
+          "anchor": "was",
+          "score": 1023,
+          "observations": 2136
+        },
+        {
+          "symbol": "100001844F",
+          "anchor": "for",
+          "score": 981.7,
+          "observations": 2629
+        },
+        {
+          "symbol": "1000014765",
+          "anchor": "document",
+          "score": 826.6,
+          "observations": 3059
+        },
+        {
+          "symbol": "1000019CE7",
+          "anchor": "gene",
+          "score": 740.767,
+          "observations": 1061
+        },
+        {
+          "symbol": "100004303D",
+          "anchor": "were",
+          "score": 715.517,
+          "observations": 1834
+        },
+        {
+          "symbol": "100003BD88",
+          "anchor": "that",
+          "score": 712.35,
+          "observations": 2163
+        },
+        {
+          "symbol": "100000BACC",
+          "anchor": "cells",
+          "score": 708.483,
+          "observations": 1625
+        },
+        {
+          "symbol": "100000A99B",
+          "anchor": "cancer",
+          "score": 680.733,
+          "observations": 1269
+        },
+        {
+          "symbol": "100000A155",
+          "anchor": "by",
+          "score": 618.967,
+          "observations": 1729
+        },
+        {
+          "symbol": "100002D478",
+          "anchor": "or",
+          "score": 570.4,
+          "observations": 1410
+        },
+        {
+          "symbol": "1000018EB4",
+          "anchor": "from",
+          "score": 535.833,
+          "observations": 1235
+        }
+      ],
+      "ranked_docs": [
+        {
+          "doc_id": "15521377",
+          "score": 26502.648,
+          "matched_query_anchors": [
+            "associated",
+            "breast",
+            "cancer",
+            "d",
+            "expression",
+            "l"
+          ],
+          "matched_count_terms": [
+            "after",
+            "associated",
+            "breast",
+            "cancer",
+            "cell",
+            "cells",
+            "during",
+            "expression",
+            "gene",
+            "genes",
+            "human",
+            "il",
+            "increased",
+            "levels",
+            "mir",
+            "not",
+            "receptor",
+            "risk",
+            "years"
+          ]
+        },
+        {
+          "doc_id": "8963413",
+          "score": 22884.733,
+          "matched_query_anchors": [
+            "associated",
+            "better",
+            "breast",
+            "cancer",
+            "d",
+            "expression",
+            "l",
+            "outcomes"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "breast",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "human",
+            "lung",
+            "not",
+            "patients"
+          ]
+        },
+        {
+          "doc_id": "982650",
+          "score": 22036.448,
+          "matched_query_anchors": [
+            "associated",
+            "cancer",
+            "d",
+            "expression",
+            "h",
+            "l"
+          ],
+          "matched_count_terms": [
+            "after",
+            "associated",
+            "between",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "human",
+            "increased",
+            "levels",
+            "mir",
+            "protein",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "15721252",
+          "score": 21608.282,
+          "matched_query_anchors": [
+            "associated",
+            "breast",
+            "cancer",
+            "d",
+            "expression",
+            "h",
+            "l"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "between",
+            "breast",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "genes",
+            "human",
+            "not",
+            "receptor"
+          ]
+        },
+        {
+          "doc_id": "25832301",
+          "score": 21450.499,
+          "matched_query_anchors": [
+            "associated",
+            "better",
+            "cancer",
+            "d",
+            "expression",
+            "h",
+            "l",
+            "outcomes"
+          ],
+          "matched_count_terms": [
+            "after",
+            "associated",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "increased",
+            "not",
+            "patients",
+            "protein",
+            "significantly"
+          ]
+        },
+        {
+          "doc_id": "21439640",
+          "score": 21337.649,
+          "matched_query_anchors": [
+            "associated",
+            "breast",
+            "cancer",
+            "d",
+            "expression",
+            "h",
+            "l"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "breast",
+            "cancer",
+            "cells",
+            "expression",
+            "human",
+            "increased",
+            "levels",
+            "not",
+            "patients",
+            "protein",
+            "receptor"
+          ]
+        },
+        {
+          "doc_id": "7821634",
+          "score": 21324.083,
+          "matched_query_anchors": [
+            "associated",
+            "breast",
+            "cancer",
+            "d",
+            "expression",
+            "l"
+          ],
+          "matched_count_terms": [
+            "after",
+            "associated",
+            "breast",
+            "cancer",
+            "cell",
+            "expression",
+            "gene",
+            "genes",
+            "increased",
+            "patients",
+            "protein",
+            "risk",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "12762485",
+          "score": 21098.165,
+          "matched_query_anchors": [
+            "associated",
+            "breast",
+            "cancer",
+            "d",
+            "expression",
+            "h",
+            "l"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "breast",
+            "cancer",
+            "cell",
+            "cells",
+            "during",
+            "expression",
+            "gene",
+            "increased",
+            "per",
+            "receptor",
+            "than"
+          ]
+        },
+        {
+          "doc_id": "29366489",
+          "score": 20922.267,
+          "matched_query_anchors": [
+            "associated",
+            "breast",
+            "cancer",
+            "d",
+            "expression",
+            "h",
+            "l"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "breast",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "lung",
+            "not",
+            "protein",
+            "significantly"
+          ]
+        },
+        {
+          "doc_id": "7165938",
+          "score": 20781.266,
+          "matched_query_anchors": [
+            "associated",
+            "cancer",
+            "d",
+            "expression",
+            "h",
+            "l"
+          ],
+          "matched_count_terms": [
+            "associated",
+            "cancer",
+            "cell",
+            "cells",
+            "expression",
+            "gene",
+            "increased",
+            "levels",
+            "patients",
+            "significantly",
+            "than",
+            "vs"
+          ]
+        }
+      ],
+      "answer_or_refusal": "doc_candidates_from_count_search",
+      "error": ""
+    }
+  ]
+}

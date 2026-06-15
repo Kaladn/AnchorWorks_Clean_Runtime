@@ -1,0 +1,15 @@
+{
+  "schema_version": "anchorworks_n0_attention_regex@1",
+  "law": "User regex rules are additive n0_attention controls. They affect focus admission only and do not alter evidence, counts, lexicon, or render text.",
+  "mode": "additive_not_takeover",
+  "deny_focus_patterns": [],
+  "admit_focus_patterns": [],
+  "boost_focus_patterns": [],
+  "normalize_focus_patterns": [],
+  "writes_allowed": {
+    "maps": false,
+    "counts": false,
+    "lifetime": false,
+    "lexicon": false
+  }
+}

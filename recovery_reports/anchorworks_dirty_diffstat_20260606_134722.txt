@@ -1,0 +1,55 @@
+ Anchorworks/docs/ANCHORWORKS_CURRENT_REALITY.md    |      23 +-
+ Anchorworks/src/AnchorWorks/app.py                 |     103 +-
+ Anchorworks/src/AnchorWorks/clearspeak.py          |      14 -
+ Anchorworks/src/AnchorWorks/cli.py                 |     261 -
+ Anchorworks/src/AnchorWorks/cli_shell.py           |     146 +-
+ Anchorworks/src/AnchorWorks/conversation.py        |      60 +-
+ .../src/AnchorWorks/lifetime_symbol_mirror.py      |      60 -
+ .../native/symbol_counts/src/awsc_cli.cpp          |     454 +-
+ Anchorworks/src/AnchorWorks/store.py               |      11 +-
+ .../src/AnchorWorks/store_modules/memory.py        |     173 +-
+ Anchorworks/src/AnchorWorks/store_modules/paths.py |      11 +-
+ .../src/AnchorWorks/store_runtime/counts.py        |     832 +-
+ .../src/AnchorWorks/store_runtime/intake.py        |      17 +-
+ .../src/AnchorWorks/store_runtime/inventory.py     |       6 +-
+ .../src/AnchorWorks/store_runtime/lexicon.py       |      89 +-
+ Anchorworks/src/AnchorWorks/store_runtime/state.py |       2 +-
+ Anchorworks/src/AnchorWorks/store_support.py       |      16 +-
+ Anchorworks/src/AnchorWorks/symbol_count_native.py |     271 +-
+ .../src/AnchorWorks/symbol_relation_counts.py      |     213 -
+ Anchorworks/src/AnchorWorks/terminal_operator.py   |      64 +-
+ Anchorworks/tests/test_answer_surface_direction.py |      29 -
+ .../tests/test_aw_inference_candidate_walk.py      |      75 -
+ .../tests/test_clearspeak_directional_render.py    |      28 -
+ Anchorworks/tests/test_cli_shell.py                |     166 -
+ Anchorworks/tests/test_code_lexicon_mirror.py      |      92 -
+ Anchorworks/tests/test_conversation_corpus.py      |     389 -
+ Anchorworks/tests/test_conversation_engine.py      |      89 -
+ Anchorworks/tests/test_conversation_input_type.py  |      38 -
+ Anchorworks/tests/test_count_window_contract.py    |      54 -
+ Anchorworks/tests/test_four_anchor_unit_counts.py  |      85 -
+ Anchorworks/tests/test_genome_approval.py          |     302 -
+ Anchorworks/tests/test_language_state_replay.py    |      59 -
+ Anchorworks/tests/test_native_intake_spine.py      |     147 -
+ Anchorworks/tests/test_occular_cloud_accel.py      |      77 -
+ Anchorworks/tests/test_occular_cloud_systems.py    |      93 -
+ Anchorworks/tests/test_occular_tensor_index.py     |      89 -
+ Anchorworks/tests/test_occular_tensor_store.py     |      72 -
+ Anchorworks/tests/test_query_recognition_frame.py  |      39 -
+ Anchorworks/tests/test_runtime_contract.py         |      22 -
+ Anchorworks/tests/test_terminal_operator_ui.py     |      15 -
+ .../tests/test_truevision_document_state_movie.py  |      94 -
+ .../tests/test_truevision_language_contracts.py    |      45 -
+ .../tests/test_truevision_language_ingest.py       |      83 -
+ .../test_truevision_language_method_boundary.py    |      55 -
+ State/chat_memory/attachments/.gitkeep             |       0
+ State/chat_memory/chats/.gitkeep                   |       0
+ State/chat_memory/citations/.gitkeep               |       0
+ State/chat_memory/imports/.gitkeep                 |       0
+ State/chat_memory/memory/lessons/.gitkeep          |       0
+ State/chat_memory/memory/reasoning/.gitkeep        |       0
+ State/chat_memory/memory/side_chats.json           |       1 -
+ State/chat_memory/notes/.gitkeep                   |       0
+ State/chat_memory/summaries/.gitkeep               |       0
+ State/user/user_lexicon/anchors.json               | 3103378 ++++++++++++++++-
+ 54 files changed, 3104711 insertions(+), 3731 deletions(-)

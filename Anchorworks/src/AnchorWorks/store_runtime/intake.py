@@ -246,6 +246,8 @@ class IntakeMixin:
                     self._write_entries(self.user_lexicon_path, user_entries)
                     lexicon_files_written += 1
                 self._invalidate_known_anchor_index()
+                self._canonical_symbol_index = None
+                self._canonical_anchor_index = None
                 self._all_known_anchors()
                 index_reloads = 1
             slots_available = genome_pool.status()["remaining"]

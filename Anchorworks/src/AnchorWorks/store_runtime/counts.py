@@ -106,6 +106,138 @@ class CountsMixin:
             "json_counts_allowed": False,
         }
 
+    def checkpoint_user_binary_state(self, *, reason: str = "manual") -> dict[str, Any]:
+        self.ensure_user_symbol_counts_seeded()
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        safe_reason = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(reason or "manual")).strip("._") or "manual"
+        checkpoint_dir = self.user_state_dir / "binary_state_backups" / f"{timestamp}_{safe_reason}"
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        count_backup_path = checkpoint_dir / "symbol_counts.bin"
+        lexicon_backup_path = checkpoint_dir / "anchors.json"
+        manifest_path = checkpoint_dir / "manifest.json"
+
+        if self.symbol_counts_binary_file.exists():
+            shutil.copy2(self.symbol_counts_binary_file, count_backup_path)
+        else:
+            count_backup_path.write_bytes(b"")
+        if self.user_lexicon_path.exists():
+            shutil.copy2(self.user_lexicon_path, lexicon_backup_path)
+        else:
+            lexicon_backup_path.write_text("[]", encoding="utf-8")
+
+        manifest = {
+            "schema_version": "anchorworks_user_binary_state_checkpoint@1",
+            "ok": True,
+            "created_at": timestamp,
+            "reason": str(reason or "manual"),
+            "active_count_path": str(self.symbol_counts_binary_file),
+            "count_backup_path": str(count_backup_path),
+            "count_backup_bytes": count_backup_path.stat().st_size,
+            "user_lexicon_path": str(self.user_lexicon_path),
+            "lexicon_backup_path": str(lexicon_backup_path),
+            "active_spine_unchanged": True,
+        }
+        self._write_json(manifest_path, manifest)
+        return {
+            **manifest,
+            "checkpoint_dir": str(checkpoint_dir),
+            "manifest_path": str(manifest_path),
+        }
+
+    def _admit_native_missing_anchors_to_user_lexicon(
+        self,
+        source: Path,
+        *,
+        run_root: Path,
+        source_id: str,
+        window_radius: int,
+        is_directory: bool,
+    ) -> dict[str, Any]:
+        self.ensure_user_lexicon_seeded()
+        scan_root = run_root / "native_anchor_scan"
+        approved: list[dict[str, Any]] = []
+        skipped: list[dict[str, Any]] = []
+        failed: list[dict[str, Any]] = []
+        passes: list[dict[str, Any]] = []
+
+        for pass_index in range(8):
+            authority_path = scan_root / f"pass_{pass_index:02d}.authority_snapshot.json"
+            manifest_path = scan_root / f"pass_{pass_index:02d}.manifest.json"
+            missing_path = scan_root / f"pass_{pass_index:02d}.missing.json"
+            stream_path = scan_root / f"pass_{pass_index:02d}.symbol_counts_delta.bin"
+            write_authority_snapshot(self._symbol_authority_by_anchor(), authority_path)
+
+            if is_directory:
+                native_directory_intake_to_counts(
+                    input_dir=source,
+                    authority_path=authority_path,
+                    output_path=stream_path,
+                    manifest_path=manifest_path,
+                    missing_path=missing_path,
+                    source_id=source_id,
+                    window_radius=window_radius,
+                    source_local_missing=False,
+                )
+            else:
+                native_text_intake_to_counts(
+                    input_path=source,
+                    authority_path=authority_path,
+                    output_path=stream_path,
+                    manifest_path=manifest_path,
+                    missing_path=missing_path,
+                    source_id=source_id,
+                    window_radius=window_radius,
+                    source_local_missing=False,
+                )
+
+            manifest = self._read_json(manifest_path, {})
+            missing = self._read_json(missing_path, {})
+            missing_rows = [
+                row for row in (missing.get("missing") or [])
+                if isinstance(row, dict) and str(row.get("anchor") or "").strip()
+            ]
+            passes.append({
+                "pass_index": pass_index,
+                "authority_path": str(authority_path),
+                "manifest_path": str(manifest_path),
+                "missing_path": str(missing_path),
+                "missing_anchor_count": int(manifest.get("missing_anchor_count", len(missing_rows)) or 0),
+                "source_local_symbol_count": int(manifest.get("source_local_symbol_count", 0) or 0),
+                "record_count": int(manifest.get("record_count", 0) or 0),
+            })
+            if not missing_rows:
+                return {
+                    "ok": True,
+                    "method": "native_missing_scan_loop",
+                    "approved_count": len(approved),
+                    "skipped_count": len(skipped),
+                    "failed_count": len(failed),
+                    "approved": approved,
+                    "skipped": skipped,
+                    "failed": failed,
+                    "passes": passes,
+                }
+
+            approve_result = self.approve_intake_anchors(
+                [str(row.get("anchor") or "") for row in missing_rows],
+                frequencies={
+                    str(row.get("anchor") or ""): int(row.get("observations", 0) or 0)
+                    for row in missing_rows
+                    if str(row.get("anchor") or "").strip()
+                },
+            )
+            approved.extend(approve_result.get("approved") or [])
+            skipped.extend(approve_result.get("skipped") or [])
+            failed.extend(approve_result.get("failed") or [])
+            if approve_result.get("failed"):
+                break
+            if int(approve_result.get("approved_count", 0) or 0) == 0 and missing_rows:
+                break
+
+        raise RuntimeError(
+            "native intake cannot proceed: native anchor scan still has unrepresented anchors after user admission"
+        )
+
     def _canonical_seed_symbol_values(self) -> list[str]:
         symbols: list[str] = []
         seen: set[str] = set()
@@ -138,45 +270,6 @@ class CountsMixin:
             text = text[2:]
         return "0x" + text.upper().zfill(10)
 
-    def _binary_relation_rows_for_anchor(self, anchor: str) -> list[dict[str, Any]]:
-        surface = self.normalize_anchor(anchor)
-        if not surface or not hasattr(self, "_canonical_symbol_by_anchor"):
-            return []
-        symbol_by_anchor = self._canonical_symbol_by_anchor()
-        root_symbol = symbol_by_anchor.get(surface)
-        if not root_symbol:
-            return []
-        anchor_by_symbol = {
-            self._symbol_text(symbol): self.normalize_anchor(anchor_value)
-            for anchor_value, symbol in symbol_by_anchor.items()
-            if str(anchor_value or "").strip() and str(symbol or "").strip()
-        }
-        rows: list[dict[str, Any]] = []
-        if self.symbol_counts_binary_file.exists():
-            try:
-                scored = score_binary_count_stream(
-                    self.symbol_counts_binary_file,
-                    context_symbols=[self._symbol_text(root_symbol)],
-                    top_k=512,
-                )
-            except Exception:
-                scored = {}
-            for candidate in scored.get("candidates") or []:
-                neighbor = anchor_by_symbol.get(self._symbol_text(candidate.get("symbol")))
-                if not neighbor:
-                    continue
-                for offset_row in candidate.get("offsets") or []:
-                    observations = int(offset_row.get("observations", 0) or 0)
-                    if observations <= 0:
-                        continue
-                    rows.append({
-                        "anchor": surface,
-                        "offset": str(int(offset_row.get("offset", 0) or 0)),
-                        "neighbor": neighbor,
-                        "observations": observations,
-                    })
-        return rows
-
     def counts_status(self) -> dict[str, Any]:
         seed = self.ensure_user_symbol_counts_seeded()
         stream_size = self.symbol_counts_binary_file.stat().st_size if self.symbol_counts_binary_file.exists() else 0
@@ -195,48 +288,13 @@ class CountsMixin:
             "relation_rows": record_count,
         }
 
-    def retrieve_from_counts(self, anchor: str, limit: int = 25) -> dict[str, Any]:
-        surface = self.normalize_anchor(anchor)
-        total_by_neighbor: Counter[str] = Counter()
-        by_offset: dict[str, Counter[str]] = {}
-        for row in self._binary_relation_rows_for_anchor(surface):
-            observations = int(row.get("observations", 0) or 0)
-            if observations <= 0:
-                continue
-            offset = str(row.get("offset") or "")
-            neighbor = str(row.get("neighbor") or "")
-            if not offset or not neighbor:
-                continue
-            total_by_neighbor[neighbor] += observations
-            by_offset.setdefault(offset, Counter())[neighbor] += observations
-
-        neighbor_rows = [
-            {"anchor": neighbor, "observations": count}
-            for neighbor, count in sorted(total_by_neighbor.items(), key=lambda item: (-item[1], item[0]))[:limit]
-        ]
-        offset_rows = {
-            offset: [
-                {"anchor": neighbor, "observations": count}
-                for neighbor, count in sorted(counter.items(), key=lambda item: (-item[1], item[0]))[:limit]
-            ]
-            for offset, counter in sorted(by_offset.items(), key=lambda item: (int(item[0]), item[0]))
-        }
-        return {
-            "anchor": surface,
-            "maps_scanned": len(list(self.observed_maps_dir.glob("*.observed.json"))),
-            "maps_with_anchor": 1 if total_by_neighbor else 0,
-            "neighbor_count": len(total_by_neighbor),
-            "total_neighbor_observations": int(sum(total_by_neighbor.values())),
-            "neighbors": neighbor_rows,
-            "offsets": offset_rows,
-        }
-
     def map_document_to_user_counts_native(
         self,
         source_path: str | Path,
         *,
         window_radius: int = DEFAULT_WINDOW_RADIUS,
         generation: int = 0,
+        create_aw_md_copy: bool = False,
     ) -> dict[str, Any]:
         source = Path(source_path).expanduser().resolve()
         if not source.exists():
@@ -251,6 +309,17 @@ class CountsMixin:
         manifest_path = run_root / "manifest.json"
         missing_path = run_root / "missing.json"
         stream_path = run_root / "symbol_counts_delta.bin"
+        aw_md_copy_path = None
+        if create_aw_md_copy:
+            self.flat_documents_raw_dir.mkdir(parents=True, exist_ok=True)
+            aw_md_copy_path = self.flat_documents_raw_dir / f"{safe_name}.aw.md"
+        pre_admitted = self._admit_native_missing_anchors_to_user_lexicon(
+            source,
+            run_root=run_root,
+            source_id=digest,
+            window_radius=window_radius,
+            is_directory=False,
+        )
         snapshot = write_authority_snapshot(self._symbol_authority_by_anchor(), authority_path)
         receipt = native_text_intake_to_counts(
             input_path=source,
@@ -260,7 +329,8 @@ class CountsMixin:
             missing_path=missing_path,
             source_id=digest,
             window_radius=window_radius,
-            source_local_missing=True,
+            source_local_missing=False,
+            aw_md_copy_path=aw_md_copy_path,
         )
         if stream_path.exists() and stream_path.stat().st_size:
             with self.symbol_counts_binary_file.open("ab") as handle:
@@ -288,6 +358,18 @@ class CountsMixin:
             "receipt": receipt,
             "manifest": manifest,
             "missing": missing,
+            "pre_admitted_user_anchors": pre_admitted,
+            "intake_law": [
+                "native_anchor_scan",
+                "user_lexicon_admission",
+                "native_symbol_count_append",
+            ],
+            "aw_copy": {
+                "created": bool(aw_md_copy_path and aw_md_copy_path.exists()),
+                "format": "anchorworks_aw_md_blocks@1" if aw_md_copy_path else "",
+                "path": str(aw_md_copy_path) if aw_md_copy_path else "",
+                "authority": "rag_system_copy_only_not_count_memory" if aw_md_copy_path else "",
+            },
             "verify": verify,
             "raw_text_in_count_spine": bool(manifest.get("raw_text_in_count_spine")),
         }
@@ -313,6 +395,13 @@ class CountsMixin:
         manifest_path = run_root / "manifest.json"
         missing_path = run_root / "missing.json"
         stream_path = run_root / "symbol_counts_delta.bin"
+        pre_admitted = self._admit_native_missing_anchors_to_user_lexicon(
+            source,
+            run_root=run_root,
+            source_id=digest,
+            window_radius=window_radius,
+            is_directory=True,
+        )
         snapshot = write_authority_snapshot(self._symbol_authority_by_anchor(), authority_path)
         receipt = native_directory_intake_to_counts(
             input_dir=source,
@@ -322,7 +411,7 @@ class CountsMixin:
             missing_path=missing_path,
             source_id=digest,
             window_radius=window_radius,
-            source_local_missing=True,
+            source_local_missing=False,
         )
         if stream_path.exists() and stream_path.stat().st_size:
             with self.symbol_counts_binary_file.open("ab") as handle:
@@ -356,6 +445,12 @@ class CountsMixin:
             "receipt": receipt,
             "manifest": manifest,
             "missing": missing,
+            "pre_admitted_user_anchors": pre_admitted,
+            "intake_law": [
+                "native_anchor_scan",
+                "user_lexicon_admission",
+                "native_symbol_count_append",
+            ],
             "verify": verify,
             "files": [],
             "raw_text_in_count_spine": bool(manifest.get("raw_text_in_count_spine")),
@@ -367,6 +462,7 @@ class CountsMixin:
         *,
         window_radius: int = DEFAULT_WINDOW_RADIUS,
         generation: int = 0,
+        create_aw_md_copy: bool = False,
     ) -> dict[str, Any]:
         source = Path(source_path).expanduser().resolve()
         if source.is_dir():
@@ -379,6 +475,7 @@ class CountsMixin:
             source,
             window_radius=window_radius,
             generation=generation,
+            create_aw_md_copy=create_aw_md_copy,
         )
 
     def map_intake_content_to_user_counts_native(
