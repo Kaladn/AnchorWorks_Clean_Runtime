@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from pathlib import Path
 
 from AnchorWorks.cli_shell import local_answer
+from AnchorWorks.count_corpus_search import rank_corpus_documents_from_count_terms
 from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.store import LexiconStore
 from AnchorWorks.symbol_count_native import build_native_symbol_counts, native_executable_path
@@ -199,3 +200,26 @@ def test_store_init_does_not_create_flat_document_cache(tmp_path: Path) -> None:
     LexiconStore(tmp_path)
 
     assert not (tmp_path / "State" / "flat_documents").exists()
+
+
+def test_count_corpus_search_ranks_docs_from_count_supported_terms() -> None:
+    query_anchors = ["laser", "guidance"]
+    count_terms = [
+        {"anchor": "navigation", "score": 10, "observations": 3},
+        {"anchor": "target", "score": 5, "observations": 2},
+    ]
+    corpus_rows = [
+        {"_id": "wrong", "title": "Other", "text": "soil chemistry and plant roots"},
+        {"_id": "right", "title": "Laser guidance", "text": "laser navigation target guidance system"},
+    ]
+
+    ranked = rank_corpus_documents_from_count_terms(
+        query_anchors=query_anchors,
+        count_terms=count_terms,
+        corpus_rows=corpus_rows,
+        top_k=2,
+    )
+
+    assert ranked[0]["doc_id"] == "right"
+    assert ranked[0]["score"] > ranked[1]["score"]
+    assert "navigation" in ranked[0]["matched_count_terms"]
