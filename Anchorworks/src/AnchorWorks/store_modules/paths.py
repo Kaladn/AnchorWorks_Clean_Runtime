@@ -37,9 +37,7 @@ class StorePaths:
         self.symbolic_maps_dir = self.anchor_maps_root / "symbolic_maps"
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
-        self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
-        self.canonical_symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
-        self.symbol_counts_binary_dir = self.user_counts_dir / "symbol_counts_binary"
+        self.symbol_counts_binary_file = self.user_counts_dir / "symbol_counts.bin"
         self.symbol_streams_dir = self.state_dir / "symbol_streams"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
         self.source_local_resonance_dir = self.state_dir / "source_local_resonance"
@@ -82,9 +80,6 @@ class StorePaths:
             self.symbolic_maps_dir,
             self.misspelled_reviews_dir,
             self.temp_lexicons_dir,
-            self.source_local_symbol_counts_dir,
-            self.canonical_symbol_counts_binary_dir,
-            self.symbol_counts_binary_dir,
             self.symbol_streams_dir,
             self.source_local_occurrences_dir,
             self.source_local_resonance_dir,

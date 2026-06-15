@@ -45,10 +45,7 @@ class LexiconStore(
         self.symbolic_maps_dir = self.anchor_maps_root / "symbolic_maps"
         self.misspelled_reviews_dir = self.state_dir / "misspelled_reviews"
         self.temp_lexicons_dir = self.state_dir / "temp_lexicons" / "source_local"
-        self.source_local_symbol_counts_dir = self.state_dir / "source_local_symbol_counts"
-        self.canonical_symbol_counts_binary_dir = self.state_dir / "symbol_counts_binary"
-        self.symbol_counts_binary_dir = self.user_counts_dir / "symbol_counts_binary"
-        self.user_counts_acknowledgement_path = self.symbol_counts_binary_dir / "user_count_acknowledgement.json"
+        self.symbol_counts_binary_file = self.user_counts_dir / "symbol_counts.bin"
         self.symbol_genome_pool_dir = self.user_lexicon_dir / "symbol_genome_pool"
         self.symbol_streams_dir = self.state_dir / "symbol_streams"
         self.source_local_occurrences_dir = self.state_dir / "source_local_occurrences"
@@ -104,9 +101,6 @@ class LexiconStore(
         self.symbolic_maps_dir.mkdir(parents=True, exist_ok=True)
         self.misspelled_reviews_dir.mkdir(parents=True, exist_ok=True)
         self.temp_lexicons_dir.mkdir(parents=True, exist_ok=True)
-        self.source_local_symbol_counts_dir.mkdir(parents=True, exist_ok=True)
-        self.canonical_symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
-        self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_genome_pool_dir.mkdir(parents=True, exist_ok=True)
         self.symbol_streams_dir.mkdir(parents=True, exist_ok=True)
         self.source_local_occurrences_dir.mkdir(parents=True, exist_ok=True)

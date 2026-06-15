@@ -53,7 +53,7 @@ class AnchorWorksOperatorApp(App):
                 with TabPane("Intake Jobs", id="intake"):
                     yield Select(
                         [
-                            ("Mapping: document/directory to user AWSC counts", "mapping"),
+                            ("Mapping: document/directory to user binary counts", "mapping"),
                             ("Audit: source directory readiness", "audit"),
                         ],
                         value="mapping",
@@ -117,7 +117,7 @@ class AnchorWorksOperatorApp(App):
             status = self.store.binary_substrate_status()
         except Exception as exc:
             return f"Count status error: {exc}"
-        return f"AWSC cells: {status.get('awsc_cell_count', 0)}\nRuntime: native C++ count ingest"
+        return f"Count records: {status.get('record_count', 0)}\nRuntime: native C++ count ingest"
 
     def _missing_summary(self) -> str:
         try:
@@ -150,10 +150,9 @@ def _native_mapping_summary(result: dict[str, Any]) -> str:
     return "\n".join([
         f"runtime: {result.get('runtime', '')}",
         f"ok: {result.get('ok')}",
-        f"updated_cells: {receipt.get('updated_cell_count', 0)}",
         f"records: {receipt.get('record_count', 0)}",
         f"missing_names: {manifest.get('missing_anchor_count', 0)}",
         f"source_local_symbols: {manifest.get('source_local_symbol_count', 0)}",
         f"raw_text_in_count_spine: {result.get('raw_text_in_count_spine')}",
-        f"counts_root: {result.get('active_binary_counts_root', '')}",
+        f"counts_bin: {result.get('active_binary_counts_path', '')}",
     ])

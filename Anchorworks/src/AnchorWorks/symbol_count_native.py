@@ -7,12 +7,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .symbol_count_cells import (
-    CANONICAL_LANE,
-    MATH_COMPANION_LANE,
-    SOURCE_LOCAL_TEMP_LANE,
-    STRUCTURAL_COMPANION_LANE,
-)
+CANONICAL_LANE = 0
+MATH_COMPANION_LANE = 1
+STRUCTURAL_COMPANION_LANE = 2
+SOURCE_LOCAL_TEMP_LANE = 4
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[1]
@@ -66,93 +64,8 @@ def build_native_symbol_counts(build_root: Path | None = None, *, config: str = 
     return exe
 
 
-def merge_symbol_stream(
+def score_binary_count_stream(
     input_path: str | Path,
-    output_root: str | Path,
-    *,
-    generation: int = 0,
-    executable: str | Path | None = None,
-) -> dict[str, Any]:
-    exe = Path(executable) if executable else native_executable_path()
-    if not exe.exists():
-        exe = build_native_symbol_counts()
-    result = subprocess.run(
-        [
-            str(exe),
-            "merge-stream",
-            "--input",
-            str(input_path),
-            "--output",
-            str(output_root),
-            "--generation",
-            str(generation),
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
-def merge_compact_symbol_stream(
-    input_path: str | Path,
-    output_root: str | Path,
-    *,
-    generation: int = 0,
-    window_radius: int = 6,
-    executable: str | Path | None = None,
-) -> dict[str, Any]:
-    exe = Path(executable) if executable else native_executable_path()
-    if not exe.exists():
-        exe = build_native_symbol_counts()
-    result = subprocess.run(
-        [
-            str(exe),
-            "merge-symbol-stream",
-            "--input",
-            str(input_path),
-            "--output",
-            str(output_root),
-            "--generation",
-            str(generation),
-            "--window-radius",
-            str(window_radius),
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
-def verify_binary_counts(root: str | Path, *, executable: str | Path | None = None) -> dict[str, Any]:
-    exe = Path(executable) if executable else native_executable_path()
-    if not exe.exists():
-        exe = build_native_symbol_counts()
-    result = subprocess.run(
-        [str(exe), "verify", "--root", str(root)],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
-def inspect_cell(path: str | Path, *, executable: str | Path | None = None) -> dict[str, Any]:
-    exe = Path(executable) if executable else native_executable_path()
-    if not exe.exists():
-        exe = build_native_symbol_counts()
-    result = subprocess.run(
-        [str(exe), "inspect", "--cell", str(path)],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
-def score_binary_counts(
-    root: str | Path,
     *,
     context_symbols: list[str],
     top_k: int = 32,
@@ -171,9 +84,9 @@ def score_binary_counts(
     result = subprocess.run(
         [
             str(exe),
-            "score",
-            "--root",
-            str(root),
+            "score-stream",
+            "--input",
+            str(input_path),
             "--context",
             ",".join(context_symbols),
             "--top-k",
@@ -213,12 +126,11 @@ def native_text_intake_to_counts(
     *,
     input_path: str | Path,
     authority_path: str | Path,
-    output_root: str | Path,
+    output_path: str | Path,
     manifest_path: str | Path,
     missing_path: str | Path,
     source_id: str,
     window_radius: int = 6,
-    generation: int = 0,
     source_local_missing: bool = True,
     executable: str | Path | None = None,
 ) -> dict[str, Any]:
@@ -232,8 +144,6 @@ def native_text_intake_to_counts(
         str(input_path),
         "--authority",
         str(authority_path),
-        "--merge-output",
-        str(output_root),
         "--manifest",
         str(manifest_path),
         "--missing",
@@ -242,8 +152,8 @@ def native_text_intake_to_counts(
         str(source_id),
         "--window-radius",
         str(int(window_radius)),
-        "--generation",
-        str(int(generation)),
+        "--output",
+        str(output_path),
     ]
     if source_local_missing:
         command.append("--source-local-missing")
@@ -255,12 +165,11 @@ def native_directory_intake_to_counts(
     *,
     input_dir: str | Path,
     authority_path: str | Path,
-    output_root: str | Path,
+    output_path: str | Path,
     manifest_path: str | Path,
     missing_path: str | Path,
     source_id: str,
     window_radius: int = 6,
-    generation: int = 0,
     source_local_missing: bool = True,
     executable: str | Path | None = None,
 ) -> dict[str, Any]:
@@ -274,8 +183,6 @@ def native_directory_intake_to_counts(
         str(input_dir),
         "--authority",
         str(authority_path),
-        "--merge-output",
-        str(output_root),
         "--manifest",
         str(manifest_path),
         "--missing",
@@ -284,8 +191,8 @@ def native_directory_intake_to_counts(
         str(source_id),
         "--window-radius",
         str(int(window_radius)),
-        "--generation",
-        str(int(generation)),
+        "--output",
+        str(output_path),
     ]
     if source_local_missing:
         command.append("--source-local-missing")

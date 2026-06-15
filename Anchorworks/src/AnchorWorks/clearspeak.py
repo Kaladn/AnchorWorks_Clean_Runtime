@@ -23,7 +23,6 @@ from .anchor_field import build_query_frame
 from .inference import run_inference
 from .intake import extract_anchors
 from .language_state_replay import build_language_state_replay
-from .symbol_count_cells import read_symbol_cell
 
 
 @dataclass
@@ -303,71 +302,43 @@ class ClearSpeakService:
         return "\n".join(lines)
 
     def _load_count_index(self, seed_anchors: list[str] | None = None) -> dict[str, Any]:
-        awsc_index = self._load_awsc_count_index(seed_anchors or [])
-        if awsc_index["by_anchor"]:
-            return awsc_index
+        binary_index = self._load_binary_count_index(seed_anchors or [])
+        if binary_index["by_anchor"]:
+            return binary_index
         return {"by_anchor": {}}
 
-    def _load_awsc_count_index(self, seed_anchors: list[str]) -> dict[str, Any]:
-        root = getattr(self.store, "symbol_counts_binary_dir", None)
-        cells_root = (root / "cells") if root else None
-        if cells_root is None or not cells_root.exists():
+    def _load_binary_count_index(self, seed_anchors: list[str]) -> dict[str, Any]:
+        if not hasattr(self.store, "retrieve_from_counts"):
             return {"by_anchor": {}}
-        if not hasattr(self.store, "_canonical_symbol_by_anchor"):
-            return {"by_anchor": {}}
-        symbol_by_anchor = self.store._canonical_symbol_by_anchor()
-        anchor_by_symbol: dict[str, str] = {
-            _normalize_symbol_hex(symbol): self.store.normalize_anchor(anchor) if hasattr(self.store, "normalize_anchor") else str(anchor).strip().casefold()
-            for anchor, symbol in symbol_by_anchor.items()
-            if str(anchor or "").strip() and str(symbol or "").strip()
-        }
         by_anchor: dict[str, dict[str, Counter[str]]] = {}
-        loaded_symbols: set[str] = set()
-
-        def load_cell(symbol_hex: str) -> list[tuple[str, int]]:
-            normalized_symbol = _normalize_symbol_hex(symbol_hex)
-            if not normalized_symbol or normalized_symbol in loaded_symbols:
-                return []
-            loaded_symbols.add(normalized_symbol)
-            path = _awsc_cell_path(cells_root, normalized_symbol)
-            if not path.exists():
-                return []
-            try:
-                cell = read_symbol_cell(path)
-            except ValueError:
-                return []
-            root_anchor = anchor_by_symbol.get(_symbol_bytes_to_hex(cell.symbol))
-            if not root_anchor:
-                return []
-            expansion_counts: Counter[str] = Counter()
-            for relation in cell.relations:
-                neighbor_anchor = anchor_by_symbol.get(_symbol_bytes_to_hex(relation.neighbor_symbol))
-                if not neighbor_anchor:
-                    continue
-                count = int(relation.count)
-                if count <= 0:
-                    continue
-                neighbor_symbol = _symbol_bytes_to_hex(relation.neighbor_symbol)
-                offset = f"+{int(relation.offset)}" if int(relation.offset) > 0 else str(int(relation.offset))
-                by_anchor.setdefault(root_anchor, {}).setdefault(offset, Counter())[neighbor_anchor] += count
-                if not blocked_answer_anchor(neighbor_anchor):
-                    expansion_counts[neighbor_symbol] += count
-            return sorted(expansion_counts.items(), key=lambda item: (-item[1], item[0]))[:32]
-
-        seed_symbols: list[str] = []
+        expansion_anchors: list[str] = []
         for anchor in seed_anchors:
             clean_anchor = str(anchor or "").strip().casefold()
-            normalized_symbol = _normalize_symbol_hex(symbol_by_anchor.get(clean_anchor, ""))
-            if normalized_symbol and normalized_symbol not in seed_symbols:
-                seed_symbols.append(normalized_symbol)
-        expansion_symbols: list[str] = []
-        for symbol_hex in seed_symbols:
-            expansion_symbols.extend(symbol for symbol, _count in load_cell(symbol_hex))
-        for symbol_hex in expansion_symbols[:128]:
-            load_cell(symbol_hex)
+            if not clean_anchor:
+                continue
+            retrieved = self.store.retrieve_from_counts(clean_anchor, limit=32)
+            offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
+            for offset, rows in offsets.items():
+                for row in rows or []:
+                    neighbor = str(row.get("anchor") or "").strip().casefold()
+                    count = int(row.get("observations", 0) or 0)
+                    if not neighbor or count <= 0:
+                        continue
+                    by_anchor.setdefault(clean_anchor, {}).setdefault(str(offset), Counter())[neighbor] += count
+                    if not blocked_answer_anchor(neighbor) and neighbor not in expansion_anchors:
+                        expansion_anchors.append(neighbor)
+        for anchor in expansion_anchors[:128]:
+            retrieved = self.store.retrieve_from_counts(anchor, limit=32)
+            offsets = retrieved.get("offsets") if isinstance(retrieved.get("offsets"), dict) else {}
+            for offset, rows in offsets.items():
+                for row in rows or []:
+                    neighbor = str(row.get("anchor") or "").strip().casefold()
+                    count = int(row.get("observations", 0) or 0)
+                    if neighbor and count > 0:
+                        by_anchor.setdefault(anchor, {}).setdefault(str(offset), Counter())[neighbor] += count
         return {
             "by_anchor": by_anchor,
-            "count_source": "awsc_binary_symbol_cells_genome_native",
+            "count_source": "awss_single_binary_stream_native_score",
             "symbolic_runtime": True,
             "display_decoded_at_edge": True,
             "genome_authority": True,
@@ -661,24 +632,6 @@ def _missing_entity_name_part_blocks_walk(query_anchors: list[str], missing_cont
     if not observed or observed[0] != "who":
         return False
     return bool(missing_content)
-
-
-def _symbol_bytes_to_hex(symbol: bytes) -> str:
-    return f"0x{int.from_bytes(symbol, 'big'):010X}"
-
-
-def _normalize_symbol_hex(symbol: str) -> str:
-    text = str(symbol or "").strip()
-    if not text:
-        return ""
-    if text.lower().startswith("0x"):
-        text = text[2:]
-    return f"0x{text.upper().zfill(10)}"
-
-
-def _awsc_cell_path(cells_root: Any, symbol_hex: str) -> Any:
-    text = _normalize_symbol_hex(symbol_hex)[2:]
-    return cells_root / text[:2] / f"{text}.cell"
 
 
 def _ordered_unique(values: list[str]) -> list[str]:

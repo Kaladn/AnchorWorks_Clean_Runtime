@@ -32,8 +32,8 @@ Commands:
 `/intake-preview <path>`   preview intake without approval
 `/intake-ready <path>`     check whether a file is ready to map
 `/intake-audit <dir>`      audit a source directory for intake
-`/intake-map <path>`       native map file or directory into user AWSC counts
-`/map-native <path>`       map a document into user AWSC counts through C++
+`/intake-map <path>`       native map file or directory into user binary counts
+`/map-native <path>`       map a document into user binary counts through C++
 `/chat-today [day]`        show the JSONL working chat record
 `/chat-search <text>`      search today's JSONL working chat record
 `/chat-consolidate [day]`  explicitly consolidate a JSONL day through native counts
@@ -267,12 +267,11 @@ def _handle_native_mapping(ctx: ShellContext, path_text: str) -> None:
     table.add_column("Value")
     table.add_row("runtime", str(result.get("runtime") or ""))
     table.add_row("ok", str(result.get("ok")))
-    table.add_row("updated_cells", str(receipt.get("updated_cell_count", 0)))
     table.add_row("records", str(receipt.get("record_count", 0)))
     table.add_row("missing_names", str(manifest.get("missing_anchor_count", 0)))
     table.add_row("source_local_symbols", str(manifest.get("source_local_symbol_count", 0)))
     table.add_row("raw_text_in_count_spine", str(result.get("raw_text_in_count_spine")))
-    table.add_row("counts_root", str(result.get("active_binary_counts_root") or ""))
+    table.add_row("counts_bin", str(result.get("active_binary_counts_path") or ""))
     if result.get("missing_path"):
         table.add_row("missing_sidecar", str(result.get("missing_path") or ""))
     if result.get("runtime") == "native_cpp_directory_mapping":
@@ -516,7 +515,7 @@ def _handle_chat_consolidate(ctx: ShellContext, day_text: str) -> None:
     table.add_row("runtime", str(result.get("runtime") or ""))
     table.add_row("counts_written", str(result.get("counts_written")))
     table.add_row("records", str(result.get("record_count", 0)))
-    table.add_row("updated_cells", str(receipt.get("updated_cell_count", 0)))
+    table.add_row("count_records", str(receipt.get("record_count", 0)))
     table.add_row("receipt", str(result.get("receipt_path") or ""))
     console.print(table)
     if ctx.raw_enabled:

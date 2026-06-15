@@ -63,8 +63,8 @@ class InventoryMixin:
 
     def binary_substrate_status(self) -> dict[str, Any]:
         seed = self.ensure_user_symbol_counts_seeded()
-        cells_root = self.symbol_counts_binary_dir / "cells"
-        cell_count = sum(1 for _ in cells_root.glob("*/*.cell")) if cells_root.exists() else 0
+        count_size = self.symbol_counts_binary_file.stat().st_size if self.symbol_counts_binary_file.exists() else 0
+        record_count = int(count_size / 24) if count_size % 24 == 0 else 0
         symbolic_inventory = self.symbolic_map_files()
         return {
             "ok": True,
@@ -78,12 +78,12 @@ class InventoryMixin:
             "awsl_locator_count": symbolic_inventory["locator_sidecar_count"],
             "awsn_null_count": symbolic_inventory["null_sidecar_count"],
             "awsv_visual_count": symbolic_inventory["visual_sidecar_count"],
-            "awsc_cells_root": str(cells_root),
-            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
-            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
-            "user_count_acknowledgement_path": seed["acknowledgement_path"],
-            "awsc_cell_count": cell_count,
-            "runtime_law": "Native C++ count ingest writes AWSC cells; Python only orchestrates.",
+            "binary_counts_path": str(self.symbol_counts_binary_file),
+            "active_binary_counts_path": str(self.symbol_counts_binary_file),
+            "count_file_created": seed["count_file_created"],
+            "count_file_size": count_size,
+            "record_count": record_count,
+            "runtime_law": "Native C++ count ingest writes one binary count file; Python only orchestrates.",
         }
 
     def misspelled_review_files(self) -> dict[str, Any]:

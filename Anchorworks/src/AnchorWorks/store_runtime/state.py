@@ -51,8 +51,7 @@ class StateMixin:
             ],
             "protected_paths": {
                 "main_lexicon": str(self.canonical_dir),
-                "canonical_binary_counts": str(self.canonical_symbol_counts_binary_dir),
-                "active_user_binary_counts": str(self.symbol_counts_binary_dir),
+                "active_user_binary_counts": str(self.symbol_counts_binary_file),
             },
         }
 

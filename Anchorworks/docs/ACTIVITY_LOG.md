@@ -17,3 +17,13 @@
 - The file is not clean JSON/UTF-8 at the current working state; byte inspection found invalid UTF-8 near the tail.
 - This appears to be runtime lexicon materialization/corruption, not a code change. It was not staged for commit.
 - Relevant code shape: `ensure_user_lexicon_seeded()` copies Canonical and Structural entries into the user lexicon as `canonical_seed`; new accepted user entries are allocated through the user symbol genome pool in the `0xE...` range.
+
+### Single Binary Count Spine Enforcement
+
+- Locked the user count runtime to `State/user/user_counts/symbol_counts.bin`.
+- Kept user lexicon as JSON and count storage as binary-only.
+- Changed text and directory native intake to write binary count deltas, then append them to the one active user count file.
+- Removed the Python AWSC cell read/write module from active code; Python now orchestrates the native executable, while native code writes and scores count records.
+- Removed UI/test language that reported `updated_cells` as the active count proof.
+- Cleaned stale runtime count artifacts under `State/user/user_counts`: old count JSON, old cell tree, and old shard directory.
+- Verification: full test suite passed.

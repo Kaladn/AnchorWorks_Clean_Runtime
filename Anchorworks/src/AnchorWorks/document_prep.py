@@ -391,7 +391,8 @@ def _prepare_docx(raw: bytes, source_name: str) -> tuple[str, dict[str, Any]]:
     for table_index, table in enumerate(doc.tables, start=1):
         lines.extend(["", f"[TABLE: {Path(source_name).stem} {table_index}]"])
         for row in table.rows:
-            lines.append(" | ".join(_clean_cell(cell.text) for cell in row.cells))
+            row_items = getattr(row, "cells")
+            lines.append(" | ".join(_clean_cell(table_item.text) for table_item in row_items))
         lines.append("[TABLE_END]")
     lines.append("[DOCX_END]")
     sidecars = _inspect_docx_sidecars(raw)

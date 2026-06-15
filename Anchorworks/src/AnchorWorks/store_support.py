@@ -43,11 +43,9 @@ from .phrase_candidates import (
 from .symbol_count_native import (
     native_directory_intake_to_counts,
     native_text_intake_to_counts,
-    merge_symbol_stream,
-    verify_binary_counts,
+    score_binary_count_stream,
     write_authority_snapshot,
 )
-from .symbol_count_cells import CANONICAL_LANE, read_symbol_cell, write_symbol_cell
 from .symbolic_map_binary import (
     SymbolicMapRelation,
     read_symbolic_map_binary,

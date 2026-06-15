@@ -92,67 +92,18 @@ class CountsMixin:
 
     def ensure_user_symbol_counts_seeded(self) -> dict[str, Any]:
         with self._lock:
-            self.symbol_counts_binary_dir.mkdir(parents=True, exist_ok=True)
-            seeded = False
-            copied_canonical_count_files = 0
-            canonical_placeholder_cells_created = 0
-            source_root = self.canonical_symbol_counts_binary_dir
-            if source_root.exists():
-                for source_path in source_root.rglob("*"):
-                    if not source_path.is_file():
-                        continue
-                    relative = source_path.relative_to(source_root)
-                    target_path = self.symbol_counts_binary_dir / relative
-                    if target_path == self.user_counts_acknowledgement_path:
-                        continue
-                    target_path.parent.mkdir(parents=True, exist_ok=True)
-                    if not target_path.exists():
-                        shutil.copy2(source_path, target_path)
-                        copied_canonical_count_files += 1
-                        seeded = True
-            for symbol in self._canonical_seed_symbol_values():
-                try:
-                    cell_path = self._symbol_count_cell_path(symbol)
-                    if cell_path.exists():
-                        continue
-                    write_symbol_cell(
-                        cell_path,
-                        symbol=symbol,
-                        relations=[],
-                        root_lane=CANONICAL_LANE,
-                        generation=0,
-                    )
-                    canonical_placeholder_cells_created += 1
-                    seeded = True
-                except (TypeError, ValueError):
-                    continue
-            if not self.user_counts_acknowledgement_path.exists():
-                acknowledgement = {
-                    "schema_version": "anchorworks_user_binary_counts_acknowledgement@1",
-                    "acknowledged_at": _utc_now(),
-                    "seed_source": str(self.canonical_symbol_counts_binary_dir),
-                    "active_binary_counts_root": str(self.symbol_counts_binary_dir),
-                    "canonical_seed_locked": True,
-                    "future_writes": "user_side_binary_counts_only",
-                    "seed_copy_mode": "copy_missing_files_and_canonical_authority_placeholders",
-                    "canonical_authority_placeholder_seed": True,
-                }
-                self._write_json(self.user_counts_acknowledgement_path, acknowledgement)
-                seeded = True
-            acknowledgement = self._read_json(self.user_counts_acknowledgement_path, {})
-            if acknowledgement.get("canonical_authority_placeholder_seed") is not True:
-                acknowledgement["canonical_authority_placeholder_seed"] = True
-                acknowledgement["seed_copy_mode"] = "copy_missing_files_and_canonical_authority_placeholders"
-                self._write_json(self.user_counts_acknowledgement_path, acknowledgement)
+            self.user_counts_dir.mkdir(parents=True, exist_ok=True)
+            count_file_created = False
+            if not self.symbol_counts_binary_file.exists():
+                self.symbol_counts_binary_file.write_bytes(b"")
+                count_file_created = True
         return {
             "ok": True,
-            "seeded": seeded,
-            "copied_canonical_count_files": copied_canonical_count_files,
-            "canonical_placeholder_cells_created": canonical_placeholder_cells_created,
-            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
-            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
-            "acknowledgement_path": str(self.user_counts_acknowledgement_path),
-            "acknowledgement": acknowledgement,
+            "seeded": count_file_created,
+            "count_file_created": count_file_created,
+            "active_binary_counts_path": str(self.symbol_counts_binary_file),
+            "count_spine": "single_awss_binary_stream",
+            "json_counts_allowed": False,
         }
 
     def _canonical_seed_symbol_values(self) -> list[str]:
@@ -177,15 +128,6 @@ class CountsMixin:
                 symbols.append("0x" + text)
         return symbols
 
-    def _symbol_count_cell_path(self, symbol: str) -> Path:
-        text = str(symbol or "").strip()
-        if text.lower().startswith("0x"):
-            text = text[2:]
-        text = text.upper().zfill(10)
-        if len(text) != 10:
-            raise ValueError("symbol must be 5 bytes")
-        return self.symbol_counts_binary_dir / "cells" / text[:2] / f"{text}.cell"
-
     def _symbol_text(self, symbol: str | bytes) -> str:
         if isinstance(symbol, bytes):
             return "0x" + symbol.hex().upper()
@@ -209,48 +151,48 @@ class CountsMixin:
             for anchor_value, symbol in symbol_by_anchor.items()
             if str(anchor_value or "").strip() and str(symbol or "").strip()
         }
-        try:
-            path = self._symbol_count_cell_path(root_symbol)
-        except ValueError:
-            return []
-        if not path.exists():
-            return []
-        try:
-            cell = read_symbol_cell(path)
-        except ValueError:
-            return []
         rows: list[dict[str, Any]] = []
-        for relation in cell.relations:
-            neighbor = anchor_by_symbol.get(self._symbol_text(relation.neighbor_symbol))
-            if not neighbor:
-                continue
-            observations = int(relation.count or 0)
-            if observations <= 0:
-                continue
-            rows.append({
-                "anchor": surface,
-                "offset": str(int(relation.offset)),
-                "neighbor": neighbor,
-                "observations": observations,
-            })
+        if self.symbol_counts_binary_file.exists():
+            try:
+                scored = score_binary_count_stream(
+                    self.symbol_counts_binary_file,
+                    context_symbols=[self._symbol_text(root_symbol)],
+                    top_k=512,
+                )
+            except Exception:
+                scored = {}
+            for candidate in scored.get("candidates") or []:
+                neighbor = anchor_by_symbol.get(self._symbol_text(candidate.get("symbol")))
+                if not neighbor:
+                    continue
+                for offset_row in candidate.get("offsets") or []:
+                    observations = int(offset_row.get("observations", 0) or 0)
+                    if observations <= 0:
+                        continue
+                    rows.append({
+                        "anchor": surface,
+                        "offset": str(int(offset_row.get("offset", 0) or 0)),
+                        "neighbor": neighbor,
+                        "observations": observations,
+                    })
         return rows
 
     def counts_status(self) -> dict[str, Any]:
         seed = self.ensure_user_symbol_counts_seeded()
-        cells_root = self.symbol_counts_binary_dir / "cells"
-        cell_paths = list(cells_root.glob("*/*.cell")) if cells_root.exists() else []
+        stream_size = self.symbol_counts_binary_file.stat().st_size if self.symbol_counts_binary_file.exists() else 0
+        record_count = int(stream_size / 24) if stream_size % 24 == 0 else 0
         return {
-            "runtime": "awsc_v1_1_binary_cells",
-            "binary_counts_root": str(self.symbol_counts_binary_dir),
-            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
-            "user_count_acknowledgement_path": seed["acknowledgement_path"],
-            "cell_count": len(cell_paths),
+            "runtime": "awss_v1_single_binary_stream",
+            "binary_counts_path": str(self.symbol_counts_binary_file),
+            "count_file_created": seed["count_file_created"],
+            "count_file_size": stream_size,
+            "record_count": record_count,
             "json_counts_removed": True,
             "ingest_events": 0,
             "unique_relations": 0,
             "total_relation_observations": 0,
-            "anchor_count": len(cell_paths),
-            "relation_rows": 0,
+            "anchor_count": 0,
+            "relation_rows": record_count,
         }
 
     def retrieve_from_counts(self, anchor: str, limit: int = 25) -> dict[str, Any]:
@@ -308,21 +250,31 @@ class CountsMixin:
         authority_path = run_root / "authority_snapshot.json"
         manifest_path = run_root / "manifest.json"
         missing_path = run_root / "missing.json"
+        stream_path = run_root / "symbol_counts_delta.bin"
         snapshot = write_authority_snapshot(self._symbol_authority_by_anchor(), authority_path)
         receipt = native_text_intake_to_counts(
             input_path=source,
             authority_path=authority_path,
-            output_root=self.symbol_counts_binary_dir,
+            output_path=stream_path,
             manifest_path=manifest_path,
             missing_path=missing_path,
             source_id=digest,
             window_radius=window_radius,
-            generation=generation,
             source_local_missing=True,
         )
+        if stream_path.exists() and stream_path.stat().st_size:
+            with self.symbol_counts_binary_file.open("ab") as handle:
+                handle.write(stream_path.read_bytes())
         manifest = self._read_json(manifest_path, {})
         missing = self._read_json(missing_path, {})
-        verify = verify_binary_counts(self.symbol_counts_binary_dir)
+        verify = {
+            "ok": self.symbol_counts_binary_file.exists()
+            and self.symbol_counts_binary_file.stat().st_size % 24 == 0,
+            "record_count": int(self.symbol_counts_binary_file.stat().st_size / 24)
+            if self.symbol_counts_binary_file.exists() and self.symbol_counts_binary_file.stat().st_size % 24 == 0
+            else 0,
+            "count_spine": "single_awss_binary_stream",
+        }
         return {
             "ok": bool(receipt.get("ok")) and bool(verify.get("ok")),
             "runtime": "native_cpp_intake_text",
@@ -332,9 +284,7 @@ class CountsMixin:
             "authority_path": str(authority_path),
             "manifest_path": str(manifest_path),
             "missing_path": str(missing_path),
-            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
-            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
-            "user_count_acknowledgement_path": seed["acknowledgement_path"],
+            "active_binary_counts_path": str(self.symbol_counts_binary_file),
             "receipt": receipt,
             "manifest": manifest,
             "missing": missing,
@@ -355,28 +305,38 @@ class CountsMixin:
         if not source.is_dir():
             raise NotADirectoryError(source)
 
-        seed = self.ensure_user_symbol_counts_seeded()
+        self.ensure_user_symbol_counts_seeded()
         digest = hashlib.sha1(str(source).encode("utf-8")).hexdigest()[:12]
         safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", source.name).strip("._") or "source_dir"
         run_root = self.ingest_staging_dir / "native_directory_mapping" / f"{safe_name}-{digest}"
         authority_path = run_root / "authority_snapshot.json"
         manifest_path = run_root / "manifest.json"
         missing_path = run_root / "missing.json"
+        stream_path = run_root / "symbol_counts_delta.bin"
         snapshot = write_authority_snapshot(self._symbol_authority_by_anchor(), authority_path)
         receipt = native_directory_intake_to_counts(
             input_dir=source,
             authority_path=authority_path,
-            output_root=self.symbol_counts_binary_dir,
+            output_path=stream_path,
             manifest_path=manifest_path,
             missing_path=missing_path,
             source_id=digest,
             window_radius=window_radius,
-            generation=generation,
             source_local_missing=True,
         )
+        if stream_path.exists() and stream_path.stat().st_size:
+            with self.symbol_counts_binary_file.open("ab") as handle:
+                handle.write(stream_path.read_bytes())
         manifest = self._read_json(manifest_path, {})
         missing = self._read_json(missing_path, {})
-        verify = verify_binary_counts(self.symbol_counts_binary_dir)
+        verify = {
+            "ok": self.symbol_counts_binary_file.exists()
+            and self.symbol_counts_binary_file.stat().st_size % 24 == 0,
+            "record_count": int(self.symbol_counts_binary_file.stat().st_size / 24)
+            if self.symbol_counts_binary_file.exists() and self.symbol_counts_binary_file.stat().st_size % 24 == 0
+            else 0,
+            "count_spine": "single_awss_binary_stream",
+        }
         return {
             "ok": bool(receipt.get("ok")) and bool(verify.get("ok")),
             "runtime": "native_cpp_directory_mapping",
@@ -392,9 +352,7 @@ class CountsMixin:
             "skipped_files": manifest.get("skipped_files") or [],
             "failure_count": 0,
             "failures": [],
-            "active_binary_counts_root": str(self.symbol_counts_binary_dir),
-            "canonical_seed_counts_root": str(self.canonical_symbol_counts_binary_dir),
-            "user_count_acknowledgement_path": seed["acknowledgement_path"],
+            "active_binary_counts_path": str(self.symbol_counts_binary_file),
             "receipt": receipt,
             "manifest": manifest,
             "missing": missing,
