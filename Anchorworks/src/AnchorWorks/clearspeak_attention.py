@@ -834,6 +834,8 @@ def _candidate_penalties(anchor: str, row: dict[str, Any], clouds: dict[str, lis
     penalties["domain_drift_penalty"] = _phrase_field_drift_penalty(anchor, frame)
     if not penalties["domain_drift_penalty"]:
         penalties["domain_drift_penalty"] = _question_field_drift_penalty(anchor, frame)
+        if penalties["domain_drift_penalty"] and _candidate_supported_by_content_field(row, frame):
+            penalties["domain_drift_penalty"] = 0.0
     penalties["total"] = round(sum(penalties.values()), 6)
     return penalties
 
@@ -961,6 +963,17 @@ def _question_field_drift_penalty(anchor: str, frame: dict[str, Any]) -> float:
         return 0.0
     field_terms = content | set().union(*ANSWER_SLOT_KEYWORDS.values())
     return 0.75 if str(anchor or "").strip().casefold() not in field_terms else 0.0
+
+
+def _candidate_supported_by_content_field(row: dict[str, Any], frame: dict[str, Any]) -> bool:
+    content = set(_clean_list(frame.get("content_anchors") or []))
+    if len(content) < 2:
+        return True
+    cloud_support = row.get("cloud_support") if isinstance(row.get("cloud_support"), dict) else {}
+    supported: set[str] = set()
+    for cloud_name in ("question", "rear", "answer", "forward"):
+        supported.update(_clean_list(list(cloud_support.get(cloud_name) or [])))
+    return len(supported & content) >= min(2, len(content))
 
 
 def _ordered_supporting_context(cloud_support: dict[str, set[str]], clouds: dict[str, list[str]]) -> list[str]:
