@@ -4,6 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 
+from AnchorWorks.document_answer import DocumentAnswerAssembler
 from AnchorWorks.store import LexiconStore
 from AnchorWorks.symbol_count_native import build_native_symbol_counts, native_executable_path
 
@@ -103,3 +104,39 @@ def test_counts_are_one_native_binary_file_with_no_cell_or_json_count_fallbacks(
     assert payload["command"] == "score-stream"
     assert payload["record_count"] == 2
     assert payload["candidate_count"] >= 1
+
+
+def test_document_answer_passage_hits_do_not_count_as_success_without_query_frame_answer() -> None:
+    class FakeStore:
+        def recognize_query_anchors(self, query: str) -> dict:
+            anchors = ["lasers", "important", "guidance", "systems"]
+            return {
+                "schema_version": "anchorworks_lexicon_recognition@1",
+                "query": query,
+                "query_anchors": anchors,
+                "represented_anchors": anchors,
+                "missing_anchors": [],
+                "input_kind": "question",
+                "writes_allowed": {"maps": False, "counts": False, "lifetime": False, "lexicon": False},
+            }
+
+        def search_flat_document_evidence(self, *_args, **_kwargs) -> dict:
+            return {
+                "source_passages": [
+                    {
+                        "source_name": "unrelated_source.md",
+                        "saved_document_name": "unrelated_source.md",
+                        "text": "Magnetic resonance calibration requires stable timing references.",
+                        "raw_block_text": "Magnetic resonance calibration requires stable timing references.",
+                        "block_id": 1,
+                        "line_start": 1,
+                        "line_end": 1,
+                        "score": 1,
+                    }
+                ]
+            }
+
+    result = DocumentAnswerAssembler(FakeStore()).answer("why are lasers important in guidance systems?")
+
+    assert result.ok is False
+    assert result.speech == "No document-backed answer passed the query-frame check yet."

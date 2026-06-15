@@ -85,8 +85,9 @@ class DocumentAnswerAssembler:
                 speech = "No document-backed answer passed the query-frame check yet."
             else:
                 speech = response
+        document_ok = bool(passages and (frame.get("selected_fact") or answer_block_path.get("speech")))
         return DocumentAnswerResult(
-            ok=bool(passages),
+            ok=document_ok,
             query=query_text,
             query_anchors=focus_anchors,
             represented_anchors=represented_focus,
